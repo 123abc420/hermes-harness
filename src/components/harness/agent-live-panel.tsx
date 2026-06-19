@@ -346,7 +346,7 @@ export function AgentLivePanel() {
               </AnimatePresence>
             </div>
 
-            {/* Wave phase tracker */}
+            {/* Wave phase tracker — active wave */}
             {waveNumber > 0 && (
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-1.5">
@@ -355,6 +355,18 @@ export function AgentLivePanel() {
                 </div>
                 <Progress value={progress * 100} className="h-2 bg-white/[0.05]" />
                 <PhaseTracker phase={phase} progress={progress} />
+              </div>
+            )}
+
+            {/* Standby indicator — no active wave */}
+            {waveNumber === 0 && (
+              <div className="mt-4 flex items-center gap-3">
+                <div className="relative flex items-center justify-center">
+                  <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-amber-500/30 animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500/50" />
+                </div>
+                <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">System Standby</span>
+                <span className="text-[10px] font-mono text-zinc-700 ml-auto">Awaiting next wave</span>
               </div>
             )}
 
