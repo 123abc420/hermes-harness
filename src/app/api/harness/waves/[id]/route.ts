@@ -22,3 +22,31 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to fetch wave' }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+
+    const wave = await db.harnessWave.update({
+      where: { id },
+      data: {
+        ...(body.status && { status: body.status }),
+        ...(body.completedAt && { completedAt: new Date(body.completedAt) }),
+        ...(body.summary !== undefined && { summary: body.summary }),
+        ...(body.decisionsCount !== undefined && { decisionsCount: body.decisionsCount }),
+        ...(body.improvementsCount !== undefined && { improvementsCount: body.improvementsCount }),
+        ...(body.errorsCount !== undefined && { errorsCount: body.errorsCount }),
+        ...(body.metricsSnapshot && { metricsSnapshot: body.metricsSnapshot }),
+      },
+    });
+
+    return NextResponse.json(wave);
+  } catch (error) {
+    console.error('[WAVE PATCH] Error:', error);
+    return NextResponse.json({ error: 'Failed to update wave' }, { status: 500 });
+  }
+}
