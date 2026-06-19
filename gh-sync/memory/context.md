@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 23:25 UTC+8
+2026-06-19 23:35 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 40)
-- **Waves in DB**: 34
+- **Phase**: Post-Compliance Evolution (Wave 41)
+- **Waves in DB**: 35
 - **Spec compliance**: 100% (15/15)
 
 ## Current Metrics
@@ -16,20 +16,19 @@
 | API routes | 16 |
 | Dashboard tabs | 6 |
 | Skills | 11 |
-| GitHub commits | 62+ |
-| Waves in DB | 34 |
+| GitHub commits | 63+ |
+| Waves in DB | 35 |
 | Wave success rate (recent 5) | 100% |
 | Memo-wrapped 3D components | 6 |
 
 ## What exists
-- Dashboard: stat cards, error trend, spec compliance (dynamic skill count), dual success rate, wave duration
-- Error handling: ErrorBlock, HarnessErrorBoundary
-- Performance: Selective Zustand selectors, batched setState, React.memo on 6 static 3D components
-- 3D Scene: CharacterBridge split into CharacterGroup + ChatBubble (message isolation)
+- Dashboard: stat cards, error trend, spec compliance (dynamic), dual success rate, wave duration
+- Single data fetch pattern: OverviewTab fetches once, passes data as props
+- Performance: Selective Zustand selectors, batched setState, React.memo, prop drilling
+- 3D Scene: CharacterBridge split (CharacterGroup + ChatBubble), 6 memo-ized components
 - Skills: 11, Clean src/, Package: @hermes/harness-dashboard v0.1.0
-- Dynamic data: skill count, commit count, success rates all from live sources
 
 ## What's next
 1. insights.md at token cap — append only, new insights 1-2 lines max
-2. Consider adding a "wave timeline" visualization to overview
-3. Memo on VRMCharacter/ChibiCharacter won't help (direct Zustand subscribers) — structural split already done
+2. Consider wave timeline visualization or activity feed (recentDecisions/recentCommits unused)
+3. QuickMetricsChart uses TrendingDown import now — verify no other icon mismatches
