@@ -2,14 +2,11 @@
 
 import { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, AdaptiveDpr, AdaptiveEvents, PerformanceMonitor } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette, ChromaticAberration } from '@react-three/postprocessing';
-import { BlendFunction } from 'postprocessing';
+import { OrbitControls, Stars } from '@react-three/drei';
 import { Agent3DCharacter } from './agent-3d-character';
 import { Agent3DWorld } from './agent-3d-world';
 import { useAgentLiveStore } from '@/store/agent-live-store';
-import { mousePosition, vrmLoadingState } from './agent-3d-shared';
-export { mousePosition, vrmLoadingState };
+import { mousePosition } from './agent-3d-mouse';
 import * as THREE from 'three';
 
 // ─── Mouse Tracker ──────────────────────────────────────────────────
@@ -30,59 +27,7 @@ function MouseTracker() {
   return null;
 }
 
-// ─── State-dependent post-processing ────────────────────────────────
-function PostEffects() {
-  const { agentState } = useAgentLiveStore();
 
-  const bloomIntensity = {
-    idle: 0.8, thinking: 1.2, searching: 1.0, planning: 1.4,
-    executing: 1.8, verifying: 1.0, celebrating: 2.5, error: 2.8,
-    evolving: 1.6, offline: 0.2,
-  }[agentState] ?? 0.8;
-
-  const bloomLuminanceThreshold = {
-    idle: 0.2, thinking: 0.15, searching: 0.18, planning: 0.12,
-    executing: 0.1, verifying: 0.18, celebrating: 0.05, error: 0.08,
-    evolving: 0.1, offline: 0.5,
-  }[agentState] ?? 0.2;
-
-  const vignetteOpacity = {
-    idle: 0.3, thinking: 0.4, searching: 0.35, planning: 0.45,
-    executing: 0.5, verifying: 0.3, celebrating: 0.2, error: 0.6,
-    evolving: 0.4, offline: 0.5,
-  }[agentState] ?? 0.3;
-
-  const chromaticOffset = {
-    idle: 0, thinking: 0.0005, searching: 0.0003, planning: 0,
-    executing: 0.001, verifying: 0, celebrating: 0.0002, error: 0.003,
-    evolving: 0.0008, offline: 0,
-  }[agentState] ?? 0;
-
-  return (
-    <EffectComposer multisampling={0}>
-      <Bloom
-        intensity={bloomIntensity}
-        luminanceThreshold={bloomLuminanceThreshold}
-        luminanceSmoothing={0.9}
-        mipmapBlur
-        radius={0.85}
-      />
-      <Vignette
-        offset={0.3}
-        darkness={vignetteOpacity}
-        blendFunction={BlendFunction.NORMAL}
-      />
-      {chromaticOffset > 0 && (
-        <ChromaticAberration
-          offset={[chromaticOffset, chromaticOffset]}
-          blendFunction={BlendFunction.NORMAL}
-          radialModulation
-          modulationOffset={0.5}
-        />
-      )}
-    </EffectComposer>
-  );
-}
 
 // ─── Scene Content ───────────────────────────────────────────────────
 function SceneContent() {
@@ -91,7 +36,6 @@ function SceneContent() {
       <MouseTracker />
       <Agent3DWorld />
       <Agent3DCharacter />
-      <PostEffects />
     </>
   );
 }
@@ -148,20 +92,16 @@ export function Agent3DSandbox() {
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.1,
         }}
-        dpr={[1, 1.5]}
+        dpr={1}
         style={{ background: '#050a0e' }}
       >
         <Suspense fallback={null}>
-          <PerformanceMonitor>
-            <SceneContent />
-          </PerformanceMonitor>
-          <AdaptiveDpr pixelated />
-          <AdaptiveEvents />
+          <SceneContent />
           <Stars
-            radius={60}
-            depth={60}
-            count={1500}
-            factor={2.5}
+            radius={40}
+            depth={40}
+            count={500}
+            factor={2}
             saturation={0}
             fade
             speed={0.3}

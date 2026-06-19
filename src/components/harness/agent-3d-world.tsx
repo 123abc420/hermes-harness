@@ -191,8 +191,8 @@ export function Agent3DWorld() {
 
       <gridHelper args={[24, 48, stateColor, stateColor]} position={[0, -1.48, 0]} material-transparent material-opacity={0.04} />
 
-      <Sparkles count={200} scale={20} size={1.5} speed={0.2} opacity={0.5} color="#ffffff" />
-      <Sparkles count={40} scale={4} size={3} speed={0.5} opacity={0.6} color={stateColor} />
+      <Sparkles count={80} scale={20} size={1.5} speed={0.2} opacity={0.4} color="#ffffff" />
+      <Sparkles count={15} scale={4} size={3} speed={0.5} opacity={0.5} color={stateColor} />
 
       {dataFragments.map((frag, i) => (
         <DataFragment key={i} position={frag.pos} speed={frag.speed} phase={frag.phase} size={frag.size} color={stateColor} />
