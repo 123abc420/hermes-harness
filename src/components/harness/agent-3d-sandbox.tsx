@@ -9,7 +9,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import type { VRM } from '@pixiv/three-vrm';
 import { useAgentLiveStore, type AgentVisualState } from '@/store/agent-live-store';
-import { STATIONS, mousePosition } from './agent-3d-shared';
+import { STATIONS, STATION_COLORS as STATE_COLORS, mousePosition } from './agent-3d-shared';
 
 /* ═══════════════════════════════════════════════════════════════════════
    MODULE-LEVEL VRM STATE — bypasses react-hooks/immutability lint
@@ -24,30 +24,14 @@ const characterWorldPos = new THREE.Vector3(0, 0, 0);
 /* ═══════════════════════════════════════════════════════════════════════
    CONSTANTS
    ═══════════════════════════════════════════════════════════════════════ */
-const STATE_COLORS: Record<AgentVisualState, string> = {
-  idle: '#6366f1', thinking: '#06b6d4', searching: '#f97316',
-  planning: '#a855f7', executing: '#ef4444', verifying: '#22c55e',
-  celebrating: '#eab308', error: '#dc2626', evolving: '#d946ef', offline: '#71717a',
-};
-
 const STATE_VRM_EXPRESSION: Record<AgentVisualState, string> = {
   idle: 'relaxed', thinking: 'neutral', searching: 'surprised',
   planning: 'neutral', executing: 'angry', verifying: 'neutral',
   celebrating: 'happy', error: 'angry', evolving: 'surprised', offline: 'neutral',
 };
 
-const STATION_LIST: { key: AgentVisualState; pos: [number, number, number]; rot: number; label: string; color: string }[] = [
-  { key: 'idle', pos: [0, 0, 0], rot: 0, label: 'CASA', color: '#6366f1' },
-  { key: 'thinking', pos: [-3, 0, -2], rot: 0.5, label: 'BIBLIOTECA', color: '#06b6d4' },
-  { key: 'searching', pos: [3, 0, -2], rot: -0.5, label: 'OBSERVATORIO', color: '#f97316' },
-  { key: 'planning', pos: [0, 0, -3.5], rot: 0, label: 'MAPA', color: '#a855f7' },
-  { key: 'executing', pos: [3.5, 0, 1.5], rot: -0.8, label: 'TALLER', color: '#ef4444' },
-  { key: 'verifying', pos: [-3.5, 0, 1.5], rot: 0.8, label: 'LABORATORIO', color: '#22c55e' },
-  { key: 'celebrating', pos: [0, 0, 3], rot: 0, label: 'PLAZA', color: '#eab308' },
-  { key: 'error', pos: [0, 0, -0.5], rot: 0, label: '', color: '#dc2626' },
-  { key: 'evolving', pos: [0, 0, 0], rot: 0, label: 'PORTAL', color: '#d946ef' },
-  { key: 'offline', pos: [0, 0, 0], rot: 0, label: '', color: '#71717a' },
-];
+const STATION_ENTRIES = (Object.entries(STATIONS) as [AgentVisualState, typeof STATIONS[AgentVisualState]][])
+  .filter(([, s]) => s.label);
 
 /* ═══════════════════════════════════════════════════════════════════════
    VRM LOADER — runs once, sets module-level activeVRM
@@ -162,29 +146,32 @@ function World() {
       ))}
 
       {/* Station markers */}
-      {STATION_LIST.filter(s => s.label).map((s) => (
-        <group key={`station-${s.key}`} position={[s.pos[0], s.pos[1], s.pos[2]]}>
-          <mesh position={[0, 0.25, 0]}>
-            <cylinderGeometry args={[0.025, 0.025, 0.5, 6]} />
-            <meshStandardMaterial color={s.color} emissive={s.color} emissiveIntensity={0.4} transparent opacity={0.7} />
-          </mesh>
-          <Float speed={2} rotationIntensity={0} floatIntensity={0.15}>
-            <mesh position={[0, 0.55, 0]}>
-              <octahedronGeometry args={[0.08, 0]} />
-              <meshStandardMaterial color={s.color} emissive={s.color} emissiveIntensity={1.2} />
+      {STATION_ENTRIES.map(([key, s]) => {
+        const color = STATION_COLORS[key];
+        return (
+          <group key={`station-${key}`} position={[s.pos[0], s.pos[1], s.pos[2]]}>
+            <mesh position={[0, 0.25, 0]}>
+              <cylinderGeometry args={[0.025, 0.025, 0.5, 6]} />
+              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} transparent opacity={0.7} />
             </mesh>
-          </Float>
-          <pointLight position={[0, 0.5, 0]} color={s.color} intensity={0.2} distance={2} />
-          <Html position={[0, 0.85, 0]} center style={{ pointerEvents: 'none' }}>
-            <div style={{
-              color: s.color, fontSize: '9px', fontFamily: 'monospace', fontWeight: 700,
-              whiteSpace: 'nowrap', textShadow: `0 0 8px ${s.color}`, letterSpacing: '1px', opacity: 0.8,
-            }}>
-              {s.label}
-            </div>
-          </Html>
-        </group>
-      ))}
+            <Float speed={2} rotationIntensity={0} floatIntensity={0.15}>
+              <mesh position={[0, 0.55, 0]}>
+                <octahedronGeometry args={[0.08, 0]} />
+                <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.2} />
+              </mesh>
+            </Float>
+            <pointLight position={[0, 0.5, 0]} color={color} intensity={0.2} distance={2} />
+            <Html position={[0, 0.85, 0]} center style={{ pointerEvents: 'none' }}>
+              <div style={{
+                color, fontSize: '9px', fontFamily: 'monospace', fontWeight: 700,
+                whiteSpace: 'nowrap', textShadow: `0 0 8px ${color}`, letterSpacing: '1px', opacity: 0.8,
+              }}>
+                {s.label}
+              </div>
+            </Html>
+          </group>
+        );
+      })}
 
       {/* Station-specific objects */}
       {/* BIBLIOTECA — bookshelf */}
