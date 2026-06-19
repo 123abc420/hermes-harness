@@ -480,3 +480,22 @@ Stage Summary:
 - SPEC Section 5 compliance gap closed — src/index.ts now provides full public API
 - Environment-resilience skill captures hard-won knowledge from 12+ waves
 - Spec compliance estimate improved from ~70% to ~80%
+---
+Task ID: Wave 14
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 14 — Complete export contract + SPEC repo structure
+
+Work Log:
+- ASSESS: Server alive, dev.log clean (200 OK), context.md current
+- Found: src/index.ts missing agent-live-store exports (useAgentLiveStore, LiveActivityEntry, SubAgent)
+- Found: gh-sync/logs/waves/ directory missing (SPEC Section 6)
+- EXECUTE Decision 1 (code_quality/high): Added agent-live-store exports to src/index.ts
+- EXECUTE Decision 2 (fix/medium): Created gh-sync/logs/waves/ directory
+- Handled AgentVisualState name collision between avatar-canvas and agent-live-store
+- VERIFY: lint 0 errors, server 200 OK
+- PERSIST: Commit 54a72e9, pushed, wave+decisions+metrics recorded
+
+Stage Summary:
+- Export contract now covers 2 stores, 9 components, 11 hooks, 14 types
+- SPEC Section 6 repo structure fully compliant (logs/waves/ created)
+- Spec compliance now ~85%

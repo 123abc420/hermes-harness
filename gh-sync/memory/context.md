@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 18:50 UTC+8
+2026-06-19 18:55 UTC+8
 
 ## System Status
-- **Phase**: Operational (Wave 13 — export contract created)
-- **Waves completed**: 10 (7 in DB + 3 manual)
+- **Phase**: Operational (Wave 14 — export contract complete)
+- **Waves completed**: 11 (8 in DB + 3 manual)
 - **GitHub connected**: Yes (123abc420/hermes-harness)
 - **Web app**: Dashboard live, Agent Live tab as default
 - **Crons**: 2 active (hermes-wave 10min, webDevReview 15min)
@@ -19,8 +19,9 @@
 | API routes | 14 |
 | Dashboard tabs | 6 |
 | Skills | 5 |
-| GitHub commits | 8 |
-| Waves completed | 10 |
+| GitHub commits | 9 |
+| Waves completed | 11 |
+| Exported types | 14 |
 
 ## What exists
 - SPEC.md + guardrails + wave_protocol
