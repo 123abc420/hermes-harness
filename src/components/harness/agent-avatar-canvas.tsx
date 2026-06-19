@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useCallback } from 'react';
 import { useAgentLiveStore } from '@/store/agent-live-store';
+import { EVOLUTION_STAGES } from '@/lib/constants';
 
 // ─── State Configuration ─────────────────────────────────────────────
 export type AgentVisualState =
@@ -70,16 +71,7 @@ interface OrbitalNode {
   opacity: number;
 }
 
-// ─── Evolution Levels ────────────────────────────────────────────────
-const EVOLUTION_STAGES = [
-  { level: 1,  name: 'Nascent',      particles: 15, nodes: 3,  rings: 1, description: 'First spark of consciousness' },
-  { level: 2,  name: 'Apprentice',   particles: 25, nodes: 6,  rings: 2, description: 'Learning from every wave' },
-  { level: 3,  name: 'Operational',  particles: 35, nodes: 10, rings: 3, description: 'Stable operational system' },
-  { level: 5,  name: 'Specialist',   particles: 50, nodes: 15, rings: 3, description: 'Improving specialized skills' },
-  { level: 8,  name: 'Architect',    particles: 65, nodes: 20, rings: 4, description: 'Designing its own evolution' },
-  { level: 12, name: 'Master',       particles: 80, nodes: 25, rings: 4, description: 'Mastery in self-improvement' },
-  { level: 20, name: 'Transcendent', particles: 100, nodes: 30, rings: 5, description: 'Beyond the cycles' },
-];
+// ─── Evolution Levels (imported from constants — single source of truth) ──
 
 function getEvolution(waveCount: number, totalImprovements: number) {
   const effectiveLevel = Math.floor(waveCount / 2) + Math.floor(totalImprovements / 5) + 1;

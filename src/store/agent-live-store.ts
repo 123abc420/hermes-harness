@@ -95,7 +95,7 @@ function formatArgentinaTime(ts: number): string {
 
 export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   agentState: 'idle',
-  message: 'Esperando actividad...',
+  message: 'Waiting for activity...',
   phase: '',
   waveNumber: 0,
   progress: 0,
@@ -105,7 +105,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   totalImprovements: 0,
   totalDecisions: 0,
   level: 1,
-  levelName: 'Nascente',
+  levelName: 'Nascent',
   xp: 0,
   xpToNext: 15,
 
@@ -145,12 +145,12 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
       timestampAR: formatArgentinaTime(now),
     };
     const activities = [newEntry, ...state.activities].slice(0, state.maxActivities);
-    set({ activities });
-
-    // Auto-update state from activity
-    if (entry.state) set({ agentState: entry.state });
-    if (entry.message) set({ message: entry.message });
-    if (entry.phase) set({ phase: entry.phase });
+    // Batch all state updates into a single set() to avoid multiple re-renders
+    const updates: Partial<AgentLiveState> = { activities };
+    if (entry.state) updates.agentState = entry.state;
+    if (entry.message) updates.message = entry.message;
+    if (entry.phase) updates.phase = entry.phase;
+    set(updates);
   },
 
   setConnected: (connected) => set({ isConnected: connected }),
@@ -187,7 +187,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   reset: () =>
     set({
       agentState: 'idle',
-      message: 'Esperando actividad...',
+      message: 'Waiting for activity...',
       phase: '',
       waveNumber: 0,
       progress: 0,
