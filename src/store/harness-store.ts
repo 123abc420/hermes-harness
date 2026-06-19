@@ -54,6 +54,7 @@ export interface GithubStatus {
   totalCommits: number;
   lastSyncAt: string | null;
   lastCommitSha: string | null;
+  recentCommits?: { sha: string; message: string }[];
 }
 
 export interface SpecData {
@@ -88,6 +89,7 @@ export interface TotalStats {
   totalImprovements: number;
   totalErrors: number;
   githubCommits: number;
+  waveSuccessRate: number;
 }
 
 export interface ExportModule {

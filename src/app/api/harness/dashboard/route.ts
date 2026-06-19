@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { execSync } from 'child_process';
 import { db } from '@/lib/db';
 
 export async function GET() {
@@ -18,6 +19,7 @@ export async function GET() {
       exportModules,
       recentDecisions,
       errorTrend,
+      waveCounts,
     ] = await Promise.all([
       db.harnessWave.findMany({
         orderBy: { waveNumber: 'desc' },
@@ -48,6 +50,11 @@ export async function GET() {
         select: { waveNumber: true, errorsCount: true, status: true },
         take: 20,
       }),
+      // Wave status counts for success rate
+      db.harnessWave.groupBy({
+        by: ['status'],
+        _count: true,
+      }),
     ]);
 
     const waves = recentWaves.map((w) => ({
@@ -60,6 +67,17 @@ export async function GET() {
       configMap[c.key] = c.value;
     }
 
+    // Real git commit count
+    let gitCommitCount = githubSync?.totalCommits ?? 0;
+    try {
+      gitCommitCount = parseInt(execSync('git rev-list --count HEAD', { encoding: 'utf-8' }).trim(), 10);
+    } catch { /* git not available */ }
+
+    // Wave success rate
+    const completedCount = waveCounts.find((w) => w.status === 'completed')?._count ?? 0;
+    const totalWaveCount = waveCounts.reduce((s, w) => s + w._count, 0);
+    const waveSuccessRate = totalWaveCount > 0 ? Math.round((completedCount / totalWaveCount) * 100) : 0;
+
     return NextResponse.json({
       waves,
       totalStats: {
@@ -67,7 +85,8 @@ export async function GET() {
         totalDecisions: totalStats[1],
         totalImprovements: totalStats[2],
         totalErrors: totalStats[3],
-        githubCommits: githubSync?.totalCommits ?? 0,
+        githubCommits: gitCommitCount,
+        waveSuccessRate,
       },
       metrics: latestMetrics,
       githubStatus: githubSync ?? {

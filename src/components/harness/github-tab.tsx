@@ -194,38 +194,37 @@ function InfoGrid() {
 function CommitHistory() {
   const { data: dash } = useHarnessDashboard();
   const status = dash?.githubStatus;
-  const commitCount = status?.totalCommits ?? 0;
+  const commits = status?.recentCommits ?? [];
 
   return (
     <Card className="glass-card">
       <CardHeader className="pb-3">
         <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-          Commit History
+          Recent Commits
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {commitCount > 0 ? (
+        {commits.length > 0 ? (
           <div className="space-y-2">
-            {Array.from({ length: Math.min(commitCount, 5) }).map((_, i) => (
+            {commits.map((commit) => (
               <div
-                key={i}
+                key={commit.sha}
                 className="flex items-center gap-3 rounded-lg border border-white/[0.04] bg-white/[0.02] p-3"
               >
                 <GitCommitHorizontal className="h-4 w-4 shrink-0 text-emerald-400" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-medium text-zinc-300">
-                    Wave {i + 1} sync — automated improvements
-                  </p>
-                  <p className="text-[10px] text-zinc-600">
-                    {formatDistanceToNow(
-                      new Date(Date.now() - (i + 1) * 600000),
-                      { addSuffix: true }
-                    )}
+                    {commit.message}
                   </p>
                 </div>
-                <code className="shrink-0 text-[10px] font-mono text-zinc-600">
-                  abc{i}def
-                </code>
+                <a
+                  href={`https://github.com/${status?.username}/${status?.repoName}/commit/${commit.sha}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 font-mono text-[10px] text-zinc-600 transition-colors hover:text-emerald-400"
+                >
+                  {commit.sha.slice(0, 7)}
+                </a>
               </div>
             ))}
           </div>

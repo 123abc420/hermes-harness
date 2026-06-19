@@ -11,6 +11,7 @@ import {
   Check,
   Minus,
   Github,
+  Target,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
@@ -159,6 +160,7 @@ function StatCard({
   icon: Icon,
   color,
   trend,
+  suffix,
   delay = 0,
 }: {
   label: string;
@@ -166,6 +168,7 @@ function StatCard({
   icon: React.ElementType;
   color: string;
   trend?: 'up' | 'down' | 'neutral';
+  suffix?: string;
   delay?: number;
 }) {
   return (
@@ -182,7 +185,7 @@ function StatCard({
                 {label}
               </p>
               <p className="mt-1.5 text-2xl font-bold tabular-nums text-white">
-                {value ?? 0}
+                {value ?? 0}{suffix ?? ''}
               </p>
             </div>
             <div
@@ -241,7 +244,7 @@ function StatsGrid({ stats }: { stats?: TotalStats }) {
 
   const hasErrors = (stats.totalErrors ?? 0) > 0;
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
       <StatCard
         label="Total Waves"
         value={stats.totalWaves}
@@ -267,12 +270,21 @@ function StatsGrid({ stats }: { stats?: TotalStats }) {
         delay={0.15}
       />
       <StatCard
+        label="Success Rate"
+        value={stats.waveSuccessRate}
+        suffix="%"
+        icon={Target}
+        color="bg-violet-500/10 text-violet-400"
+        trend={stats.waveSuccessRate >= 80 ? 'up' : 'down'}
+        delay={0.2}
+      />
+      <StatCard
         label="Errors"
         value={stats.totalErrors}
         icon={AlertTriangle}
         color="bg-red-500/10 text-red-400"
         trend={hasErrors ? 'down' : 'neutral'}
-        delay={0.2}
+        delay={0.25}
       />
     </div>
   );
