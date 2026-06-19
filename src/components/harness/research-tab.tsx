@@ -133,14 +133,28 @@ function SkillsSection() {
                 key={skill.name}
                 className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 transition-colors hover:border-white/10"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <h4 className="text-sm font-medium text-white">
                     {skill.title}
                   </h4>
-                  <span className="text-[10px] font-mono text-zinc-600">
-                    {skill.name}
-                  </span>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {skill.category && (
+                      <span className="rounded bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-mono text-cyan-400">
+                        {skill.category}
+                      </span>
+                    )}
+                    {skill.version && (
+                      <span className="text-[9px] font-mono text-zinc-600">
+                        v{skill.version}
+                      </span>
+                    )}
+                  </div>
                 </div>
+                {skill.trigger && (
+                  <p className="mt-1 text-[10px] italic text-zinc-600">
+                    Trigger: {skill.trigger}
+                  </p>
+                )}
                 <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
                   {skill.content.slice(0, 200)}
                 </p>

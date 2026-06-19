@@ -67,6 +67,10 @@ export interface Skill {
   name: string;
   title: string;
   content: string;
+  version?: string;
+  created?: string;
+  category?: string;
+  trigger?: string;
 }
 
 export interface ResearchItem {
