@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useDecisions } from '@/hooks/use-harness-data';
 import { useHarnessStore, type Decision } from '@/store/harness-store';
-import { ChevronDown, Filter, Brain, FileCode2, Loader2 } from 'lucide-react';
+import { ChevronDown, Filter, Brain, FileCode2, Loader2, CheckCircle2, XCircle, CircleDot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -40,6 +40,31 @@ const FILTER_BUTTONS = [
   { value: 'insight', label: 'Insight' },
 ];
 
+function OutcomeBadge({ outcome }: { outcome: string | null }) {
+  if (!outcome) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-mono font-medium text-zinc-600 bg-white/[0.02] border border-white/[0.04]">
+        <CircleDot className="h-2.5 w-2.5" />
+        pending
+      </span>
+    );
+  }
+  const isSuccess = outcome === 'success' || outcome === 'success_verified';
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-mono font-medium border',
+        isSuccess
+          ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+          : 'text-red-400 bg-red-500/10 border-red-500/20'
+      )}
+    >
+      {isSuccess ? <CheckCircle2 className="h-2.5 w-2.5" /> : <XCircle className="h-2.5 w-2.5" />}
+      {outcome}
+    </span>
+  );
+}
+
 function DecisionCard({ decision }: { decision: Decision }) {
   const [open, setOpen] = useState(false);
 
@@ -65,6 +90,7 @@ function DecisionCard({ decision }: { decision: Decision }) {
               >
                 {decision.priority}
               </span>
+              <OutcomeBadge outcome={decision.outcome} />
             </div>
             <span
               className={cn(
