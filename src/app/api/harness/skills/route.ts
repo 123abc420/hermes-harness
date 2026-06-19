@@ -17,13 +17,20 @@ export async function GET() {
       const filePath = path.join(skillsDir, filename);
       const raw = fs.readFileSync(filePath, 'utf-8');
 
-      // Parse YAML frontmatter
+      // Parse YAML frontmatter — handles `key: value` and `key: "quoted value"`
       const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---\n?/);
       const meta: Record<string, string> = {};
       if (frontmatterMatch) {
         for (const line of frontmatterMatch[1].split('\n')) {
           const m = line.match(/^(\w+):\s*(.+)$/);
-          if (m) meta[m[1]] = m[2].trim();
+          if (m) {
+            let val = m[2].trim();
+            // Strip surrounding quotes if present
+            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+              val = val.slice(1, -1);
+            }
+            meta[m[1]] = val;
+          }
         }
       }
 

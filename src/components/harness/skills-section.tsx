@@ -1,32 +1,86 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Filter } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSkills } from '@/hooks/use-harness-data';
 import { ErrorBlock } from './error-block';
+import { DECISION_CATEGORIES } from '@/lib/category-colors';
+
+/* ── Skill category colors (extends decision categories with skill-specific ones) ── */
+const SKILL_CATEGORY_TW: Record<string, string> = {
+  // Reuse from decision categories where they overlap
+  code_quality: DECISION_CATEGORIES.code_quality?.tw ?? 'bg-cyan-500/10 text-cyan-400',
+  performance: DECISION_CATEGORIES.performance?.tw ?? 'bg-orange-500/10 text-orange-400',
+  // Skill-specific categories
+  automation: 'bg-emerald-500/10 text-emerald-400',
+  code:       'bg-violet-500/10 text-violet-400',
+  research:   'bg-sky-500/10 text-sky-400',
+  analysis:   'bg-amber-500/10 text-amber-400',
+  strategy:   'bg-pink-500/10 text-pink-400',
+  template:   'bg-zinc-500/10 text-zinc-400',
+};
 
 /* ── Skills Section ───────────────────────────────────── */
 export function SkillsSection() {
   const { data, isLoading, isError, error, refetch } = useSkills();
   const skills = data?.skills ?? [];
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  // Derive unique categories from loaded skills
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    for (const s of skills) {
+      if (s.category) cats.add(s.category);
+    }
+    return ['all', ...Array.from(cats).sort()];
+  }, [skills]);
+
+  const filtered = activeFilter === 'all'
+    ? skills
+    : skills.filter(s => s.category === activeFilter);
 
   return (
     <Card className="glass-card">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-amber-400" />
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
               Skills
             </CardTitle>
           </div>
-          {skills.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Filter className="h-3 w-3 text-zinc-600" />
             <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
-              {skills.length}
+              {filtered.length}/{skills.length}
             </span>
-          )}
+          </div>
         </div>
+
+        {/* Category filter pills */}
+        {categories.length > 2 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {categories.map(cat => {
+              const isActive = activeFilter === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveFilter(cat)}
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-all ${
+                    isActive
+                      ? 'bg-amber-500/15 text-amber-300 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.25)]'
+                      : 'bg-white/[0.04] text-zinc-500 hover:bg-white/[0.07] hover:text-zinc-400'
+                  }`}
+                >
+                  {cat === 'all' ? 'All' : cat.replace('_', ' ')}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {isError ? (
@@ -37,51 +91,67 @@ export function SkillsSection() {
               <Skeleton key={i} className="h-16 w-full rounded-lg" />
             ))}
           </div>
-        ) : skills.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="flex h-32 items-center justify-center">
             <div className="text-center">
               <Sparkles className="mx-auto mb-2 h-8 w-8 text-zinc-700" />
-              <p className="text-xs text-zinc-500">No skills learned yet</p>
+              <p className="text-xs text-zinc-500">
+                {activeFilter === 'all' ? 'No skills learned yet' : `No ${activeFilter.replace('_', ' ')} skills`}
+              </p>
               <p className="mt-0.5 text-[10px] text-zinc-600">
-                Skills are acquired as the agent evolves through waves
+                {activeFilter === 'all'
+                  ? 'Skills are acquired as the agent evolves through waves'
+                  : 'Try a different category filter'}
               </p>
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
-            {skills.map((skill) => (
-              <div
-                key={skill.name}
-                className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 transition-colors hover:border-white/10"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-sm font-medium text-white">
-                    {skill.title}
-                  </h4>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    {skill.category && (
-                      <span className="rounded bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-mono text-cyan-400">
-                        {skill.category}
-                      </span>
+          <AnimatePresence mode="popLayout">
+            <div className="space-y-2">
+              {filtered.map((skill) => {
+                const catColor = skill.category
+                  ? SKILL_CATEGORY_TW[skill.category] ?? 'bg-white/[0.06] text-zinc-400'
+                  : '';
+                return (
+                  <motion.div
+                    key={skill.name}
+                    layout
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.2 }}
+                    className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 transition-colors hover:border-white/10"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-sm font-medium text-white">
+                        {skill.title}
+                      </h4>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        {skill.category && (
+                          <span className={`rounded px-1.5 py-0.5 text-[9px] font-mono ${catColor}`}>
+                            {skill.category.replace('_', ' ')}
+                          </span>
+                        )}
+                        {skill.version && (
+                          <span className="text-[9px] font-mono text-zinc-600">
+                            v{skill.version}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {skill.trigger && (
+                      <p className="mt-1 text-[10px] italic text-zinc-600">
+                        Trigger: {skill.trigger}
+                      </p>
                     )}
-                    {skill.version && (
-                      <span className="text-[9px] font-mono text-zinc-600">
-                        v{skill.version}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {skill.trigger && (
-                  <p className="mt-1 text-[10px] italic text-zinc-600">
-                    Trigger: {skill.trigger}
-                  </p>
-                )}
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
-                  {skill.content.slice(0, 200)}
-                </p>
-              </div>
-            ))}
-          </div>
+                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
+                      {skill.content.slice(0, 200)}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </AnimatePresence>
         )}
       </CardContent>
     </Card>
