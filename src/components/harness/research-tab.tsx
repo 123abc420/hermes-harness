@@ -16,6 +16,7 @@ import {
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CATEGORY_HEX } from '@/lib/category-colors';
+import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
 import { ErrorBlock } from './error-block';
 import type { DashboardData } from '@/store/harness-store';
 
@@ -263,7 +264,7 @@ function DecisionDistribution({ recentDecisions }: { recentDecisions?: Dashboard
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }}
+                  contentStyle={CHART_TOOLTIP_STYLE}
                 />
               </PieChart>
             </ResponsiveContainer>

@@ -59,3 +59,12 @@
 - HarnessMetric lacked `createdAt` field — time-based queries were impossible
 - Decision category colors must be synced across ALL components that render them
 - insights.md can exceed token cap silently — monitor file size periodically
+
+## Waves 58-61: Error Handling, Responsiveness, DRY
+
+- isError checks needed in every tab — silent empty states mislead users on API failure
+- SVG sparklines: use `width="100%"` + `viewBox` instead of fixed pixel widths
+- Inline ternary chains for colors = drift risk — extract to shared constants immediately
+- Color maps for badges vs charts can silently diverge (skill/insight were swapped in hex)
+- Chart tooltip styles are duplicated across components — extract to constants.ts
+- Health score trend can be derived from error trend + success rate without storing history

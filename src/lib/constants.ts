@@ -25,3 +25,19 @@ export function getLevelName(level: number): string {
   }
   return name;
 }
+
+// Chart tooltip styles — Recharts <Tooltip contentStyle>
+export const CHART_TOOLTIP_STYLE = {
+  background: '#18181b',
+  border: '1px solid #27272a',
+  borderRadius: 8,
+  fontSize: 11,
+} as const;
+
+export const CHART_TOOLTIP_STYLE_DARK = {
+  backgroundColor: '#0f172a',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '8px',
+  fontSize: '11px',
+  color: '#e2e8f0',
+} as const;

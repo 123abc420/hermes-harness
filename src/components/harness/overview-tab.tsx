@@ -27,6 +27,7 @@ import {
 } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
 import type { Wave, TotalStats, GithubStatus, DashboardData, Metric } from '@/store/harness-store';
+import { CHART_TOOLTIP_STYLE, CHART_TOOLTIP_STYLE_DARK } from '@/lib/constants';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
 function Sparkline({ data, color = 'currentColor' }: {
@@ -539,7 +540,7 @@ function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTren
               <XAxis dataKey="wave" tick={{ fontSize: 9, fill: '#71717a' }} interval="preserveStartEnd" />
               <YAxis tick={{ fontSize: 9, fill: '#71717a' }} allowDecimals={false} />
               <Tooltip
-                contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }}
+                contentStyle={CHART_TOOLTIP_STYLE}
                 labelStyle={{ color: '#a1a1aa' }}
               />
               <Area type="stepAfter" dataKey="errors" stroke="#ef4444" fill="url(#errorGrad)" strokeWidth={2} />
@@ -653,13 +654,7 @@ function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['me
             <XAxis dataKey="time" tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: '#0f172a',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '8px',
-                fontSize: '11px',
-                color: '#e2e8f0',
-              }}
+              contentStyle={CHART_TOOLTIP_STYLE_DARK}
               labelStyle={{ color: '#71717a' }}
               itemStyle={{ color: '#10b981' }}
             />
