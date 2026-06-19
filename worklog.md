@@ -1772,3 +1772,21 @@ Stage Summary:
 - New skill: category-filter-pills.md (documents repeatable pattern)
 - Skills count: 15 (was 14)
 - Files modified: skills-section.tsx (rewrite), skills/route.ts (parser fix)
+
+---
+Task ID: 84
+Agent: Wave Engine (auto)
+Task: Header last-sync indicator + export useAgentLive + dynamic decision filters
+
+Work Log:
+- Added lastSyncAt relative time display to HarnessHeader (Clock icon + formatDistanceToNow)
+- Expanded HarnessHeader props to include lastSyncAt from GithubStatus
+- Exported useAgentLive hook from src/index.ts export contract
+- Replaced hardcoded FILTER_BUTTONS in decisions-tab with VALID_CATEGORIES derivation
+- Ran bun run lint — zero errors
+
+Stage Summary:
+- Header now shows "synced 2m ago" next to LINKED badge
+- Export contract complete: all hooks now exported (12 hooks)
+- Decisions filter auto-includes new categories (style was missing from old list)
+- Files: harness-header.tsx, index.ts, decisions-tab.tsx
