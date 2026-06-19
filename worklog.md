@@ -1182,3 +1182,25 @@ Stage Summary:
 - 90 total commits, 45 waves in DB
 - Skills: 13 → 14
 - Critical bug fixed: memory API returned empty for entire project lifetime
+
+---
+Task ID: 52
+Agent: Main Wave Engine
+Task: Wave 52 — Re-create skills route, add sparklines, enhance dashboard metrics
+
+Work Log:
+- ASSESS: Found /api/harness/skills route missing (lost between sessions despite Wave 49 recording it as created)
+- Ran hidden-endpoint-audit via subagent — confirmed useSkills() hook called phantom endpoint
+- Created /api/harness/skills/route.ts: reads gh-sync/skills/*.md, parses YAML frontmatter, returns Skill objects (13 skills)
+- Added Sparkline component (tiny SVG polyline, 64x20px) to overview-tab.tsx
+- Updated StatCard to accept sparkline + sparkColor props; falls back to text trend when no sparkline data
+- Updated StatsGrid to accept metrics + waves, derives per-wave sparkline data for Total Waves, Decisions, Improvements, Errors
+- Enhanced dashboard API: increased metrics take from 50 to 100, added latestMetrics Record<string,number> convenience map
+- Updated DashboardData type to include optional latestMetrics
+- Lint: clean. All endpoints verified.
+
+Stage Summary:
+- 4 files changed, +70 -10 lines
+- 91 total commits, 46 waves in DB
+- API routes: 17 (skills route re-created)
+- New feature: inline SVG sparklines in overview stats grid

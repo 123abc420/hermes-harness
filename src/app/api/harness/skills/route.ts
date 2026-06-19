@@ -1,62 +1,72 @@
 import { NextResponse } from 'next/server';
-import { readdirSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'fs';
+import path from 'path';
+
+interface SkillFrontmatter {
+  name?: string;
+  title?: string;
+  version?: string;
+  created?: string;
+  category?: string;
+  trigger?: string;
+}
+
+function parseFrontmatter(raw: string): { frontmatter: SkillFrontmatter; content: string } {
+  const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) return { frontmatter: {}, content: raw };
+
+  const fm: Record<string, string> = {};
+  for (const line of match[1].split('\n')) {
+    const idx = line.indexOf(':');
+    if (idx > 0) {
+      fm[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    }
+  }
+
+  return {
+    frontmatter: fm as unknown as SkillFrontmatter,
+    content: match[2].trim(),
+  };
+}
 
 export async function GET() {
   try {
-    const skillsDir = join(process.cwd(), 'gh-sync', 'skills');
+    const skillsDir = path.join(process.cwd(), 'gh-sync', 'skills');
     let files: string[];
     try {
-      files = readdirSync(skillsDir).filter(
-        (f) => f.endsWith('.md') && f !== '_template.md'
+      files = (await fs.readdir(skillsDir)).filter(
+        (f) => f.endsWith('.md') && !f.startsWith('_')
       );
     } catch {
       return NextResponse.json({ skills: [] });
     }
 
-    const skills = files.map((filename) => {
-      const raw = readFileSync(join(skillsDir, filename), 'utf-8');
+    const skills = [];
+    for (const file of files) {
+      const raw = await fs.readFile(path.join(skillsDir, file), 'utf-8');
+      const { frontmatter, content } = parseFrontmatter(raw);
 
-      // Parse YAML frontmatter
-      const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---\n/);
-      const frontmatter: Record<string, string> = {};
-      if (frontmatterMatch) {
-        for (const line of frontmatterMatch[1].split('\n')) {
-          const colonIdx = line.indexOf(':');
-          if (colonIdx > 0) {
-            const key = line.slice(0, colonIdx).trim();
-            const value = line.slice(colonIdx + 1).trim();
-            frontmatter[key] = value;
-          }
-        }
-      }
+      // Derive title from name if not in frontmatter
+      const name = frontmatter.name ?? file.replace('.md', '');
+      const title = frontmatter.title ?? name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
-      // Content is everything after frontmatter
-      const contentStart = frontmatterMatch
-        ? frontmatterMatch[0].length
-        : 0;
-      const content = raw.slice(contentStart).trim();
-
-      // Derive title from first H1 or filename
-      const h1Match = content.match(/^#\s+(.+)$/m);
-      const title = h1Match ? h1Match[1].trim() : filename.replace('.md', '').replace(/-/g, ' ');
-
-      return {
-        name: frontmatter.name ?? filename.replace('.md', ''),
+      skills.push({
+        name,
         title,
         content,
-        version: frontmatter.version,
-        created: frontmatter.created,
-        category: frontmatter.category,
-        trigger: frontmatter.trigger,
-      };
-    });
+        version: frontmatter.version ?? undefined,
+        created: frontmatter.created ?? undefined,
+        category: frontmatter.category ?? undefined,
+        trigger: frontmatter.trigger ?? undefined,
+      });
+    }
+
+    // Sort by name for consistent ordering
+    skills.sort((a, b) => a.name.localeCompare(b.name));
 
     return NextResponse.json({ skills });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to read skills' },
-      { status: 500 }
-    );
+    console.error('[SKILLS] Error:', error);
+    return NextResponse.json({ error: 'Failed to fetch skills' }, { status: 500 });
   }
 }

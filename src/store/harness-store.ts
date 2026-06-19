@@ -106,6 +106,7 @@ export interface DashboardData {
   waves: Wave[];
   totalStats: TotalStats;
   metrics: Metric[];
+  latestMetrics?: Record<string, number>;
   githubStatus: GithubStatus;
   config: Record<string, string>;
   exports: ExportModule[];

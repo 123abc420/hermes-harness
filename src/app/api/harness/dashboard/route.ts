@@ -15,7 +15,7 @@ export async function GET() {
     const [
       recentWaves,
       totalStats,
-      latestMetrics,
+      metricsRaw,
       githubSync,
       configs,
       exportModules,
@@ -36,7 +36,7 @@ export async function GET() {
       ]),
       db.harnessMetric.findMany({
         orderBy: { recordedAt: 'desc' },
-        take: 50,
+        take: 100,
       }),
       db.gitHubSync.findFirst(),
       db.harnessConfig.findMany(),
@@ -106,6 +106,14 @@ export async function GET() {
       skillsCount = files.length;
     } catch { /* skills dir not found */ }
 
+    // Derive latest value per metricKey
+    const latestMetrics: Record<string, number> = {};
+    for (const m of metricsRaw) {
+      if (!(m.metricKey in latestMetrics)) {
+        latestMetrics[m.metricKey] = m.metricValue;
+      }
+    }
+
     return NextResponse.json({
       waves,
       totalStats: {
@@ -117,7 +125,8 @@ export async function GET() {
         waveSuccessRate,
         recentSuccessRate,
       },
-      metrics: latestMetrics,
+      metrics: metricsRaw,
+      latestMetrics,
       githubStatus: {
         ...(githubSync ?? {
           status: 'disconnected',

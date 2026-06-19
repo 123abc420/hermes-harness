@@ -26,7 +26,45 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
-import type { Wave, TotalStats, GithubStatus, DashboardData } from '@/store/harness-store';
+import type { Wave, TotalStats, GithubStatus, DashboardData, Metric } from '@/store/harness-store';
+
+/* ── Tiny Sparkline ──────────────────────────────────── */
+function Sparkline({ data, color = 'currentColor', width = 64, height = 20 }: {
+  data: number[]; color?: string; width?: number; height?: number;
+}) {
+  if (data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 2) - 1;
+    return `${x},${y}`;
+  }).join(' ');
+  return (
+    <svg width={width} height={height} className="shrink-0" viewBox={`0 0 ${width} ${height}`}>
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+        opacity={0.7}
+      />
+    </svg>
+  );
+}
+
+/* Helper: extract last N values from metrics array for a given key */
+function metricHistory(metrics: Metric[] | undefined, key: string, n = 8): number[] {
+  if (!metrics) return [];
+  return metrics
+    .filter(m => m.metricKey === key)
+    .slice(0, n)
+    .map(m => m.metricValue)
+    .reverse();
+}
 
 const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'Spec-Driven Architecture', done: true },
@@ -195,6 +233,8 @@ function StatCard({
   suffix,
   subLabel,
   delay = 0,
+  sparkline,
+  sparkColor,
 }: {
   label: string;
   value: number | undefined;
@@ -204,6 +244,8 @@ function StatCard({
   suffix?: string;
   subLabel?: string;
   delay?: number;
+  sparkline?: number[];
+  sparkColor?: string;
 }) {
   return (
     <motion.div
@@ -228,7 +270,11 @@ function StatCard({
               <Icon className="h-5 w-5" />
             </div>
           </div>
-          {trend && (
+          {sparkline && sparkline.length >= 2 ? (
+            <div className="mt-2">
+              <Sparkline data={sparkline} color={sparkColor ?? '#10b981'} />
+            </div>
+          ) : trend ? (
             <div className="mt-2 flex items-center gap-1 text-[10px]">
               {trend === 'up' && (
                 <TrendingUp className="h-3 w-3 text-emerald-400" />
@@ -252,7 +298,7 @@ function StatCard({
                     : 'Stable'}
               </span>
             </div>
-          )}
+          ) : null}
           {subLabel && (
             <p className="mt-1 text-[10px] text-zinc-600">{subLabel}</p>
           )}
@@ -263,7 +309,7 @@ function StatCard({
 }
 
 /* ── Stats Grid ───────────────────────────────────────── */
-function StatsGrid({ stats }: { stats?: TotalStats }) {
+function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metrics?: Metric[]; waves?: Wave[] }) {
   if (!stats) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -279,7 +325,18 @@ function StatsGrid({ stats }: { stats?: TotalStats }) {
     );
   }
 
-  const hasErrors = (stats.totalErrors ?? 0) > 0;
+  // Derive sparkline data from metrics history and wave arrays
+  const wavesSparkline = metricHistory(metrics, 'waves_completed', 8);
+  const decisionsSparkline = waves
+    ? [...waves].reverse().slice(-8).map(w => w.decisionsCount)
+    : [];
+  const improvementsSparkline = waves
+    ? [...waves].reverse().slice(-8).map(w => w.improvementsCount)
+    : [];
+  const errorsSparkline = waves
+    ? [...waves].reverse().slice(-8).map(w => w.errorsCount ?? 0)
+    : [];
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
       <StatCard
@@ -287,24 +344,27 @@ function StatsGrid({ stats }: { stats?: TotalStats }) {
         value={stats.totalWaves}
         icon={Activity}
         color="bg-emerald-500/10 text-emerald-400"
-        trend="up"
         delay={0.05}
+        sparkline={wavesSparkline}
+        sparkColor="#10b981"
       />
       <StatCard
         label="Decisions"
         value={stats.totalDecisions}
         icon={Brain}
         color="bg-cyan-500/10 text-cyan-400"
-        trend="up"
         delay={0.1}
+        sparkline={decisionsSparkline}
+        sparkColor="#06b6d4"
       />
       <StatCard
         label="Improvements"
         value={stats.totalImprovements}
         icon={TrendingUp}
         color="bg-teal-500/10 text-teal-400"
-        trend="up"
         delay={0.15}
+        sparkline={improvementsSparkline}
+        sparkColor="#14b8a6"
       />
       <StatCard
         label="Success Rate"
@@ -321,8 +381,9 @@ function StatsGrid({ stats }: { stats?: TotalStats }) {
         value={stats.totalErrors}
         icon={AlertTriangle}
         color="bg-red-500/10 text-red-400"
-        trend={hasErrors ? 'down' : 'neutral'}
         delay={0.25}
+        sparkline={errorsSparkline}
+        sparkColor="#ef4444"
       />
     </div>
   );
@@ -738,7 +799,7 @@ export function OverviewTab() {
       <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} isLoading={isLoading} />
 
       {/* Stats Grid */}
-      <StatsGrid stats={stats} />
+      <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />
 
       {/* Three-column: Spec Compliance + Metrics Chart + Recent Commits */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
