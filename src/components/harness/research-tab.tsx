@@ -3,11 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useMemory, useSkills, useHarnessDashboard } from '@/hooks/use-harness-data';
+import { useMemory, useHarnessDashboard } from '@/hooks/use-harness-data';
 import {
   Brain,
   Lightbulb,
-  Sparkles,
   Database,
   PieChart as PieChartIcon,
   ListChecks,
@@ -19,6 +18,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CATEGORY_HEX } from '@/lib/category-colors';
 import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
 import { ErrorBlock } from './error-block';
+import { SkillsSection } from './skills-section';
+import { WaveCategoryBreakdown } from './wave-category-breakdown';
 import type { DashboardData } from '@/store/harness-store';
 
 /* ── Memory Section ───────────────────────────────────── */
@@ -110,88 +111,6 @@ function MemorySection() {
               )}
             </div>
           </>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ── Skills Section ───────────────────────────────────── */
-function SkillsSection() {
-  const { data, isLoading, isError, error, refetch } = useSkills();
-  const skills = data?.skills ?? [];
-
-  return (
-    <Card className="glass-card">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-amber-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Skills
-            </CardTitle>
-          </div>
-          {skills.length > 0 && (
-            <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
-              {skills.length}
-            </span>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isError ? (
-          <ErrorBlock message={error?.message} onRetry={() => refetch()} />
-        ) : isLoading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-lg" />
-            ))}
-          </div>
-        ) : skills.length === 0 ? (
-          <div className="flex h-32 items-center justify-center">
-            <div className="text-center">
-              <Sparkles className="mx-auto mb-2 h-8 w-8 text-zinc-700" />
-              <p className="text-xs text-zinc-500">No skills learned yet</p>
-              <p className="mt-0.5 text-[10px] text-zinc-600">
-                Skills are acquired as the agent evolves through waves
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {skills.map((skill) => (
-              <div
-                key={skill.name}
-                className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 transition-colors hover:border-white/10"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-sm font-medium text-white">
-                    {skill.title}
-                  </h4>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    {skill.category && (
-                      <span className="rounded bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-mono text-cyan-400">
-                        {skill.category}
-                      </span>
-                    )}
-                    {skill.version && (
-                      <span className="text-[9px] font-mono text-zinc-600">
-                        v{skill.version}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {skill.trigger && (
-                  <p className="mt-1 text-[10px] italic text-zinc-600">
-                    Trigger: {skill.trigger}
-                  </p>
-                )}
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
-                  {skill.content.slice(0, 200)}
-                </p>
-              </div>
-            ))}
-          </div>
         )}
       </CardContent>
     </Card>
@@ -495,6 +414,17 @@ export function ResearchTab() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.25 }}
+      >
+        <WaveCategoryBreakdown
+          waves={dash?.waves}
+          decisions={dash?.recentDecisions}
+        />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.3 }}
       >
         <DecisionTimeline decisions={dash?.recentDecisions} />
       </motion.div>
