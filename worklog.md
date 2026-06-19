@@ -1542,3 +1542,21 @@ Work Log:
 Stage Summary:
 - File: src/components/harness/research-tab.tsx (+105)
 - Commit: 17f1199 pushed to main
+
+---
+Task ID: 71
+Agent: HERMES Wave Engine (Wave 71)
+Task: Extract SkillsSection + add WaveCategoryBreakdown chart
+
+Work Log:
+- Extracted SkillsSection (~80 lines) from research-tab.tsx into skills-section.tsx
+- Created WaveCategoryBreakdown stacked bar chart (Recharts)
+- Shows decision categories per recent wave (last 10), with category legend
+- Placed between OutcomeDistribution and DecisionTimeline in Research tab
+- Cleaned unused imports (motion, CATEGORY_TW, Cell, Sparkles)
+- Lint clean, commit df2cd30
+
+Stage Summary:
+- Files: +src/components/harness/skills-section.tsx, +src/components/harness/wave-category-breakdown.tsx
+- Modified: src/components/harness/research-tab.tsx (-84 lines, cleaner imports)
+- Commit: df2cd30 pushed to main
