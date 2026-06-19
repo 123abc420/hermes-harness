@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 18:42 UTC+8
+2026-06-19 18:50 UTC+8
 
 ## System Status
-- **Phase**: Operational (Wave 12 — dead code cleanup, import fix)
-- **Waves completed**: 9 (6 in DB + 3 manual)
+- **Phase**: Operational (Wave 13 — export contract created)
+- **Waves completed**: 10 (7 in DB + 3 manual)
 - **GitHub connected**: Yes (123abc420/hermes-harness)
 - **Web app**: Dashboard live, Agent Live tab as default
 - **Crons**: 2 active (hermes-wave 10min, webDevReview 15min)
@@ -18,13 +18,13 @@
 |--------|-------|
 | API routes | 14 |
 | Dashboard tabs | 6 |
-| Skills | 4 |
-| GitHub commits | 7 |
-| Waves completed | 9 |
+| Skills | 5 |
+| GitHub commits | 8 |
+| Waves completed | 10 |
 
 ## What exists
 - SPEC.md + guardrails + wave_protocol
-- gh-sync/: memory, skills (4), specs
+- gh-sync/: memory, skills (5), specs
 - 14 API routes under /api/harness/*
 - 6-tab dashboard with live 3D avatar as entry
 - Single 3D file: agent-3d-sandbox.tsx (VRM+Chibi+World+Camera, 797 lines)

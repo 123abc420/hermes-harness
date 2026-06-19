@@ -461,3 +461,22 @@ Stage Summary:
 - Server starts and serves API routes successfully
 - Main page / dies during Three.js turbopack compilation — env resource constraint, not code bug
 - Lint clean, GitHub synced (7 commits total)
+---
+Task ID: Wave 13
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 13 — Spec compliance: export contract + environment skill
+
+Work Log:
+- ASSESS: Read context.md, insights.md, skills/, dev.log, dashboard API (200 OK)
+- Found dev.log clean — page loaded in 99ms, APIs in 11-28ms
+- Found SPEC Section 5 requires src/index.ts (export contract) — did NOT exist
+- Found 12+ waves of repeated environment patterns not codified as skill
+- EXECUTE Decision 1 (feature/high): Created src/index.ts — exports 9 components, 11 hooks, 1 store, 12 types
+- EXECUTE Decision 2 (code_quality/medium): Created gh-sync/skills/environment-resilience.md — 6 patterns
+- VERIFY: lint 0 errors, dev.log no new errors, dashboard API 200 OK
+- PERSIST: Committed 308b584, pushed, recorded wave+decisions+metrics in DB
+
+Stage Summary:
+- SPEC Section 5 compliance gap closed — src/index.ts now provides full public API
+- Environment-resilience skill captures hard-won knowledge from 12+ waves
+- Spec compliance estimate improved from ~70% to ~80%
