@@ -1670,3 +1670,26 @@ Stage Summary:
 - New files: spec-compliance-card.tsx (99L), milestones-timeline.tsx (86L)
 - Total harness components: 20
 - Lint: clean
+
+---
+Task ID: 77
+Agent: Wave Engine (auto)
+Task: Extract StatsGrid + MiniWaveTimeline, fix Activity icon bug
+
+Work Log:
+- Fixed stuck wave 77 (duplicate from W76 session)
+- Read overview-tab.tsx (589 lines), identified 2 extraction targets
+- Created stats-grid.tsx (211 lines) with Sparkline, metricHistory, StatCard, StatsGrid
+- Created mini-wave-timeline.tsx (85 lines) with timeline rendering
+- Discovered and fixed latent bug: Activity lucide icon used but never imported
+- Removed unused imports: Brain, TrendingUp, Target, formatDistanceToNow, TotalStats
+- Ran bun run lint — zero errors
+- overview-tab.tsx: 589 → 300 lines (49% reduction)
+- Git committed, DB records created (wave 79), GitHub pushed
+
+Stage Summary:
+- overview-tab.tsx: 589 → 300 lines (49% reduction this wave, 61% from original 769)
+- New files: stats-grid.tsx (211L), mini-wave-timeline.tsx (85L)
+- Bug fix: Activity icon import missing (latent, now fixed in stats-grid.tsx)
+- Total harness components: 22
+- Remaining inline in overview-tab: ErrorTrendChart, RecentCommitsCard (+ skeletons)
