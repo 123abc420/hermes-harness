@@ -77,15 +77,15 @@ export function WavesTab() {
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
           Wave History
         </h2>
-        <div className="flex items-center gap-2">
-          {/* Filter buttons */}
-          <div className="flex rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5">
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Filter buttons — scrollable on mobile */}
+          <div className="flex rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5 overflow-x-auto max-w-[220px] sm:max-w-none scrollbar-dark">
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleFilterChange(opt.value)}
                 aria-pressed={waveFilter === opt.value}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
+                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 ${
                   waveFilter === opt.value
                     ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'
                     : 'text-zinc-500 hover:text-zinc-300'

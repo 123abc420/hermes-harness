@@ -461,13 +461,13 @@ export function AgentLivePanel() {
 
         {/* Bottom bar with replay controls */}
         <div className="px-5 py-3 border-t border-white/[0.06] shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5 text-amber-500/40" />
                 <span className="text-[10px] text-zinc-500 font-mono tracking-wider">SPEC-DRIVEN</span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="hidden sm:flex items-center gap-1.5">
                 <Zap className="h-3.5 w-3.5 text-amber-500/40" />
                 <span className="text-[10px] text-zinc-500 font-mono tracking-wider">AUTO-EVOLUTION</span>
               </div>
@@ -486,10 +486,10 @@ export function AgentLivePanel() {
                   }`}
                 >
                   {isReplaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                  <span className="font-mono">⟳ REPLAY</span>
+                  <span className="hidden sm:inline font-mono">⟳ REPLAY</span>
                 </Button>
               )}
-              <span className="text-[10px] text-zinc-700 font-mono">HERMES {HERMES_VERSION}</span>
+              <span className="hidden sm:inline text-[10px] text-zinc-700 font-mono">HERMES {HERMES_VERSION}</span>
             </div>
           </div>
         </div>

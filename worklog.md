@@ -804,3 +804,20 @@ Stage Summary:
 - LEVEL_NAMES deduplicated from 3 files to 1 shared constant
 - Agent panel now shows a polished skeleton on initial mount
 - constants.ts now holds HERMES_VERSION, LEVEL_NAMES, getLevelName
+---
+Task ID: 31
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 31 — Mobile responsive polish
+
+Work Log:
+- ASSESS: Clean state, 25 waves, 0 errors, 100% recent success rate. Followed context.md "What's next" item #1.
+- EXECUTE Decision 1 (fix/high): Fixed agent-live-panel bottom bar overflow. Added flex-wrap, hid AUTO-EVOLUTION badge and version text on mobile (hidden sm:flex / hidden sm:inline), hid REPLAY label text on mobile.
+- EXECUTE Decision 2 (fix/high): Fixed 3 more mobile overflow issues: (1) Waves tab filter pills now horizontally scrollable on mobile (max-w-[220px] sm:max-w-none), (2) Decisions tab 9 filter buttons now scrollable (max-w-[260px] sm:max-w-none), (3) Footer right-side text hidden below sm: breakpoint.
+- VERIFY: lint 0 errors, no new dev.log errors.
+- PERSIST: Wave 26 in DB completed, 2 decisions, 1 metric.
+
+Stage Summary:
+- 4 mobile overflow issues fixed across 4 files
+- All filter containers now scrollable on mobile, expand on sm:+
+- Agent panel bottom bar and footer gracefully collapse on small viewports
+- Added shrink-0 to filter buttons to prevent text truncation during scroll

@@ -178,15 +178,15 @@ export function DecisionsTab() {
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
           Decisions Log
         </h2>
-        <div className="flex items-center gap-2">
-          <Filter className="h-3.5 w-3.5 text-zinc-600" />
-          <div className="flex flex-wrap gap-1">
+        <div className="flex items-center gap-2 min-w-0">
+          <Filter className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
+          <div className="flex gap-1 overflow-x-auto max-w-[260px] sm:max-w-none pb-1 scrollbar-dark">
             {FILTER_BUTTONS.map((btn) => (
               <button
                 key={btn.value}
                 onClick={() => handleFilterChange(btn.value)}
                 aria-pressed={decisionCategoryFilter === btn.value}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
+                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 ${
                   decisionCategoryFilter === btn.value
                     ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'
                     : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'

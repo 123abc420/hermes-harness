@@ -113,14 +113,14 @@ export default function Home() {
       </main>
 
       <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906]">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2 text-xs text-amber-800/50">
             <Zap className="h-3 w-3 text-amber-500/30" />
             <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[10px] text-amber-900/40 font-mono">Cozy 3D World</span>
-            <span className="text-[10px] text-amber-900/40 font-mono">
+            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Cozy 3D World</span>
+            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">
               Spec-Driven Self-Evolution
             </span>
           </div>

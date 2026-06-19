@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 21:42 UTC+8
+2026-06-19 21:52 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 30)
-- **Waves in DB**: 25
+- **Phase**: Post-Compliance Evolution (Wave 31)
+- **Waves in DB**: 26
 - **Spec compliance**: 100% (15/15)
 
 ## Current Metrics
@@ -16,11 +16,10 @@
 | API routes | 16 |
 | Dashboard tabs | 6 |
 | Skills | 8 |
-| GitHub commits | 52+ |
-| Waves in DB | 25 |
+| GitHub commits | 53+ |
+| Waves in DB | 26 |
 | Wave success rate (recent 5) | 100% |
-| LEVEL_NAMES duplicates | 1 (canonical in constants.ts) |
-| Spanish strings remaining | 0 |
+| Mobile overflow issues | 0 |
 
 ## What exists
 - Dashboard: 5 stat cards, error trend, spec compliance, dual success rate, pagination
@@ -30,9 +29,10 @@
 - Language: All UI strings in English
 - Version: Centralized in src/lib/constants.ts (HERMES_VERSION, LEVEL_NAMES, getLevelName)
 - Agent panel: Loading skeleton (600ms), 2-column layout, 3D avatar, XP system
+- Responsive: Filter pills scrollable on mobile, footer/bottom-bar collapse on sm:-
 - Package: @hermes/harness-dashboard v0.1.0
 
 ## What's next
-1. Responsive/mobile polish (test on small viewports)
-2. Deduplicate EVOLUTION_STAGES into constants (canvas still has local copy with extra visual fields)
-3. Add keyboard navigation support (Tab order, Escape to close)
+1. Deduplicate EVOLUTION_STAGES into constants (canvas still has local copy with extra visual fields)
+2. Add keyboard navigation support (Tab order, Escape to close)
+3. Create a skill for the repeatable "responsive audit" pattern
