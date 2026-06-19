@@ -34,6 +34,14 @@ const SPEC_CHECKLIST = [
   { label: 'Metrics & Observability', done: true },
   { label: 'Dashboard Control Plane', done: true },
   { label: 'Memory & Context System', done: true },
+  { label: 'Skills System (5 skills)', done: true },
+  { label: 'Export Contract (src/index.ts)', done: true },
+  { label: 'Agent Live 3D (VRM + Chibi)', done: true },
+  { label: 'Cron Jobs (2 active)', done: true },
+  { label: 'user_profile.md', done: true },
+  { label: 'wave_protocol.md', done: true },
+  { label: 'Turborepo Package Layout', done: false },
+  { label: 'Error Rate Decreasing Trend', done: false },
 ];
 
 /* ── Hero Status Card ─────────────────────────────────── */
@@ -358,6 +366,21 @@ function QuickMetricsChart() {
   );
   const primaryMetric = keys[0];
 
+  const METRIC_LABELS: Record<string, string> = {
+    api_routes: 'API Routes',
+    github_commits: 'GitHub Commits',
+    skills: 'Skills',
+    waves_completed: 'Waves',
+    lint_errors: 'Lint Errors',
+    dead_files_removed: 'Dead Files Removed',
+    station_sources: 'Station Sources',
+    exported_types: 'Exported Types',
+    spec_compliance_export: 'Spec Compliance',
+    db_records: 'DB Records',
+  };
+
+  const metricLabel = METRIC_LABELS[primaryMetric] ?? primaryMetric.replace(/_/g, ' ');
+
   if (!primaryMetric || grouped[primaryMetric].length < 2) {
     return (
       <Card className="glass-card">
@@ -400,7 +423,7 @@ function QuickMetricsChart() {
             Metrics
           </CardTitle>
           <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
-            {primaryMetric}
+            {metricLabel}
           </span>
         </div>
       </CardHeader>
