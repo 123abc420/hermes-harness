@@ -1406,3 +1406,18 @@ Work Log:
 Stage Summary:
 - Eliminated chart tooltip style duplication
 - Insights.md now covers all major learning clusters through Wave 61
+
+---
+Task ID: 63
+Agent: Wave Engine
+Task: Wave 63 — Wave detail dialog consistency fix
+
+Work Log:
+- Added CATEGORY_TW import to waves-tab.tsx
+- Replaced plain gray badge with shared category colors in wave detail dialog
+- Added targetFile display (truncated monospace) below each decision description
+- Lint clean, pushed d87a01a
+
+Stage Summary:
+- All 4 decision badge consumers now use shared CATEGORY_TW (decisions-tab, agent-live-panel, research-tab via hex, waves-tab detail)
+- Wave detail dialog now shows which file each decision targeted
