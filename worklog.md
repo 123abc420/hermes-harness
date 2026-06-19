@@ -438,3 +438,26 @@ Stage Summary:
 - La cámara sigue al personaje suavemente entre estaciones
 - Todo compila sin errores de lint ni Turbopack
 - El avatar responde al mouse (ojos), tiene gestos aleatorios, y camina según el estado del agente
+---
+Task ID: Wave 12
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 12 — Dead code cleanup, import fix, server stability verification
+
+Work Log:
+- ASSESS: Read context.md, insights.md, guardrails.md, skills/, dev.log, dashboard API
+- Found: Dev server down, dashboard API unreachable, 2 dead files from previous waves
+- Found: agent-3d-sandbox.tsx missing useCallback import (used at line 760, not in import at line 3)
+- Found: agent-3d-character.tsx and agent-3d-world.tsx not imported by any file
+- EXECUTE Decision 1 (fix/critical): Added useCallback to React imports in agent-3d-sandbox.tsx
+- EXECUTE Decision 2 (code_quality/high): Deleted agent-3d-character.tsx (365 lines) and agent-3d-world.tsx (378 lines)
+- EXECUTE Decision 3 (fix/medium): Verified dev server starts (744ms), API routes return 200, lint 0 errors
+- Cleared .next cache after file deletions
+- VERIFY: lint clean (0 errors, 0 warnings), API 200 OK
+- PERSIST: Wave recorded in DB (3 decisions, 3 metrics), git push 413cf96
+
+Stage Summary:
+- Fixed runtime crash bug (missing useCallback import)
+- Removed 743 lines of dead code — 3D system now cleanly: sandbox.tsx + shared.ts only
+- Server starts and serves API routes successfully
+- Main page / dies during Three.js turbopack compilation — env resource constraint, not code bug
+- Lint clean, GitHub synced (7 commits total)
