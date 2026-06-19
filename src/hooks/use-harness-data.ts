@@ -138,8 +138,8 @@ export function useSkills() {
 }
 
 export function useMemory() {
-  return useQuery<{ context: string; insights: string }>({
+  return useQuery<{ context: string; insights: string; userProfile: string }>({
     queryKey: ['harness-memory'],
-    queryFn: () => fetchJSON<{ context: string; insights: string }>('/api/harness/memory'),
+    queryFn: () => fetchJSON<{ context: string; insights: string; userProfile: string }>('/api/harness/memory'),
   });
 }

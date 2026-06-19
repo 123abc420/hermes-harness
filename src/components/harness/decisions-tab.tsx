@@ -26,6 +26,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   architecture: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
   skill: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
   insight: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  i18n: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
 };
 
 const PRIORITY_STYLES: Record<string, string> = {
@@ -40,6 +41,7 @@ const FILTER_BUTTONS = [
   { value: 'code_quality', label: 'Code Quality' },
   { value: 'feature', label: 'Feature' },
   { value: 'fix', label: 'Fix' },
+  { value: 'i18n', label: 'i18n' },
   { value: 'refactor', label: 'Refactor' },
   { value: 'performance', label: 'Performance' },
   { value: 'architecture', label: 'Architecture' },

@@ -11,6 +11,7 @@ import {
   Database,
   PieChart as PieChartIcon,
   ListChecks,
+  User,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -81,6 +82,27 @@ function MemorySection() {
               ) : (
                 <div className="flex h-20 items-center justify-center rounded-lg border border-white/[0.04] bg-white/[0.02]">
                   <p className="text-xs text-zinc-600">No insights recorded yet</p>
+                </div>
+              )}
+            </div>
+
+            {/* User Profile */}
+            <div>
+              <div className="mb-1.5 flex items-center gap-2">
+                <User className="h-3 w-3 text-sky-400" />
+                <h3 className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                  User Profile
+                </h3>
+              </div>
+              {data?.userProfile ? (
+                <ScrollArea className="max-h-48 rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
+                  <pre className="whitespace-pre-wrap text-xs leading-relaxed text-zinc-400 font-mono">
+                    {data.userProfile}
+                  </pre>
+                </ScrollArea>
+              ) : (
+                <div className="flex h-20 items-center justify-center rounded-lg border border-white/[0.04] bg-white/[0.02]">
+                  <p className="text-xs text-zinc-600">No user profile stored yet</p>
                 </div>
               )}
             </div>
@@ -183,6 +205,7 @@ const PIE_COLORS: Record<string, string> = {
   architecture: '#14b8a6',
   skill: '#f59e0b',
   insight: '#ec4899',
+  i18n: '#0ea5e9',
 };
 
 function DecisionDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
