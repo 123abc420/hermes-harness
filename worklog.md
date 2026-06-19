@@ -499,3 +499,23 @@ Stage Summary:
 - Export contract now covers 2 stores, 9 components, 11 hooks, 14 types
 - SPEC Section 6 repo structure fully compliant (logs/waves/ created)
 - Spec compliance now ~85%
+---
+Task ID: Wave 15
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 15 — Fix station desync bug + trim stale insights
+
+Work Log:
+- ASSESS: Server alive (200 OK, 8ms), dev.log clean, context current
+- Found: STATIONS in shared.ts had 6/10 positions different from STATION_LIST in sandbox.tsx
+- Found: insights.md at token cap with obsolete Canvas/socket.io content
+- EXECUTE Decision 1 (fix/high): Unified to single source of truth — STATIONS + STATION_COLORS in shared.ts
+- EXECUTE Decision 2 (code_quality/medium): Trimmed insights.md, removed Wave 3 (Canvas era), added Wave 12-15
+- Changed shared.ts station positions to match the sandbox world layout (wider spacing)
+- VERIFY: lint 0 errors
+- PERSIST: Commit d3f74ff, pushed, wave+decisions+metrics recorded
+
+Stage Summary:
+- Station position desync bug fixed — character and markers now at same positions
+- STATION_COLORS extracted to shared.ts as canonical color source
+- insights.md trimmed from 93→65 lines, all content current
+- Net -36 lines of code despite adding STATION_COLORS
