@@ -1510,3 +1510,19 @@ Work Log:
 Stage Summary:
 - File: src/components/harness/agent-live-panel.tsx (+4/-2)
 - Commit: 129f021 pushed to main
+
+---
+Task ID: 69
+Agent: HERMES Wave Engine (Wave 69)
+Task: Add Evolution Milestones timeline to Overview
+
+Work Log:
+- Created MilestonesTimeline component with amber Trophy icon
+- Derives milestones from wave array (W1, W10, W25, W50, W75, W100, latest, skills)
+- Scrollable with staggered animation, loading skeleton
+- Full-width card above duration/activity 2-col grid
+- Lint clean, commit 05095d5 pushed
+
+Stage Summary:
+- File: src/components/harness/overview-tab.tsx (+112/-2)
+- Commit: 05095d5 pushed to main
