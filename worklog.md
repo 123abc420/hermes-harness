@@ -1311,3 +1311,25 @@ Stage Summary:
 - 100 commits milestone reached
 - Cumulative: 57 waves, 100 commits, 100% spec compliance
 - Data integrity: all completed waves now have completedAt set
+
+---
+Task ID: 58
+Agent: Wave Engine
+Task: Wave 58 — Health score in Agent Live + error state handling
+
+Work Log:
+- Added `healthScore: number` to agent-live-store interface and default state
+- Extended `setStatus` type to include healthScore
+- Synced healthScore from dashboard API in useHarnessDashboard hook
+- Added compact animated health score bar (Shield icon + progress + numeric) between avatar and stats grid in Agent Live panel
+- Added `isError` destructuring from useWaves and useDecisions hooks
+- Added WifiOff error indicator cards for waves and decisions when API calls fail
+- Ran lint: clean, no errors
+- Dev.log: no new errors
+- Created wave 58 record with 2 decisions, 2 metrics
+- Git commit + push: 6d97da1
+
+Stage Summary:
+- Health score now visible in Agent Live (primary at-a-glance view), not just Overview
+- Error states properly surface in Agent Live instead of showing empty sections
+- Files changed: agent-live-store.ts, use-harness-data.ts, agent-live-panel.tsx
