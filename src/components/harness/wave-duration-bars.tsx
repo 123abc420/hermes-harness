@@ -7,7 +7,26 @@ import type { Wave } from '@/store/harness-store';
 
 /* ── Wave Duration Bars ────────────────────────────── */
 export function WaveDurationBars({ waves }: { waves: Wave[] }) {
-  if (waves.length < 2) return null;
+  if (waves.length < 2) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-amber-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Wave Duration
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-24 items-center justify-center">
+          <div className="text-center">
+            <Clock className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
+            <p className="text-xs text-zinc-600">Need at least 2 completed waves</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const durationData = [...waves]
     .reverse()
@@ -18,7 +37,26 @@ export function WaveDurationBars({ waves }: { waves: Wave[] }) {
     })
     .filter(Boolean) as { wave: number; seconds: number; status: string }[];
 
-  if (durationData.length < 2) return null;
+  if (durationData.length < 2) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-amber-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Wave Duration
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-24 items-center justify-center">
+          <div className="text-center">
+            <Clock className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
+            <p className="text-xs text-zinc-600">Need at least 2 completed waves</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const maxSec = Math.max(...durationData.map((d) => d.seconds), 1);
   const avgSec = Math.round(durationData.reduce((s, d) => s + d.seconds, 0) / durationData.length);

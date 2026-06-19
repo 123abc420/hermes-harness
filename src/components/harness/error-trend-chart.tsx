@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingDown, AlertTriangle } from 'lucide-react';
+import { TrendingDown, AlertTriangle, BarChart3 } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -15,7 +15,26 @@ import type { DashboardData } from '@/store/harness-store';
 import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
 
 export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTrend'] }) {
-  if (!errorTrend?.length) return null;
+  if (!errorTrend?.length) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-red-400/60" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Error Rate Trend
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-24 items-center justify-center">
+          <div className="text-center">
+            <TrendingDown className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
+            <p className="text-xs text-zinc-600">No error trend data yet</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const trend = errorTrend;
   const totalErrors = trend.reduce((s, t) => s + t.errors, 0);

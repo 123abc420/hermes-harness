@@ -4,7 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GitCommitHorizontal } from 'lucide-react';
 
 export function RecentCommitsCard({ commits }: { commits?: { sha: string; message: string }[] }) {
-  if (!commits?.length) return null;
+  if (!commits?.length) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <GitCommitHorizontal className="h-4 w-4 text-cyan-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Recent Commits
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-24 items-center justify-center">
+          <div className="text-center">
+            <GitCommitHorizontal className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
+            <p className="text-xs text-zinc-600">No commits yet</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="glass-card">

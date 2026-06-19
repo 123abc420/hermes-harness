@@ -30,14 +30,33 @@ export function MilestonesTimeline({ waves, totalWaves, skillsCount }: { waves: 
 
   if (latestWave && latestWave !== firstWave && !MILESTONE_WAVES.includes(latestWave)) {
     const w = waves.find(w => w.waveNumber === latestWave);
-    milestones.push({ wave: latestWave, label: 'Latest', time: w?.startedAt ?? '', summary: w?.summary ?? undefined });
+    milestones.push({ wave: latestWave, label: 'Latest', time: w?.startedAt ?? '', summary: w.summary ?? undefined });
   }
 
   if (skillsCount && skillsCount >= 10) {
     milestones.push({ wave: 0, label: `${skillsCount} Skills`, time: '', summary: 'Agent knowledge base' });
   }
 
-  if (milestones.length < 2) return null;
+  if (milestones.length < 2) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-amber-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Evolution Milestones
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-24 items-center justify-center">
+          <div className="text-center">
+            <Trophy className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
+            <p className="text-xs text-zinc-600">Not enough waves for milestones</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="glass-card">

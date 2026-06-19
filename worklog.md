@@ -1888,3 +1888,21 @@ Stage Summary:
 - Stats Grid fills better on all screen sizes with 6 cards
 - Skills count: 18 (was 17)
 - Files: decisions/route.ts, use-harness-data.ts, decisions-tab.tsx, stats-grid.tsx, ux-summary-bar.md
+
+---
+Task ID: 90
+Agent: Wave Engine
+Task: Wave 90 — Defensive null guards, empty-state placeholders, new skill
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, skills (19 files), dev.log (no errors), DB (84 waves)
+- PLAN: Identified 3 improvements — (1) ExportModules null guard + skill.content crash guard, (2) Replace return-null with empty states in 5 components, (3) New defensive-null-guards skill
+- EXECUTE: Fixed ExportModules with `const list = modules ?? []`, fixed skill.content.slice with optional chaining, replaced return-null in RecentCommitsCard, ErrorTrendChart, MilestonesTimeline, WaveDurationBars, DecisionTimeline with proper empty-state cards (glass-card + icon + message pattern), created defensive-null-guards.md skill (#19)
+- VERIFY: `bun run lint` passed (0 errors, 0 warnings), dev.log clean
+- PERSIST: Wave #90 created in DB, 3 decisions recorded, 1 metric recorded
+
+Stage Summary:
+- 7 components hardened against null/undefined crashes
+- 5 components now render consistent empty-state placeholders instead of vanishing
+- New skill #19 (defensive-null-guards) codifies the pattern
+- Health remains ~92/100, 84 waves in DB, 19 skills

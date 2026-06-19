@@ -255,6 +255,7 @@ function CommitHistory({ githubStatus }: { githubStatus?: GithubStatus }) {
 
 /* ── Export Modules ───────────────────────────────────── */
 function ExportModules({ modules }: { modules?: ExportModule[] }) {
+  const list = modules ?? [];
 
   return (
     <Card className="glass-card">
@@ -266,15 +267,15 @@ function ExportModules({ modules }: { modules?: ExportModule[] }) {
               Export Modules
             </CardTitle>
           </div>
-          {modules.length > 0 && (
+          {list.length > 0 && (
             <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
-              {modules.length}
+              {list.length}
             </span>
           )}
         </div>
       </CardHeader>
       <CardContent>
-        {modules.length === 0 ? (
+        {list.length === 0 ? (
           <div className="flex h-24 items-center justify-center">
             <div className="text-center">
               <Package className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
@@ -285,7 +286,7 @@ function ExportModules({ modules }: { modules?: ExportModule[] }) {
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {modules.map((mod) => (
+            {list.map((mod) => (
               <div
                 key={mod.id}
                 className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-4 transition-colors hover:border-white/10"

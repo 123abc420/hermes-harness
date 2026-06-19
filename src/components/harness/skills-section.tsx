@@ -145,7 +145,7 @@ export function SkillsSection() {
                       </p>
                     )}
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
-                      {skill.content.slice(0, 200)}
+                      {(skill.content ?? '').slice(0, 200) || 'No content available'}
                     </p>
                   </motion.div>
                 );

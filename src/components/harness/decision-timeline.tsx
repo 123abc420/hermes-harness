@@ -12,7 +12,26 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
   const items = decisions ?? [];
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <ListChecks className="h-4 w-4 text-teal-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Recent Decisions
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-24 items-center justify-center">
+          <div className="text-center">
+            <ListChecks className="mx-auto mb-2 h-6 w-6 text-zinc-700" />
+            <p className="text-xs text-zinc-600">No decisions recorded yet</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const shown = items.slice(0, 8);
 
