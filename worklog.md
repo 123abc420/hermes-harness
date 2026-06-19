@@ -920,3 +920,21 @@ Stage Summary:
 - 2 dead exports cleaned from index.ts
 - ~1370 lines of dead code eliminated
 - Bundle size reduced (tree-shaking now fully eliminates these paths)
+
+---
+Task ID: 38
+Agent: HERMES Wave Engine
+Task: Wave 38 — Stale data fix, wave duration UX, console.log cleanup
+
+Work Log:
+- ASSESS: 31 waves, 0 errors. Found stale "7 skills" in overview checklist.
+- Fixed SPEC_CHECKLIST: "Skills System (7 skills)" → "(11 skills)"
+- Added Duration display to wave detail dialog: shows seconds between startedAt and completedAt
+- Removed client-side console.log from SSE onopen (fired every page load)
+- VERIFY: lint 0 errors
+
+Stage Summary:
+- 3 small improvements across 3 files
+- Stale data: skill count 7→11 (was 4 waves behind)
+- New UX: wave duration visible in detail dialog
+- Console hygiene: 1 client-side log removed (20 server-side error logs kept)

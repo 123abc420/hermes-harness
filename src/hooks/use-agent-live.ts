@@ -111,7 +111,6 @@ export function useAgentLive() {
       eventSourceRef.current = es;
 
       es.onopen = () => {
-        console.log('[AgentLive] SSE connected');
         setConnected(true);
       };
 

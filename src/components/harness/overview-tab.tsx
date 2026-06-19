@@ -35,7 +35,7 @@ const SPEC_CHECKLIST = [
   { label: 'Metrics & Observability', done: true },
   { label: 'Dashboard Control Plane', done: true },
   { label: 'Memory & Context System', done: true },
-  { label: 'Skills System (7 skills)', done: true },
+  { label: 'Skills System (11 skills)', done: true },
   { label: 'Export Contract (src/index.ts)', done: true },
   { label: 'Agent Live 3D (VRM walk + Chibi gestures)', done: true },
   { label: 'Cron Jobs (2 active)', done: true },

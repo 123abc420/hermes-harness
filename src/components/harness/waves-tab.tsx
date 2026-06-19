@@ -314,6 +314,11 @@ export function WavesTab() {
                       addSuffix: true,
                     })}
                   </span>
+                  {waveDetail.completedAt && (
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      Duration: {Math.round((new Date(waveDetail.completedAt).getTime() - new Date(waveDetail.startedAt).getTime()) / 1000)}s
+                    </span>
+                  )}
                 </div>
                 {waveDetail.summary && (
                   <p className="text-sm text-zinc-400">{waveDetail.summary}</p>
