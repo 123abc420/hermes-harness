@@ -16,8 +16,6 @@ export { ResearchTab } from './components/harness/research-tab';
 export { GithubTab } from './components/harness/github-tab';
 export { AgentLivePanel } from './components/harness/agent-live-panel';
 export { Agent3DSandbox } from './components/harness/agent-3d-sandbox';
-export { AgentAvatarCanvas } from './components/harness/agent-avatar-canvas';
-export type { AgentVisualState } from './components/harness/agent-avatar-canvas';
 export { HarnessHeader } from './components/harness/harness-header';
 
 // ─── Hooks ────────────────────────────────────────────────────────────────
