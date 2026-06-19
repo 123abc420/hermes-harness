@@ -131,3 +131,8 @@
 
 - shadcn/ui `add` generates 30+ files; most go unused. Audit early, remove aggressively.
 - Dead file audit via subagent is fast and thorough — grep for basename across all imports.
+
+## 2026-06-20 — Wave 48: UX Polish
+
+- Keyboard shortcuts need input guard (INPUT/TEXTAREA/contentEditable) to avoid conflicts
+- <kbd> badges are a subtle UX cue for discoverability — hide on mobile, show on lg+

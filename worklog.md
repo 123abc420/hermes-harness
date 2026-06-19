@@ -1121,3 +1121,25 @@ Work Log:
 Stage Summary:
 - 4 files changed, +7 -6 lines
 - 83 total commits, 42 waves in DB
+
+---
+Task ID: 48
+Agent: Main Wave Engine
+Task: Wave 48 — UX enhancements: keyboard shortcuts, wave summary, deps tracking
+
+Work Log:
+- Added keyboard shortcuts (keys 1-6) for instant tab switching in page.tsx
+- Added TAB_KEY_MAP constant and handleKeyDown event listener with input guard
+- Added subtle <kbd> number badges visible on lg+ screens in tab triggers
+- Added Last Wave Summary card to Agent Live panel (between stats grid and XP bar)
+- Fetches latest wave via useWaves(1, 1) hook, shows summary, decisions count, improvements count
+- Added npm_dependencies to METRIC_LABELS in overview-tab QuickMetricsChart
+- Added npmDeps prop to HeroStatusCard, displays "X deps" in hero subtitle
+- Extracted npmDep from dash.metrics in OverviewTab, passed to HeroStatusCard
+- Added CheckCircle2 import to agent-live-panel
+- Lint: clean. Git push: success (b6384e5).
+
+Stage Summary:
+- 3 files changed, +75 -1 lines
+- 86 total commits, 43 waves in DB
+- 3 improvements: keyboard nav, wave summary card, npm deps visibility
