@@ -17,7 +17,20 @@ export async function GET() {
     const insights = await readFileSafe(path.join(memoryDir, 'insights.md'));
     const userProfile = await readFileSafe(path.join(memoryDir, 'user_profile.md'));
 
-    return NextResponse.json({ context, insights, userProfile });
+    // Token caps from SPEC: context ~800 tokens (~3200 chars), insights ~2000 tokens (~8000 chars)
+    const CONTEXT_CAP = 3200;
+    const INSIGHTS_CAP = 8000;
+
+    return NextResponse.json({
+      context,
+      insights,
+      userProfile,
+      health: {
+        context: { chars: context.length, cap: CONTEXT_CAP, pct: Math.round((context.length / CONTEXT_CAP) * 100) },
+        insights: { chars: insights.length, cap: INSIGHTS_CAP, pct: Math.round((insights.length / INSIGHTS_CAP) * 100) },
+        userProfile: { chars: userProfile.length },
+      },
+    });
   } catch (error) {
     console.error('[MEMORY] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch memory' }, { status: 500 });

@@ -141,9 +141,15 @@ export function useSkills() {
   });
 }
 
+interface MemoryHealth {
+  chars: number;
+  cap?: number;
+  pct?: number;
+}
+
 export function useMemory() {
-  return useQuery<{ context: string; insights: string; userProfile: string }>({
+  return useQuery<{ context: string; insights: string; userProfile: string; health: { context: MemoryHealth; insights: MemoryHealth; userProfile: MemoryHealth } }>({
     queryKey: ['harness-memory'],
-    queryFn: () => fetchJSON<{ context: string; insights: string; userProfile: string }>(`${API_BASE}/memory`),
+    queryFn: () => fetchJSON<{ context: string; insights: string; userProfile: string; health: { context: MemoryHealth; insights: MemoryHealth; userProfile: MemoryHealth } }>(`${API_BASE}/memory`),
   });
 }
