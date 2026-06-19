@@ -20,6 +20,7 @@ let vrmLoadSuccess = false;
 let vrmLoadError = false;
 const vrmLookAtTarget = new THREE.Object3D();
 const characterWorldPos = new THREE.Vector3(0, 0, 0);
+const arrivalFlash = { intensity: 0, color: '#6366f1' };
 
 /* ═══════════════════════════════════════════════════════════════════════
    CONSTANTS
@@ -67,21 +68,68 @@ function loadVRM(onLoad: () => void, onError: () => void) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   WORLD ENVIRONMENT — ground, trees, rocks, mushrooms, lights
+   DYNAMIC LIGHTING — adjusts ambient light based on Argentina time
    ═══════════════════════════════════════════════════════════════════════ */
-function World() {
-  const gridRef = useMemo(() => new THREE.GridHelper(24, 36, '#1a3a2a', '#0d1f15'), []);
+function DynamicLighting() {
+  const ambientRef = useRef<THREE.AmbientLight>(null);
+  const dirRef = useRef<THREE.DirectionalLight>(null);
+
+  useFrame(() => {
+    // Get Argentina hour (UTC-3)
+    const now = new Date();
+    const arHour = (now.getUTCHours() - 3 + 24) % 24;
+
+    // Smooth day/night: 0=midnight, 6=sunrise, 12=noon, 18=sunset
+    // Map to 0..1 brightness: night=0.15, day=0.6
+    const sunAngle = ((arHour - 6) / 12) * Math.PI; // 0 at 6am, PI at 6pm
+    const dayFactor = Math.max(0, Math.cos(sunAngle)); // 1 at noon, 0 at night
+    const brightness = 0.15 + dayFactor * 0.45;
+
+    if (ambientRef.current) {
+      ambientRef.current.intensity = THREE.MathUtils.lerp(ambientRef.current.intensity, brightness, 0.02);
+      // Warmer at sunrise/sunset, cooler at noon, bluer at night
+      const warmth = 1 - Math.abs(dayFactor - 0.5) * 2; // peaks at dawn/dusk
+      const r = 0.5 + warmth * 0.3;
+      const g = 0.5 + dayFactor * 0.2;
+      const b = 0.6 + dayFactor * 0.2;
+      ambientRef.current.color.setRGB(r, g, b);
+    }
+    if (dirRef.current) {
+      const dirIntensity = 0.3 + dayFactor * 0.7;
+      dirRef.current.intensity = THREE.MathUtils.lerp(dirRef.current.intensity, dirIntensity, 0.02);
+      // Sun position follows time of day
+      const sunX = Math.sin(sunAngle) * 8;
+      const sunY = Math.max(0.5, Math.cos(sunAngle) * 8);
+      dirRef.current.position.set(sunX, sunY, 4);
+      // Warmer color at low sun angles
+      const sunWarmth = 1 - dayFactor;
+      dirRef.current.color.setRGB(1, 0.9 - sunWarmth * 0.3, 0.8 - sunWarmth * 0.4);
+    }
+  });
+
   return (
-    <group>
-      {/* Lighting */}
-      <ambientLight intensity={0.35} color="#b0c4de" />
-      <directionalLight position={[5, 8, 4]} intensity={0.8} color="#ffe4c4" castShadow
+    <>
+      <ambientLight ref={ambientRef} intensity={0.35} color="#b0c4de" />
+      <directionalLight ref={dirRef} position={[5, 8, 4]} intensity={0.8} color="#ffe4c4" castShadow
         shadow-mapSize-width={1024} shadow-mapSize-height={1024}
         shadow-camera-near={0.5} shadow-camera-far={30} shadow-camera-left={-8} shadow-camera-right={8}
         shadow-camera-top={8} shadow-camera-bottom={-8} />
       <pointLight position={[-4, 3, -3]} intensity={0.4} color="#06b6d4" distance={10} />
       <pointLight position={[4, 3, 2]} intensity={0.3} color="#a855f7" distance={10} />
       <fog attach="fog" args={['#050a08', 8, 25]} />
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   WORLD ENVIRONMENT — ground, trees, rocks, mushrooms, lights
+   ═══════════════════════════════════════════════════════════════════════ */
+function World() {
+  const gridRef = useMemo(() => new THREE.GridHelper(24, 36, '#1a3a2a', '#0d1f15'), []);
+  return (
+    <group>
+      {/* Lighting — dynamic based on Argentina time */}
+      <DynamicLighting />
 
       {/* Ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
@@ -90,7 +138,7 @@ function World() {
       </mesh>
       <primitive object={gridRef} position={[0, 0.005, 0]} />
 
-      {/* Stars */}
+      {/* Stars — visible at night, fade during day */}
       <Stars radius={30} depth={40} count={1500} factor={3} saturation={0.3} fade speed={1} />
 
       {/* Trees */}
@@ -258,7 +306,18 @@ function ChibiCharacter() {
 
     // Movement
     const dist = g.position.distanceTo(targetPos);
+    const wasMoving = isMoving.current;
     isMoving.current = dist > 0.05;
+
+    // Trigger arrival flash when stopping
+    if (wasMoving && !isMoving.current) {
+      arrivalFlash.intensity = 2.0;
+      arrivalFlash.color = STATE_COLORS[stateRef.current] || '#6366f1';
+    }
+    // Decay flash
+    if (arrivalFlash.intensity > 0) {
+      arrivalFlash.intensity = Math.max(0, arrivalFlash.intensity - delta * 3);
+    }
     if (isMoving.current) {
       g.position.lerp(targetPos, delta * 2.5);
       // Face movement direction
@@ -667,6 +726,23 @@ function VRMCharacter() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   ARRIVAL FLASH — brief glow when character arrives at station
+   ═══════════════════════════════════════════════════════════════════════ */
+function ArrivalFlashLight() {
+  const lightRef = useRef<THREE.PointLight>(null);
+
+  useFrame(() => {
+    if (lightRef.current) {
+      lightRef.current.intensity = arrivalFlash.intensity;
+      lightRef.current.color.set(arrivalFlash.color);
+      lightRef.current.position.set(characterWorldPos.x, 0.5, characterWorldPos.z);
+    }
+  });
+
+  return <pointLight ref={lightRef} intensity={0} distance={3} color="#6366f1" />;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    CHARACTER BRIDGE — shows VRM or Chibi, handles switching
    ═══════════════════════════════════════════════════════════════════════ */
 function CharacterBridge() {
@@ -694,6 +770,7 @@ function CharacterBridge() {
   return (
     <group>
       {vrmReady ? <VRMCharacter /> : <ChibiCharacter />}
+      <ArrivalFlashLight />
 
       {/* Chat bubble in 3D space */}
       {showChat && (

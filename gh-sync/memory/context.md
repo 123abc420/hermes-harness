@@ -3,15 +3,15 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 19:55 UTC+8
+2026-06-19 20:05 UTC+8
 
 ## System Status
-- **Phase**: Operational (Wave 19 — Wave logs + UI fixes)
-- **Waves completed**: 17 (14 in DB + 3 manual)
+- **Phase**: Operational (Wave 20 — 3D atmosphere)
+- **Waves completed**: 18 (15 in DB + 3 manual)
 - **GitHub connected**: Yes (123abc420/hermes-harness)
 - **Crons**: 2 active (hermes-wave 10min, webDevReview 15min)
-- **Avatar**: VRM (primary, with bone walk) + Chibi (fallback, with 8 gestures)
-- **Spec compliance**: 93.75% (14/15 items)
+- **Avatar**: VRM (walk + expressions) + Chibi (8 gestures + arrival flash)
+- **Spec compliance**: 93.75% (14/15)
 
 ## Current Metrics
 | Metric | Value |
@@ -19,23 +19,18 @@
 | API routes | 15 |
 | Dashboard tabs | 6 |
 | Skills | 7 |
-| GitHub commits | 15 |
-| Waves completed | 17 |
+| GitHub commits | 16 |
+| Waves completed | 18 |
 | Spec compliance | 93.75% |
 
 ## What exists
-- SPEC.md + guardrails + wave_protocol
-- gh-sync/: memory, skills (7), specs, logs/waves/ (14 files)
-- 15 API routes under /api/harness/*
-- 6-tab dashboard: hero with wave status, stats, spec compliance, metrics, error trend, activity
-- Wave engine completes waves via PATCH, writes log files
-- Waves tab: filter by All/Running/Completed/Interrupted/Failed
+- 3D world: day/night cycle (Argentina time), arrival glow, bloom, camera follow
+- Chibi: 8 gestures, walk cycle, eye tracking, blinking, arrival flash
+- VRM: bone walk, expressions, eye tracking, auto-blink
+- Dashboard: hero status, error trend, spec compliance, activity feed
+- Wave engine: creates, completes via PATCH, writes log files, auto-cleans stale
 
 ## What's next
-1. Turborepo Package Layout (last spec gap — risky restructure)
-2. Visually verify VRM avatar (env limits)
+1. Turborepo Package Layout (last spec gap — risky)
+2. VRM visual verification (env limits)
 3. Sound effects for state changes
-
-## Known Issues
-- Dev server dies during Three.js page compilation (env resource limit)
-- API routes fine (200 OK). Lint: 0 errors.

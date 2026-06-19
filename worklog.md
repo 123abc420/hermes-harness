@@ -613,3 +613,20 @@ Stage Summary:
 - Waves tab can now filter by "Interrupted" status
 - Running status color changed to blue (was amber, conflicted with interrupted)
 - 7 total skills
+---
+Task ID: 20
+Agent: Wave Engine (cron)
+Task: Wave 20 — 3D world atmosphere improvements
+
+Work Log:
+- ASSESS: Clean state, 93.75% compliance. Focused on visual quality improvements for the 3D world.
+- PLAN: (1) Day/night lighting cycle synced to Argentina time, (2) Station arrival glow pulse, (3) Footstep particles (skipped, arrival flash sufficient).
+- EXECUTE Decision 1 (feature/high): Created DynamicLighting component. Ambient light intensity and color temperature shift based on Argentina hour (UTC-3). Directional sun position moves across sky. Dawn/dusk = warmer tones, noon = bright, night = dim + blue.
+- EXECUTE Decision 2 (feature/high): Added arrivalFlash module-level state. When Chibi stops moving (dist < 0.05), triggers a 2.0 intensity point light that decays over ~0.7s in the state color. ArrivalFlashLight component renders this.
+- VERIFY: lint 0 errors. Wave completed via PATCH.
+- PERSIST: Wave log written, 2 decisions, GitHub synced.
+
+Stage Summary:
+- 3D world now has a day/night cycle matching Argentina timezone
+- Character arrival at stations triggers a brief color-matched glow
+- ~60 lines of new 3D code
