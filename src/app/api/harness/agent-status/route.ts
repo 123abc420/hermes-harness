@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // ─── In-memory state (always available, no external service needed) ─
 let latestStatus: Record<string, unknown> = {
   agentState: 'idle',
-  message: 'Esperando actividad...',
+  message: 'Waiting for activity...',
   phase: '',
   waveNumber: 0,
   progress: 0,
@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
       // Also add as activity
       const entry = {
         agentState: body.state || 'executing',
-        message: `🚀 Sub-agente desplegado: ${subAgent.name}`,
+        message: `🚀 Sub-agent deployed: ${subAgent.name}`,
         phase: phase || '',
         id: `act_${Date.now()}_sub`,
         timestamp: Date.now(),

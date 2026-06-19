@@ -995,3 +995,22 @@ Stage Summary:
 - 1 file changed: overview-tab.tsx
 - 3 hook calls eliminated (2x useHarnessDashboard, 1x useMetrics) — single source of data from parent
 - 1 icon fix (TrendingDown for decreasing errors)
+
+---
+Task ID: 42
+Agent: HERMES Wave Engine
+Task: Wave 42 — Final Spanish string cleanup, lift github-tab hook calls
+
+Work Log:
+- ASSESS: 35 waves, 0 errors. Explore agent found 15 remaining Spanish strings in API routes + 4 independent useHarnessDashboard calls in github-tab.
+- Translated 13 demo messages in agent-demo/route.ts (Leyendo→Reading, Analizando→Analyzing, etc.)
+- Fixed 2 Spanish strings in agent-status/route.ts ("Esperando actividad..."→"Waiting for activity...", "Sub-agente desplegado"→"Sub-agent deployed")
+- Full grep sweep of src/ confirms zero remaining Spanish user-facing strings
+- Lifted useHarnessDashboard to GithubTab parent, passed githubStatus/modules as props to ConnectionStatus, InfoGrid, CommitHistory, ExportModules
+- ConnectionStatus no longer calls useHarnessDashboard (was redundant with useGithubStatus fallback)
+- VERIFY: lint 0 errors, dev.log clean
+
+Stage Summary:
+- 3 files changed: agent-demo/route.ts, agent-status/route.ts, github-tab.tsx
+- 15 Spanish strings translated — src/ is fully English
+- 4 hook calls eliminated in github-tab (same prop-drilling pattern as Wave 41)

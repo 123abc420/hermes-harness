@@ -8,7 +8,7 @@ import {
   useGithubSync,
   useHarnessDashboard,
 } from '@/hooks/use-harness-data';
-import type { ExportModule } from '@/store/harness-store';
+import type { ExportModule, GithubStatus } from '@/store/harness-store';
 import {
   GitBranch,
   Github,
@@ -26,12 +26,21 @@ import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 
 /* ── Connection Status ───────────────────────────────── */
-function ConnectionStatus() {
-  const { data: github, isLoading, isError, error, refetch } = useGithubStatus();
-  const { data: dash } = useHarnessDashboard();
+function ConnectionStatus({
+  githubStatus,
+  isLoading,
+  isError,
+  error,
+  refetch,
+}: {
+  githubStatus?: GithubStatus;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => void;
+}) {
   const sync = useGithubSync();
-
-  const status = dash?.githubStatus ?? github;
+  const status = githubStatus;
   const isConnected = status?.status === 'connected';
 
   if (isError) {
@@ -142,9 +151,8 @@ function ConnectionStatus() {
 }
 
 /* ── Info Grid ────────────────────────────────────────── */
-function InfoGrid() {
-  const { data: dash } = useHarnessDashboard();
-  const status = dash?.githubStatus;
+function InfoGrid({ githubStatus }: { githubStatus?: GithubStatus }) {
+  const status = githubStatus;
 
   if (!status) return null;
 
@@ -198,9 +206,8 @@ function InfoGrid() {
 }
 
 /* ── Commit History ──────────────────────────────────── */
-function CommitHistory() {
-  const { data: dash } = useHarnessDashboard();
-  const status = dash?.githubStatus;
+function CommitHistory({ githubStatus }: { githubStatus?: GithubStatus }) {
+  const status = githubStatus;
   const commits = status?.recentCommits ?? [];
 
   return (
@@ -247,9 +254,7 @@ function CommitHistory() {
 }
 
 /* ── Export Modules ───────────────────────────────────── */
-function ExportModules() {
-  const { data: dash } = useHarnessDashboard();
-  const modules = (dash?.exports ?? []) as ExportModule[];
+function ExportModules({ modules }: { modules?: ExportModule[] }) {
 
   return (
     <Card className="glass-card">
@@ -318,13 +323,24 @@ function ExportModules() {
 
 /* ── GitHub Tab ──────────────────────────────────────── */
 export function GithubTab() {
+  const { data: dash } = useHarnessDashboard();
+  const { data: github, isLoading, isError, error, refetch } = useGithubStatus();
+  const githubStatus = dash?.githubStatus ?? github;
+  const modules = (dash?.exports ?? []) as ExportModule[];
+
   return (
     <div className="space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <ConnectionStatus />
+        <ConnectionStatus
+          githubStatus={githubStatus}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          refetch={refetch}
+        />
       </motion.div>
 
       <motion.div
@@ -332,7 +348,7 @@ export function GithubTab() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <InfoGrid />
+        <InfoGrid githubStatus={githubStatus} />
       </motion.div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -341,7 +357,7 @@ export function GithubTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <CommitHistory />
+          <CommitHistory githubStatus={githubStatus} />
         </motion.div>
 
         <motion.div
@@ -349,7 +365,7 @@ export function GithubTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          <ExportModules />
+          <ExportModules modules={modules} />
         </motion.div>
       </div>
     </div>
