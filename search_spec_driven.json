@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://developer.microsoft.com/blog/spec-driven-development-ai-native-engineering",
+    "name": "A Spec-First Approach to AI-Native Engineering - Microsoft Developer",
+    "snippet": "Spec-Driven Development (SDD) is a spec-first approach. Teams define common guardrails, requirements, constraints, acceptance criteria, ...",
+    "host_name": "developer.microsoft.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@dave-patten/spec-driven-development-with-ai-agents-from-build-to-runtime-diagnostics-415025fb1d62",
+    "name": "Spec-Driven Development with AI Agents: From Build to Runtime",
+    "snippet": "Driven Development (SDD) and extends into AI-assisted development that includes troubleshooting and diagnosis, not just code generation.",
+    "host_name": "medium.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=cTJorhnxrFI&vl=en",
+    "name": "Spec-Driven Development with AI Agents From High  - YouTube",
+    "snippet": "Spec-Driven Development with AI Agents: From High-Level Requirements to Working Software AI coding agents are powerful, but they often feel ...",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/vibecoding/comments/1qs80k4/everything_one_should_know_about_specdriven",
+    "name": "Everything one should know about Spec-Driven Development (SDD)",
+    "snippet": "SDD allows you to start with structured, versioned specifications that act as the single source of truth.",
+    "host_name": "www.reddit.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.deeplearning.ai/courses/spec-driven-development-with-coding-agents",
+    "name": "Spec-Driven Development with Coding Agents - DeepLearning.AI",
+    "snippet": "Whether you're starting from scratch or modernizing existing code, this course gives you a disciplined workflow for building software your way. Who should join?",
+    "host_name": "www.deeplearning.ai",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.augmentcode.com/tools/best-ai-tools-for-spec-driven-development",
+    "name": "8 Best AI Tools for Spec-Driven Development | Augment Code",
+    "snippet": "Spec-driven development is maturing from a developer productivity technique into an organizational operating model for AI-native engineering.",
+    "host_name": "www.augmentcode.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://towardsdatascience.com/from-vibe-coding-to-spec-driven-development",
+    "name": "From Vibe Coding to Spec-Driven Development",
+    "snippet": "In this article, I'd like to put spec-driven development into practice on a greenfield project, following the best practices from JetBrains' ...",
+    "host_name": "towardsdatascience.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/79950737/is-spec-driven-development-with-ai-agents-the-final-nail-in-the-coffin-for-softw",
+    "name": "Is Spec Driven Development with AI agents the final nail in the coffin",
+    "snippet": "with SDD one can define clear boundaries and make the output indistinguishable from human written code. themselves can also be AI generated.",
+    "host_name": "stackoverflow.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2602.00180v1",
+    "name": "Spec-Driven Development: From Code to Contract in the Age of AI",
+    "snippet": "By providing AI with unambiguous, executable contracts, SDD enhances the reliability of coding agents and opens new avenues for scalable ...",
+    "host_name": "arxiv.org",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html",
+    "name": "Understanding Spec-Driven-Development: Kiro, spec-kit, and Tessl",
+    "snippet": "Definition · Spec-first: A well thought-out spec is written first, and then used in the AI-assisted development workflow for the task at hand.",
+    "host_name": "martinfowler.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.z.ai/guides/overview/quick-start",
+    "name": "Quick Start - Overview - Z.AI DEVELOPER DOCUMENT",
+    "snippet": "Access Z.AI Open Platform, Register or Login. · Access Billing Page to top up if needed. · Create an API Key in the API Keys management page.",
+    "host_name": "docs.z.ai",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.z.ai/guides/develop/python/introduction",
+    "name": "Official Python SDK - Overview - Z.AI DEVELOPER DOCUMENT",
+    "snippet": "Chat Conversations: Support for single-turn and multi-turn conversations, streaming and non-streaming responses ; Function Calling: Enable AI models to call ...",
+    "host_name": "docs.z.ai",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/zai-org/z-ai-sdk-python",
+    "name": "zai-org/z-ai-sdk-python - GitHub",
+    "snippet": "Standard Chat: Create chat completions with various models including glm-5.1; Streaming Support: Real-time streaming responses for interactive applications ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://z.ai",
+    "name": "Z.ai - Advanced AI Chatbot & Agent powered by GLM-5.2",
+    "snippet": "Meet Z.ai, the AI assistant powered by GLM-5.2. Build websites, write code, handle long-horizon tasks, and get instant answers. Fast, smart, and reliable.",
+    "host_name": "z.ai",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://z.ai/model-api",
+    "name": "Z.ai API Platform — Start building with GLM-5.2",
+    "snippet": "At Z.ai, we are developing safe and beneficial Artificial General Intelligence to help solve humanity's most complex challenges. GLM-5.2 is our new flagship ...",
+    "host_name": "z.ai",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.z.ai/api-reference/introduction",
+    "name": "Introduction - Overview - Z.AI DEVELOPER DOCUMENT",
+    "snippet": "Z.AI provides standard HTTP API interfaces that support multiple programming languages and development environments, with SDKs also available. ​. API Endpoint.",
+    "host_name": "docs.z.ai",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=GBqSjtR34fM",
+    "name": "2026 | This AI Coder from China Is Shockingly Good | How to Use Z.AI",
+    "snippet": "/ZAIGLMCodingPlan Explore the power of GLM-4.6 in this in-depth Z.ai Review. Watch how this AI tool tackles coding tasks, problem-solving ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://z.ai/blog/glm-4.5",
+    "name": "GLM-4.5: Reasoning, Coding, and Agentic Abililties - Z.ai",
+    "snippet": "Chat ... The Z.ai API platform offers OpenAI-compatible interfaces for both GLM-4.5 and GLM-4.5-Air models. For comprehensive API documentation ...",
+    "host_name": "z.ai",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.z.ai/guides/develop/http/introduction",
+    "name": "HTTP API Calls - Overview - Z.AI DEVELOPER DOCUMENT",
+    "snippet": "Z.AI provides standard HTTP API interfaces that support multiple programming languages and development environments, allowing you to easily integrate Z.AI's ...",
+    "host_name": "docs.z.ai",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/vibecodinglife/posts/1804703230118206",
+    "name": "What is the best way to deploy z.ai web app? - Facebook",
+    "snippet": "Your best way is to import the code to github and finalize the project, like backend functions and DB, using Claude or Gemini. Then you have ...",
+    "host_name": "www.facebook.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

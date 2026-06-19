@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://www.youtube.com/watch?v=61JUHDK-em8",
+    "name": "AI Self EVOLUTION (Meta Harness) - YouTube",
+    "snippet": "Automate your workload with the Claude Cowork Stack: https://clickhubspot.com/737d7b Download The 25 OpenClaw Use Cases eBook ...",
+    "host_name": "www.youtube.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2605.09998v1",
+    "name": "Continual Harness: Online Adaptation for Self-Improving Foundation",
+    "snippet": "During the Pokémon Yellow Legacy run, the AI agent encountered a 1,003-turn stagnation loop on Map ID 4 (Route 4, near Cerulean City).",
+    "host_name": "arxiv.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/evolutionunleashedai/posts/27002891249331937",
+    "name": "Understanding agent harnesses and architectures in AI systems",
+    "snippet": "The cron loop is what allows agents to operate continuously and improve from cycle to cycle rather than waiting for the next prompt. This is the ...\nAt the core of these AI agents lies a continuous learning loop, consisting of a self-sustaining cycle of improvement that ensures perpetual ...",
+    "host_name": "www.facebook.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.mindstudio.ai/blog/self-improving-ai-agent-feedback-loop",
+    "name": "How to Build a Self-Improving AI Agent That Learns From Its Own",
+    "snippet": "Self-healing agent loops use diagnostic feedback to iterate and improve over time. Here's how to build one using Claude Code and a custom ...\nA self-improving AI agent requires four components: a task, a benchmark harness, diagnostic feedback, and a persistent learning store.",
+    "host_name": "www.mindstudio.ai",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://arize.com/blog/closing-the-loop-coding-agents-telemetry-and-the-path-to-self-improving-software",
+    "name": "Self-Improving Agents: the Agent Harness for Reliable Code - Arize AI",
+    "snippet": "Map to build self-improving agents with harness engineering, telemetry, traces, and eval-driven loops to verify changes and improve.",
+    "host_name": "arize.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/ClaudeAI/comments/1s2j2m3/i_built_a_selfevolving_layer_for_claude_code_it",
+    "name": "I built a self-evolving layer for Claude Code — it improves itself",
+    "snippet": "You define goals. The system picks the right mechanism for each one — hook, rule, skill, script, agent — and improves them overnight. Daily AI ...",
+    "host_name": "www.reddit.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/NousResearch/hermes-agent/issues/337",
+    "name": "Evolutionary Self-Improvement — Auto-Evolving Skills & Prompts via",
+    "snippet": "Phase 4: Continuous self-improvement loop (auto-triage underperforming skills, scheduled optimization). Full plan saved internally. This ...",
+    "host_name": "github.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://sethkarten.ai/continual-harness",
+    "name": "Continual Harness — Online Adaptation for Self-Improving",
+    "snippet": "A reset-free self-improving harness for embodied agents. CONTINUAL HARNESS. Online Adaptation for Self-Improving Foundation Agents.\nContinual Harness removes the human from this loop: a reset-free self-improving harness for embodied agents that formalizes and automates what we observed.",
+    "host_name": "sethkarten.ai",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@mbonsign/building-a-self-improving-ai-agent-from-broken-memory-to-protocol-harness-e99eb56c530e",
+    "name": "Building a Self-Improving AI Agent: From Broken Memory to Protocol",
+    "snippet": "Self-improving agents require an intermediate layer between memory and tools: operational protocols that can be instrumented, measured, and ...",
+    "host_name": "medium.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developers.openai.com/cookbook/examples/partners/self_evolving_agents/autonomous_agent_retraining",
+    "name": "Self-Evolving Agents - A Cookbook for Autonomous Agent Retraining",
+    "snippet": "This cookbook introduces a repeatable retraining loop that captures those issues, learns from the feedback, and promotes improvements back into ...",
+    "host_name": "developers.openai.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

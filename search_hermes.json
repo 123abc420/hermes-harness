@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://hermes-agent.nousresearch.com/docs",
+    "name": "Hermes Agent Documentation",
+    "snippet": "The self-improving AI agent built by Nous Research. The only agent with a built-in learning loop — it creates skills from experience, improves them during use, ...",
+    "host_name": "hermes-agent.nousresearch.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/nousresearch/hermes-agent",
+    "name": "NousResearch/hermes-agent: The agent that grows with you - GitHub",
+    "snippet": "The self-improving AI agent built by Nous Research. It's the only agent with a built-in learning loop — it creates skills from experience ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.tencentcloud.com/techpedia/144032",
+    "name": "The Best Open Source AI Agents in 2026: A Developer's Honest",
+    "snippet": "Hermes Agent is the newest major entry in this comparison, and arguably the most architecturally ambitious. It's explicitly designed for long-term autonomous ...",
+    "host_name": "www.tencentcloud.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blogs.nvidia.com/blog/rtx-ai-garage-hermes-agent-dgx-spark",
+    "name": "Hermes Unlocks Self-Improving AI Agents, Powered by NVIDIA RTX",
+    "snippet": "Reliable, self-evolving and powered by the newest agentic large language models, Hermes brings a new class of agents to NVIDIA RTX PCs and ...",
+    "host_name": "blogs.nvidia.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.udemy.com/course/hermes-agent-build-a-self-improving-ai-agent/?srsltid=AfmBOoplKtwh2AKii1L5ynI-KI-N95KK2IhlG2Do22qDiJ6eg7zoP4ws",
+    "name": "Hermes Agent: Build a Self-Improving AI Agent - Udemy",
+    "snippet": "The course starts from zero. First, you will learn what Hermes Agent is, how the harness works, how the architecture is structured, and why Hermes is different ...",
+    "host_name": "www.udemy.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://saulius.io/blog/hermes-agent-self-improving-ai-architecture",
+    "name": "What 'Self-Improving AI Agent' Actually Means in Production",
+    "snippet": "Mechanism 1 — The Agent Writes Its Own Skills. This is the closest thing Hermes has to genuine in-session learning, and it's the mechanism that ...",
+    "host_name": "saulius.io",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=5PLDovsqKaQ",
+    "name": "Hermes Agent: The Self-Improving AI That Learns You - YouTube",
+    "snippet": "Open Router gives you access to 100+ models through a single API endpoint. Try it free and find the best model for your workflow at ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tosea.ai/blog/hermes-agent-self-improving-ai-guide",
+    "name": "How to Use Hermes Agent: Complete Guide to the Self-Improving AI",
+    "snippet": "A complete guide to Hermes Agent, the open-source self-improving AI by Nous Research. Covers architecture, install, messaging integrations, and ...",
+    "host_name": "tosea.ai",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.mindstudio.ai/blog/hermes-agent-5-pillar-architecture-memory-skills-soul-crons",
+    "name": "Hermes Agent's 5-Pillar Architecture: How It Learns, Schedules, and",
+    "snippet": "Hermes Agent is built on five pillars: memory, skills, soul, crons, and a self-improving loop. Here's how each one works and why the ...",
+    "host_name": "www.mindstudio.ai",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mranand.substack.com/p/inside-hermes-agent-how-a-self-improving",
+    "name": "Inside Hermes Agent: How a Self-Improving AI Agent Actually Works",
+    "snippet": "Hermes Agent is an open-source AI agent built by Nous Research. Unlike OpenClaw, which is built around multi-agent orchestration, Hermes is ...",
+    "host_name": "mranand.substack.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

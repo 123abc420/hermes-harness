@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== HERMES HARNESS MODELS ====================
+
+model HarnessConfig {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  value           String
+  description     String?
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+}
+
+model HarnessWave {
+  id              String   @id @default(cuid())
+  waveNumber      Int
+  status          String   @default("pending") // pending, running, completed, failed
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  summary         String?
+  decisionsCount  Int      @default(0)
+  improvementsCount Int    @default(0)
+  errorsCount     Int      @default(0)
+  metricsSnapshot String?  // JSON snapshot of metrics at wave start
+  decisions        HarnessDecision[]
+  createdAt       DateTime @default(now())
+}
+
+model HarnessDecision {
+  id              String   @id @default(cuid())
+  waveId          String
+  wave            HarnessWave @relation(fields: [waveId], references: [id], onDelete: Cascade)
+  category        String   // code_quality, feature, fix, refactor, style, performance, architecture
+  priority        String   @default("medium") // low, medium, high, critical
+  action          String   // planned, executed, skipped, failed
+  description     String
+  reasoning       String?
+  targetFile      String?
+  targetModule    String?
+  outcome         String?
+  createdAt       DateTime @default(now())
+  executedAt      DateTime?
+}
+
+model HarnessMetric {
+  id              String   @id @default(cuid())
+  waveId          String?
+  metricKey       String   // lines_of_code, components_count, api_routes, test_coverage, etc
+  metricValue     Float
+  previousValue   Float?
+  change          Float?
+  changePercent   Float?
+  recordedAt      DateTime @default(now())
+}
+
+model GitHubSync {
+  id              String   @id @default(cuid())
+  status          String   @default("disconnected") // disconnected, connected, syncing, error
+  username        String?
+  repoName        String?
+  lastSyncAt      DateTime?
+  lastCommitSha   String?
+  branch          String   @default("main")
+  totalCommits    Int      @default(0)
+  errorMessage    String?
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+}
+
+model HarnessExport {
+  id              String   @id @default(cuid())
+  moduleName      String   @unique
+  version         String   @default("0.1.0")
+  description     String
+  exportedFiles   String   // JSON array of file paths
+  dependencies    String?  // JSON array of dependencies
+  isReady         Boolean  @default(false)
+  lastExportedAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

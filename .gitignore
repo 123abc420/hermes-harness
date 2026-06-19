@@ -1,0 +1,13 @@
+node_modules/
+.next/
+*.db
+dev.log
+server.log
+*.json.bak
+search_*.json
+research_*.json
+tool-results/
+download/README.md
+.env
+skills/
+next-env.d.ts

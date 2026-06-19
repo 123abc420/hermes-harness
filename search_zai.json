@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://z.ai",
+    "name": "Z.ai - Advanced AI Chatbot & Agent powered by GLM-5.2",
+    "snippet": "Meet Z.ai, the AI assistant powered by GLM-5.2. Build websites, write code, handle long-horizon tasks, and get instant answers. Fast, smart, and reliable.",
+    "host_name": "z.ai",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://z.ai/blog/glm-4.5",
+    "name": "GLM-4.5: Reasoning, Coding, and Agentic Abililties - Z.ai",
+    "snippet": "The platform provides comprehensive support for artifacts generation, presentation slide creation, and full-stack development capabilities.",
+    "host_name": "z.ai",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.z.ai/guides/overview/quick-start",
+    "name": "Quick Start - Overview - Z.AI DEVELOPER DOCUMENT",
+    "snippet": "The platform offers multiple models, and you can select the appropriate model based on your needs. For detailed model introductions, please refer to the Models ...",
+    "host_name": "docs.z.ai",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=OHmXgVL6pCI",
+    "name": "Z.ai GLM-5 Tutorial | This AI Agent Built My Telegram Bot Automatically",
+    "snippet": "... Z AI GLM-5 Model becomes clear through practical bot development and automation examples. ⏱️CHAPTERS: 0:00 How to Use Z AI GLM-5 Model 0:56 Z.ai ...",
+    "host_name": "www.youtube.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.z.ai/devpack/resources/best-practice",
+    "name": "Best Practice - Overview - Z.AI DEVELOPER DOCUMENT",
+    "snippet": "Unlike traditional copilot-style tools, coding agents do more than generate code from prompts. They can read and navigate codebases, modify files, run commands, ...",
+    "host_name": "docs.z.ai",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://zed.dev/ai",
+    "name": "The AI Code Editor Built for Speed - Zed",
+    "snippet": "Zed is an AI code editor built for agentic workflows. Open source, fast by default, and compatible with any model or agent.",
+    "host_name": "zed.dev",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.salesforce.com/ap/platform/ai-agent-development",
+    "name": "AI Agent Development | Salesforce AP",
+    "snippet": "What is AI agent development? Learn how AI agents work, their business impact, and the tools you need to build them with Salesforce Platform.",
+    "host_name": "www.salesforce.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=GBqSjtR34fM",
+    "name": "2026 | This AI Coder from China Is Shockingly Good | How to Use Z.AI",
+    "snippet": "(Discount Link) Try Z.ai Now: https://tinyurl.com/ttZAI Celebrate Programmer's Day with a 40% boost — valid Oct 24–31: ...",
+    "host_name": "www.youtube.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.z.ai/devpack/overview",
+    "name": "Overview - Z.AI DEVELOPER DOCUMENT - Z.AI docs",
+    "snippet": "... agent capabilities, delivering outstanding results in tool use and complex task execution. Works with Multiple Tools: Beyond Claude Code, it also supports ...",
+    "host_name": "docs.z.ai",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://z.ai/manage-apikey/billing",
+    "name": "Advanced AI Chatbot & Agent powered by GLM-5.2 - Z.ai",
+    "snippet": "Meet Z.ai, the AI assistant powered by GLM-5.2. Build websites, write code, handle long-horizon tasks, and get instant answers. Fast, smart, and reliable.",
+    "host_name": "z.ai",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

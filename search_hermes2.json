@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://blogs.nvidia.com/blog/rtx-ai-garage-hermes-agent-dgx-spark",
+    "name": "Hermes Unlocks Self-Improving AI Agents, Powered by NVIDIA RTX",
+    "snippet": "Agents like Hermes are built to run continuously — responding to requests, planning multistep tasks, executing autonomously and self-improving.",
+    "host_name": "blogs.nvidia.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/nousresearch/hermes-agent",
+    "name": "NousResearch/hermes-agent: The agent that grows with you - GitHub",
+    "snippet": "The self-improving AI agent built by Nous Research. It's the only agent with a built-in learning loop — it creates skills from experience ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "Jun 17, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://hermes-agent.nousresearch.com/docs",
+    "name": "Hermes Agent Documentation",
+    "snippet": "The self-improving AI agent built by Nous Research. The only agent with a built-in learning loop — it creates skills from experience, improves them during use, ...",
+    "host_name": "hermes-agent.nousresearch.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/WebAfterAI/comments/1sx4748/hermes_agent_the_opensource_selfimproving_ai",
+    "name": "Hermes Agent: The Open-Source Self-Improving AI Agent  - Reddit",
+    "snippet": "Hermes Agent: a fully open-source, autonomous, self-improving AI agent that lives on your hardware (or cheap VPS), builds its own skills ...",
+    "host_name": "www.reddit.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ajay-arunachalam08.medium.com/the-self-improving-ai-agent-hermes-agent-0e75d7e97a13",
+    "name": "The Self-Improving AI Agent — Hermes Agent",
+    "snippet": "Hermes is learning-first — its entire architecture revolves around the agent improving itself through use. The self-improvement loop isn't a ...",
+    "host_name": "ajay-arunachalam08.medium.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=5PLDovsqKaQ&vl=en",
+    "name": "Hermes Agent: The Self-Improving AI That Learns You - YouTube",
+    "snippet": "... AI agent system with a self-improvement loop that automatically creates and refines skills based on your usage, builds a model of your ...",
+    "host_name": "www.youtube.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.udemy.com/course/hermes-agent-build-a-self-improving-ai-agent/?srsltid=AfmBOorWCZAiqmurlOx9g8NOz_noM2LTCP8Uo4L2LIztEe7SF9NLFjnJ",
+    "name": "Hermes Agent: Build a Self-Improving AI Agent - Udemy",
+    "snippet": "In this course, you will learn how to install Hermes, configure it, extend it with skills, connect it to tools, automate real workflows, and build self- ...",
+    "host_name": "www.udemy.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mranand.substack.com/p/inside-hermes-agent-how-a-self-improving",
+    "name": "Inside Hermes Agent: How a Self-Improving AI Agent Actually Works",
+    "snippet": "This article breaks down the learning loop, the four-layer memory system, the gateway, agent loop internals, terminal backends, skills, tools, ...",
+    "host_name": "mranand.substack.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tosea.ai/blog/hermes-agent-self-improving-ai-guide",
+    "name": "How to Use Hermes Agent: Complete Guide to the Self-Improving AI",
+    "snippet": "Hermes Agent is an open-source, self-improving autonomous AI agent built by Nous Research — the lab behind the Hermes series of open-source ...",
+    "host_name": "tosea.ai",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/pulse/getting-started-hermes-agent-your-self-improving-ai-assistant-maio-tys6e",
+    "name": "Getting Started with Hermes Agent: Your Self-Improving AI Assistant",
+    "snippet": "Hermes Agent is an open-source autonomous AI agent built by Nous Research, the same group behind the Hermes model family and the Atropos ...",
+    "host_name": "www.linkedin.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]
