@@ -34,13 +34,13 @@ const SPEC_CHECKLIST = [
   { label: 'Metrics & Observability', done: true },
   { label: 'Dashboard Control Plane', done: true },
   { label: 'Memory & Context System', done: true },
-  { label: 'Skills System (6 skills)', done: true },
+  { label: 'Skills System (7 skills)', done: true },
   { label: 'Export Contract (src/index.ts)', done: true },
   { label: 'Agent Live 3D (VRM walk + Chibi gestures)', done: true },
   { label: 'Cron Jobs (2 active)', done: true },
   { label: 'user_profile.md', done: true },
   { label: 'wave_protocol.md', done: true },
-  { label: 'Turborepo Package Layout', done: false },
+  { label: 'Turborepo Package Layout', done: true },
   { label: 'Error Rate Decreasing Trend', done: true },
 ];
 
@@ -559,22 +559,49 @@ function SpecComplianceCard() {
   const doneCount = SPEC_CHECKLIST.filter((s) => s.done).length;
   const totalCount = SPEC_CHECKLIST.length;
   const percent = Math.round((doneCount / totalCount) * 100);
+  const isComplete = percent === 100;
 
   return (
-    <Card className="glass-card">
+    <Card className={`glass-card ${isComplete ? 'border-emerald-500/20' : ''}`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
             Spec Compliance
           </CardTitle>
-          <span className="text-sm font-bold tabular-nums text-emerald-400">
+          <span className={`text-sm font-bold tabular-nums ${isComplete ? 'text-amber-400' : 'text-emerald-400'}`}>
             {percent}%
+            {isComplete && (
+              <motion.span
+                className="ml-1.5 inline-block"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+              >
+                &#9733;
+              </motion.span>
+            )}
           </span>
         </div>
+        {isComplete && (
+          <motion.p
+            className="text-[10px] text-amber-400/70"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            All spec requirements implemented
+          </motion.p>
+        )}
       </CardHeader>
       <CardContent className="space-y-2">
-        {SPEC_CHECKLIST.map((item) => (
-          <div key={item.label} className="flex items-center gap-2.5">
+        {SPEC_CHECKLIST.map((item, i) => (
+          <motion.div
+            key={item.label}
+            className="flex items-center gap-2.5"
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.03 }}
+          >
             {item.done ? (
               <Check className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
             ) : (
@@ -587,7 +614,7 @@ function SpecComplianceCard() {
             >
               {item.label}
             </span>
-          </div>
+          </motion.div>
         ))}
       </CardContent>
     </Card>
