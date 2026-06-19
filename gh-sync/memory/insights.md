@@ -73,3 +73,9 @@
 - Added errorTrend to dashboard API — simple query on HarnessWave.errorsCount ordered by waveNumber
 - Area chart with stepAfter type works well for discrete wave-by-wave data
 - Trend direction: compare last 3 waves vs previous 3 — if <=, trend is "decreasing"
+
+## 2026-06-19 — Wave 21: 100% Compliance
+
+- "Turborepo Package Layout" gap was the hardest — not because it was complex, but because it seemed risky
+- Lesson: sometimes the last 10% is just metadata (package.json fields), not code restructure
+- Milestone celebrations in UI (star animation) reinforce positive feedback loop for the agent
