@@ -1,60 +1,98 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Zap, Waves, Brain, BookOpen, Github } from 'lucide-react';
 import { useHarnessStore } from '@/store/harness-store';
-import { useDashboard } from '@/hooks/use-harness-data';
+import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { HarnessHeader } from '@/components/harness/harness-header';
 import { OverviewTab } from '@/components/harness/overview-tab';
-import { SpecTab } from '@/components/harness/spec-tab';
 import { WavesTab } from '@/components/harness/waves-tab';
 import { DecisionsTab } from '@/components/harness/decisions-tab';
-import { SkillsTab } from '@/components/harness/skills-tab';
-import { MemoryTab } from '@/components/harness/memory-tab';
+import { ResearchTab } from '@/components/harness/research-tab';
 import { GithubTab } from '@/components/harness/github-tab';
-import { Zap } from 'lucide-react';
 
-const TABS: Record<string, { label: string; component: React.ReactNode }> = {
-  overview: { label: 'Overview', component: <OverviewTab /> },
-  spec: { label: 'Spec', component: <SpecTab /> },
-  waves: { label: 'Waves', component: <WavesTab /> },
-  decisions: { label: 'Decisions', component: <DecisionsTab /> },
-  skills: { label: 'Skills', component: <SkillsTab /> },
-  memory: { label: 'Memory', component: <MemoryTab /> },
-  github: { label: 'GitHub', component: <GithubTab /> },
-};
+const TAB_CONFIG = [
+  { value: 'overview', label: 'Overview', icon: Zap },
+  { value: 'waves', label: 'Waves', icon: Waves },
+  { value: 'decisions', label: 'Decisions', icon: Brain },
+  { value: 'research', label: 'Research & Memory', icon: BookOpen },
+  { value: 'github', label: 'GitHub & Export', icon: Github },
+] as const;
 
 export default function Home() {
-  const { activeTab } = useHarnessStore();
-  const { data: dash } = useDashboard();
-
-  const currentTab = TABS[activeTab] ?? TABS.overview;
+  const { activeTab, setActiveTab } = useHarnessStore();
+  const { data: dash } = useHarnessDashboard();
 
   return (
-    <div className="grid-bg min-h-screen bg-[#0a0a0a]">
+    <div className="dot-pattern min-h-screen flex flex-col bg-[#050a0e]">
       <HarnessHeader
         githubStatus={dash?.githubStatus}
         totalWaves={dash?.totalStats?.totalWaves}
       />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
-        <AnimatePresence mode="wait">
+      <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          {/* Tab navigation */}
+          <div className="mb-6 overflow-x-auto scrollbar-dark">
+            <TabsList className="inline-flex h-auto gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] p-1.5 backdrop-blur-md">
+              {TAB_CONFIG.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.value;
+                return (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className={`relative flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
+                      isActive
+                        ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.2)]'
+                        : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-400 data-[state=active]:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.2)]'
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
+
+          {/* Tab content with animation */}
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
           >
-            {currentTab.component}
+            <TabsContent value="overview" className="mt-0">
+              <OverviewTab />
+            </TabsContent>
+            <TabsContent value="waves" className="mt-0">
+              <WavesTab />
+            </TabsContent>
+            <TabsContent value="decisions" className="mt-0">
+              <DecisionsTab />
+            </TabsContent>
+            <TabsContent value="research" className="mt-0">
+              <ResearchTab />
+            </TabsContent>
+            <TabsContent value="github" className="mt-0">
+              <GithubTab />
+            </TabsContent>
           </motion.div>
-        </AnimatePresence>
+        </Tabs>
       </main>
 
-      <footer className="mt-auto border-t border-white/5 bg-[#0a0a0a]">
+      <footer className="mt-auto border-t border-white/[0.06] bg-[#050a0e]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2 text-xs text-zinc-600">
-            <Zap className="h-3 w-3 text-emerald-500/50" />
-            <span>HERMES HARNESS v2.1.0</span>
+            <Zap className="h-3 w-3 text-emerald-500/40" />
+            <span>HERMES HARNESS v0.1.0</span>
           </div>
           <div className="text-[10px] text-zinc-700">
             Spec-Driven Self-Evolution System

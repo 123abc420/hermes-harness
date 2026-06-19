@@ -1,12 +1,7 @@
 'use client';
 
-import { Zap, ArrowRight, CircleDot } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useHarnessStore, type Wave } from '@/store/harness-store';
-import { StatusBadge } from './status-badge';
+import { Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
 
 interface HarnessHeaderProps {
   githubStatus?: { status: string; username: string | null; repoName: string | null };
@@ -14,67 +9,64 @@ interface HarnessHeaderProps {
 }
 
 export function HarnessHeader({ githubStatus, totalWaves }: HarnessHeaderProps) {
-  const { activeTab, setActiveTab } = useHarnessStore();
-
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: Zap },
-    { id: 'spec', label: 'Spec', icon: CircleDot },
-    { id: 'waves', label: 'Waves', icon: ArrowRight },
-    { id: 'decisions', label: 'Decisions', icon: CircleDot },
-    { id: 'skills', label: 'Skills', icon: CircleDot },
-    { id: 'memory', label: 'Memory', icon: CircleDot },
-    { id: 'github', label: 'GitHub', icon: CircleDot },
-  ];
+  const isConnected = githubStatus?.status === 'connected';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* Top banner */}
-        <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600">
-              <Zap className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-sm font-bold tracking-tight text-white sm:text-base">
-                HERMES HARNESS
-              </h1>
-              <p className="hidden text-[10px] uppercase tracking-widest text-zinc-500 sm:block">
-                Self-Evolving Agent System
-              </p>
-            </div>
+    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050a0e]/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+        {/* Logo + Title */}
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center gap-3"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
+            <Zap className="h-4 w-4 text-white" />
           </div>
-          <div className="flex items-center gap-3">
-            {totalWaves !== undefined && (
-              <span className="text-xs tabular-nums text-zinc-500">
-                {totalWaves} waves
-              </span>
-            )}
-            {githubStatus && (
-              <StatusBadge
-                status={githubStatus.status === 'connected' ? 'connected' : 'disconnected'}
-                label={githubStatus.status === 'connected' ? 'LINKED' : 'UNLINKED'}
-                pulse={githubStatus.status === 'connected'}
+          <div>
+            <h1 className="text-sm font-bold tracking-tight text-white sm:text-base">
+              HERMES HARNESS
+            </h1>
+            <p className="hidden text-[10px] uppercase tracking-[0.15em] text-zinc-600 sm:block">
+              Self-Evolving Agent System
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Right status indicators */}
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="flex items-center gap-3"
+        >
+          {totalWaves !== undefined && (
+            <span className="text-xs tabular-nums text-zinc-500">
+              {totalWaves} waves
+            </span>
+          )}
+          {githubStatus && (
+            <div className="flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-mono font-medium tracking-wider">
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  isConnected
+                    ? 'animate-pulse bg-emerald-400'
+                    : 'bg-zinc-500'
+                }`}
               />
-            )}
-          </div>
-        </div>
-        {/* Tab bar */}
-        <nav className="-mb-px flex gap-1 overflow-x-auto" aria-label="Dashboard tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-medium transition-colors sm:text-sm ${
-                activeTab === tab.id
-                  ? 'border-emerald-500 text-emerald-400'
-                  : 'border-transparent text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
+              <span
+                className={
+                  isConnected
+                    ? 'text-emerald-400'
+                    : 'text-zinc-500'
+                }
+              >
+                {isConnected ? 'LINKED' : 'UNLINKED'}
+              </span>
+            </div>
+          )}
+        </motion.div>
       </div>
     </header>
   );

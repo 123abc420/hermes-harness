@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 export type WaveStatus = 'pending' | 'running' | 'completed' | 'failed';
-export type DecisionCategory = 'code_quality' | 'feature' | 'fix' | 'refactor' | 'style' | 'performance' | 'architecture';
+export type DecisionCategory = 'code_quality' | 'feature' | 'fix' | 'refactor' | 'performance' | 'architecture';
 export type DecisionPriority = 'low' | 'medium' | 'high' | 'critical';
 export type DecisionAction = 'planned' | 'executed' | 'skipped' | 'failed';
 
@@ -86,13 +86,22 @@ export interface TotalStats {
   githubCommits: number;
 }
 
+export interface ExportModule {
+  id: string;
+  moduleName: string;
+  version: string;
+  description: string | null;
+  isReady: boolean;
+  createdAt: string;
+}
+
 export interface DashboardData {
   waves: Wave[];
   totalStats: TotalStats;
   metrics: Metric[];
   githubStatus: GithubStatus;
   config: Record<string, string>;
-  exports: unknown[];
+  exports: ExportModule[];
   recentDecisions: Decision[];
 }
 
@@ -103,14 +112,6 @@ interface HarnessState {
   setWaveFilter: (filter: string) => void;
   decisionCategoryFilter: string;
   setDecisionCategoryFilter: (filter: string) => void;
-  decisionPriorityFilter: string;
-  setDecisionPriorityFilter: (filter: string) => void;
-  decisionActionFilter: string;
-  setDecisionActionFilter: (filter: string) => void;
-  selectedWaveId: string | null;
-  setSelectedWaveId: (id: string | null) => void;
-  triggerDialogOpen: boolean;
-  setTriggerDialogOpen: (open: boolean) => void;
 }
 
 export const useHarnessStore = create<HarnessState>((set) => ({
@@ -120,12 +121,4 @@ export const useHarnessStore = create<HarnessState>((set) => ({
   setWaveFilter: (filter) => set({ waveFilter: filter }),
   decisionCategoryFilter: '',
   setDecisionCategoryFilter: (filter) => set({ decisionCategoryFilter: filter }),
-  decisionPriorityFilter: '',
-  setDecisionPriorityFilter: (filter) => set({ decisionPriorityFilter: filter }),
-  decisionActionFilter: '',
-  setDecisionActionFilter: (filter) => set({ decisionActionFilter: filter }),
-  selectedWaveId: null,
-  setSelectedWaveId: (id) => set({ selectedWaveId: id }),
-  triggerDialogOpen: false,
-  setTriggerDialogOpen: (open) => set({ triggerDialogOpen: open }),
 }));

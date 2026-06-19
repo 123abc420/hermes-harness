@@ -1,114 +1,58 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { useDecisions, useDashboard } from '@/hooks/use-harness-data';
+import { useDecisions } from '@/hooks/use-harness-data';
 import { useHarnessStore, type Decision } from '@/store/harness-store';
-import { ChevronDown, Filter, FileCode2, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Filter, Brain, FileCode2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  code_quality: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
-  feature: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  fix: 'bg-red-500/15 text-red-400 border-red-500/30',
-  refactor: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
-  style: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
-  performance: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
-  architecture: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
+  code_quality: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  feature: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  fix: 'bg-red-500/10 text-red-400 border-red-500/20',
+  refactor: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  performance: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  architecture: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
 };
 
-const PRIORITY_COLORS: Record<string, string> = {
-  critical: 'bg-red-500/20 text-red-400',
-  high: 'bg-orange-500/20 text-orange-400',
-  medium: 'bg-yellow-500/20 text-yellow-400',
-  low: 'bg-zinc-500/20 text-zinc-400',
+const PRIORITY_STYLES: Record<string, string> = {
+  critical: 'bg-red-500/15 text-red-400',
+  high: 'bg-orange-500/15 text-orange-400',
+  medium: 'bg-amber-500/15 text-amber-400',
+  low: 'bg-zinc-500/15 text-zinc-400',
 };
 
-export function DecisionsTab() {
-  const { decisionCategoryFilter, setDecisionCategoryFilter } = useHarnessStore();
-  const { data, isLoading } = useDecisions(1, 50, decisionCategoryFilter);
-
-  const decisions = data?.decisions ?? [];
-
-  return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-medium text-zinc-400">Decisions Log</h2>
-        <div className="flex items-center gap-2">
-          <Select value={decisionCategoryFilter} onValueChange={setDecisionCategoryFilter}>
-            <SelectTrigger className="h-8 w-[140px] border-white/10 bg-white/5 text-xs text-zinc-400">
-              <Filter className="mr-1.5 h-3 w-3" />
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent className="border-white/10 bg-zinc-900">
-              <SelectItem value="">All Categories</SelectItem>
-              {Object.keys(CATEGORY_COLORS).map((c) => (
-                <SelectItem key={c} value={c} className="text-xs text-zinc-300">
-                  {c.replace('_', ' ')}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Decision Cards */}
-      {isLoading ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full rounded-xl" />
-          ))}
-        </div>
-      ) : decisions.length === 0 ? (
-        <Card className="border-white/10 bg-white/[0.03]">
-          <CardContent className="flex h-48 items-center justify-center">
-            <div className="text-center">
-              <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-zinc-700" />
-              <p className="text-sm text-zinc-500">No decisions recorded yet</p>
-              <p className="mt-1 text-xs text-zinc-600">Decisions will appear as waves execute</p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {decisions.map((decision) => (
-            <DecisionCard key={decision.id} decision={decision} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+const FILTER_BUTTONS = [
+  { value: '', label: 'All' },
+  { value: 'code_quality', label: 'Code Quality' },
+  { value: 'feature', label: 'Feature' },
+  { value: 'fix', label: 'Fix' },
+  { value: 'refactor', label: 'Refactor' },
+  { value: 'performance', label: 'Performance' },
+  { value: 'architecture', label: 'Architecture' },
+];
 
 function DecisionCard({ decision }: { decision: Decision }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <Card className="border-white/10 bg-white/[0.03] transition-colors hover:border-white/15">
+      <Card className="glass-card group transition-all hover:border-white/10">
         <CardHeader className="p-4 pb-2">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-1.5">
               <span
                 className={cn(
-                  'inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium',
+                  'inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-mono font-medium',
                   CATEGORY_COLORS[decision.category] ?? CATEGORY_COLORS.code_quality
                 )}
               >
@@ -117,7 +61,7 @@ function DecisionCard({ decision }: { decision: Decision }) {
               <span
                 className={cn(
                   'rounded px-1.5 py-0.5 text-[10px] font-mono font-medium',
-                  PRIORITY_COLORS[decision.priority] ?? PRIORITY_COLORS.medium
+                  PRIORITY_STYLES[decision.priority] ?? PRIORITY_STYLES.medium
                 )}
               >
                 {decision.priority}
@@ -141,11 +85,13 @@ function DecisionCard({ decision }: { decision: Decision }) {
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-0">
           <p className="text-sm text-zinc-200">{decision.description}</p>
-          <div className="mt-2 flex items-center gap-3 text-[10px] text-zinc-600">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-zinc-600">
             {decision.wave && (
               <span className="font-mono">Wave {decision.wave.waveNumber}</span>
             )}
-            <span>{formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}</span>
+            <span>
+              {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
+            </span>
             {decision.targetFile && (
               <span className="flex items-center gap-1 font-mono text-zinc-500">
                 <FileCode2 className="h-3 w-3" />
@@ -154,17 +100,20 @@ function DecisionCard({ decision }: { decision: Decision }) {
             )}
           </div>
 
-          {/* Collapsible reasoning + outcome */}
+          {/* Expandable reasoning + outcome */}
           {(decision.reasoning || decision.outcome) && (
             <>
-              <CollapsibleTrigger className="mt-2 flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300">
+              <CollapsibleTrigger className="mt-2 flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors">
                 <ChevronDown
-                  className={cn('h-3 w-3 transition-transform', open && 'rotate-180')}
+                  className={cn(
+                    'h-3 w-3 transition-transform',
+                    open && 'rotate-180'
+                  )}
                 />
                 {open ? 'Hide' : 'Show'} details
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <div className="mt-2 space-y-2 rounded-lg bg-white/[0.02] p-3">
+                <div className="mt-2 space-y-2 rounded-lg bg-white/[0.02] p-3 border border-white/[0.04]">
                   {decision.reasoning && (
                     <div>
                       <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
@@ -192,5 +141,86 @@ function DecisionCard({ decision }: { decision: Decision }) {
         </CardContent>
       </Card>
     </Collapsible>
+  );
+}
+
+export function DecisionsTab() {
+  const { decisionCategoryFilter, setDecisionCategoryFilter } = useHarnessStore();
+  const { data, isLoading } = useDecisions(1, 50, decisionCategoryFilter);
+
+  const decisions = data?.decisions ?? [];
+
+  return (
+    <div className="space-y-5">
+      {/* Header + Filters */}
+      <motion.div
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-wrap items-center justify-between gap-3"
+      >
+        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          Decisions Log
+        </h2>
+        <div className="flex items-center gap-2">
+          <Filter className="h-3.5 w-3.5 text-zinc-600" />
+          <div className="flex flex-wrap gap-1">
+            {FILTER_BUTTONS.map((btn) => (
+              <button
+                key={btn.value}
+                onClick={() => setDecisionCategoryFilter(btn.value)}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  decisionCategoryFilter === btn.value
+                    ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'
+                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Decision Cards */}
+      {isLoading ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : decisions.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <Card className="glass-card">
+            <CardContent className="flex h-64 items-center justify-center">
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+                  <Brain className="h-8 w-8 text-zinc-700" />
+                </div>
+                <p className="text-sm font-medium text-zinc-400">
+                  No decisions recorded yet
+                </p>
+                <p className="mt-1 max-w-xs text-xs text-zinc-600">
+                  Decisions will appear as the harness executes waves and
+                  evaluates improvements
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid gap-3 sm:grid-cols-2"
+        >
+          {decisions.map((decision) => (
+            <DecisionCard key={decision.id} decision={decision} />
+          ))}
+        </motion.div>
+      )}
+    </div>
   );
 }
