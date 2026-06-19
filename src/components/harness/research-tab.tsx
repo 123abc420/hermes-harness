@@ -3,17 +3,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useMemory, useSpec, useSkills } from '@/hooks/use-harness-data';
+import { useMemory, useSkills } from '@/hooks/use-harness-data';
 import {
   Brain,
   Lightbulb,
-  BookOpen,
-  Check,
-  Minus,
   Sparkles,
   Database,
+  PieChart as PieChartIcon,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useHarnessDashboard } from '@/hooks/use-harness-data';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 /* ── Memory Section ───────────────────────────────────── */
 function MemorySection() {
@@ -167,78 +167,98 @@ function SkillsSection() {
   );
 }
 
-/* ── Spec Compliance Section ──────────────────────────── */
-function SpecComplianceSection() {
-  const { data, isLoading } = useSpec();
+/* ── Decision Distribution ────────────────────────────── */
+const PIE_COLORS: Record<string, string> = {
+  code_quality: '#06b6d4',
+  feature: '#10b981',
+  fix: '#ef4444',
+  refactor: '#8b5cf6',
+  performance: '#f97316',
+  architecture: '#14b8a6',
+  skill: '#f59e0b',
+  insight: '#ec4899',
+};
 
-  const sections = [
-    { id: '1', title: 'Purpose & Philosophy', check: true },
-    { id: '2', title: 'Architecture — 5 Pillars', check: true },
-    { id: '3', title: 'Memory System', check: true },
-    { id: '4', title: 'Skills System', check: true },
-    { id: '5', title: 'Soul (Spec Layer)', check: true },
-    { id: '6', title: 'Cron Jobs', check: true },
-    { id: '7', title: 'Wave Protocol', check: true },
-    { id: '8', title: 'GitHub Persistence', check: true },
-    { id: '9', title: 'Web Dashboard', check: true },
-    { id: '10', title: 'Success Metrics', check: true },
-    { id: '11', title: 'Evolution Strategy', check: true },
-  ];
+function DecisionDistribution() {
+  const { data: dash } = useHarnessDashboard();
+  const decisions = dash?.recentDecisions ?? [];
 
-  const doneCount = sections.filter((s) => s.check).length;
+  const catMap: Record<string, number> = {};
+  for (const d of decisions) {
+    catMap[d.category] = (catMap[d.category] ?? 0) + 1;
+  }
+  const chartData = Object.entries(catMap)
+    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: PIE_COLORS[name] ?? '#71717a' }))
+    .sort((a, b) => b.value - a.value);
+
+  if (chartData.length === 0) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <PieChartIcon className="h-4 w-4 text-violet-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Decision Distribution
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-32 items-center justify-center">
+          <p className="text-xs text-zinc-600">No decisions yet</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="glass-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-emerald-400" />
+            <PieChartIcon className="h-4 w-4 text-violet-400" />
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Spec Compliance
+              Decision Distribution
             </CardTitle>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold tabular-nums text-emerald-400">
-              {doneCount}/{sections.length}
-            </span>
-            {data && (
-              <span className="text-[10px] text-zinc-600">
-                v{data.version}
-              </span>
-            )}
-          </div>
+          <span className="text-[10px] font-mono text-zinc-600">
+            {decisions.length} total
+          </span>
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-6 w-full" />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {sections.map((section) => (
-              <div
-                key={section.id}
-                className="flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-white/[0.02]"
-              >
-                {section.check ? (
-                  <Check className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
-                ) : (
-                  <Minus className="h-3.5 w-3.5 shrink-0 text-zinc-700" />
-                )}
-                <span
-                  className={`text-xs ${
-                    section.check ? 'text-zinc-300' : 'text-zinc-600'
-                  }`}
+        <div className="flex items-center gap-4">
+          <div className="h-[140px] w-[140px] shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={35}
+                  outerRadius={60}
+                  strokeWidth={0}
                 >
-                  {section.title}
-                </span>
+                  {chartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {chartData.map((item) => (
+              <div key={item.name} className="flex items-center gap-2 text-xs">
+                <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }} />
+                <span className="text-zinc-400">{item.name}</span>
+                <span className="ml-auto font-mono tabular-nums text-zinc-500">{item.value}</span>
               </div>
             ))}
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -270,7 +290,7 @@ export function ResearchTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.15 }}
         >
-          <SpecComplianceSection />
+          <DecisionDistribution />
         </motion.div>
       </div>
     </div>

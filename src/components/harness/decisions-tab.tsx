@@ -39,6 +39,8 @@ const FILTER_BUTTONS = [
   { value: 'refactor', label: 'Refactor' },
   { value: 'performance', label: 'Performance' },
   { value: 'architecture', label: 'Architecture' },
+  { value: 'skill', label: 'Skill' },
+  { value: 'insight', label: 'Insight' },
 ];
 
 function DecisionCard({ decision }: { decision: Decision }) {

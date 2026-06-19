@@ -50,11 +50,13 @@ function HeroStatusCard({
   stats,
   githubStatus,
   latestWave,
+  firstWaveStart,
   isLoading,
 }: {
   stats?: TotalStats;
   githubStatus?: GithubStatus;
   latestWave?: { status: string; summary?: string | null; waveNumber?: number };
+  firstWaveStart?: string;
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -106,6 +108,14 @@ function HeroStatusCard({
                   {stats?.totalWaves ?? 0} waves executed &middot;{' '}
                   {stats?.totalDecisions ?? 0} decisions &middot;{' '}
                   {stats?.totalImprovements ?? 0} improvements
+                  {firstWaveStart && (
+                    <>
+                      {' '}&middot;{' '}
+                      <span className="text-zinc-600">
+                        uptime {formatDistanceToNow(new Date(firstWaveStart), { addSuffix: false })}
+                      </span>
+                    </>
+                  )}
                 </p>
                 {latestWave && (
                   <div className="mt-1.5 flex items-center gap-2">
@@ -640,11 +650,12 @@ export function OverviewTab() {
   const stats = dash?.totalStats;
   const waves = dash?.waves ?? [];
   const githubStatus = dash?.githubStatus;
+  const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
 
   return (
     <div className="space-y-6">
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} />
