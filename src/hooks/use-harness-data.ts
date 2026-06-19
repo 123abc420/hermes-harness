@@ -38,13 +38,14 @@ export function useHarnessDashboard() {
   // Sync dashboard stats to agent live store
   useEffect(() => {
     if (query.data) {
-      const { totalStats } = query.data;
+      const { totalStats, healthScore } = query.data;
       if (totalStats) {
         setStatus({
           waveCount: totalStats.totalWaves,
           totalImprovements: totalStats.totalImprovements,
           totalDecisions: totalStats.totalDecisions,
           recentSuccessRate: totalStats.recentSuccessRate,
+          ...(healthScore != null && { healthScore }),
         });
       }
     }

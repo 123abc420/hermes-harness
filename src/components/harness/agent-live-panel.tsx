@@ -187,17 +187,18 @@ function StatCard({ icon: Icon, label, value, subtitle, iconColor }: {
 export function AgentLivePanel() {
   const {
     agentState, message, phase, waveNumber, progress, isConnected,
-    waveCount, totalImprovements, totalDecisions, recentSuccessRate, level, levelName, xp, xpToNext,
+    waveCount, totalImprovements, totalDecisions, recentSuccessRate, healthScore,
+    level, levelName, xp, xpToNext,
     activities, subAgents, lastTurnActivities, isReplaying,
     setIsReplaying, setLastTurn, addActivity,
   } = useAgentLiveStore();
 
   // Fetch latest completed wave for summary display
-  const { data: latestWavesData } = useWaves(1, 1);
+  const { data: latestWavesData, isError: wavesError } = useWaves(1, 1);
   const latestWave = latestWavesData?.waves?.[0] ?? null;
 
   // Fetch recent decisions for compact feed
-  const { data: recentDecisionsData } = useDecisions(1, 3);
+  const { data: recentDecisionsData, isError: decisionsError } = useDecisions(1, 3);
   const recentDecisions = recentDecisionsData?.decisions ?? [];
 
   // Brief skeleton on initial mount while SSE connects
@@ -416,6 +417,31 @@ export function AgentLivePanel() {
           </CardContent>
         </Card>
 
+        {/* Health Score Bar */}
+        {healthScore > 0 && (
+          <div className="flex items-center gap-3 px-1">
+            <Shield className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+            <span className="text-[10px] font-mono text-zinc-500 tracking-wider shrink-0">HEALTH</span>
+            <div className="flex-1 h-1.5 rounded-full bg-white/[0.05] overflow-hidden">
+              <motion.div
+                className={`h-full rounded-full ${
+                  healthScore >= 90 ? 'bg-emerald-500/70' :
+                  healthScore >= 70 ? 'bg-amber-500/70' :
+                  'bg-red-500/70'
+                }`}
+                initial={{ width: 0 }}
+                animate={{ width: `${healthScore}%` }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+            <span className={`text-[11px] font-mono font-bold tabular-nums shrink-0 ${
+              healthScore >= 90 ? 'text-emerald-400' :
+              healthScore >= 70 ? 'text-amber-400' :
+              'text-red-400'
+            }`}>{healthScore}</span>
+          </div>
+        )}
+
         {/* Stats Grid — guaranteed height */}
         <div className="grid grid-cols-2 gap-4">
           <StatCard
@@ -449,7 +475,14 @@ export function AgentLivePanel() {
         </div>
 
         {/* Last Wave Summary */}
-        {latestWave && (
+        {wavesError ? (
+          <Card className="border-red-500/10 bg-red-500/[0.03]">
+            <CardContent className="p-4 flex items-center gap-2">
+              <WifiOff className="h-3.5 w-3.5 text-red-400/70 shrink-0" />
+              <span className="text-[11px] text-red-400/70 font-mono">Unable to load wave data</span>
+            </CardContent>
+          </Card>
+        ) : latestWave && (
           <Card className="border-white/[0.06] bg-white/[0.02]">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -478,7 +511,14 @@ export function AgentLivePanel() {
         )}
 
         {/* Recent Decisions */}
-        {recentDecisions.length > 0 && (
+        {decisionsError ? (
+          <Card className="border-red-500/10 bg-red-500/[0.03]">
+            <CardContent className="p-4 flex items-center gap-2">
+              <WifiOff className="h-3.5 w-3.5 text-red-400/70 shrink-0" />
+              <span className="text-[11px] text-red-400/70 font-mono">Unable to load decisions</span>
+            </CardContent>
+          </Card>
+        ) : recentDecisions.length > 0 && (
           <Card className="border-white/[0.06] bg-white/[0.02]">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2.5">

@@ -45,6 +45,7 @@ export interface AgentLiveState {
   totalImprovements: number;
   totalDecisions: number;
   recentSuccessRate: number;
+  healthScore: number;
   level: number;
   levelName: string;
   xp: number;
@@ -62,7 +63,7 @@ export interface AgentLiveState {
   isReplaying: boolean;
 
   // Actions
-  setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions' | 'recentSuccessRate'>>) => void;
+  setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions' | 'recentSuccessRate' | 'healthScore'>>) => void;
   addActivity: (entry: Omit<LiveActivityEntry, 'id' | 'timestamp' | 'timestampAR'>) => void;
   setConnected: (connected: boolean) => void;
   addSubAgent: (agent: Omit<SubAgent, 'id' | 'spawnTime'>) => void;
@@ -106,6 +107,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   totalImprovements: 0,
   totalDecisions: 0,
   recentSuccessRate: 0,
+  healthScore: 0,
   level: 1,
   levelName: 'Nascent',
   xp: 0,
