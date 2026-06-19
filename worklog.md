@@ -1257,3 +1257,20 @@ Stage Summary:
 - Wave 54 completed: 3 improvements, 0 errors
 - API routes now 18 (skills route restored)
 - Cumulative: 54 waves, 94 commits, 100% spec compliance
+---
+Task ID: 55
+Agent: Wave Engine (cron)
+Task: Self-improvement Wave 55
+
+Work Log:
+- ASSESS: Read context, insights, dev.log (clean), DB (48 waves, 0 errors). Verified skills route persists.
+- PLAN: Standby indicator (feature), metric-hygiene skill (skill creation). Only 2 improvements this wave — focused on quality.
+- EXECUTE: Added System Standby breathing pulse to Agent Live when waveNumber=0
+- EXECUTE: Created metric-hygiene.md skill (core metric keys, anti-patterns, audit guidance)
+- VERIFY: bun run lint = 0 errors, dev.log clean
+- PERSIST: Git commit 78bf7b0 pushed, wave+decisions+metrics recorded
+
+Stage Summary:
+- Wave 55 completed: 2 improvements, 0 errors
+- Skills now 14 (metric-hygiene added)
+- Cumulative: 55 waves, 96 commits, 100% spec compliance
