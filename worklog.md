@@ -1274,3 +1274,21 @@ Stage Summary:
 - Wave 55 completed: 2 improvements, 0 errors
 - Skills now 14 (metric-hygiene added)
 - Cumulative: 55 waves, 96 commits, 100% spec compliance
+---
+Task ID: 56
+Agent: Wave Engine (cron)
+Task: Self-improvement Wave 56
+
+Work Log:
+- ASSESS: Context at Wave 55, 49 waves in DB, 0 errors, dev.log clean
+- PLAN: Health score feature — composite 0-100 metric for at-a-glance system quality
+- EXECUTE: Added healthScore computation to dashboard API (spec 40%, success 30%, errors 20%, GitHub 10%)
+- EXECUTE: Added healthScore to DashboardData type, passed to HeroStatusCard
+- EXECUTE: Rendered color-coded badge in overview hero (green ≥90, amber ≥70, red <70)
+- VERIFY: bun run lint = 0 errors
+- PERSIST: Git commit 7459885 pushed, wave+decisions+metrics recorded
+
+Stage Summary:
+- Wave 56 completed: 2 improvements, 0 errors
+- Current health score: ~90 (spec files present, 100% success, 0 errors, GitHub connected)
+- Cumulative: 56 waves, 98 commits, 100% spec compliance
