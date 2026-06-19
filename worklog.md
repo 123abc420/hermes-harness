@@ -1753,3 +1753,22 @@ Stage Summary:
 - New files: build-health-card.tsx (96L), harness-dashboard.tsx (120L)
 - Harness components: 25 (was 24)
 - Export contract now includes HarnessDashboard + HarnessErrorBoundary
+
+---
+Task ID: 83
+Agent: Wave Engine (auto)
+Task: Skills category filter + API improvement + new skill
+
+Work Log:
+- Enhanced SkillsSection with category filter pills (useState + useMemo + AnimatePresence)
+- Added SKILL_CATEGORY_TW color map for skill-specific categories (automation, code, research, analysis, strategy)
+- Replaced hardcoded cyan badge with per-category colored badges
+- Improved skills API YAML parser to strip surrounding quotes from values
+- Created category-filter-pills skill (15th skill)
+- Ran bun run lint — zero errors
+
+Stage Summary:
+- Skills UI: now filterable by category with animated transitions
+- New skill: category-filter-pills.md (documents repeatable pattern)
+- Skills count: 15 (was 14)
+- Files modified: skills-section.tsx (rewrite), skills/route.ts (parser fix)

@@ -3,21 +3,21 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 06:20 UTC+8
+2026-06-20 06:30 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 82)
-- **Waves in DB**: 76
-- **Spec compliance**: 100% (15/16, now includes build health)
+- **Phase**: Post-Compliance Evolution (Wave 83)
+- **Waves in DB**: 77
+- **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
 | Metric | Value |
 |--------|-------|
 | API routes | 18 |
 | Dashboard tabs | 6 |
-| Skills | 14 |
-| GitHub commits | 142 |
-| Waves in DB | 76 |
+| Skills | 15 |
+| GitHub commits | 144 |
+| Waves in DB | 77 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~92/100 (stable) |
 | Harness components | 25 |
@@ -27,10 +27,9 @@
 - Overview tab: 193 lines (layout orchestrator + BuildHealthCard)
 - Build Health Card: lint status with 5-min cache, errors/warnings display
 - HarnessDashboard: composite export for drop-in embedding
+- Skills Section: category filter pills with AnimatePresence, 7 categories
 - Memory health bars: color-coded usage indicators in Research tab
-- Extracted overview: HeroStatusCard, QuickMetricsChart, WaveDurationBars, SpecComplianceCard, MilestonesTimeline, StatsGrid, MiniWaveTimeline, ErrorTrendChart, RecentCommitsCard, BuildHealthCard
-- Extracted research: MemorySection (with health bars), SkillsSection, DecisionTimeline, WaveCategoryBreakdown, DonutChartCard, ErrorBlock
-- Export contract: HarnessDashboard + HarnessErrorBoundary now exported
+- Export contract: HarnessDashboard + HarnessErrorBoundary exported
 - Package: @hermes/harness-dashboard v0.1.0
 
 ## What's next
