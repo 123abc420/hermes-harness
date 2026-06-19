@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-const AGENT_LIVE_PORT = 3004;
-
 const DEMO_SEQUENCE = [
   { agentState: 'thinking', message: 'ASSESS: Leyendo context.md...', phase: 'assess', progress: 0.1 },
   { agentState: 'thinking', message: 'ASSESS: Analizando estado del sistema...', phase: 'assess', progress: 0.15 },
@@ -19,51 +17,47 @@ const DEMO_SEQUENCE = [
   { agentState: 'idle', message: 'Esperando próxima ola...', phase: '', progress: 0 },
 ];
 
-async function broadcast(data: Record<string, unknown>) {
+async function postToStatus(data: Record<string, unknown>) {
   try {
-    await fetch(`http://localhost:${AGENT_LIVE_PORT}/broadcast`, {
+    await fetch('http://localhost:3000/api/harness/agent-status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
   } catch {
-    // Service might not be running
+    // Ignore
   }
 }
 
 // GET: Run demo sequence
 export async function GET() {
-  // Run the demo sequence with delays
-  for (let i = 0; i < DEMO_SEQUENCE.length; i++) {
-    const step = DEMO_SEQUENCE[i];
+  for (const step of DEMO_SEQUENCE) {
     await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 600));
-
-    // Broadcast status
-    await broadcast({ type: 'status', payload: { ...step, waveNumber: 2, waveCount: 1, totalImprovements: 3, totalDecisions: 7 } });
-
-    // Also broadcast as activity
-    await broadcast({ type: 'activity', payload: { agentState: step.agentState, message: step.message, phase: step.phase } });
+    await postToStatus({
+      type: 'activity',
+      agentState: step.agentState,
+      message: step.message,
+      phase: step.phase,
+    });
+    await postToStatus({
+      agentState: step.agentState,
+      message: step.message,
+      phase: step.phase,
+      waveNumber: 2,
+      progress: step.progress,
+      waveCount: 1,
+      totalImprovements: 3,
+      totalDecisions: 7,
+    });
   }
-
   return NextResponse.json({ ok: true, message: 'Demo sequence completed' });
 }
 
-// POST: Trigger a single status update (for testing)
+// POST: Single status update
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { agentState, message, phase, waveNumber, progress } = body;
-
-    await broadcast({
-      type: 'activity',
-      payload: { agentState: agentState || 'idle', message: message || '', phase: phase || '' },
-    });
-
-    await broadcast({
-      type: 'status',
-      payload: { agentState: agentState || 'idle', message: message || '', phase: phase || '', waveNumber: waveNumber || 0, progress: progress || 0 },
-    });
-
+    await postToStatus(body);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
