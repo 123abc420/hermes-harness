@@ -878,3 +878,25 @@ Stage Summary:
 - Store re-renders per activity: 4 → 1 (75% reduction)
 - Evolution stages sources: 2 → 1 (single source of truth)
 - Commit: f28d039, pushed to GitHub
+
+---
+Task ID: 36
+Agent: HERMES Wave Engine
+Task: Wave 36 — Zustand selector perf + performance-audit skill
+
+Work Log:
+- ASSESS: 29 waves, 0 errors, 100% compliance. Identified perf issues via rg.
+- Found 3 components using bare useAgentLiveStore() — subscribes to ALL state changes
+- Canvas (60fps animation) re-rendered on every activity feed update despite only reading 3 fields
+- Header re-rendered on every store change despite only reading 2 fields
+- use-agent-live.ts had 3 consecutive setState() calls when syncing activities
+- Replaced bare destructuring with individual selectors in canvas (3) and header (2)
+- Batched 3 setState calls into 1 in use-agent-live.ts processData
+- Created gh-sync/skills/performance-audit.md (skill #11) — 5-step audit pattern
+- VERIFY: lint 0 errors, no dev.log errors
+
+Stage Summary:
+- 2 code improvements across 3 files
+- Bare store calls: 3 → 1 (agent-live-panel uses many fields, acceptable)
+- setState calls per server sync: 3 → 1
+- New skill: performance-audit.md (total: 11)

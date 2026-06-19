@@ -67,15 +67,16 @@ export function useAgentLive() {
         }
       }
       if (hasNew) {
-        useAgentLiveStore.setState(s => ({
-          activities: [...newActivities, ...s.activities]
-            .sort((a, b) => b.timestamp - a.timestamp)
-            .slice(0, s.maxActivities),
-        }));
-        // Update state from latest activity
+        // Batch: update activities + extract latest state in a single setState
         const latest = data.activities[0];
-        if (latest.state) useAgentLiveStore.setState({ agentState: latest.state });
-        if (latest.message) useAgentLiveStore.setState({ message: latest.message });
+        const stateUpdate: Record<string, unknown> = {
+          activities: [...newActivities, ...store.activities]
+            .sort((a, b) => b.timestamp - a.timestamp)
+            .slice(0, store.maxActivities),
+        };
+        if (latest.state) stateUpdate.agentState = latest.state;
+        if (latest.message) stateUpdate.message = latest.message;
+        useAgentLiveStore.setState(stateUpdate);
       }
     }
   }, [setStatus]);

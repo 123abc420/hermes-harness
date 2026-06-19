@@ -134,7 +134,9 @@ export function AgentAvatarCanvas({ size = 320, interactive = true, showLabel = 
     mouthCurve: 0.3, mouthOpen: 0, mouthWidth: 1.0, cheekGlow: 0.1, eyeSquint: 0.1,
   });
 
-  const { agentState, waveCount, totalImprovements, message } = useAgentLiveStore();
+  const agentState = useAgentLiveStore(s => s.agentState);
+  const waveCount = useAgentLiveStore(s => s.waveCount);
+  const totalImprovements = useAgentLiveStore(s => s.totalImprovements);
 
   // Parse color to RGB
   const parseColor = useCallback((hex: string) => {

@@ -17,7 +17,8 @@ const STATE_COLORS_MAP: Record<string, string> = {
 
 export function HarnessHeader({ githubStatus, totalWaves }: HarnessHeaderProps) {
   const isConnected = githubStatus?.status === 'connected';
-  const { agentState, isConnected: isLiveConnected } = useAgentLiveStore();
+  const agentState = useAgentLiveStore(s => s.agentState);
+  const isLiveConnected = useAgentLiveStore(s => s.isConnected);
   const stateColor = STATE_COLORS_MAP[agentState] || '#f59e0b';
 
   return (
