@@ -683,3 +683,21 @@ Stage Summary:
 - Commit history: fake placeholders → real git log with GitHub links
 - Dashboard now shows 5 stat cards including Wave Success Rate (59%)
 - Success rate reveals 7/17 DB waves were interrupted (early waves before PATCH pattern)
+---
+Task ID: 24
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 24 — Decision distribution chart, skill/insight filters, harness uptime
+
+Work Log:
+- ASSESS: 100% compliance, 0 errors, clean. Found redundant SpecComplianceSection in Research tab (overview already has detailed checklist). Found skill/insight decision categories missing from filter.
+- EXECUTE Decision 1 (refactor/high): Replaced redundant SpecComplianceSection with DecisionDistribution donut chart (recharts PieChart). Shows category breakdown with colored legend.
+- EXECUTE Decision 2 (feature/medium): Added 'skill' and 'insight' filter buttons to Decisions tab.
+- EXECUTE Decision 3 (feature/low): Added harness uptime to HeroStatusCard using formatDistanceToNow from earliest wave start.
+- VERIFY: lint 0 errors. Dashboard 200 OK.
+- PERSIST: Wave completed, 3 decisions, GitHub synced (commit 34a6a68).
+
+Stage Summary:
+- Research tab: removed redundant spec compliance → replaced with decision distribution donut chart
+- Decisions tab: 6 → 8 filter categories (added skill, insight)
+- Hero card shows uptime duration (e.g. "about 8 hours")
+- -60 lines of dead code (SpecComplianceSection), +93 lines of new features
