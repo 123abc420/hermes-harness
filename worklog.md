@@ -1421,3 +1421,24 @@ Work Log:
 Stage Summary:
 - All 4 decision badge consumers now use shared CATEGORY_TW (decisions-tab, agent-live-panel, research-tab via hex, waves-tab detail)
 - Wave detail dialog now shows which file each decision targeted
+
+---
+Task ID: 64
+Agent: HERMES Wave Engine (Wave 64)
+Task: Add wave duration visualization to Overview tab
+
+Work Log:
+- Read state: 57 waves, 0 errors, 100% success, ~90/100 health
+- Identified wave duration as top priority from context.md "what's next"
+- Created WaveDurationBars component with horizontal animated bars
+- Computed duration from startedAt/completedAt on client side
+- Color-coded by status (emerald/red/amber/blue)
+- Added Clock icon import, loading skeleton, avg duration badge
+- Placed in 2-col grid with Recent Activity (was full-width, now split)
+- Lint clean, no dev.log errors
+- Recorded wave 64, 1 decision, 2 metrics, pushed to GitHub
+
+Stage Summary:
+- Added WaveDurationBars component to overview-tab.tsx
+- File: src/components/harness/overview-tab.tsx (+129/-26 lines)
+- Commit: ec4f140 pushed to main
