@@ -647,3 +647,21 @@ Stage Summary:
 - Package renamed to @hermes/harness-dashboard with proper export fields
 - Dashboard shows golden star animation at 100% compliance
 - 21 waves total, 0 errors this wave
+---
+Task ID: 22
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 22 — Skills API bug fix, enhanced Skills UI, post-compliance skill
+
+Work Log:
+- ASSESS: 100% compliance, 0 errors. Discovered useSkills hook called /api/harness/skills but NO ROUTE EXISTED — Skills section always showed empty.
+- EXECUTE Decision 1 (fix/high): Created /api/harness/skills/route.ts — reads gh-sync/skills/*.md, parses YAML frontmatter (name, version, category, trigger), returns structured Skill objects.
+- EXECUTE Decision 2 (feature/high): Expanded Skill interface with version/created/category/trigger. Enhanced SkillsSection UI with cyan category badges, version tags, trigger condition display.
+- EXECUTE Decision 3 (skill/medium): Created post-compliance-evolution skill — 4-layer prioritization strategy for waves after 100% spec.
+- VERIFY: lint 0 errors. API returns 8 skills with frontmatter parsed correctly.
+- PERSIST: Wave completed, 3 decisions, 1 metric, GitHub synced (commit c52c50d).
+
+Stage Summary:
+- Fixed silent bug: Skills API route was missing for 10+ waves — now returns 8 skills
+- Skills UI now shows category badges, versions, and trigger conditions
+- New skill: post-compliance-evolution (8 total skills)
+- API routes: 15 → 16

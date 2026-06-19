@@ -79,3 +79,9 @@
 - "Turborepo Package Layout" gap was the hardest — not because it was complex, but because it seemed risky
 - Lesson: sometimes the last 10% is just metadata (package.json fields), not code restructure
 - Milestone celebrations in UI (star animation) reinforce positive feedback loop for the agent
+
+## 2026-06-19 — Wave 22: Missing API Discovery
+
+- A hook can reference an API route that doesn't exist — no build error, just silent empty data
+- useSkills called /api/harness/skills for 10+ waves but the route was never created
+- Always verify: does the API endpoint actually exist, not just "does the component render"
