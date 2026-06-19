@@ -10,102 +10,15 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CATEGORY_HEX } from '@/lib/category-colors';
-import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
 import { MemorySection } from './memory-section';
 import { SkillsSection } from './skills-section';
 import { WaveCategoryBreakdown } from './wave-category-breakdown';
+import { DonutChartCard } from './donut-chart-card';
+import type { DonutSlice } from './donut-chart-card';
 import type { DashboardData } from '@/store/harness-store';
 
-/* ── Decision Distribution ────────────────────────────── */
-// (Pie colors imported from @/lib/category-colors as CATEGORY_HEX)
-
-function DecisionDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
-  const decisions = recentDecisions ?? [];
-
-  const catMap: Record<string, number> = {};
-  for (const d of decisions) {
-    catMap[d.category] = (catMap[d.category] ?? 0) + 1;
-  }
-  const chartData = Object.entries(catMap)
-    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: CATEGORY_HEX[name] ?? '#71717a' }))
-    .sort((a, b) => b.value - a.value);
-
-  if (chartData.length === 0) {
-    return (
-      <Card className="glass-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <PieChartIcon className="h-4 w-4 text-violet-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Decision Distribution
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="flex h-32 items-center justify-center">
-          <p className="text-xs text-zinc-600">No decisions yet</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="glass-card">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PieChartIcon className="h-4 w-4 text-violet-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Decision Distribution
-            </CardTitle>
-          </div>
-          <span className="text-[10px] font-mono text-zinc-600">
-            {decisions.length} total
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4">
-          <div className="h-[140px] w-[140px] shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={35}
-                  outerRadius={60}
-                  strokeWidth={0}
-                >
-                  {chartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={CHART_TOOLTIP_STYLE}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {chartData.map((item) => (
-              <div key={item.name} className="flex items-center gap-2 text-xs">
-                <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-zinc-400">{item.name}</span>
-                <span className="ml-auto font-mono tabular-nums text-zinc-500">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ── Outcome Distribution ────────────────────────────── */
+/* ── Outcome color map ───────────────────────────────── */
 const OUTCOME_COLORS: Record<string, string> = {
   success_verified: '#10b981',
   skipped: '#71717a',
@@ -115,89 +28,47 @@ const OUTCOME_COLORS: Record<string, string> = {
   pending: '#3f3f46',
 };
 
-function OutcomeDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
+/* ── Decision Distribution ────────────────────────────── */
+function DecisionDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
   const decisions = recentDecisions ?? [];
-
-  const outMap: Record<string, number> = {};
-  for (const d of decisions) {
-    const key = d.outcome ?? 'pending';
-    outMap[key] = (outMap[key] ?? 0) + 1;
-  }
-  const chartData = Object.entries(outMap)
-    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: OUTCOME_COLORS[name] ?? '#71717a' }))
+  const catMap: Record<string, number> = {};
+  for (const d of decisions) catMap[d.category] = (catMap[d.category] ?? 0) + 1;
+  const data: DonutSlice[] = Object.entries(catMap)
+    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: CATEGORY_HEX[name] ?? '#71717a' }))
     .sort((a, b) => b.value - a.value);
 
-  if (chartData.length === 0) {
-    return (
-      <Card className="glass-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Outcome Distribution
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="flex h-32 items-center justify-center">
-          <p className="text-xs text-zinc-600">No decisions yet</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  return (
+    <DonutChartCard
+      title="Decision Distribution"
+      icon={PieChartIcon}
+      iconColor="text-violet-400"
+      data={data}
+      emptyMessage="No decisions yet"
+      headerBadge={data.length > 0 ? `${decisions.length} total` : undefined}
+    />
+  );
+}
 
-  const successCount = outMap['success_verified'] ?? 0;
-  const successPct = Math.round((successCount / decisions.length) * 100);
+/* ── Outcome Distribution ────────────────────────────── */
+function OutcomeDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
+  const decisions = recentDecisions ?? [];
+  const outMap: Record<string, number> = {};
+  for (const d of decisions) { const k = d.outcome ?? 'pending'; outMap[k] = (outMap[k] ?? 0) + 1; }
+  const data: DonutSlice[] = Object.entries(outMap)
+    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: OUTCOME_COLORS[name] ?? '#71717a' }))
+    .sort((a, b) => b.value - a.value);
+  const successPct = decisions.length > 0 ? Math.round(((outMap['success_verified'] ?? 0) / decisions.length) * 100) : 0;
 
   return (
-    <Card className="glass-card">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Outcome Distribution
-            </CardTitle>
-          </div>
-          <span className="text-[10px] font-mono text-emerald-400/70">
-            {successPct}% success
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4">
-          <div className="h-[140px] w-[140px] shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={35}
-                  outerRadius={60}
-                  strokeWidth={0}
-                >
-                  {chartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {chartData.map((item) => (
-              <div key={item.name} className="flex items-center gap-2 text-xs">
-                <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-zinc-400">{item.name}</span>
-                <span className="ml-auto font-mono tabular-nums text-zinc-500">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <DonutChartCard
+      title="Outcome Distribution"
+      icon={CheckCircle2}
+      iconColor="text-emerald-400"
+      data={data}
+      emptyMessage="No decisions yet"
+      headerBadge={data.length > 0 ? `${successPct}% success` : undefined}
+      badgeColor="text-emerald-400/70"
+    />
   );
 }
 
