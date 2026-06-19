@@ -1391,3 +1391,18 @@ Stage Summary:
 - Single source of truth for all 9 decision category colors
 - Fixed color swap bug that made pie chart inconsistent with badges
 - Agent Live now correctly colors architecture decisions (teal, not violet)
+
+---
+Task ID: 62
+Agent: Wave Engine
+Task: Wave 62 — Chart tooltip DRY + insights update
+
+Work Log:
+- Added CHART_TOOLTIP_STYLE and CHART_TOOLTIP_STYLE_DARK to constants.ts
+- Replaced 3 inline contentStyle objects in overview-tab (2) and research-tab (1)
+- Updated insights.md with 6 new lessons from Waves 58-61
+- Lint clean, pushed 05602de
+
+Stage Summary:
+- Eliminated chart tooltip style duplication
+- Insights.md now covers all major learning clusters through Wave 61
