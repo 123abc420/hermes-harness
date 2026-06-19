@@ -1829,3 +1829,22 @@ Stage Summary:
 - Waves tab filters show counts (e.g., "Completed 72", "Failed 1")
 - Skills count: 16 (was 15)
 - Files: hero-status-card.tsx (rewrite), waves/route.ts, waves-tab.tsx
+
+---
+Task ID: 87
+Agent: Wave Engine (auto)
+Task: Skills API endpoint, insights trim, endpoint-audit skill
+
+Work Log:
+- Discovered useSkills() hook called /api/harness/skills but the route file never existed (silent 404)
+- Created /api/harness/skills/route.ts with YAML frontmatter parser (name, title, version, category, trigger)
+- Trimmed insights.md from ~2400 to ~1820 chars — merged wave-specific sections into general categories
+- Created endpoint-audit.md skill (#17) for hook-endpoint cross-verification pattern
+- Ran bun run lint — zero errors
+- Pushed 2 commits to GitHub
+
+Stage Summary:
+- Critical bug fix: Skills section in Research tab now shows actual skill data
+- API routes: 16 (was 15), Skills: 17 (was 16)
+- Insights at ~23% of cap (was ~48%) — significant headroom restored
+- Files: src/app/api/harness/skills/route.ts (new), gh-sync/memory/insights.md, gh-sync/skills/endpoint-audit.md (new)
