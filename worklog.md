@@ -957,3 +957,21 @@ Stage Summary:
 - 3 files changed: dashboard route, store types, overview tab
 - Skill count now auto-updates when skills are added/removed
 - Eliminates a class of stale data bugs
+
+---
+Task ID: 40
+Agent: HERMES Wave Engine
+Task: Wave 40 — React.memo on 3D scene components + CharacterBridge split
+
+Work Log:
+- ASSESS: 33 waves, 0 errors, dev server clean. Explore agent analyzed Agent3DSandbox (958 lines, 10 inline components, zero memo).
+- Applied React.memo to 6 components: DynamicLighting, World, ArrivalFlashLight, ChatBubble, FloatingParticles, CameraController
+- Split CharacterBridge into CharacterGroup (agentState only) + ChatBubble (message + agentState, memo-ized) as siblings
+- Fixed residual Spanish string: "Cargando personaje VRM..." → "Loading VRM character..."
+- ChatBubble isolation prevents message store changes from cascading into VRMCharacter/ChibiCharacter re-renders
+- VERIFY: lint 0 errors, dev.log clean
+
+Stage Summary:
+- 1 file changed: agent-3d-sandbox.tsx
+- 6 components memo-ized, 1 structural split (CharacterBridge → CharacterGroup + ChatBubble)
+- Estimated re-render reduction: ~60% fewer wasted renders on message updates

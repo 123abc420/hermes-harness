@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState, useMemo, useCallback, Suspense } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback, Suspense, memo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, Float, Html } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -70,7 +70,7 @@ function loadVRM(onLoad: () => void, onError: () => void) {
 /* ═══════════════════════════════════════════════════════════════════════
    DYNAMIC LIGHTING — adjusts ambient light based on Argentina time
    ═══════════════════════════════════════════════════════════════════════ */
-function DynamicLighting() {
+const DynamicLighting = memo(function DynamicLighting() {
   const ambientRef = useRef<THREE.AmbientLight>(null);
   const dirRef = useRef<THREE.DirectionalLight>(null);
 
@@ -119,12 +119,12 @@ function DynamicLighting() {
       <fog attach="fog" args={['#050a08', 8, 25]} />
     </>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════════════════════
    WORLD ENVIRONMENT — ground, trees, rocks, mushrooms, lights
    ═══════════════════════════════════════════════════════════════════════ */
-function World() {
+const World = memo(function World() {
   const gridRef = useMemo(() => new THREE.GridHelper(24, 36, '#1a3a2a', '#0d1f15'), []);
   return (
     <group>
@@ -261,7 +261,7 @@ function World() {
       </group>
     </group>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════════════════════
    CHIBI CHARACTER — cute humanoid fallback
@@ -728,7 +728,7 @@ function VRMCharacter() {
 /* ═══════════════════════════════════════════════════════════════════════
    ARRIVAL FLASH — brief glow when character arrives at station
    ═══════════════════════════════════════════════════════════════════════ */
-function ArrivalFlashLight() {
+const ArrivalFlashLight = memo(function ArrivalFlashLight() {
   const lightRef = useRef<THREE.PointLight>(null);
 
   useFrame(() => {
@@ -740,19 +740,18 @@ function ArrivalFlashLight() {
   });
 
   return <pointLight ref={lightRef} intensity={0} distance={3} color="#6366f1" />;
-}
+});
 
 /* ═══════════════════════════════════════════════════════════════════════
    CHARACTER BRIDGE — shows VRM or Chibi, handles switching
    ═══════════════════════════════════════════════════════════════════════ */
-function CharacterBridge() {
+/* Character group — subscribes to agentState only (NOT message) */
+function CharacterGroup() {
   const [vrmReady, setVrmReady] = useState(false);
   const agentState = useAgentLiveStore(s => s.agentState);
-  const message = useAgentLiveStore(s => s.message);
   const stateColor = STATE_COLORS[agentState];
 
   useEffect(() => {
-    // Poll for VRM load completion
     const interval = setInterval(() => {
       if (vrmLoadSuccess && !vrmLoadError) {
         setVrmReady(true);
@@ -765,34 +764,10 @@ function CharacterBridge() {
     return () => clearInterval(interval);
   }, []);
 
-  const showChat = message && message !== 'Esperando actividad...';
-
   return (
     <group>
       {vrmReady ? <VRMCharacter /> : <ChibiCharacter />}
       <ArrivalFlashLight />
-
-      {/* Chat bubble in 3D space */}
-      {showChat && (
-        <Html position={[characterWorldPos.x, 1.6, characterWorldPos.z]} center
-          distanceFactor={5} style={{ pointerEvents: 'none' }}>
-          <div style={{
-            background: 'rgba(0,0,0,0.85)', color: '#e4e4e7', padding: '5px 12px',
-            borderRadius: '14px', fontSize: '11px', fontFamily: 'system-ui, sans-serif',
-            maxWidth: '180px', textAlign: 'center', lineHeight: 1.4,
-            border: `1px solid ${stateColor}33`, backdropFilter: 'blur(6px)',
-            boxShadow: `0 0 20px ${stateColor}22`,
-          }}>
-            <div style={{
-              width: 0, height: 0, borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent', borderTop: `6px solid rgba(0,0,0,0.85)`,
-              margin: '0 auto', marginTop: '4px',
-            }} />
-            {message}
-          </div>
-        </Html>
-      )}
-
       {/* Ground glow at character feet */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[characterWorldPos.x, 0.008, characterWorldPos.z]}>
         <ringGeometry args={[0.15, 0.5, 24]} />
@@ -805,10 +780,50 @@ function CharacterBridge() {
   );
 }
 
+/* Chat bubble — subscribes to message only, isolated from character re-renders */
+const ChatBubble = memo(function ChatBubble() {
+  const message = useAgentLiveStore(s => s.message);
+  const agentState = useAgentLiveStore(s => s.agentState);
+  const stateColor = STATE_COLORS[agentState];
+  const showChat = message && message !== 'Waiting for activity...';
+
+  if (!showChat) return null;
+
+  return (
+    <Html position={[characterWorldPos.x, 1.6, characterWorldPos.z]} center
+      distanceFactor={5} style={{ pointerEvents: 'none' }}>
+      <div style={{
+        background: 'rgba(0,0,0,0.85)', color: '#e4e4e7', padding: '5px 12px',
+        borderRadius: '14px', fontSize: '11px', fontFamily: 'system-ui, sans-serif',
+        maxWidth: '180px', textAlign: 'center', lineHeight: 1.4,
+        border: `1px solid ${stateColor}33`, backdropFilter: 'blur(6px)',
+        boxShadow: `0 0 20px ${stateColor}22`,
+      }}>
+        <div style={{
+          width: 0, height: 0, borderLeft: '6px solid transparent',
+          borderRight: '6px solid transparent', borderTop: `6px solid rgba(0,0,0,0.85)`,
+          margin: '0 auto', marginTop: '4px',
+        }} />
+        {message}
+      </div>
+    </Html>
+  );
+});
+
+/* Bridge — renders both as siblings so message changes don't cascade into character */
+function CharacterBridge() {
+  return (
+    <group>
+      <CharacterGroup />
+      <ChatBubble />
+    </group>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    CAMERA CONTROLLER — smooth third-person follow
    ═══════════════════════════════════════════════════════════════════════ */
-function CameraController() {
+const CameraController = memo(function CameraController() {
   const { camera } = useThree();
   const target = useMemo(() => new THREE.Vector3(0, 0.8, 0), []);
 
@@ -832,7 +847,7 @@ function CameraController() {
   });
 
   return null;
-}
+});
 
 /* ═══════════════════════════════════════════════════════════════════════
    STATE-REACTIVE LIGHT — color changes with agent state
@@ -855,7 +870,7 @@ function StateLight() {
 /* ═══════════════════════════════════════════════════════════════════════
    FLOATING PARTICLES — ambient atmosphere
    ═══════════════════════════════════════════════════════════════════════ */
-function FloatingParticles() {
+const FloatingParticles = memo(function FloatingParticles() {
   const count = 40;
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -892,7 +907,7 @@ function FloatingParticles() {
       <meshStandardMaterial color="#a5f3fc" emissive="#a5f3fc" emissiveIntensity={0.8} transparent opacity={0.6} />
     </instancedMesh>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════════════════════
    LOADING INDICATOR — shown while VRM loads
@@ -906,7 +921,7 @@ function LoadingIndicator() {
           width: 24, height: 24, margin: '0 auto 6px', borderRadius: '50%',
           border: '2px solid #065f4644', borderTopColor: '#6ee7b7', animation: 'spin 1s linear infinite',
         }} />
-        Cargando personaje VRM...
+        Loading VRM character...
       </div>
     </Html>
   );
