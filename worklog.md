@@ -736,3 +736,21 @@ Stage Summary:
 - Global ErrorBoundary prevents white-screen crashes
 - skill/insight categories now have distinct colors (pink/amber)
 - New files: error-block.tsx, error-boundary.tsx
+---
+Task ID: 27
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 27 — Accessibility: aria-pressed, aria-labels, aria-live
+
+Work Log:
+- ASSESS: Clean state, 21 waves, 0 errors. Followed context.md "What's next" item #1.
+- EXECUTE Decision 1 (feature/high): Added aria-pressed to 13 filter toggle buttons across Waves (5) and Decisions (8) tabs.
+- EXECUTE Decision 2 (feature/high): Added aria-label to 6 interactive elements: Trigger Wave, Sync to GitHub, View Repo (opens in new tab), commit SHA links (5x), Replay/Pause button.
+- EXECUTE Decision 3 (feature/medium): Added aria-live="polite" + aria-label to agent activity feed container.
+- VERIFY: lint 0 errors, dashboard 200 OK.
+- PERSIST: Wave 22 in DB completed, 3 decisions, 1 metric.
+
+Stage Summary:
+- 18 ARIA attributes added across 5 files
+- Filter buttons now properly announce toggle state
+- Screen readers can now perceive real-time agent activity
+- External links announce "opens in new tab"

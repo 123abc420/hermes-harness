@@ -113,6 +113,7 @@ function ConnectionStatus() {
                   href={`https://github.com/${status.username}/${status.repoName}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`View ${status.username}/${status.repoName} on GitHub (opens in new tab)`}
                 >
                   <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
                   View Repo
@@ -123,6 +124,7 @@ function ConnectionStatus() {
               size="sm"
               onClick={() => sync.mutate()}
               disabled={!isConnected || sync.isPending}
+              aria-label="Sync to GitHub"
               className="gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500"
             >
               <RefreshCw
@@ -226,6 +228,7 @@ function CommitHistory() {
                   href={`https://github.com/${status?.username}/${status?.repoName}/commit/${commit.sha}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`View commit ${commit.sha.slice(0, 7)} on GitHub (opens in new tab)`}
                   className="shrink-0 font-mono text-[10px] text-zinc-600 transition-colors hover:text-emerald-400"
                 >
                   {commit.sha.slice(0, 7)}

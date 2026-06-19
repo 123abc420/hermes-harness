@@ -173,6 +173,7 @@ export function DecisionsTab() {
               <button
                 key={btn.value}
                 onClick={() => setDecisionCategoryFilter(btn.value)}
+                aria-pressed={decisionCategoryFilter === btn.value}
                 className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
                   decisionCategoryFilter === btn.value
                     ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'

@@ -407,7 +407,7 @@ export function AgentLivePanel() {
         </div>
 
         <ScrollArea className="flex-1 h-[420px] lg:h-[540px]" ref={feedRef}>
-          <div className="p-2 space-y-1">
+          <div className="p-2 space-y-1" aria-live="polite" aria-label="Agent activity feed">
             <AnimatePresence initial={false}>
               {displayActivities.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -445,6 +445,7 @@ export function AgentLivePanel() {
                   variant="ghost"
                   size="sm"
                   onClick={toggleReplay}
+                  aria-label={isReplaying ? 'Pause replay' : 'Replay last wave'}
                   className={`h-7 px-3 text-xs gap-1.5 ${
                     isReplaying
                       ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
