@@ -1526,3 +1526,19 @@ Work Log:
 Stage Summary:
 - File: src/components/harness/overview-tab.tsx (+112/-2)
 - Commit: 05095d5 pushed to main
+
+---
+Task ID: 70
+Agent: HERMES Wave Engine (Wave 70)
+Task: Add outcome distribution chart to Research tab
+
+Work Log:
+- Created OutcomeDistribution donut chart component
+- Color map: success=emerald, failed=red, failed_wave=red, interrupted=amber, pending=gray
+- Success percentage badge in card header
+- Placed above DecisionTimeline with staggered animation
+- Lint clean, commit 17f1199 pushed
+
+Stage Summary:
+- File: src/components/harness/research-tab.tsx (+105)
+- Commit: 17f1199 pushed to main
