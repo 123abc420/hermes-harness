@@ -14,8 +14,23 @@ let latestStatus: Record<string, unknown> = {
 };
 
 let activityLog: Array<Record<string, unknown>> = [];
-const MAX_LOG = 50;
+const MAX_LOG = 80;
+
+// Sub-agents state
+let subAgents: Array<Record<string, unknown>> = [];
 let activityTimestamp = 0;
+
+// Format Argentina timestamp
+function argentinaTime(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleString('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}
 
 // Also try to forward to the agent-live service (best-effort)
 async function forwardToService(data: { type: string; payload: Record<string, unknown> }) {
@@ -51,6 +66,7 @@ export async function GET(req: NextRequest) {
             activities: activityLog,
             activityCount: activityLog.length,
             activityTimestamp,
+            subAgents,
           });
           const hash = getHash();
           if (hash !== lastDataHash) {
@@ -95,6 +111,7 @@ export async function GET(req: NextRequest) {
     activities: activityLog,
     activityCount: activityLog.length,
     activityTimestamp,
+    subAgents,
   });
 }
 
@@ -109,18 +126,20 @@ export async function POST(req: NextRequest) {
     }
 
     if (type === 'activity') {
+      const now = Date.now();
       const entry = {
         agentState: agentState || 'idle',
         message: message || '',
         phase: phase || '',
-        id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        timestamp: Date.now(),
+        id: `act_${now}_${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: now,
+        timestampAR: argentinaTime(now),
       };
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
-      activityTimestamp = Date.now();
+      activityTimestamp = now;
 
       // Also update latest status
-      latestStatus = { ...latestStatus, agentState: entry.agentState, message: entry.message, phase: entry.phase, timestamp: Date.now() };
+      latestStatus = { ...latestStatus, agentState: entry.agentState, message: entry.message, phase: entry.phase, timestamp: now };
 
       // Best-effort forward to service
       forwardToService({ type: 'activity', payload: entry }).catch(() => {});
@@ -128,8 +147,58 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, activities: activityLog.length });
     }
 
+    if (type === 'sub-agent') {
+      // Add a sub-agent
+      const subAgent = {
+        id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 4)}`,
+        name: body.name || 'Sub-Agent',
+        state: body.state || 'executing',
+        message: body.message || 'Working...',
+        color: body.color || '#8b5cf6',
+        spawnTime: Date.now(),
+        timestampAR: argentinaTime(Date.now()),
+      };
+      subAgents = [...subAgents, subAgent];
+
+      // Also add as activity
+      const entry = {
+        agentState: body.state || 'executing',
+        message: `🚀 Sub-agente desplegado: ${subAgent.name}`,
+        phase: phase || '',
+        id: `act_${Date.now()}_sub`,
+        timestamp: Date.now(),
+        timestampAR: argentinaTime(Date.now()),
+      };
+      activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
+      activityTimestamp = Date.now();
+
+      forwardToService({ type: 'activity', payload: entry }).catch(() => {});
+      return NextResponse.json({ ok: true, subAgents: subAgents.length });
+    }
+
+    if (type === 'sub-agent-remove') {
+      const agentId = body.agentId;
+      subAgents = subAgents.filter((a: Record<string, unknown>) => a.id !== agentId);
+      return NextResponse.json({ ok: true, subAgents: subAgents.length });
+    }
+
+    if (type === 'sub-agent-clear') {
+      subAgents = [];
+      return NextResponse.json({ ok: true });
+    }
+
     if (type === 'full-update') {
       latestStatus = { ...latestStatus, ...body, timestamp: Date.now() };
+      if (body.activities) {
+        // Ensure all activities have Argentina timestamps
+        activityLog = (body.activities as Array<Record<string, unknown>>).map(a => ({
+          ...a,
+          timestampAR: a.timestampAR || argentinaTime(a.timestamp as number),
+        }));
+      }
+      if (body.subAgents) {
+        subAgents = body.subAgents as Array<Record<string, unknown>>;
+      }
       forwardToService({ type: 'full-update', payload: body }).catch(() => {});
       return NextResponse.json({ ok: true });
     }

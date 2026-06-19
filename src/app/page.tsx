@@ -112,7 +112,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2 text-xs text-zinc-600">
             <Zap className="h-3 w-3 text-emerald-500/40" />
-            <span>HERMES HARNESS v0.2.0</span>
+            <span>HERMES HARNESS v0.3.0</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[10px] text-zinc-700">Agent Live Enabled</span>

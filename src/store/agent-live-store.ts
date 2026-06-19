@@ -15,9 +15,19 @@ export type AgentVisualState =
 export interface LiveActivityEntry {
   id: string;
   timestamp: number;
+  timestampAR: string; // Argentina timezone formatted
   state: AgentVisualState;
   message: string;
   phase?: string;
+}
+
+export interface SubAgent {
+  id: string;
+  name: string;
+  state: AgentVisualState;
+  message: string;
+  spawnTime: number;
+  color: string;
 }
 
 export interface AgentLiveState {
@@ -42,10 +52,23 @@ export interface AgentLiveState {
   activities: LiveActivityEntry[];
   maxActivities: number;
 
+  // Sub-agents
+  subAgents: SubAgent[];
+
+  // Last turn replay
+  lastTurnActivities: LiveActivityEntry[];
+  isReplaying: boolean;
+
   // Actions
   setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions'>>) => void;
-  addActivity: (entry: Omit<LiveActivityEntry, 'id' | 'timestamp'>) => void;
+  addActivity: (entry: Omit<LiveActivityEntry, 'id' | 'timestamp' | 'timestampAR'>) => void;
   setConnected: (connected: boolean) => void;
+  addSubAgent: (agent: Omit<SubAgent, 'id' | 'spawnTime'>) => void;
+  updateSubAgent: (id: string, update: Partial<SubAgent>) => void;
+  removeSubAgent: (id: string) => void;
+  clearSubAgents: () => void;
+  setLastTurn: (activities: LiveActivityEntry[]) => void;
+  setIsReplaying: (replaying: boolean) => void;
   reset: () => void;
 }
 
@@ -75,6 +98,18 @@ function getXpToNext(level: number): number {
   return level * 10 + 5;
 }
 
+// Format timestamp in Argentina timezone (America/Argentina/Buenos_Aires)
+function formatArgentinaTime(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleString('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}
+
 export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   agentState: 'idle',
   message: 'Esperando actividad...',
@@ -93,6 +128,10 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
 
   activities: [],
   maxActivities: 80,
+
+  subAgents: [],
+  lastTurnActivities: [],
+  isReplaying: false,
 
   setStatus: (update) => {
     const state = get();
@@ -115,10 +154,12 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
 
   addActivity: (entry) => {
     const state = get();
+    const now = Date.now();
     const newEntry: LiveActivityEntry = {
       ...entry,
-      id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      timestamp: Date.now(),
+      id: `act_${now}_${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: now,
+      timestampAR: formatArgentinaTime(now),
     };
     const activities = [newEntry, ...state.activities].slice(0, state.maxActivities);
     set({ activities });
@@ -131,6 +172,35 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
 
   setConnected: (connected) => set({ isConnected: connected }),
 
+  addSubAgent: (agent) => {
+    const state = get();
+    const newAgent: SubAgent = {
+      ...agent,
+      id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 4)}`,
+      spawnTime: Date.now(),
+    };
+    set({ subAgents: [...state.subAgents, newAgent] });
+  },
+
+  updateSubAgent: (id, update) => {
+    const state = get();
+    set({
+      subAgents: state.subAgents.map(a =>
+        a.id === id ? { ...a, ...update } : a
+      ),
+    });
+  },
+
+  removeSubAgent: (id) => {
+    const state = get();
+    set({ subAgents: state.subAgents.filter(a => a.id !== id) });
+  },
+
+  clearSubAgents: () => set({ subAgents: [] }),
+
+  setLastTurn: (activities) => set({ lastTurnActivities: activities }),
+  setIsReplaying: (replaying) => set({ isReplaying: replaying }),
+
   reset: () =>
     set({
       agentState: 'idle',
@@ -139,5 +209,8 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
       waveNumber: 0,
       progress: 0,
       activities: [],
+      subAgents: [],
+      lastTurnActivities: [],
+      isReplaying: false,
     }),
 }));

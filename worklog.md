@@ -321,3 +321,21 @@ Stage Summary:
 - Eye tracking: The avatar's eyes follow your cursor in real-time
 - Demo endpoint at /api/harness/agent-demo shows the full lifecycle in 14 steps
 - Technologies: Canvas API, Framer Motion, SSE, Zustand, shadcn/ui — all free
+
+---
+Task ID: Wave 7 — Research Phase
+Agent: HERMES Wave Engine (cron job 216402)
+Task: Investigar y proponer librerías para convertir el avatar en un personaje de juego real en un "mundito"
+
+Work Log:
+- Investigación de 20+ librerías y proyectos existentes
+- Hallazgo clave: Pixel Agents (pixel-agents-hq/pixel-agents) — proyecto que hace EXACTAMENTE lo que el usuario quiere (agentes como personajes pixel art en oficina virtual). Fork standalone: pixel-agents-standalone
+- Categorías investigadas: 2D sprites (Phaser, PixiJS, react-konva, KAPLAY), 3D characters (R3F+ReadyPlayerMe+Mixamo, VRM avatars), Sandbox worlds (rot.js, voxel-three), Sound (use-sound, howler, tone.js), Loop Replay (zundo, Command pattern)
+- 4 opciones propuestas al usuario: A) Phaser 3 pixel art, B) R3F 3D con personaje real, C) rot.js roguelike, D) PixiJS 2D ligero
+- Servidor dev levantado y estable, live service corriendo en puerto 3004
+
+Stage Summary:
+- Investigación completa presentada al usuario con tabla comparativa
+- Proyectos reference encontrados: Pixel Agents, AgentRoom, AgentOffice, DLP3D
+- Esperando decisión del usuario sobre dirección (3D real vs 2D pixel art vs 3D abstracto mejorado)
+- Dev server estable, live service funcional

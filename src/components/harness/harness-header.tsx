@@ -3,7 +3,6 @@
 import { Zap, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
-import { AgentAvatarCanvas } from './agent-avatar-canvas';
 
 interface HarnessHeaderProps {
   githubStatus?: { status: string; username: string | null; repoName: string | null };
@@ -28,12 +27,22 @@ export function HarnessHeader({ githubStatus, totalWaves }: HarnessHeaderProps) 
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            {/* Mini avatar floating behind logo */}
-            <div className="absolute -right-2 -bottom-2">
-              <div className="h-5 w-5 rounded-full overflow-hidden">
-                <AgentAvatarCanvas size={20} interactive={false} showLabel={false} />
-              </div>
-            </div>
+            {/* State color dot */}
+            <div
+              className="absolute -right-1 -bottom-1 h-3 w-3 rounded-full border border-[#050a0e] transition-colors duration-700"
+              style={{
+                backgroundColor: {
+                  idle: '#10b981', thinking: '#06b6d4', searching: '#f59e0b',
+                  planning: '#8b5cf6', executing: '#f43f5e', verifying: '#34d399',
+                  celebrating: '#eab308', error: '#ef4444', evolving: '#a855f7', offline: '#71717a',
+                }[agentState] || '#10b981',
+                boxShadow: `0 0 6px ${{
+                  idle: '#10b981', thinking: '#06b6d4', searching: '#f59e0b',
+                  planning: '#8b5cf6', executing: '#f43f5e', verifying: '#34d399',
+                  celebrating: '#eab308', error: '#ef4444', evolving: '#a855f7', offline: '#71717a',
+                }[agentState] || '#10b981'}`,
+              }}
+            />
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-tight text-white sm:text-base">

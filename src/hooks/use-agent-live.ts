@@ -12,10 +12,27 @@ interface HealthData {
   activityTimestamp: number;
 }
 
+// Format timestamp in Argentina timezone
+function formatArgentinaTime(ts: number): string {
+  try {
+    const d = new Date(ts);
+    return d.toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  } catch {
+    const d = new Date(ts);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+  }
+}
+
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval>>();
-  const { setStatus, setConnected } = useAgentLiveStore();
+  const { setStatus, setConnected, addActivity } = useAgentLiveStore();
 
   const processData = useCallback((data: HealthData) => {
     const s = data.latestStatus;
@@ -40,7 +57,12 @@ export function useAgentLive() {
       const newActivities: LiveActivityEntry[] = [];
       for (const act of data.activities) {
         if (!localIds.has(act.id)) {
-          newActivities.push(act);
+          // Add Argentina timestamp if missing
+          const entry = {
+            ...act,
+            timestampAR: act.timestampAR || formatArgentinaTime(act.timestamp),
+          };
+          newActivities.push(entry);
           hasNew = true;
         }
       }
