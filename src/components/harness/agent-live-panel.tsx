@@ -202,10 +202,30 @@ export function AgentLivePanel() {
 
   // Brief skeleton on initial mount while SSE connects
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [countdownMin, setCountdownMin] = useState<number | null>(null);
   useEffect(() => {
     const t = setTimeout(() => setIsInitialLoad(false), 600);
     return () => clearTimeout(t);
   }, []);
+
+  // Next-wave countdown: 10min cron cycle from latest wave end
+  useEffect(() => {
+    const compute = () => {
+      if (waveNumber > 0 || (!latestWave?.completedAt && !latestWave?.startedAt)) {
+        setCountdownMin(null);
+        return;
+      }
+      const base = latestWave.completedAt
+        ? new Date(latestWave.completedAt).getTime()
+        : new Date(latestWave.startedAt).getTime();
+      const elapsed = (Date.now() - base) / 60_000;
+      const remaining = Math.max(0, Math.ceil(10 - elapsed));
+      setCountdownMin(remaining <= 10 ? remaining : null);
+    };
+    compute();
+    const id = setInterval(compute, 15_000); // update every 15s
+    return () => clearInterval(id);
+  }, [waveNumber, latestWave?.completedAt, latestWave?.startedAt]);
 
   const feedRef = useRef<HTMLDivElement>(null);
   const prevActivityCount = useRef(0);
@@ -366,7 +386,9 @@ export function AgentLivePanel() {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500/50" />
                 </div>
                 <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">System Standby</span>
-                <span className="text-[10px] font-mono text-zinc-700 ml-auto">Awaiting next wave</span>
+                <span className="text-[10px] font-mono text-zinc-700 ml-auto">
+                  {countdownMin !== null ? `Next wave in ~${countdownMin}m` : 'Awaiting next wave'}
+                </span>
               </div>
             )}
 
