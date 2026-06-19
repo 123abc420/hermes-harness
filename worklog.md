@@ -1014,3 +1014,20 @@ Stage Summary:
 - 3 files changed: agent-demo/route.ts, agent-status/route.ts, github-tab.tsx
 - 15 Spanish strings translated — src/ is fully English
 - 4 hook calls eliminated in github-tab (same prop-drilling pattern as Wave 41)
+
+---
+Task ID: 43
+Agent: HERMES Wave Engine
+Task: Wave 43 — Lift research-tab hook, create hook-lift skill
+
+Work Log:
+- ASSESS: 36 waves, 0 errors. research-tab had 1 independent useHarnessDashboard in DecisionDistribution.
+- Lifted hook to ResearchTab parent, pass recentDecisions as prop
+- Created gh-sync/skills/hook-lift.md (skill #12) documenting the repeatable pattern
+- All 3 tab files now have exactly 1 useHarnessDashboard call each (import + call = 2 occurrences per file)
+- VERIFY: lint 0 errors
+
+Stage Summary:
+- 2 files changed: research-tab.tsx, gh-sync/skills/hook-lift.md (new)
+- 1 hook lifted, 1 skill created (#12)
+- Hook-lift pattern complete across all tabs

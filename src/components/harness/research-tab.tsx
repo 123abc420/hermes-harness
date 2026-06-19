@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useMemory, useSkills } from '@/hooks/use-harness-data';
+import { useMemory, useSkills, useHarnessDashboard } from '@/hooks/use-harness-data';
 import {
   Brain,
   Lightbulb,
@@ -12,9 +12,9 @@ import {
   PieChart as PieChartIcon,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ErrorBlock } from './error-block';
+import type { DashboardData } from '@/store/harness-store';
 
 /* ── Memory Section ───────────────────────────────────── */
 function MemorySection() {
@@ -184,9 +184,8 @@ const PIE_COLORS: Record<string, string> = {
   insight: '#ec4899',
 };
 
-function DecisionDistribution() {
-  const { data: dash } = useHarnessDashboard();
-  const decisions = dash?.recentDecisions ?? [];
+function DecisionDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
+  const decisions = recentDecisions ?? [];
 
   const catMap: Record<string, number> = {};
   for (const d of decisions) {
@@ -271,6 +270,8 @@ function DecisionDistribution() {
 
 /* ── Research Tab ─────────────────────────────────────── */
 export function ResearchTab() {
+  const { data: dash } = useHarnessDashboard();
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -295,7 +296,7 @@ export function ResearchTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.15 }}
         >
-          <DecisionDistribution />
+          <DecisionDistribution recentDecisions={dash?.recentDecisions} />
         </motion.div>
       </div>
     </div>
