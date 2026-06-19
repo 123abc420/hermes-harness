@@ -576,3 +576,21 @@ Stage Summary:
 - Error Rate Trend now tracked and visualized — closes spec gap #2
 - Spec compliance: 87.5% → 93.75% (14/15, only Turborepo Package Layout remains)
 - Auto-cleanup prevents future stuck waves
+---
+Task ID: 18
+Agent: Wave Engine (cron)
+Task: Wave 18 — Wave completion + Hero status display
+
+Work Log:
+- ASSESS: 93.75% compliance, clean dev.log, 0 errors. Last spec gap is Turborepo (risky restructure).
+- PLAN: 3 improvements: (1) Show latest wave status in hero card, (2) Wave engine completes waves via PATCH, (3) Update insights.
+- EXECUTE Decision 1 (feature/high): Added latestWave prop to HeroStatusCard. Shows wave number, color-coded status badge (green=completed, amber=interrupted, blue+pulse=running), and truncated summary.
+- EXECUTE Decision 2 (fix/high): Wave engine now calls PATCH /api/harness/waves/[id] with status=completed at end of PERSIST. Retroactively completed W12 (Wave 17) and W13 (Wave 18).
+- EXECUTE Decision 3 (insight/medium): Updated insights.md with wave completion pattern and error trend chart pattern.
+- VERIFY: bun run lint → 0 errors. Dashboard API returns wave status correctly.
+- PERSIST: Wave created + PATCHED to completed (new behavior), 3 decisions recorded, GitHub sync triggered.
+
+Stage Summary:
+- Waves now properly transition running→completed (was stuck forever before)
+- Hero card shows latest wave status + summary at a glance
+- 2 retroactive completions applied to previous successful waves

@@ -61,3 +61,15 @@
 
 - Same type name exported from two modules causes TS errors — use dedup or skip one export
 - AgentVisualState exists in both agent-avatar-canvas.tsx and agent-live-store.ts
+
+## 2026-06-19 — Wave 17-18: Reliability Patterns
+
+### Wave Completion
+- Waves are created "running" but the engine never called PATCH to mark them complete
+- Result: dashboard showed wrong status. Fix: wave engine must PATCH wave to "completed" at end of PERSIST
+- Auto-cleanup (15min threshold) is a safety net, not a replacement for proper completion
+
+### Error Trend
+- Added errorTrend to dashboard API — simple query on HarnessWave.errorsCount ordered by waveNumber
+- Area chart with stepAfter type works well for discrete wave-by-wave data
+- Trend direction: compare last 3 waves vs previous 3 — if <=, trend is "decreasing"

@@ -48,10 +48,12 @@ const SPEC_CHECKLIST = [
 function HeroStatusCard({
   stats,
   githubStatus,
+  latestWave,
   isLoading,
 }: {
   stats?: TotalStats;
   githubStatus?: GithubStatus;
+  latestWave?: { status: string; summary?: string | null; waveNumber?: number };
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -104,6 +106,27 @@ function HeroStatusCard({
                   {stats?.totalDecisions ?? 0} decisions &middot;{' '}
                   {stats?.totalImprovements ?? 0} improvements
                 </p>
+                {latestWave && (
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium ${
+                      latestWave.status === 'completed'
+                        ? 'bg-emerald-500/10 text-emerald-400'
+                        : latestWave.status === 'interrupted'
+                          ? 'bg-amber-500/10 text-amber-400'
+                          : 'bg-blue-500/10 text-blue-400'
+                    }`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        latestWave.status === 'completed' ? 'bg-emerald-400' : latestWave.status === 'interrupted' ? 'bg-amber-400' : 'bg-blue-400 animate-pulse'
+                      }`} />
+                      W{latestWave.waveNumber} {latestWave.status}
+                    </span>
+                    {latestWave.summary && (
+                      <span className="truncate max-w-[280px] text-[10px] text-zinc-600">
+                        {latestWave.summary}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -582,7 +605,7 @@ export function OverviewTab() {
   return (
     <div className="space-y-6">
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} />
