@@ -50,3 +50,22 @@
 ### Data Integrity
 - Waves pueden quedar atascadas en "running" si el proceso se interrumpe — checkear siempre al ASSESS
 - Las decisions/metrics siempre deben vincularse al waveId correcto
+
+## 2026-06-19 — Wave 10: VRM + World Architecture
+
+### VRM Integration
+- @pixiv/three-vrm VRMLoaderPlugin works with GLTFLoader for loading .vrm models
+- react-hooks/immutability lint blocks VRM mutations inside useFrame — use module-level singleton
+- VRMUtils.removeUnnecessaryVertices/Joints reduces geometry significantly
+- VRM scene faces +Z by default — rotate Math.PI to face camera
+- activeVRM pattern: module-scope object written in useEffect, read in useFrame — lint can't track it
+
+### File Renaming with Turbopack
+- Turbopack caches aggressively — MUST rm -rf .next after renaming/moving files
+- `mv` command sometimes fails silently — always verify with ls after rename
+- Import paths MUST match exact filename — `agent-3d-character` vs `agent-3d-chibi` caused 500
+
+### User Expectations
+- User wants a CHARACTER, not a geometric shape — "no un circulo horrible"
+- Walking between locations, gestures, emotes, chat bubbles are essential
+- Chibi fallback ensures the system always shows SOMETHING even if VRM fails to load
