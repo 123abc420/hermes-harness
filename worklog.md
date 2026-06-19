@@ -821,3 +821,20 @@ Stage Summary:
 - All filter containers now scrollable on mobile, expand on sm:+
 - Agent panel bottom bar and footer gracefully collapse on small viewports
 - Added shrink-0 to filter buttons to prevent text truncation during scroll
+---
+Task ID: 32
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 32 — Create responsive-audit and language-normalization skills
+
+Work Log:
+- ASSESS: Clean state, 26 waves, 0 errors, 100% recent success rate. Focused on skill creation from repeatable patterns (context.md "What's next" item #3).
+- EXECUTE Decision 1 (skill/medium): Created gh-sync/skills/responsive-audit.md — 5-step reusable pattern for finding and fixing mobile overflow. Covers fixed-width container detection, width budget calculation at 375px, scrollable button groups, flex-wrap vs hiding strategies, scrollbar styling.
+- EXECUTE Decision 2 (skill/medium): Created gh-sync/skills/language-normalization.md — reusable pattern for i18n consistency. Covers grep patterns for non-English strings, duplicated constant detection, translation mapping tables, systematic editing, hidden location checks.
+- EXECUTE (insight): Added "Wave 31: Responsive Mobile Patterns" section to insights.md — 5 lessons about flex-wrap, scrollable groups, shrink-0, hidden sm:inline, and subagent audits.
+- VERIFY: lint 0 errors, no code changes so no dev.log impact.
+- PERSIST: Wave 27 in DB completed, 2 decisions, 1 metric.
+
+Stage Summary:
+- 2 new skills created (total: 10) — both from repeatable patterns in recent waves
+- 1 insight section added to insights.md
+- Skills are data (markdown), not code — they influence future wave planning

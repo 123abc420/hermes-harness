@@ -99,3 +99,11 @@
 - TanStack Query returns isError + error on every hook, but components only checked isLoading — network failures showed misleading empty states
 - Fix: shared ErrorBlock component with retry, HarnessErrorBoundary class component wrapping tabs
 - Quick wins from audits are high-value: 2-min color fix (skill/insight) has immediate visible impact
+
+## 2026-06-19 — Wave 31: Responsive Mobile Patterns
+
+- `flex justify-between` without `flex-wrap` is the #1 mobile overflow cause — content exceeds ~303px usable width at 375px
+- For button groups (4+ items), use `overflow-x-auto max-w-[Xpx] sm:max-w-none` + `shrink-0` on each button instead of `flex-wrap`
+- For footers/toolbars, hide non-essential text with `hidden sm:inline` rather than trying to make everything fit
+- Always add `shrink-0` to children inside scrollable containers — without it, buttons get text truncated
+- Subagent audit (Explore agent) is effective for responsive checks — it can read multiple files and estimate widths in parallel
