@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { CATEGORY_HEX } from '@/lib/category-colors';
 import { ErrorBlock } from './error-block';
 import type { DashboardData } from '@/store/harness-store';
 
@@ -196,17 +197,7 @@ function SkillsSection() {
 }
 
 /* ── Decision Distribution ────────────────────────────── */
-const PIE_COLORS: Record<string, string> = {
-  code_quality: '#06b6d4',
-  feature: '#10b981',
-  fix: '#ef4444',
-  refactor: '#8b5cf6',
-  performance: '#f97316',
-  architecture: '#14b8a6',
-  skill: '#f59e0b',
-  insight: '#ec4899',
-  i18n: '#0ea5e9',
-};
+// (Pie colors imported from @/lib/category-colors as CATEGORY_HEX)
 
 function DecisionDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
   const decisions = recentDecisions ?? [];
@@ -216,7 +207,7 @@ function DecisionDistribution({ recentDecisions }: { recentDecisions?: Dashboard
     catMap[d.category] = (catMap[d.category] ?? 0) + 1;
   }
   const chartData = Object.entries(catMap)
-    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: PIE_COLORS[name] ?? '#71717a' }))
+    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: CATEGORY_HEX[name] ?? '#71717a' }))
     .sort((a, b) => b.value - a.value);
 
   if (chartData.length === 0) {
@@ -317,7 +308,7 @@ function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDeci
       <CardContent className="p-0">
         <div className="max-h-72 space-y-0 overflow-y-auto scrollbar-dark px-5 pb-4">
           {shown.map((d, i) => {
-            const color = PIE_COLORS[d.category] ?? '#71717a';
+            const color = CATEGORY_HEX[d.category] ?? '#71717a';
             return (
               <div key={d.id} className="relative flex gap-3 py-2.5">
                 {i < shown.length - 1 && (

@@ -16,18 +16,9 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
+import { CATEGORY_TW } from '@/lib/category-colors';
 
-const CATEGORY_COLORS: Record<string, string> = {
-  code_quality: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  feature: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  fix: 'bg-red-500/10 text-red-400 border-red-500/20',
-  refactor: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-  performance: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  architecture: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
-  skill: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-  insight: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  i18n: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-};
+// (Category colors imported from @/lib/category-colors)
 
 const PRIORITY_STYLES: Record<string, string> = {
   critical: 'bg-red-500/15 text-red-400',
@@ -61,7 +52,7 @@ function DecisionCard({ decision }: { decision: Decision }) {
               <span
                 className={cn(
                   'inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-mono font-medium',
-                  CATEGORY_COLORS[decision.category] ?? CATEGORY_COLORS.code_quality
+                  CATEGORY_TW[decision.category] ?? CATEGORY_TW.code_quality
                 )}
               >
                 {decision.category.replace('_', ' ')}
