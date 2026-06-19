@@ -34,14 +34,14 @@ const SPEC_CHECKLIST = [
   { label: 'Metrics & Observability', done: true },
   { label: 'Dashboard Control Plane', done: true },
   { label: 'Memory & Context System', done: true },
-  { label: 'Skills System (5 skills)', done: true },
+  { label: 'Skills System (6 skills)', done: true },
   { label: 'Export Contract (src/index.ts)', done: true },
-  { label: 'Agent Live 3D (VRM + Chibi)', done: true },
+  { label: 'Agent Live 3D (VRM walk + Chibi gestures)', done: true },
   { label: 'Cron Jobs (2 active)', done: true },
   { label: 'user_profile.md', done: true },
   { label: 'wave_protocol.md', done: true },
   { label: 'Turborepo Package Layout', done: false },
-  { label: 'Error Rate Decreasing Trend', done: false },
+  { label: 'Error Rate Decreasing Trend', done: true },
 ];
 
 /* ── Hero Status Card ─────────────────────────────────── */
@@ -337,6 +337,71 @@ function MiniWaveTimeline({ waves }: { waves: Wave[] }) {
   );
 }
 
+/* ── Error Trend Sparkline ───────────────────────────── */
+function ErrorTrendChart() {
+  const { data, isLoading } = useHarnessDashboard();
+
+  if (isLoading || !data?.errorTrend?.length) return null;
+
+  const trend = data.errorTrend;
+  const totalErrors = trend.reduce((s, t) => s + t.errors, 0);
+  const recentErrors = trend.slice(-3).reduce((s, t) => s + t.errors, 0);
+  const isTrendingDown = recentErrors <= (trend.slice(-6, -3).reduce((s, t) => s + t.errors, 0) || 1);
+
+  const chartData = trend.map((t) => ({ wave: `W${t.wave}`, errors: t.errors }));
+
+  return (
+    <Card className="glass-card">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            Error Rate Trend
+          </CardTitle>
+          <div className={`flex items-center gap-1 text-xs ${isTrendingDown ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {isTrendingDown ? (
+              <>
+                <TrendingUp className="h-3 w-3" />
+                <span>Decreasing</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-3 w-3" />
+                <span>Monitor</span>
+              </>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-baseline gap-2 mb-2">
+          <span className="text-2xl font-bold text-zinc-100">{totalErrors}</span>
+          <span className="text-xs text-zinc-500">total errors across {trend.length} waves</span>
+        </div>
+        <div className="h-[100px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="errorGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+              <XAxis dataKey="wave" tick={{ fontSize: 9, fill: '#71717a' }} interval="preserveStartEnd" />
+              <YAxis tick={{ fontSize: 9, fill: '#71717a' }} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 11 }}
+                labelStyle={{ color: '#a1a1aa' }}
+              />
+              <Area type="stepAfter" dataKey="errors" stroke="#ef4444" fill="url(#errorGrad)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 /* ── Quick Metrics Chart ──────────────────────────────── */
 function QuickMetricsChart() {
   const { data, isLoading } = useMetrics();
@@ -538,6 +603,7 @@ export function OverviewTab() {
           transition={{ duration: 0.4, delay: 0.25 }}
         >
           <QuickMetricsChart />
+          <ErrorTrendChart />
         </motion.div>
       </div>
 

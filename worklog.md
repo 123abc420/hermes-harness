@@ -557,3 +557,22 @@ Stage Summary:
 - Chibi character has 8 distinct state gestures (was static before)
 - New skill: 3d-character-patterns (6 total skills)
 - Lines added: ~80 lines of animation code
+---
+Task ID: 17
+Agent: Wave Engine (cron)
+Task: Wave 17 — Stale wave cleanup + Error Rate Trend
+
+Work Log:
+- ASSESS: Context updated (Wave 16), 6 skills, 87.5% compliance. Dev log clean. Dashboard shows 11 waves in DB.
+- PLAN: 3 improvements: (1) Stale wave cleanup (known issue), (2) Error Rate Trend (spec gap #2), (3) SPEC_CHECKLIST accuracy update.
+- EXECUTE Decision 1 (fix/high): Added PATCH /api/harness/waves to mark stale running waves (>15min) as "interrupted". Also added auto-cleanup as fire-and-forget in dashboard GET. Ran cleanup — fixed 6 stuck waves.
+- EXECUTE Decision 2 (feature/high): Added errorTrend to dashboard API (errors per wave, last 20). Created ErrorTrendChart component with area sparkline, trend direction indicator, total error count. Added errorTrend type to DashboardData interface.
+- EXECUTE Decision 3 (fix/medium): Updated SPEC_CHECKLIST: Skills count 5→6, 3D label updated to "VRM walk + Chibi gestures", Error Rate Trend false→true. Spec compliance now 93.75% (14/15).
+- VERIFY: bun run lint → 0 errors. Dashboard API returns errorTrend (11 items). No dev.log errors.
+- PERSIST: Wave+3 decisions+1 metric recorded, GitHub sync triggered (6 commits)
+
+Stage Summary:
+- 6 stale "running" waves cleaned up (marked as "interrupted")
+- Error Rate Trend now tracked and visualized — closes spec gap #2
+- Spec compliance: 87.5% → 93.75% (14/15, only Turborepo Package Layout remains)
+- Auto-cleanup prevents future stuck waves

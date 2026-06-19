@@ -103,6 +103,7 @@ export interface DashboardData {
   config: Record<string, string>;
   exports: ExportModule[];
   recentDecisions: Decision[];
+  errorTrend: { wave: number; errors: number; status: string }[];
 }
 
 interface HarnessState {

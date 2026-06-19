@@ -3,6 +3,12 @@ import { db } from '@/lib/db';
 
 export async function GET() {
   try {
+    // Fire-and-forget: cleanup stale running waves (>15 min old)
+    db.harnessWave.updateMany({
+      where: { status: 'running', startedAt: { lt: new Date(Date.now() - 15 * 60 * 1000) } },
+      data: { status: 'interrupted', completedAt: new Date(Date.now() - 15 * 60 * 1000) },
+    }).catch(() => {});
+
     const [
       recentWaves,
       totalStats,
@@ -11,6 +17,7 @@ export async function GET() {
       configs,
       exportModules,
       recentDecisions,
+      errorTrend,
     ] = await Promise.all([
       db.harnessWave.findMany({
         orderBy: { waveNumber: 'desc' },
@@ -34,6 +41,12 @@ export async function GET() {
         orderBy: { createdAt: 'desc' },
         take: 20,
         include: { wave: { select: { waveNumber: true, status: true } } },
+      }),
+      // Error rate trend: errors per wave, last 20 waves
+      db.harnessWave.findMany({
+        orderBy: { waveNumber: 'asc' },
+        select: { waveNumber: true, errorsCount: true, status: true },
+        take: 20,
       }),
     ]);
 
@@ -67,6 +80,11 @@ export async function GET() {
       config: configMap,
       exports: exportModules,
       recentDecisions,
+      errorTrend: errorTrend.map((w) => ({
+        wave: w.waveNumber,
+        errors: w.errorsCount ?? 0,
+        status: w.status,
+      })),
     });
   } catch (error) {
     console.error('[DASHBOARD] Error:', error);

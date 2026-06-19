@@ -31,6 +31,45 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    // Clean up stale "running" waves older than 15 minutes
+    const staleThreshold = new Date(Date.now() - 15 * 60 * 1000);
+    const result = await db.harnessWave.updateMany({
+      where: {
+        status: 'running',
+        startedAt: { lt: staleThreshold },
+      },
+      data: {
+        status: 'interrupted',
+        completedAt: staleThreshold,
+        errorsCount: { increment: 0 },
+      },
+    });
+
+    // Also update any "running" waves that have completedAt set (wave finished but status not updated)
+    const finishedButStuck = await db.harnessWave.updateMany({
+      where: {
+        status: 'running',
+        completedAt: { not: null },
+      },
+      data: { status: 'completed' },
+    });
+
+    const totalFixed = result.count + finishedButStuck.count;
+
+    return NextResponse.json({
+      message: 'Stale wave cleanup complete',
+      interrupted: result.count,
+      completedFromStuck: finishedButStuck.count,
+      totalFixed,
+    });
+  } catch (error) {
+    console.error('[WAVES] Cleanup error:', error);
+    return NextResponse.json({ error: 'Failed to cleanup waves' }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
