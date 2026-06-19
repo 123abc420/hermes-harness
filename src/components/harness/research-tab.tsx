@@ -12,6 +12,7 @@ import {
   PieChart as PieChartIcon,
   ListChecks,
   User,
+  CheckCircle2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -284,6 +285,102 @@ function DecisionDistribution({ recentDecisions }: { recentDecisions?: Dashboard
   );
 }
 
+/* ── Outcome Distribution ────────────────────────────── */
+const OUTCOME_COLORS: Record<string, string> = {
+  success_verified: '#10b981',
+  skipped: '#71717a',
+  failed_wave: '#ef4444',
+  failed: '#f97316',
+  interrupted: '#f59e0b',
+  pending: '#3f3f46',
+};
+
+function OutcomeDistribution({ recentDecisions }: { recentDecisions?: DashboardData['recentDecisions'] }) {
+  const decisions = recentDecisions ?? [];
+
+  const outMap: Record<string, number> = {};
+  for (const d of decisions) {
+    const key = d.outcome ?? 'pending';
+    outMap[key] = (outMap[key] ?? 0) + 1;
+  }
+  const chartData = Object.entries(outMap)
+    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: OUTCOME_COLORS[name] ?? '#71717a' }))
+    .sort((a, b) => b.value - a.value);
+
+  if (chartData.length === 0) {
+    return (
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Outcome Distribution
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex h-32 items-center justify-center">
+          <p className="text-xs text-zinc-600">No decisions yet</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const successCount = outMap['success_verified'] ?? 0;
+  const successPct = Math.round((successCount / decisions.length) * 100);
+
+  return (
+    <Card className="glass-card">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Outcome Distribution
+            </CardTitle>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-400/70">
+            {successPct}% success
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-4">
+          <div className="h-[140px] w-[140px] shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={35}
+                  outerRadius={60}
+                  strokeWidth={0}
+                >
+                  {chartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {chartData.map((item) => (
+              <div key={item.name} className="flex items-center gap-2 text-xs">
+                <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }} />
+                <span className="text-zinc-400">{item.name}</span>
+                <span className="ml-auto font-mono tabular-nums text-zinc-500">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 /* ── Decision Timeline ──────────────────────────────── */
 function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDecisions'] }) {
   const items = decisions ?? [];
@@ -390,6 +487,14 @@ export function ResearchTab() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.2 }}
+      >
+        <OutcomeDistribution recentDecisions={dash?.recentDecisions} />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.25 }}
       >
         <DecisionTimeline decisions={dash?.recentDecisions} />
       </motion.div>
