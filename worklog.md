@@ -838,3 +838,19 @@ Stage Summary:
 - 2 new skills created (total: 10) — both from repeatable patterns in recent waves
 - 1 insight section added to insights.md
 - Skills are data (markdown), not code — they influence future wave planning
+---
+Task ID: 33
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 33 — Keyboard accessibility audit + fix
+
+Work Log:
+- ASSESS: Clean state, 27 waves, 0 errors, 100% recent success rate. Followed context.md "What's next" item #2 (keyboard navigation).
+- PLAN: Ran full keyboard accessibility audit via subagent across all 6 tabs. Found: Radix UI primitives (Tabs, Dialog, Collapsible) provide keyboard nav by default. All interactive elements use native <button> and <a> tags. Only 1 gap found.
+- EXECUTE Decision 1 (feature/high): Added tabIndex={0}, role="button", aria-label, onKeyDown (Enter/Space), and focus-visible amber outline to wave table rows in waves-tab.tsx. Rows are now fully keyboard-navigable.
+- VERIFY: lint 0 errors.
+- PERSIST: Wave 28 in DB completed, 1 decision, 1 metric.
+
+Stage Summary:
+- Full keyboard audit of 6 tabs found exactly 1 gap (wave table rows)
+- All Radix UI primitives confirmed keyboard-accessible by default
+- Wave table rows now support Tab focus, Enter/Space activation, visible focus ring

@@ -221,8 +221,17 @@ export function WavesTab() {
                   {waves.map((wave) => (
                     <TableRow
                       key={wave.id}
-                      className="border-white/[0.04] transition-colors hover:bg-white/[0.02] cursor-pointer"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`View details for wave ${wave.waveNumber}`}
+                      className="border-white/[0.04] transition-colors hover:bg-white/[0.02] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px]"
                       onClick={() => setDetailId(wave.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setDetailId(wave.id);
+                        }
+                      }}
                     >
                       <TableCell className="font-mono text-xs font-bold text-white">
                         #{String(wave.waveNumber).padStart(3, '0')}
