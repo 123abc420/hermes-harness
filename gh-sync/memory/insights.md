@@ -85,3 +85,10 @@
 - A hook can reference an API route that doesn't exist — no build error, just silent empty data
 - useSkills called /api/harness/skills for 10+ waves but the route was never created
 - Always verify: does the API endpoint actually exist, not just "does the component render"
+
+## 2026-06-19 — Wave 25: Stale Data in Composite APIs
+
+- A composite API (dashboard) that merges data from DB + git can return stale DB values if it doesn't override them
+- Dashboard returned githubStatus.totalCommits=11 from DB even though the dedicated /github/status endpoint already used real git data
+- Fix: always override DB fields with live git data in the composite response
+- "Recent" metrics (last N items) are more useful than cumulative ones for measuring current system health — recent success rate 100% vs overall 63% tells a very different story

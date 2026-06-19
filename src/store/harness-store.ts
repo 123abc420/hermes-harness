@@ -90,6 +90,7 @@ export interface TotalStats {
   totalErrors: number;
   githubCommits: number;
   waveSuccessRate: number;
+  recentSuccessRate: number;
 }
 
 export interface ExportModule {

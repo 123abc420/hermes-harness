@@ -701,3 +701,20 @@ Stage Summary:
 - Decisions tab: 6 → 8 filter categories (added skill, insight)
 - Hero card shows uptime duration (e.g. "about 8 hours")
 - -60 lines of dead code (SpecComplianceSection), +93 lines of new features
+---
+Task ID: 25
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 25 — Fix dashboard stale git data, add recent success rate
+
+Work Log:
+- ASSESS: Clean dev.log. Found dashboard API returns githubStatus.totalCommits=11 from DB while real count is 44 (the dedicated /github/status endpoint already had the fix). Overall success rate 63% dragged down by early interrupted waves.
+- EXECUTE Decision 1 (fix/high): Dashboard API now inlines git rev-list count + git log recentCommits into githubStatus response, overriding stale DB values.
+- EXECUTE Decision 2 (feature/medium): Added recentSuccessRate (last 5 waves) to dashboard API and TotalStats. Recent waves show 100% vs overall 63%.
+- EXECUTE Decision 3 (feature/medium): Added subLabel prop to StatCard. Success Rate card shows "Last 5: 100%" sub-label.
+- VERIFY: lint 0 errors. Dashboard API returns totalCommits:44, recentCommits:5, recentSuccessRate:100.
+- PERSIST: Wave 20 in DB completed, 3 decisions, 2 metrics, memory updated.
+
+Stage Summary:
+- Dashboard githubStatus now always returns real git data (44 commits, 5 recent)
+- Success rate shows dual view: overall 63% + recent 5 waves 100%
+- New insight: composite APIs must override stale DB fields with live data

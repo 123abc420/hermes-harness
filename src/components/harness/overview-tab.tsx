@@ -171,6 +171,7 @@ function StatCard({
   color,
   trend,
   suffix,
+  subLabel,
   delay = 0,
 }: {
   label: string;
@@ -179,6 +180,7 @@ function StatCard({
   color: string;
   trend?: 'up' | 'down' | 'neutral';
   suffix?: string;
+  subLabel?: string;
   delay?: number;
 }) {
   return (
@@ -228,6 +230,9 @@ function StatCard({
                     : 'Stable'}
               </span>
             </div>
+          )}
+          {subLabel && (
+            <p className="mt-1 text-[10px] text-zinc-600">{subLabel}</p>
           )}
         </CardContent>
       </Card>
@@ -287,6 +292,7 @@ function StatsGrid({ stats }: { stats?: TotalStats }) {
         color="bg-violet-500/10 text-violet-400"
         trend={stats.waveSuccessRate >= 80 ? 'up' : 'down'}
         delay={0.2}
+        subLabel={`Last 5: ${stats.recentSuccessRate ?? stats.waveSuccessRate}%`}
       />
       <StatCard
         label="Errors"

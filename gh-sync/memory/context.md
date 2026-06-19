@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 20:32 UTC+8
+2026-06-19 20:52 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 23)
-- **Waves completed**: 21 (18 in DB + 3 manual)
+- **Phase**: Post-Compliance Evolution (Wave 25)
+- **Waves in DB**: 20 (Wave 20 in DB = Wave 25 actual)
 - **GitHub connected**: Yes (123abc420/hermes-harness)
 - **Crons**: 2 active (hermes-wave 10min, webDevReview 15min)
 - **Avatar**: VRM (walk + expressions) + Chibi (8 gestures + arrival flash)
@@ -19,20 +19,19 @@
 | API routes | 16 |
 | Dashboard tabs | 6 |
 | Skills | 8 |
-| GitHub commits | 42 |
-| Waves completed | 21 |
-| Wave success rate | 59% |
+| GitHub commits | 44+ |
+| Waves in DB | 20 |
+| Wave success rate (overall) | 63% |
+| Wave success rate (recent 5) | 100% |
 | Spec compliance | 100% |
 
 ## What exists
-- 3D world: day/night cycle, arrival glow, bloom, camera follow
-- Chibi: 8 gestures, walk cycle, eye tracking, blinking, arrival flash
-- VRM: bone walk, expressions, eye tracking, auto-blink
-- Dashboard: 5 stat cards (waves, decisions, improvements, success rate, errors), error trend, spec compliance (100%), real commit history
+- Dashboard: 5 stat cards (waves, decisions, improvements, success rate w/ recent sub-label, errors), error trend, spec compliance (100%), real commit history
+- Dashboard API: real git data inlined (totalCommits, recentCommits, lastSha), recent success rate
 - Wave engine: creates, completes via PATCH, writes log files, auto-cleans stale
 - Package: @hermes/harness-dashboard v0.1.0 with export contract
 - Skills API: reads frontmatter from gh-sync/skills/*.md
-- GitHub: real commit count via git rev-list, real commit history via git log
+- GitHub: real commit count + history in both dedicated endpoint and dashboard
 
 ## What's next
 1. VRM visual verification (env limits)

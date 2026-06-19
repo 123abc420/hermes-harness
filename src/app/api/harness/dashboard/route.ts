@@ -69,14 +69,32 @@ export async function GET() {
 
     // Real git commit count
     let gitCommitCount = githubSync?.totalCommits ?? 0;
+    let recentCommits: { sha: string; message: string }[] = [];
+    let lastSha = githubSync?.lastCommitSha ?? '';
     try {
       gitCommitCount = parseInt(execSync('git rev-list --count HEAD', { encoding: 'utf-8' }).trim(), 10);
+      const logRaw = execSync('git log --oneline -5', { encoding: 'utf-8' }).trim();
+      recentCommits = logRaw.split('\n').map((line) => {
+        const sha = line.slice(0, 7);
+        const message = line.slice(8).trim();
+        return { sha, message };
+      });
+      if (recentCommits.length > 0) lastSha = recentCommits[0].sha;
     } catch { /* git not available */ }
 
-    // Wave success rate
+    // Wave success rate (overall)
     const completedCount = waveCounts.find((w) => w.status === 'completed')?._count ?? 0;
     const totalWaveCount = waveCounts.reduce((s, w) => s + w._count, 0);
     const waveSuccessRate = totalWaveCount > 0 ? Math.round((completedCount / totalWaveCount) * 100) : 0;
+
+    // Recent success rate (last 5 waves)
+    const recentWavesForRate = await db.harnessWave.findMany({
+      orderBy: { waveNumber: 'desc' },
+      take: 5,
+      select: { status: true },
+    });
+    const recentCompleted = recentWavesForRate.filter((w) => w.status === 'completed').length;
+    const recentSuccessRate = Math.round((recentCompleted / recentWavesForRate.length) * 100);
 
     return NextResponse.json({
       waves,
@@ -87,14 +105,23 @@ export async function GET() {
         totalErrors: totalStats[3],
         githubCommits: gitCommitCount,
         waveSuccessRate,
+        recentSuccessRate,
       },
       metrics: latestMetrics,
-      githubStatus: githubSync ?? {
-        status: 'disconnected',
-        username: null,
-        repoName: null,
-        branch: 'main',
-        totalCommits: 0,
+      githubStatus: {
+        ...(githubSync ?? {
+          status: 'disconnected',
+          username: null,
+          repoName: null,
+          branch: 'main',
+          totalCommits: 0,
+          lastCommitSha: '',
+          lastSyncAt: null,
+          errorMessage: null,
+        }),
+        totalCommits: gitCommitCount,
+        lastCommitSha: lastSha,
+        recentCommits,
       },
       config: configMap,
       exports: exportModules,
