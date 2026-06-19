@@ -1031,3 +1031,23 @@ Stage Summary:
 - 2 files changed: research-tab.tsx, gh-sync/skills/hook-lift.md (new)
 - 1 hook lifted, 1 skill created (#12)
 - Hook-lift pattern complete across all tabs
+
+---
+Task ID: 44
+Agent: Wave Engine
+Task: Wave 44 - Overview data utilization + dynamic spec compliance
+
+Work Log:
+- ASSESS: 37 waves, 100% success, 0 errors, clean dev.log
+- Identified unused recentCommits data on overview tab (fetched but never rendered)
+- Identified hardcoded "Error Rate Decreasing Trend: true" in spec compliance checklist
+- Added RecentCommitsCard component showing last 5 commits with SHA badges (zero new API calls)
+- Made Error Rate Decreasing Trend dynamic from real errorTrend data (last 3 vs prev 3 waves)
+- Changed layout from 2-col to 3-col grid (Spec Compliance | Metrics | Recent Commits)
+- Refined uptime label from "uptime X" to "running for X" for clearer semantics
+- Lint: clean. Dev.log: clean. Git push: success.
+
+Stage Summary:
+- overview-tab.tsx: +79 lines, -8 lines (RecentCommitsCard, dynamic errorTrend, 3-col grid)
+- All 3 improvements use existing data — no new API calls or DB queries
+- Wave 44 recorded in DB, pushed to GitHub

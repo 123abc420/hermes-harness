@@ -121,3 +121,8 @@
 ### String Audit Completeness
 - Wave-by-wave string fixes can miss files not in the diff (store initial state + reset had same string in 2 places)
 - After any i18n/normalization pass, grep the ENTIRE src/ for the old language, not just changed files
+
+## 2026-06-20 — Wave 44: Data Utilization
+
+- Fetched-but-unused data is free real estate — RecentCommitsCard needed zero new API calls
+- Spec compliance checks should be dynamic from real data, not hardcoded booleans
