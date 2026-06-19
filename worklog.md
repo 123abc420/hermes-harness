@@ -771,3 +771,20 @@ Stage Summary:
 - "Showing X of Y" counters give users awareness of total data
 - Filter changes reset to page 1
 - API pagination was already supported — only needed UI work
+---
+Task ID: 29
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 29 — Language normalization (Spanish→English), version centralization
+
+Work Log:
+- ASSESS: Clean state, 23 waves, 0 errors, 100% recent success rate. Followed context.md "What's next" items #1 and #3.
+- EXECUTE Decision 1 (feature/high): Normalized 22+ Spanish strings to English across 4 files: agent-live-panel.tsx (phase labels, stat labels, empty states, badges, footer), agent-live-store.ts (level names), agent-avatar-canvas.tsx (evolution stages + descriptions), page.tsx (footer "Mundito 3D Acogedor" → "Cozy 3D World"). Discovered LEVEL_NAMES was duplicated in 3 files — all normalized.
+- EXECUTE Decision 2 (refactor/medium): Created src/lib/constants.ts with HERMES_VERSION export. Updated both hardcoded "v0.4.0" references (page.tsx, agent-live-panel.tsx) to import from single source of truth.
+- VERIFY: lint 0 errors, dashboard 200 OK, no new errors in dev.log. Verified zero Spanish strings remain via grep.
+- PERSIST: Wave 24 in DB completed, 2 decisions, 2 metrics.
+
+Stage Summary:
+- 22+ Spanish strings normalized to English across 4 files
+- 3 duplicate LEVEL_NAMES definitions all aligned to English
+- Version string centralized in src/lib/constants.ts
+- New file: src/lib/constants.ts

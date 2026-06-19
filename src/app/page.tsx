@@ -6,6 +6,7 @@ import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { useAgentLive } from '@/hooks/use-agent-live';
+import { HERMES_VERSION } from '@/lib/constants';
 import { HarnessHeader } from '@/components/harness/harness-header';
 import { OverviewTab } from '@/components/harness/overview-tab';
 import { AgentLivePanel } from '@/components/harness/agent-live-panel';
@@ -115,10 +116,10 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2 text-xs text-amber-800/50">
             <Zap className="h-3 w-3 text-amber-500/30" />
-            <span className="font-mono">HERMES HARNESS v0.4.0</span>
+            <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[10px] text-amber-900/40 font-mono">Mundito 3D Acogedor</span>
+            <span className="text-[10px] text-amber-900/40 font-mono">Cozy 3D World</span>
             <span className="text-[10px] text-amber-900/40 font-mono">
               Spec-Driven Self-Evolution
             </span>

@@ -73,13 +73,13 @@ export interface AgentLiveState {
 }
 
 const LEVEL_NAMES: Record<number, string> = {
-  1: 'Nascente',
-  2: 'Aprendiz',
-  3: 'Operativo',
-  5: 'Especialista',
-  8: 'Arquitecto',
-  12: 'Maestro',
-  20: 'Trascendente',
+  1: 'Nascent',
+  2: 'Apprentice',
+  3: 'Operational',
+  5: 'Specialist',
+  8: 'Architect',
+  12: 'Master',
+  20: 'Transcendent',
 };
 
 function getLevel(waves: number, improvements: number) {
@@ -87,7 +87,7 @@ function getLevel(waves: number, improvements: number) {
 }
 
 function getLevelName(level: number): string {
-  let name = 'Nascente';
+  let name = 'Nascent';
   for (const [lvl, n] of Object.entries(LEVEL_NAMES).map(([k, v]) => [Number(k), v])) {
     if (level >= lvl) name = n;
   }

@@ -27,6 +27,7 @@ import {
   Clock,
   MonitorDot,
 } from 'lucide-react';
+import { HERMES_VERSION } from '@/lib/constants';
 
 // Dynamic import for 3D components (avoid SSR issues with Three.js)
 const Agent3DSandbox = dynamic(
@@ -39,7 +40,7 @@ const Agent3DSandbox = dynamic(
           <div className="relative">
             <div className="w-12 h-12 rounded-full border-2 border-amber-500/20 border-t-amber-400 animate-spin" />
           </div>
-          <span className="text-xs text-amber-700/50 font-mono">Inicializando mundito 3D...</span>
+          <span className="text-xs text-amber-700/50 font-mono">Initializing 3D environment...</span>
         </div>
       </div>
     ),
@@ -73,12 +74,12 @@ const STATE_DOT_COLORS: Record<AgentVisualState, string> = {
 };
 
 const PHASE_STEPS = [
-  { key: 'assess', label: 'EVALUAR', color: 'text-cyan-400' },
-  { key: 'plan', label: 'PLANIFICAR', color: 'text-violet-400' },
-  { key: 'execute', label: 'EJECUTAR', color: 'text-rose-400' },
-  { key: 'verify', label: 'VERIFICAR', color: 'text-emerald-400' },
-  { key: 'persist', label: 'PERSISTIR', color: 'text-amber-400' },
-  { key: 'report', label: 'REPORTAR', color: 'text-sky-400' },
+  { key: 'assess', label: 'ASSESS', color: 'text-cyan-400' },
+  { key: 'plan', label: 'PLAN', color: 'text-violet-400' },
+  { key: 'execute', label: 'EXECUTE', color: 'text-rose-400' },
+  { key: 'verify', label: 'VERIFY', color: 'text-emerald-400' },
+  { key: 'persist', label: 'PERSIST', color: 'text-amber-400' },
+  { key: 'report', label: 'REPORT', color: 'text-sky-400' },
 ];
 
 // ─── Activity Entry Component ────────────────────────────────────────
@@ -271,7 +272,7 @@ export function AgentLivePanel() {
                 {isConnected ? (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15">
                     <MonitorDot className="h-3.5 w-3.5 text-amber-400" />
-                    <span className="text-xs font-mono text-amber-300 font-medium">EN VIVO</span>
+                    <span className="text-xs font-mono text-amber-300 font-medium">LIVE</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1.5">
@@ -321,7 +322,7 @@ export function AgentLivePanel() {
               <div className="mt-4">
                 <div className="flex items-center gap-2 mb-2.5">
                   <Users className="h-4 w-4 text-fuchsia-400" />
-                  <span className="text-xs font-mono text-zinc-400 font-medium">SUB-AGENTES ({subAgents.length})</span>
+                  <span className="text-xs font-mono text-zinc-400 font-medium">SUB-AGENTS ({subAgents.length})</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <AnimatePresence>
@@ -344,30 +345,30 @@ export function AgentLivePanel() {
         <div className="grid grid-cols-2 gap-4">
           <StatCard
             icon={Sparkles}
-            label="NIVEL"
+            label="LEVEL"
             value={level}
             subtitle={levelName}
             iconColor="text-amber-400"
           />
           <StatCard
             icon={Waves}
-            label="OLAS"
+            label="WAVES"
             value={waveCount}
-            subtitle="Ciclos completados"
+            subtitle="Cycles completed"
             iconColor="text-cyan-400"
           />
           <StatCard
             icon={TrendingUp}
-            label="MEJORAS"
+            label="IMPROVEMENTS"
             value={totalImprovements}
-            subtitle="Mejoras aplicadas"
+            subtitle="Improvements applied"
             iconColor="text-emerald-400"
           />
           <StatCard
             icon={Brain}
-            label="DECISIONES"
+            label="DECISIONS"
             value={totalDecisions}
-            subtitle="Decisiones tomadas"
+            subtitle="Decisions made"
             iconColor="text-violet-400"
           />
         </div>
@@ -378,12 +379,12 @@ export function AgentLivePanel() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-amber-400" />
-                <span className="text-xs font-mono text-zinc-400 font-medium tracking-wider">EXPERIENCIA</span>
+                <span className="text-xs font-mono text-zinc-400 font-medium tracking-wider">EXPERIENCE</span>
               </div>
               <span className="text-xs font-mono text-zinc-500 tabular-nums">{xp} / {xpToNext} XP</span>
             </div>
             <Progress value={xpPercent} className="h-2.5 bg-white/[0.05]" />
-            <p className="text-[10px] text-zinc-600 mt-1.5 font-mono">Siguiente: {levelName} → {getLevelName(level + 1)}</p>
+            <p className="text-[10px] text-zinc-600 mt-1.5 font-mono">Next: {levelName} → {getLevelName(level + 1)}</p>
           </CardContent>
         </Card>
       </div>
@@ -393,7 +394,7 @@ export function AgentLivePanel() {
         <div className="px-5 py-3.5 border-b border-white/[0.06] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <Activity className="h-4 w-4 text-amber-400" />
-            <span className="text-sm font-medium text-zinc-200">ACTIVIDAD EN VIVO</span>
+            <span className="text-sm font-medium text-zinc-200">LIVE ACTIVITY</span>
           </div>
           <div className="flex items-center gap-3">
             {isConnected && (
@@ -402,7 +403,7 @@ export function AgentLivePanel() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
               </span>
             )}
-            <span className="text-xs text-zinc-500 font-mono">{activities.length} eventos</span>
+            <span className="text-xs text-zinc-500 font-mono">{activities.length} events</span>
           </div>
         </div>
 
@@ -412,9 +413,9 @@ export function AgentLivePanel() {
               {displayActivities.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                   <Circle className="h-10 w-10 text-zinc-800 mb-4" />
-                  <p className="text-sm text-zinc-500">Esperando actividad del agente...</p>
+                  <p className="text-sm text-zinc-500">Waiting for agent activity...</p>
                   <p className="text-xs text-zinc-600 mt-2 max-w-[260px]">
-                    Las actualizaciones aparecerán aquí cuando el cron ejecute una ola de evolución
+                    Updates will appear here when the cron executes an evolution wave
                   </p>
                 </div>
               ) : (
@@ -436,7 +437,7 @@ export function AgentLivePanel() {
               </div>
               <div className="flex items-center gap-1.5">
                 <Zap className="h-3.5 w-3.5 text-amber-500/40" />
-                <span className="text-[10px] text-zinc-500 font-mono tracking-wider">AUTO-EVOLUCIÓN</span>
+                <span className="text-[10px] text-zinc-500 font-mono tracking-wider">AUTO-EVOLUTION</span>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -456,7 +457,7 @@ export function AgentLivePanel() {
                   <span className="font-mono">⟳ REPLAY</span>
                 </Button>
               )}
-              <span className="text-[10px] text-zinc-700 font-mono">HERMES v0.4.0</span>
+              <span className="text-[10px] text-zinc-700 font-mono">HERMES {HERMES_VERSION}</span>
             </div>
           </div>
         </div>
@@ -467,17 +468,17 @@ export function AgentLivePanel() {
 
 // ─── Helper ──────────────────────────────────────────────────────────
 const LEVEL_NAMES: Record<number, string> = {
-  1: 'Nascente',
-  2: 'Aprendiz',
-  3: 'Operativo',
-  5: 'Especialista',
-  8: 'Arquitecto',
-  12: 'Maestro',
-  20: 'Trascendente',
+  1: 'Nascent',
+  2: 'Apprentice',
+  3: 'Operational',
+  5: 'Specialist',
+  8: 'Architect',
+  12: 'Master',
+  20: 'Transcendent',
 };
 
 function getLevelName(level: number): string {
-  let name = 'Nascente';
+  let name = 'Nascent';
   for (const [lvl, n] of Object.entries(LEVEL_NAMES).map(([k, v]) => [Number(k), v])) {
     if (level >= lvl) name = n;
   }
