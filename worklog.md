@@ -1143,3 +1143,22 @@ Stage Summary:
 - 3 files changed, +75 -1 lines
 - 86 total commits, 43 waves in DB
 - 3 improvements: keyboard nav, wave summary card, npm deps visibility
+
+---
+Task ID: 49
+Agent: Main Wave Engine
+Task: Wave 49 — Bug fix (skills API), decision filter counts, Agent Live decisions feed
+
+Work Log:
+- Created /api/harness/skills/route.ts — reads gh-sync/skills/*.md, parses YAML frontmatter, returns Skill objects
+- Bug existed since Wave 22: useSkills hook called non-existent endpoint, Research tab Skills section was broken
+- Added groupBy query to /api/harness/decisions to return countsByCategory
+- Updated useDecisions hook type to include countsByCategory
+- Added count badges to Decisions tab filter buttons (total + per-category)
+- Added recent decisions compact feed to Agent Live panel (3 most recent, category-colored badges, FileCode2 icon)
+- Lint: clean. Git push: success (3c559e3).
+
+Stage Summary:
+- 6 files changed, +117 -72 lines
+- 88 total commits, 44 waves in DB
+- API routes: 16 → 17 (new /api/harness/skills)

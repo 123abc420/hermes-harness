@@ -136,3 +136,8 @@
 
 - Keyboard shortcuts need input guard (INPUT/TEXTAREA/contentEditable) to avoid conflicts
 - <kbd> badges are a subtle UX cue for discoverability — hide on mobile, show on lg+
+
+## 2026-06-20 — Wave 49: Hidden Bug + Data Density
+
+- A hook can reference an API route for 20+ waves and the bug is invisible if the component has ErrorBlock — always verify endpoints exist
+- Prisma groupBy is a free way to add count metadata to list endpoints without extra round-trips
