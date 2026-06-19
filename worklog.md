@@ -1790,3 +1790,20 @@ Stage Summary:
 - Export contract complete: all hooks now exported (12 hooks)
 - Decisions filter auto-includes new categories (style was missing from old list)
 - Files: harness-header.tsx, index.ts, decisions-tab.tsx
+
+---
+Task ID: 85
+Agent: Wave Engine (auto)
+Task: Add style category color + refactoring alias + insight
+
+Work Log:
+- Added style category (indigo #6366f1) to DECISION_CATEGORIES
+- Added refactoring as alias for refactor (6 legacy DB entries)
+- VALID_CATEGORIES now returns 11 values (style was missing, refactoring included)
+- Appended category completeness insight to insights.md
+- Ran bun run lint — zero errors
+
+Stage Summary:
+- 2 uncolored decisions (style) + 6 miscolored (refactoring) now display correctly
+- DECISION_CATEGORIES: 11 entries, all DB categories covered
+- Files: category-colors.ts, insights.md
