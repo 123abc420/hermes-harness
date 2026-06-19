@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     const where = status ? { status } : {};
 
-    const [waves, total] = await Promise.all([
+    const [waves, total, statusCounts] = await Promise.all([
       db.harnessWave.findMany({
         where,
         orderBy: { waveNumber: 'desc' },
@@ -22,9 +22,14 @@ export async function GET(req: NextRequest) {
         },
       }),
       db.harnessWave.count({ where }),
+      db.harnessWave.groupBy({ by: ['status'], _count: true }),
     ]);
 
-    return NextResponse.json({ waves, total, page, limit });
+    const countsByStatus: Record<string, number> = Object.fromEntries(
+      statusCounts.map(s => [s.status, s._count])
+    );
+
+    return NextResponse.json({ waves, total, page, limit, countsByStatus });
   } catch (error) {
     console.error('[WAVES] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch waves' }, { status: 500 });

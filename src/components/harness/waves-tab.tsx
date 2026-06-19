@@ -59,6 +59,7 @@ export function WavesTab() {
 
   const waves = data?.waves ?? [];
   const totalWaves = data?.total ?? 0;
+  const statusCounts = data?.countsByStatus ?? {};
   const hasMore = waves.length < totalWaves;
   const showingCount = Math.min(page * limit, totalWaves);
 
@@ -86,13 +87,20 @@ export function WavesTab() {
                 key={opt.value}
                 onClick={() => handleFilterChange(opt.value)}
                 aria-pressed={waveFilter === opt.value}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 ${
+                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 flex items-center gap-1.5 ${
                   waveFilter === opt.value
                     ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'
                     : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
                 {opt.label}
+                {opt.value && statusCounts[opt.value] !== undefined && (
+                  <span className={`text-[9px] tabular-nums ${
+                    waveFilter === opt.value ? 'text-emerald-400/60' : 'text-zinc-600'
+                  }`}>
+                    {statusCounts[opt.value]}
+                  </span>
+                )}
               </button>
             ))}
           </div>

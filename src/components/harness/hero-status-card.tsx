@@ -2,10 +2,11 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Github } from 'lucide-react';
+import { Github, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import type { TotalStats, GithubStatus } from '@/store/harness-store';
+import { useAgentLiveStore } from '@/store/agent-live-store';
 
 /* ── Hero Status Card ─────────────────────────────────── */
 export function HeroStatusCard({
@@ -29,6 +30,9 @@ export function HeroStatusCard({
   healthScoreTrend?: 'up' | 'down' | 'stable';
   isLoading: boolean;
 }) {
+  const agentState = useAgentLiveStore(s => s.agentState);
+  const isAgentLive = useAgentLiveStore(s => s.isConnected);
+
   if (isLoading) {
     return (
       <Card className="overflow-hidden border-white/[0.06] bg-white/[0.02]">
@@ -47,6 +51,32 @@ export function HeroStatusCard({
 
   const isConnected = githubStatus?.status === 'connected';
 
+  const isActive = isAgentLive && ['thinking', 'searching', 'planning', 'executing', 'verifying', 'evolving'].includes(agentState);
+  const isIdle = !isAgentLive || agentState === 'idle';
+  const stateLabel = isAgentLive
+    ? (agentState === 'celebrating' ? 'WAVE COMPLETE' : agentState === 'idle' ? 'STANDBY' : agentState.toUpperCase())
+    : 'OFFLINE';
+
+  // Pre-compute className strings to avoid nested template literal parsing issues
+  const circleClass = [
+    'relative flex h-12 w-12 items-center justify-center rounded-full border',
+    isActive ? 'border-emerald-500/30 bg-emerald-500/10'
+      : isIdle ? 'border-zinc-600/30 bg-zinc-500/5'
+        : 'border-amber-500/30 bg-amber-500/10',
+  ].join(' ');
+
+  const iconClass = [
+    'h-5 w-5',
+    isActive ? 'text-emerald-400' : isIdle ? 'text-zinc-500' : 'text-amber-400',
+  ].join(' ');
+
+  const badgeClass = [
+    'hidden rounded-md px-2 py-0.5 text-[10px] font-mono font-medium sm:inline',
+    isActive ? 'bg-emerald-500/10 text-emerald-400'
+      : isIdle ? 'bg-zinc-500/10 text-zinc-500'
+        : 'bg-amber-500/10 text-amber-400',
+  ].join(' ');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -58,15 +88,17 @@ export function HeroStatusCard({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="absolute inset-0 animate-ping rounded-full bg-emerald-400/20" />
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10">
-                  <div className="h-3 w-3 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50" />
+                {isActive && (
+                  <div className="absolute inset-0 animate-ping rounded-full bg-emerald-400/20" />
+                )}
+                <div className={circleClass}>
+                  <Activity className={iconClass} />
                 </div>
               </div>
               <div>
                 <div className="flex items-center gap-3">
                   <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
-                    HARNESS ACTIVE
+                    HERMES HARNESS
                   </h2>
                   {healthScore !== undefined && (
                     <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-mono font-bold tabular-nums ${
@@ -80,8 +112,8 @@ export function HeroStatusCard({
                       {healthScore}/100
                     </span>
                   )}
-                  <span className="hidden rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-400 sm:inline">
-                    LIVE
+                  <span className={badgeClass}>
+                    {stateLabel}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-zinc-500">
