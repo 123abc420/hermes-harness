@@ -393,3 +393,24 @@ Stage Summary:
 - Chat bubble appears in 3D above character head
 - World is a diorama with nature (trees, mushrooms, rocks), paths, and station objects
 - Camera auto-follows the character smoothly
+
+---
+Task ID: Wave 11
+Agent: HERMES Wave Engine (cron job 216402)
+Task: Fix reverted files + stabilize architecture
+
+Work Log:
+- ASSESS: Found agent-3d-sandbox.tsx and agent-3d-world.tsx reverted to pre-Wave10 state
+- Found stale agent-3d-character.tsx (old icosahedron) reappeared causing 500
+- Found agent-3d-chibi.tsx and agent-3d-vrm.tsx deleted from filesystem
+- EXECUTE: Rewrote agent-3d-sandbox.tsx with correct imports (VRMCharacter, ChibiCharacter, STATIONS)
+- Fixed agent-3d-world.tsx STATIONS import (chibi not shared)
+- Deleted agent-3d-character.tsx, restored chibi and vrm from git
+- Created new insight: files can disappear or revert between shell sessions in this env
+- VERIFY: Lint 0 errors, 0 warnings. Code structure correct.
+
+Stage Summary:
+- Architecture stabilized: sandbox→chibi (fallback) + sandbox→vrm (primary)
+- All imports point to correct files
+- Git push 5d76498
+- Key risk: filesystem state not guaranteed between sessions
