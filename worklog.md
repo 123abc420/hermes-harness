@@ -594,3 +594,22 @@ Stage Summary:
 - Waves now properly transition running→completed (was stuck forever before)
 - Hero card shows latest wave status + summary at a glance
 - 2 retroactive completions applied to previous successful waves
+---
+Task ID: 19
+Agent: Wave Engine (cron)
+Task: Wave 19 — Wave logs + UI fixes
+
+Work Log:
+- ASSESS: 93.75% compliance, clean. Found gh-sync/logs/waves/ empty (SPEC Section 6 gap).
+- PLAN: (1) Populate wave log files, (2) Fix waves tab missing interrupted filter, (3) Wave-logging skill.
+- EXECUTE Decision 1 (fix/high): Created 14 wave log files (wave-01.md through wave-14.md) with YAML frontmatter in gh-sync/logs/waves/. Fulfills SPEC Section 6.
+- EXECUTE Decision 2 (fix/high): Added "interrupted" to waves tab filter buttons and STATUS_COLORS. Changed running from amber to blue (interrupted=amber, running=blue+pulse).
+- EXECUTE Decision 3 (skill/medium): Created wave-logging.md skill documenting log file format and conventions.
+- VERIFY: lint 0 errors. Wave properly completed via PATCH.
+- PERSIST: Wave completed, 3 decisions, 1 metric, GitHub synced. Wave log written.
+
+Stage Summary:
+- 14 wave log files created — SPEC Section 6 now satisfied
+- Waves tab can now filter by "Interrupted" status
+- Running status color changed to blue (was amber, conflicted with interrupted)
+- 7 total skills
