@@ -28,7 +28,7 @@ export function getLevelName(level: number): string {
 
 // Chart tooltip styles — Recharts <Tooltip contentStyle>
 export const CHART_TOOLTIP_STYLE = {
-  background: '#18181b',
+  backgroundColor: '#18181b',
   border: '1px solid #27272a',
   borderRadius: 8,
   fontSize: 11,
@@ -37,7 +37,10 @@ export const CHART_TOOLTIP_STYLE = {
 export const CHART_TOOLTIP_STYLE_DARK = {
   backgroundColor: '#0f172a',
   border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: '8px',
-  fontSize: '11px',
+  borderRadius: 8,
+  fontSize: 11,
   color: '#e2e8f0',
 } as const;
+
+// Shared tooltip label style for Recharts <Tooltip labelStyle>
+export const CHART_TOOLTIP_LABEL_STYLE = { color: '#a1a1aa' } as const;

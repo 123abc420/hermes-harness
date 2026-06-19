@@ -62,8 +62,8 @@ export function OverviewTab() {
       {/* Stats Grid */}
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />
 
-      {/* Three-column: Spec Compliance + Metrics Chart + Recent Commits */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+      {/* Four-column: Spec Compliance + Quick Metrics + Error Trend + Recent Commits */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-4">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -78,13 +78,20 @@ export function OverviewTab() {
           transition={{ duration: 0.4, delay: 0.25 }}
         >
           <QuickMetricsChart metrics={dash?.metrics} isLoading={isLoading} />
-          <ErrorTrendChart errorTrend={dash?.errorTrend} />
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
+        >
+          <ErrorTrendChart errorTrend={dash?.errorTrend} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
         >
           {isLoading ? (
             <Card className="glass-card">

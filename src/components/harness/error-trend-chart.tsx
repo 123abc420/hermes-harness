@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { DashboardData } from '@/store/harness-store';
-import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
+import { CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE } from '@/lib/constants';
 
 export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTrend'] }) {
   if (!errorTrend?.length) {
@@ -84,7 +84,7 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
               <YAxis tick={{ fontSize: 9, fill: '#71717a' }} allowDecimals={false} />
               <Tooltip
                 contentStyle={CHART_TOOLTIP_STYLE}
-                labelStyle={{ color: '#a1a1aa' }}
+                labelStyle={CHART_TOOLTIP_LABEL_STYLE}
               />
               <Area type="stepAfter" dataKey="errors" stroke="#ef4444" fill="url(#errorGrad)" strokeWidth={2} />
             </AreaChart>

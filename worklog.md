@@ -1906,3 +1906,21 @@ Stage Summary:
 - 5 components now render consistent empty-state placeholders instead of vanishing
 - New skill #19 (defensive-null-guards) codifies the pattern
 - Health remains ~92/100, 84 waves in DB, 19 skills
+
+---
+Task ID: 91
+Agent: Wave Engine
+Task: Wave 91 — Stats skeleton fix, overview layout balance, tooltip normalization
+
+Work Log:
+- ASSESS: Read context (Wave 90, 84 waves, 19 skills), insights, dev.log (clean), DB (85 waves)
+- PLAN: Explored codebase — found 3 issues: skeleton mismatch, overview layout imbalance, tooltip constant inconsistency
+- EXECUTE: (1) Stats skeleton now renders 6 items in lg:3 xl:6 matching actual grid, (2) Overview 3-col → 4-col (lg:2 xl:4) splitting stacked charts into separate cells, (3) Normalized CHART_TOOLTIP_STYLE (background→backgroundColor, string→number borderRadius), extracted CHART_TOOLTIP_LABEL_STYLE, updated both chart consumers
+- VERIFY: bun run lint passed (0 errors, 0 warnings), dev.log clean
+- PERSIST: Wave #91 created, 3 decisions, 1 metric, git push
+
+Stage Summary:
+- Overview tab now has balanced 4-column layout on XL screens
+- Stats skeleton no longer causes layout jump on data load
+- All Recharts tooltips use consistent property formats and shared label style
+- 85 waves, 19 skills, 100% spec compliance, health ~92/100

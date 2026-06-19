@@ -6,7 +6,7 @@ import { Activity } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
-import { CHART_TOOLTIP_STYLE_DARK } from '@/lib/constants';
+import { CHART_TOOLTIP_STYLE_DARK, CHART_TOOLTIP_LABEL_STYLE } from '@/lib/constants';
 import type { DashboardData } from '@/store/harness-store';
 
 /* ── Quick Metrics Chart ────────────────────────────── */
@@ -108,7 +108,7 @@ export function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardD
             <YAxis tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={CHART_TOOLTIP_STYLE_DARK}
-              labelStyle={{ color: '#71717a' }}
+              labelStyle={CHART_TOOLTIP_LABEL_STYLE}
               itemStyle={{ color: '#10b981' }}
             />
             <Area
