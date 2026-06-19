@@ -185,3 +185,38 @@ Stage Summary:
 - Empty states with helpful messages and icons
 - Sticky footer with min-h-screen flex layout
 - Lint passes: zero errors
+
+---
+Task ID: Main
+Agent: Main Orchestrator (Research-First Redesign)
+Task: Proper research, spec-driven rebuild, GitHub connection, dashboard
+
+Work Log:
+- User corrected approach: must research BEFORE building, must design for chat.z.ai platform
+- Conducted 4 parallel web searches: HERMES agents, Spec-Driven Development, Agent Harness patterns, chat.z.ai
+- Read 6 key articles in depth:
+  1. Saulius.io - "What Self-Improving AI Agent Actually Means" (HERMES source code audit)
+  2. MindStudio - "Hermes 5-Pillar Architecture" (Memory, Skills, Soul, Crons, Loop)
+  3. Microsoft Developer Blog - "Spec-Driven Development: AI-Native Engineering"
+  4. Arize AI - "Self-Improving Agents: the Agent Harness for Reliable Code"
+  5. MindStudio - "How to Build a Self-Improving AI Agent" (4-part loop)
+  6. NousResearch/hermes-agent GitHub README
+- Key insights synthesized:
+  * Skills = DATA (markdown), not code
+  * Memory caps are critical (injection surface)
+  * Frozen-snapshot pattern for memory
+  * Harness > Model for reliability
+  * SDD: spec is single source of truth
+- Wrote comprehensive SPEC.md (8 sections)
+- Created gh-sync/ structure (specs, skills, memory, guardrails)
+- Connected GitHub (123abc420/hermes-harness), cleaned secret from history
+- Dashboard rebuilt by subagent (5 tabs, dark theme, emerald/cyan)
+- Created first skill: github-clean-push
+- Build passes, lint clean, pushed to GitHub
+
+Stage Summary:
+- Research-first approach: 6 articles, 4 searches, deep understanding
+- Spec-driven: SPEC.md governs all development
+- GitHub connected and clean (2 commits)
+- 1 skill created from this session's learning
+- Platform-aligned: all tools are free through chat.z.ai
