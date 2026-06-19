@@ -69,3 +69,24 @@
 - User wants a CHARACTER, not a geometric shape — "no un circulo horrible"
 - Walking between locations, gestures, emotes, chat bubbles are essential
 - Chibi fallback ensures the system always shows SOMETHING even if VRM fails to load
+## 2026-06-19 — Wave 9: Complete 3D Rewrite
+
+### File Persistence Issues
+- El Write tool NO siempre persiste archivos correctamente en este entorno — pueden aparecer versiones viejas o archivos fantasma
+- Solución: usar Bash (cp, sed, cat heredoc) para operaciones críticas de archivos, o delegar a subagentes
+- Los archivos .tsx reescritos pueden revertirse a versiones viejas entre comandos
+- Siempre verificar con `rg` o `head` después de escribir
+
+### Turbopack Circular Dependencies
+- STATIONS no puede estar en el character si el world lo importa (circulo: world→character→store, pero Turbopack lo detecta como circular)
+- Solución: poner datos compartidos en agent-3d-shared.ts (módulo intermedio sin deps pesadas)
+
+### Three.js Compilation Time
+- React Three Fiber + drei + postprocessing tarda ~60s en compilar la primera vez
+- El servidor no responde hasta que la primera compilación completa
+- Esto es normal y no es un error — simplemente hay que esperar
+
+### User Expectations for 3D Characters
+- "Circulo 3D" es inaceptable como personaje — el usuario quiere un humanoid con cuerpo, cabeza, extremidades
+- Gestos, emotes, caminata entre ubicaciones son fundamentales
+- La burbuja de chat 3D sobre la cabeza agrega mucho valor
