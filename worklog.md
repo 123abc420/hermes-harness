@@ -1071,3 +1071,20 @@ Stage Summary:
 - Net: -3,867 lines removed, 74 total commits
 - UI files reduced from 46 to 14 (70% reduction in ui/ directory)
 - Wave 45 recorded in DB, pushed to GitHub
+
+---
+Task ID: 46
+Agent: Wave Engine
+Task: Wave 46 - Orphaned dependency cleanup + skill creation
+
+Work Log:
+- ASSESS: 39 waves, 100% success, 0 errors
+- Identified 27 orphaned npm deps after Wave 45's file cleanup (19 radix + 5 UI-lib + 3 form/validation)
+- bun remove all 27 (28 total incl. 1 transitive). Lockfile updated.
+- Created dead-dependency-audit skill (#13)
+- Lint: clean. Dev.log: clean. Git push: success.
+
+Stage Summary:
+- package.json: -27 dependencies, lockfile updated
+- gh-sync/skills/dead-dependency-audit.md: new skill #13
+- 77 total commits, 40 waves in DB
