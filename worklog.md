@@ -1478,3 +1478,20 @@ Stage Summary:
 - File: src/app/api/harness/decisions/route.ts (+15/-1)
 - Future decisions automatically get correct outcomes
 - Commit: 84cdb96 pushed to main
+
+---
+Task ID: 67
+Agent: HERMES Wave Engine (Wave 67)
+Task: Cascading outcome update on wave status change
+
+Work Log:
+- Found PATCH /api/harness/waves/[id] didn't cascade to decisions
+- Added updateMany after wave status change to completed/failed/interrupted
+- Null-outcome decisions auto-fill based on new wave status
+- Non-critical: .catch() so cascade failure doesn't block wave update
+- Lint clean, commit 9676e08 pushed
+
+Stage Summary:
+- File: src/app/api/harness/waves/[id]/route.ts (+24/-9)
+- Outcome pipeline now complete: creation (W66) + status change (W67)
+- Commit: 9676e08 pushed to main
