@@ -339,3 +339,27 @@ Stage Summary:
 - Proyectos reference encontrados: Pixel Agents, AgentRoom, AgentOffice, DLP3D
 - Esperando decisión del usuario sobre dirección (3D real vs 2D pixel art vs 3D abstracto mejorado)
 - Dev server estable, live service funcional
+
+---
+Task ID: Wave 8 — VRM 3D Avatar Implementation
+Agent: HERMES Wave Engine (cron job 216402)
+Task: Implement Option B: Real 3D VRM avatar + beautiful sandbox world
+
+Work Log:
+- Installed @pixiv/three-vrm@3.5.4 for VRM avatar support
+- Downloaded free VRM avatar model (10.8MB) to /public/models/avatar.vrm
+- Complete rewrite of agent-3d-character.tsx: VRM loading with GLTFLoader+VRMLoaderPlugin, expression system (10 states → VRM expressions), auto-blink every 3-5s, eye tracking via VRM lookAt, ground glow disc, orbiting particle ring, state-based color transitions
+- Complete rewrite of agent-3d-world.tsx: Environment HDR preset "night", reflective ground with grid, 5 dynamic lights, fog, 2000 stars, sparkles, floating data nodes, crystals with halos, sub-agent entities
+- Complete rewrite of agent-3d-sandbox.tsx: Post-processing (Bloom + Vignette + ChromaticAberration), state-reactive effects, cinematic overlays in Spanish, progress bar, message bubble, LIVE badge
+- Created agent-3d-shared.ts to break circular dependency between sandbox and character
+- Fixed Turbopack static analysis issues (missing exports, circular deps)
+- Persistent dev server with auto-restart loop
+
+Stage Summary:
+- Avatar VRM real cargando — reemplaza el icosahedro geométrico con personaje 3D anime
+- Expresiones faciales mapeadas a estados del agente (happy, angry, relaxed, surprised, neutral)
+- Mundo hermoso con iluminación HDR, reflejos, niebla, partículas, cristales flotantes
+- Post-processing cinematográfico (bloom, viñeta, aberración cromática) reactivo al estado
+- Overlays en español: "PENSANDO", "EJECUTANDO", "CELEBRANDO", etc.
+- Todo compila y sirve en 200 OK
+- Modelo VRM: /public/models/avatar.vrm (reemplazable por cualquier .vrm)
