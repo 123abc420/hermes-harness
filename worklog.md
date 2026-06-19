@@ -1594,3 +1594,21 @@ Work Log:
 Stage Summary:
 - File: src/components/harness/research-tab.tsx (+42/-4)
 - Commit: 32b617e pushed to main
+
+---
+Task ID: 74
+Agent: HERMES Wave Engine (Wave 74)
+Task: Extract DonutChartCard shared component (DRY refactor)
+
+Work Log:
+- Created donut-chart-card.tsx with DonutSlice interface + DonutChartCard component
+- Props: title, icon, iconColor, data, emptyMessage, headerBadge, badgeColor
+- Replaced ~180 lines of duplicated donut JSX in DecisionDistribution + OutcomeDistribution
+- Each wrapper now ~15 lines: derive data map, return <DonutChartCard>
+- Reusable for any future donut charts in the dashboard
+- Lint clean, commit a20d10d pushed
+
+Stage Summary:
+- Files: +donut-chart-card.tsx, ~research-tab.tsx (-163/+138, net -25 lines)
+- Harness components: 14 (donut-chart-card added)
+- Commit: a20d10d pushed to main
