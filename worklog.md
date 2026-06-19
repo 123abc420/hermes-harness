@@ -1051,3 +1051,23 @@ Stage Summary:
 - overview-tab.tsx: +79 lines, -8 lines (RecentCommitsCard, dynamic errorTrend, 3-col grid)
 - All 3 improvements use existing data — no new API calls or DB queries
 - Wave 44 recorded in DB, pushed to GitHub
+
+---
+Task ID: 45
+Agent: Wave Engine
+Task: Wave 45 - Dead file cleanup + Decision Timeline
+
+Work Log:
+- ASSESS: 38 waves, 100% success, 0 errors, clean dev.log
+- Ran dead file audit via Explore subagent: found 32 orphan shadcn/ui component files
+- All 32 were never imported by any source file (only 14 of 46 UI components were actually used)
+- git rm all 32 orphans: -3,867 lines net deletion
+- Added DecisionTimeline component to research tab (shows 8 most recent decisions with category-colored dots, wave number, action badge, target file)
+- Uses already-fetched recentDecisions data — zero new API calls
+- Lint: clean. Dev.log: clean. Git push: success.
+
+Stage Summary:
+- 33 files changed: 32 deletions + research-tab.tsx (+79 lines)
+- Net: -3,867 lines removed, 74 total commits
+- UI files reduced from 46 to 14 (70% reduction in ui/ directory)
+- Wave 45 recorded in DB, pushed to GitHub

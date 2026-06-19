@@ -126,3 +126,8 @@
 
 - Fetched-but-unused data is free real estate — RecentCommitsCard needed zero new API calls
 - Spec compliance checks should be dynamic from real data, not hardcoded booleans
+
+## 2026-06-20 — Wave 45: Dead Code Hygiene
+
+- shadcn/ui `add` generates 30+ files; most go unused. Audit early, remove aggressively.
+- Dead file audit via subagent is fast and thorough — grep for basename across all imports.
