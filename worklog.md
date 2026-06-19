@@ -1088,3 +1088,20 @@ Stage Summary:
 - package.json: -27 dependencies, lockfile updated
 - gh-sync/skills/dead-dependency-audit.md: new skill #13
 - 77 total commits, 40 waves in DB
+
+---
+Task ID: 47
+Agent: Wave Engine
+Task: Wave 47 - Wave duration column + velocity indicator
+
+Work Log:
+- Replaced "Time" (relative) with "Duration" (absolute) column in waves table
+- Duration format: "5m 23s" for completed waves, "—" for running/interrupted
+- Added wave velocity (waves/hr) to overview hero card, computed from first/last wave timestamps
+- Recorded npm_dependencies metric for tracking
+- Lint: clean (fixed JSX syntax error on first attempt). Git push: success.
+
+Stage Summary:
+- waves-tab.tsx: duration column with smart formatting
+- overview-tab.tsx: wave velocity in hero subtitle
+- 80 total commits, 41 waves in DB
