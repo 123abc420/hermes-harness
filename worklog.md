@@ -1577,3 +1577,20 @@ Stage Summary:
 - Files: +memory-section.tsx, ~dashboard/route.ts (take 20→50), ~research-tab.tsx
 - Harness components: 13 (memory-section, skills-section, wave-category-breakdown, etc.)
 - Commit: cc29965 pushed to main
+
+---
+Task ID: 73
+Agent: HERMES Wave Engine (Wave 73)
+Task: Decision timeline expand/collapse with reasoning
+
+Work Log:
+- Added useState<Set<string>> for tracking expanded decisions
+- ChevronDown icon appears when reasoning/targetFile exists, rotates on toggle
+- Click header row or press Enter/Space to expand
+- AnimatePresence reveals reasoning in italic glass box
+- Description text untruncates when expanded
+- Lint clean, commit 32b617e pushed
+
+Stage Summary:
+- File: src/components/harness/research-tab.tsx (+42/-4)
+- Commit: 32b617e pushed to main
