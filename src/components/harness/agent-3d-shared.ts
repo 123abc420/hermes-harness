@@ -9,12 +9,12 @@ export const STATION_COLORS: Record<AgentVisualState, string> = {
 };
 
 export const STATIONS: Record<AgentVisualState, { pos: [number, number, number]; rot: number; label: string }> = {
-  idle:       { pos: [0, 0, 0],     rot: 0,     label: 'CASA' },
-  thinking:   { pos: [-3, 0, -2],   rot: 0.5,   label: 'BIBLIOTECA' },
-  searching:  { pos: [3, 0, -2],    rot: -0.5,  label: 'OBSERVATORIO' },
-  planning:   { pos: [0, 0, -3.5],  rot: 0,     label: 'MAPA' },
-  executing:  { pos: [3.5, 0, 1.5], rot: -0.8,  label: 'TALLER' },
-  verifying:  { pos: [-3.5, 0, 1.5],rot: 0.8,   label: 'LABORATORIO' },
+  idle:       { pos: [0, 0, 0],     rot: 0,     label: 'HOME' },
+  thinking:   { pos: [-3, 0, -2],   rot: 0.5,   label: 'LIBRARY' },
+  searching:  { pos: [3, 0, -2],    rot: -0.5,  label: 'OBSERVATORY' },
+  planning:   { pos: [0, 0, -3.5],  rot: 0,     label: 'MAP' },
+  executing:  { pos: [3.5, 0, 1.5], rot: -0.8,  label: 'WORKSHOP' },
+  verifying:  { pos: [-3.5, 0, 1.5],rot: 0.8,   label: 'LAB' },
   celebrating:{ pos: [0, 0, 3],     rot: 0,     label: 'PLAZA' },
   error:      { pos: [0, 0, -0.5],  rot: 0,     label: '' },
   evolving:   { pos: [0, 0, 0],     rot: 0,     label: 'PORTAL' },

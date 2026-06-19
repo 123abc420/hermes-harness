@@ -195,7 +195,7 @@ function World() {
 
       {/* Station markers */}
       {STATION_ENTRIES.map(([key, s]) => {
-        const color = STATION_COLORS[key];
+        const color = STATE_COLORS[key];
         return (
           <group key={`station-${key}`} position={[s.pos[0], s.pos[1], s.pos[2]]}>
             <mesh position={[0, 0.25, 0]}>
@@ -222,7 +222,7 @@ function World() {
       })}
 
       {/* Station-specific objects */}
-      {/* BIBLIOTECA — bookshelf */}
+      {/* LIBRARY — bookshelf */}
       <group position={[-3, 0, -2]}>
         <mesh position={[-0.3, 0.2, 0]} castShadow>
           <boxGeometry args={[0.4, 0.4, 0.1]} />
@@ -236,7 +236,7 @@ function World() {
         ))}
       </group>
 
-      {/* OBSERVATORIO — telescope */}
+      {/* OBSERVATORY — telescope */}
       <group position={[3, 0, -2]}>
         <mesh position={[0.2, 0.3, 0]} rotation={[0.3, 0, 0.2]} castShadow>
           <cylinderGeometry args={[0.03, 0.06, 0.5, 8]} />
