@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Float, MeshReflectorMaterial, Sparkles } from '@react-three/drei';
+import { Float, Sparkles } from '@react-three/drei';
 import { useAgentLiveStore, type AgentVisualState, type SubAgent } from '@/store/agent-live-store';
 import * as THREE from 'three';
 
