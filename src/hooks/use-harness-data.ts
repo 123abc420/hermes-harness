@@ -42,6 +42,7 @@ export function useHarnessDashboard() {
           waveCount: totalStats.totalWaves,
           totalImprovements: totalStats.totalImprovements,
           totalDecisions: totalStats.totalDecisions,
+          recentSuccessRate: totalStats.recentSuccessRate,
         });
       }
     }

@@ -119,7 +119,7 @@ export default function Home() {
             <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Cozy 3D World</span>
+            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
             <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">
               Spec-Driven Self-Evolution
             </span>

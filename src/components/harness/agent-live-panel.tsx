@@ -11,7 +11,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import {
   Activity,
-  Wifi,
   WifiOff,
   Zap,
   Brain,
@@ -21,7 +20,6 @@ import {
   Sparkles,
   Circle,
   Users,
-  RotateCcw,
   Play,
   Pause,
   Clock,
@@ -186,7 +184,7 @@ function StatCard({ icon: Icon, label, value, subtitle, iconColor }: {
 export function AgentLivePanel() {
   const {
     agentState, message, phase, waveNumber, progress, isConnected,
-    waveCount, totalImprovements, totalDecisions, level, levelName, xp, xpToNext,
+    waveCount, totalImprovements, totalDecisions, recentSuccessRate, level, levelName, xp, xpToNext,
     activities, subAgents, lastTurnActivities, isReplaying,
     setIsReplaying, setLastTurn, addActivity,
   } = useAgentLiveStore();
@@ -386,7 +384,7 @@ export function AgentLivePanel() {
             icon={Waves}
             label="WAVES"
             value={waveCount}
-            subtitle="Cycles completed"
+            subtitle={recentSuccessRate > 0 ? `${recentSuccessRate}% success rate` : 'Cycles completed'}
             iconColor="text-cyan-400"
           />
           <StatCard
