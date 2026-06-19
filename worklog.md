@@ -1630,3 +1630,19 @@ Stage Summary:
 - Harness components: 15
 - research-tab is now a pure layout file importing all visual components
 - Commit: b6c7bd6 pushed to main
+
+---
+Task ID: 76
+Agent: HERMES Wave Engine (Wave 76)
+Task: Extract 3 largest overview components
+
+Work Log:
+- Created hero-status-card.tsx (~140 lines), quick-metrics-chart.tsx (~120 lines), wave-duration-bars.tsx (~75 lines)
+- overview-tab.tsx: 1119 → 768 lines (-351, -31%)
+- Removed unused imports (Activity, Github, Clock, CHART_TOOLTIP_STYLE_DARK)
+- Lint clean, commit 8c7abee pushed
+
+Stage Summary:
+- Harness components: 18 (3 new)
+- overview-tab now 768 lines with 5 remaining inline components (Sparkline, StatCard, StatsGrid, SpecCompliance, Milestones, RecentCommits, OverviewTab)
+- Commit: 8c7abee pushed to main
