@@ -1352,3 +1352,23 @@ Stage Summary:
 - Sparklines now scale to fill card width on all breakpoints
 - Overview tab shows explicit error state instead of empty skeletons on API failure
 - Files: overview-tab.tsx
+
+---
+Task ID: 60
+Agent: Wave Engine
+Task: Wave 60 — Health score trend + keyboard shortcut help (milestone wave)
+
+Work Log:
+- Added healthScoreTrend computation to dashboard API (error trend last3 vs prev3 + success rate delta)
+- Added healthScoreTrend to DashboardData type, agent-live-store, useHarnessDashboard sync
+- Trend arrows (▲▼●) rendered in Overview HeroStatusCard badge and Agent Live health bar
+- Added useState + AnimatePresence for keyboard shortcut help
+- Added ? button in footer that toggles floating shortcut panel (6 tab shortcuts listed)
+- Panel dismisses on backdrop click, animates in/out
+- Lint clean, no errors
+- Wave 60 persisted, commit 779bbd8 pushed
+
+Stage Summary:
+- Health score is no longer static — shows directional trend from real signals
+- Keyboard shortcuts now discoverable on all screen sizes via footer ? button
+- Files: dashboard/route.ts, harness-store.ts, agent-live-store.ts, use-harness-data.ts, overview-tab.tsx, agent-live-panel.tsx, page.tsx
