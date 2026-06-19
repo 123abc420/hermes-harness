@@ -27,6 +27,7 @@ import { useHarnessStore } from '@/store/harness-store';
 import { Play, Loader2, Waves as WavesIcon, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
+import { CATEGORY_TW } from '@/lib/category-colors';
 
 const STATUS_COLORS: Record<string, string> = {
   running: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -375,7 +376,9 @@ export function WavesTab() {
                           className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="rounded bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-mono text-zinc-400">
+                            <span className={`rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium ${
+                              CATEGORY_TW[d.category] ?? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
+                            }`}>
                               {d.category.replace('_', ' ')}
                             </span>
                             <span
@@ -391,6 +394,9 @@ export function WavesTab() {
                             </span>
                           </div>
                           <p className="mt-1 text-xs text-zinc-300">{d.description}</p>
+                          {d.targetFile && (
+                            <p className="mt-1 text-[10px] font-mono text-zinc-600 truncate">{d.targetFile}</p>
+                          )}
                         </div>
                       ))}
                     </div>
