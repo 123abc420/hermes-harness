@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { useWaves, useWave, useCreateWave } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
-import { Play, Loader2, Waves as WavesIcon } from 'lucide-react';
+import { Play, Loader2, Waves as WavesIcon, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 
@@ -49,12 +49,22 @@ export function WavesTab() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [triggerOpen, setTriggerOpen] = useState(false);
   const [summary, setSummary] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 30;
 
-  const { data, isLoading, isError, error, refetch } = useWaves(1, 30, waveFilter);
+  const { data, isLoading, isError, error, refetch } = useWaves(page, limit, waveFilter);
   const { data: waveDetail } = useWave(detailId);
   const createWave = useCreateWave();
 
   const waves = data?.waves ?? [];
+  const totalWaves = data?.total ?? 0;
+  const hasMore = waves.length < totalWaves;
+  const showingCount = Math.min(page * limit, totalWaves);
+
+  const handleFilterChange = (val: string) => {
+    setWaveFilter(val);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-5">
@@ -73,7 +83,7 @@ export function WavesTab() {
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => setWaveFilter(opt.value)}
+                onClick={() => handleFilterChange(opt.value)}
                 aria-pressed={waveFilter === opt.value}
                 className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
                   waveFilter === opt.value
@@ -248,6 +258,25 @@ export function WavesTab() {
                 </TableBody>
               </Table>
             </ScrollArea>
+            {/* Pagination footer */}
+            <div className="flex items-center justify-between border-t border-white/[0.04] px-4 py-3">
+              <span className="text-[10px] font-mono text-zinc-600">
+                Showing {showingCount} of {totalWaves}
+              </span>
+              {hasMore && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={isLoading}
+                  className="gap-1.5 text-xs text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+                >
+                  {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
+                  <ChevronDown className="h-3 w-3" />
+                  Load More
+                </Button>
+              )}
+            </div>
           </Card>
         </motion.div>
       )}

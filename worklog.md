@@ -754,3 +754,20 @@ Stage Summary:
 - Filter buttons now properly announce toggle state
 - Screen readers can now perceive real-time agent activity
 - External links announce "opens in new tab"
+---
+Task ID: 28
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 28 — Pagination with Load More for Waves and Decisions
+
+Work Log:
+- ASSESS: Clean, 22 waves, 0 errors. Next item from context.md: pagination.
+- EXECUTE Decision 1 (feature/high): Added page state, "Showing X of Y" counter, and Load More button to Waves tab. Page resets to 1 on filter change.
+- EXECUTE Decision 2 (feature/high): Same pagination pattern for Decisions tab. Reduced default limit from 50 to 30.
+- VERIFY: lint 0 errors after fixing fragment wrapper in decisions ternary.
+- PERSIST: Wave 23 in DB completed, 2 decisions, 1 metric.
+
+Stage Summary:
+- Both list tabs now support pagination via Load More button
+- "Showing X of Y" counters give users awareness of total data
+- Filter changes reset to page 1
+- API pagination was already supported — only needed UI work

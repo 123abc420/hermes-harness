@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Collapsible,
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useDecisions } from '@/hooks/use-harness-data';
 import { useHarnessStore, type Decision } from '@/store/harness-store';
-import { ChevronDown, Filter, Brain, FileCode2 } from 'lucide-react';
+import { ChevronDown, Filter, Brain, FileCode2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -151,9 +152,20 @@ function DecisionCard({ decision }: { decision: Decision }) {
 
 export function DecisionsTab() {
   const { decisionCategoryFilter, setDecisionCategoryFilter } = useHarnessStore();
-  const { data, isLoading, isError, error, refetch } = useDecisions(1, 50, decisionCategoryFilter);
+  const [page, setPage] = useState(1);
+  const limit = 30;
+
+  const { data, isLoading, isError, error, refetch } = useDecisions(page, limit, decisionCategoryFilter);
 
   const decisions = data?.decisions ?? [];
+  const totalDecisions = data?.total ?? 0;
+  const hasMore = decisions.length < totalDecisions;
+  const showingCount = Math.min(page * limit, totalDecisions);
+
+  const handleFilterChange = (val: string) => {
+    setDecisionCategoryFilter(val);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-5">
@@ -172,7 +184,7 @@ export function DecisionsTab() {
             {FILTER_BUTTONS.map((btn) => (
               <button
                 key={btn.value}
-                onClick={() => setDecisionCategoryFilter(btn.value)}
+                onClick={() => handleFilterChange(btn.value)}
                 aria-pressed={decisionCategoryFilter === btn.value}
                 className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
                   decisionCategoryFilter === btn.value
@@ -219,6 +231,7 @@ export function DecisionsTab() {
           </Card>
         </motion.div>
       ) : (
+        <>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -228,6 +241,28 @@ export function DecisionsTab() {
             <DecisionCard key={decision.id} decision={decision} />
           ))}
         </motion.div>
+        {/* Pagination footer */}
+        {decisions.length > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono text-zinc-600">
+              Showing {showingCount} of {totalDecisions}
+            </span>
+            {hasMore && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={isLoading}
+                className="gap-1.5 text-xs text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+              >
+                {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
+                <ChevronDown className="h-3 w-3" />
+                Load More
+              </Button>
+            )}
+          </div>
+        )}
+        </>
       )}
     </div>
   );
