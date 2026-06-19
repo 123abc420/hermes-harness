@@ -1372,3 +1372,22 @@ Stage Summary:
 - Health score is no longer static — shows directional trend from real signals
 - Keyboard shortcuts now discoverable on all screen sizes via footer ? button
 - Files: dashboard/route.ts, harness-store.ts, agent-live-store.ts, use-harness-data.ts, overview-tab.tsx, agent-live-panel.tsx, page.tsx
+
+---
+Task ID: 61
+Agent: Wave Engine
+Task: Wave 61 — Unified category colors, fixed color swap bug
+
+Work Log:
+- Created src/lib/category-colors.ts with DECISION_CATEGORIES (9 entries, tw + hex)
+- Derived CATEGORY_TW and CATEGORY_HEX maps for easy import
+- Replaced inline ternary chain in agent-live-panel (was missing architecture)
+- Replaced CATEGORY_COLORS in decisions-tab with CATEGORY_TW import
+- Replaced PIE_COLORS in research-tab with CATEGORY_HEX import
+- Fixed bug: PIE_COLORS had skill=amber/insight=pink (swapped vs Tailwind badges)
+- Lint clean, pushed ab716fb
+
+Stage Summary:
+- Single source of truth for all 9 decision category colors
+- Fixed color swap bug that made pie chart inconsistent with badges
+- Agent Live now correctly colors architecture decisions (teal, not violet)
