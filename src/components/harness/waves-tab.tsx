@@ -26,6 +26,7 @@ import { useWaves, useWave, useCreateWave } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
 import { Play, Loader2, Waves as WavesIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ErrorBlock } from './error-block';
 
 const STATUS_COLORS: Record<string, string> = {
   running: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -49,7 +50,7 @@ export function WavesTab() {
   const [triggerOpen, setTriggerOpen] = useState(false);
   const [summary, setSummary] = useState('');
 
-  const { data, isLoading } = useWaves(1, 30, waveFilter);
+  const { data, isLoading, isError, error, refetch } = useWaves(1, 30, waveFilter);
   const { data: waveDetail } = useWave(detailId);
   const createWave = useCreateWave();
 
@@ -137,8 +138,10 @@ export function WavesTab() {
         </div>
       </motion.div>
 
-      {/* Table or Empty State */}
-      {isLoading ? (
+      {/* Error State */}
+      {isError ? (
+        <ErrorBlock message={error?.message} onRetry={() => refetch()} />
+      ) : isLoading ? (
         <Card className="glass-card">
           <CardContent className="p-4 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (

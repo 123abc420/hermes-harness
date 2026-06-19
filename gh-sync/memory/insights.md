@@ -92,3 +92,10 @@
 - Dashboard returned githubStatus.totalCommits=11 from DB even though the dedicated /github/status endpoint already used real git data
 - Fix: always override DB fields with live git data in the composite response
 - "Recent" metrics (last N items) are more useful than cumulative ones for measuring current system health — recent success rate 100% vs overall 63% tells a very different story
+
+## 2026-06-19 — Wave 26: UX Audit + Error Handling
+
+- A comprehensive UX audit (via subagent) revealed: zero isError checks across ALL tabs, no ErrorBoundary, missing category colors
+- TanStack Query returns isError + error on every hook, but components only checked isLoading — network failures showed misleading empty states
+- Fix: shared ErrorBlock component with retry, HarnessErrorBoundary class component wrapping tabs
+- Quick wins from audits are high-value: 2-min color fix (skill/insight) has immediate visible impact

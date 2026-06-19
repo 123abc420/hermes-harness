@@ -14,6 +14,7 @@ import { ChevronDown, Filter, Brain, FileCode2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
+import { ErrorBlock } from './error-block';
 
 const CATEGORY_COLORS: Record<string, string> = {
   code_quality: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
@@ -22,6 +23,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   refactor: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
   performance: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
   architecture: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+  skill: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+  insight: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
 };
 
 const PRIORITY_STYLES: Record<string, string> = {
@@ -148,7 +151,7 @@ function DecisionCard({ decision }: { decision: Decision }) {
 
 export function DecisionsTab() {
   const { decisionCategoryFilter, setDecisionCategoryFilter } = useHarnessStore();
-  const { data, isLoading } = useDecisions(1, 50, decisionCategoryFilter);
+  const { data, isLoading, isError, error, refetch } = useDecisions(1, 50, decisionCategoryFilter);
 
   const decisions = data?.decisions ?? [];
 
@@ -184,7 +187,9 @@ export function DecisionsTab() {
       </motion.div>
 
       {/* Decision Cards */}
-      {isLoading ? (
+      {isError ? (
+        <ErrorBlock message={error?.message} onRetry={() => refetch()} />
+      ) : isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-32 w-full rounded-xl" />

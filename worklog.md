@@ -718,3 +718,21 @@ Stage Summary:
 - Dashboard githubStatus now always returns real git data (44 commits, 5 recent)
 - Success rate shows dual view: overall 63% + recent 5 waves 100%
 - New insight: composite APIs must override stale DB fields with live data
+---
+Task ID: 26
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 26 — Error boundaries, isError handling, category colors
+
+Work Log:
+- ASSESS: Clean dev.log, 20 waves, 48 decisions, 0 errors. Ran full UX audit via subagent — found critical gap: zero isError handling in any tab, no ErrorBoundary.
+- EXECUTE Decision 1 (feature/high): Created shared ErrorBlock component (error-block.tsx). Added isError+retry to Waves, Decisions, Research (memory+skills), GitHub (connection status) tabs.
+- EXECUTE Decision 2 (feature/high): Created HarnessErrorBoundary class component (error-boundary.tsx). Wrapped all tab content in page.tsx. Catches render crashes with friendly recovery UI.
+- EXECUTE Decision 3 (fix/medium): Added skill (pink) and insight (amber) to CATEGORY_COLORS in decisions-tab. Previously fell back to code_quality color.
+- VERIFY: lint 0 errors, dashboard 200 OK, no new errors in dev.log.
+- PERSIST: Wave 21 in DB completed, 3 decisions, 2 metrics.
+
+Stage Summary:
+- 5 tabs now have isError handling with retry button (was 0)
+- Global ErrorBoundary prevents white-screen crashes
+- skill/insight categories now have distinct colors (pink/amber)
+- New files: error-block.tsx, error-boundary.tsx

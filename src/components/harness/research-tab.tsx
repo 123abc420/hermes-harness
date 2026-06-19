@@ -14,10 +14,11 @@ import {
 import { motion } from 'framer-motion';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { ErrorBlock } from './error-block';
 
 /* ── Memory Section ───────────────────────────────────── */
 function MemorySection() {
-  const { data, isLoading } = useMemory();
+  const { data, isLoading, isError, error, refetch } = useMemory();
 
   return (
     <Card className="glass-card">
@@ -30,7 +31,9 @@ function MemorySection() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isLoading ? (
+        {isError ? (
+          <ErrorBlock message={error?.message} onRetry={() => refetch()} />
+        ) : isLoading ? (
           <>
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-32 w-full" />
@@ -89,7 +92,7 @@ function MemorySection() {
 
 /* ── Skills Section ───────────────────────────────────── */
 function SkillsSection() {
-  const { data, isLoading } = useSkills();
+  const { data, isLoading, isError, error, refetch } = useSkills();
   const skills = data?.skills ?? [];
 
   return (
@@ -110,7 +113,9 @@ function SkillsSection() {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isError ? (
+          <ErrorBlock message={error?.message} onRetry={() => refetch()} />
+        ) : isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-16 w-full rounded-lg" />

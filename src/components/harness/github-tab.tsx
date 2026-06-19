@@ -23,15 +23,20 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
+import { ErrorBlock } from './error-block';
 
 /* ── Connection Status ───────────────────────────────── */
 function ConnectionStatus() {
-  const { data: github, isLoading } = useGithubStatus();
+  const { data: github, isLoading, isError, error, refetch } = useGithubStatus();
   const { data: dash } = useHarnessDashboard();
   const sync = useGithubSync();
 
   const status = dash?.githubStatus ?? github;
   const isConnected = status?.status === 'connected';
+
+  if (isError) {
+    return <ErrorBlock message={error?.message} onRetry={() => refetch()} />;
+  }
 
   if (isLoading) {
     return (

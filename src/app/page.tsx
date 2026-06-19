@@ -13,6 +13,7 @@ import { WavesTab } from '@/components/harness/waves-tab';
 import { DecisionsTab } from '@/components/harness/decisions-tab';
 import { ResearchTab } from '@/components/harness/research-tab';
 import { GithubTab } from '@/components/harness/github-tab';
+import { HarnessErrorBoundary } from '@/components/harness/error-boundary';
 
 const TAB_CONFIG = [
   { value: 'agent', label: 'Agent Live', icon: Eye },
@@ -80,7 +81,8 @@ export default function Home() {
           </div>
 
           {/* Tab content with animation */}
-          <motion.div
+          <HarnessErrorBoundary>
+            <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -105,6 +107,7 @@ export default function Home() {
               <GithubTab />
             </TabsContent>
           </motion.div>
+          </HarnessErrorBoundary>
         </Tabs>
       </main>
 
