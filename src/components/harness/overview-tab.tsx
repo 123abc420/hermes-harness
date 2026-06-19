@@ -4,17 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import {
-  Activity,
   Brain,
   TrendingDown,
   TrendingUp,
   AlertTriangle,
   Check,
   Minus,
-  Github,
   Target,
   GitCommitHorizontal,
-  Clock,
   Trophy,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -29,7 +26,10 @@ import {
 } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
 import type { Wave, TotalStats, GithubStatus, DashboardData, Metric } from '@/store/harness-store';
-import { CHART_TOOLTIP_STYLE, CHART_TOOLTIP_STYLE_DARK } from '@/lib/constants';
+import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
+import { HeroStatusCard } from './hero-status-card';
+import { QuickMetricsChart } from './quick-metrics-chart';
+import { WaveDurationBars } from './wave-duration-bars';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
 function Sparkline({ data, color = 'currentColor' }: {
@@ -88,160 +88,6 @@ const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'Turborepo Package Layout', done: true },
   { label: 'Error Rate Decreasing Trend', done: null as boolean | null },
 ];
-
-/* ── Hero Status Card ─────────────────────────────────── */
-function HeroStatusCard({
-  stats,
-  githubStatus,
-  latestWave,
-  firstWaveStart,
-  waveVelocity,
-  npmDeps,
-  healthScore,
-  healthScoreTrend,
-  isLoading,
-}: {
-  stats?: TotalStats;
-  githubStatus?: GithubStatus;
-  latestWave?: { status: string; summary?: string | null; waveNumber?: number };
-  firstWaveStart?: string;
-  waveVelocity?: string | null;
-  npmDeps?: number;
-  healthScore?: number;
-  healthScoreTrend?: 'up' | 'down' | 'stable';
-  isLoading: boolean;
-}) {
-  if (isLoading) {
-    return (
-      <Card className="overflow-hidden border-white/[0.06] bg-white/[0.02]">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <Skeleton className="h-12 w-12 rounded-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-3 w-60" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const isConnected = githubStatus?.status === 'connected';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-    >
-      <Card className="gradient-border overflow-hidden border-0 bg-white/[0.02]">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              {/* Pulsing status dot */}
-              <div className="relative">
-                <div className="absolute inset-0 animate-ping rounded-full bg-emerald-400/20" />
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10">
-                  <div className="h-3 w-3 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-3">
-                  <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
-                    HARNESS ACTIVE
-                  </h2>
-                  {healthScore !== undefined && (
-                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-mono font-bold tabular-nums ${
-                      healthScore >= 90 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                      healthScore >= 70 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                      'bg-red-500/10 text-red-400 border border-red-500/20'
-                    }`}>
-                      {healthScoreTrend === 'up' && <span className="text-[8px]">&#9650;</span>}
-                      {healthScoreTrend === 'down' && <span className="text-[8px] opacity-70">&#9660;</span>}
-                      {healthScoreTrend === 'stable' && <span className="text-[6px] opacity-50">&#9679;</span>}
-                      {healthScore}/100
-                    </span>
-                  )}
-                  <span className="hidden rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-400 sm:inline">
-                    LIVE
-                  </span>
-                </div>
-                <p className="mt-0.5 text-xs text-zinc-500">
-                  {stats?.totalWaves ?? 0} waves executed &middot;{' '}
-                  {stats?.totalDecisions ?? 0} decisions &middot;{' '}
-                  {stats?.totalImprovements ?? 0} improvements
-                  {firstWaveStart && (
-                    <>
-                      {' '}&middot;{' '}
-                      <span className="text-zinc-600">
-                        running for {formatDistanceToNow(new Date(firstWaveStart), { addSuffix: false })}
-                      </span>
-                    </>
-                  )}
-                  {waveVelocity && (
-                    <>
-                      {' '}&middot;{' '}
-                      <span className="text-zinc-600">
-                        {waveVelocity} waves/hr
-                      </span>
-                    </>
-                  )}
-                  {npmDeps !== undefined && (
-                    <>
-                      {' '}&middot;{' '}
-                      <span className="text-zinc-600">
-                        {npmDeps} deps
-                      </span>
-                    </>
-                  )}
-                </p>
-                {latestWave && (
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium ${
-                      latestWave.status === 'completed'
-                        ? 'bg-emerald-500/10 text-emerald-400'
-                        : latestWave.status === 'interrupted'
-                          ? 'bg-amber-500/10 text-amber-400'
-                          : 'bg-blue-500/10 text-blue-400'
-                    }`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${
-                        latestWave.status === 'completed' ? 'bg-emerald-400' : latestWave.status === 'interrupted' ? 'bg-amber-400' : 'bg-blue-400 animate-pulse'
-                      }`} />
-                      W{latestWave.waveNumber} {latestWave.status}
-                    </span>
-                    {latestWave.summary && (
-                      <span className="truncate max-w-[280px] text-[10px] text-zinc-600">
-                        {latestWave.summary}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* GitHub badge */}
-            {githubStatus && (
-              <div
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
-                  isConnected
-                    ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-400'
-                    : 'border-white/[0.06] bg-white/[0.02] text-zinc-500'
-                }`}
-              >
-                <Github className="h-3.5 w-3.5" />
-                {isConnected
-                  ? `@${githubStatus.username}/${githubStatus.repoName}`
-                  : 'Not Connected'}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
 
 /* ── Stat Card ────────────────────────────────────────── */
 function StatCard({
@@ -554,128 +400,6 @@ function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTren
   );
 }
 
-/* ── Quick Metrics Chart ──────────────────────────────── */
-function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['metrics']; isLoading: boolean }) {
-  if (isLoading) {
-    return (
-      <Card className="glass-card">
-        <CardHeader className="pb-2">
-          <Skeleton className="h-4 w-28" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[200px] w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const metricData = metrics ?? [];
-
-  const grouped = metricData.reduce<Record<string, typeof metricData>>((acc, m) => {
-    (acc[m.metricKey] ??= []).push(m);
-    return acc;
-  }, {});
-
-  const keys = Object.keys(grouped).sort(
-    (a, b) => grouped[b].length - grouped[a].length
-  );
-  const primaryMetric = keys[0];
-
-  const METRIC_LABELS: Record<string, string> = {
-    api_routes: 'API Routes',
-    github_commits: 'GitHub Commits',
-    skills: 'Skills',
-    waves_completed: 'Waves',
-    lint_errors: 'Lint Errors',
-    dead_files_removed: 'Dead Files Removed',
-    station_sources: 'Station Sources',
-    exported_types: 'Exported Types',
-    spec_compliance_export: 'Spec Compliance',
-    db_records: 'DB Records',
-    npm_dependencies: 'NPM Dependencies',
-  };
-
-  const metricLabel = METRIC_LABELS[primaryMetric] ?? primaryMetric.replace(/_/g, ' ');
-
-  if (!primaryMetric || grouped[primaryMetric].length < 2) {
-    return (
-      <Card className="glass-card">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Metrics
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex h-[200px] items-center justify-center">
-          <div className="text-center">
-            <Activity className="mx-auto mb-2 h-8 w-8 text-zinc-800" />
-            <p className="text-sm text-zinc-600">
-              Waiting for metric data
-            </p>
-            <p className="mt-0.5 text-xs text-zinc-700">
-              Metrics will populate as waves execute
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const chartData = grouped[primaryMetric]
-    .slice()
-    .reverse()
-    .map((m) => ({
-      time: new Date(m.recordedAt).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      value: m.metricValue,
-    }));
-
-  return (
-    <Card className="glass-card">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Metrics
-          </CardTitle>
-          <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
-            {metricLabel}
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="metricGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} />
-            <Tooltip
-              contentStyle={CHART_TOOLTIP_STYLE_DARK}
-              labelStyle={{ color: '#71717a' }}
-              itemStyle={{ color: '#10b981' }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#10b981"
-              strokeWidth={2}
-              fill="url(#metricGradient)"
-              dot={false}
-              activeDot={{ r: 3, fill: '#10b981', stroke: '#050a0e', strokeWidth: 2 }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
 /* ── Spec Compliance Badge ────────────────────────────── */
 function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skillsCount?: number; errorTrendDecreasing?: boolean }) {
   const checklist = SPEC_CHECKLIST(skillsCount).map((item) => {
@@ -749,81 +473,6 @@ function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skillsCount
             </span>
           </motion.div>
         ))}
-      </CardContent>
-    </Card>
-  );
-}
-
-/* ── Wave Duration Bars ──────────────────────────────── */
-function WaveDurationBars({ waves }: { waves: Wave[] }) {
-  if (waves.length < 2) return null;
-
-  // Compute duration (seconds) for each wave; filter out nulls
-  const durationData = [...waves]
-    .reverse()
-    .map((w) => {
-      if (!w.completedAt || !w.startedAt) return null;
-      const ms = new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime();
-      return { wave: w.waveNumber, seconds: Math.max(0, Math.round(ms / 1000)), status: w.status };
-    })
-    .filter(Boolean) as { wave: number; seconds: number; status: string }[];
-
-  if (durationData.length < 2) return null;
-
-  const maxSec = Math.max(...durationData.map((d) => d.seconds), 1);
-  const avgSec = Math.round(durationData.reduce((s, d) => s + d.seconds, 0) / durationData.length);
-
-  // Color by status
-  const barColor = (status: string) =>
-    status === 'completed'
-      ? 'bg-emerald-500/60'
-      : status === 'failed'
-        ? 'bg-red-500/60'
-        : status === 'interrupted'
-          ? 'bg-amber-500/60'
-          : 'bg-blue-500/60';
-
-  const barTrack = 'bg-white/[0.04]';
-
-  return (
-    <Card className="glass-card">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-amber-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Wave Duration
-            </CardTitle>
-          </div>
-          <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
-            avg {avgSec}s
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-1.5">
-          {durationData.map((d) => {
-            const pct = (d.seconds / maxSec) * 100;
-            return (
-              <div key={d.wave} className="flex items-center gap-2">
-                <span className="w-8 shrink-0 text-right text-[10px] font-mono text-zinc-500">
-                  W{d.wave}
-                </span>
-                <div className={`h-3 flex-1 rounded-full ${barTrack} overflow-hidden`}>
-                  <motion.div
-                    className={`h-full rounded-full ${barColor(d.status)}`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
-                  />
-                </div>
-                <span className="w-10 shrink-0 text-right text-[10px] font-mono tabular-nums text-zinc-500">
-                  {d.seconds}s
-                </span>
-              </div>
-            );
-          })}
-        </div>
       </CardContent>
     </Card>
   );
