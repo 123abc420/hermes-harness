@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
-import { CATEGORY_TW } from '@/lib/category-colors';
+import { CATEGORY_TW, VALID_CATEGORIES } from '@/lib/category-colors';
 
 // (Category colors imported from @/lib/category-colors)
 
@@ -27,17 +27,10 @@ const PRIORITY_STYLES: Record<string, string> = {
   low: 'bg-zinc-500/15 text-zinc-400',
 };
 
+// Derive filter buttons from the single source of truth (VALID_CATEGORIES)
 const FILTER_BUTTONS = [
   { value: '', label: 'All' },
-  { value: 'code_quality', label: 'Code Quality' },
-  { value: 'feature', label: 'Feature' },
-  { value: 'fix', label: 'Fix' },
-  { value: 'i18n', label: 'i18n' },
-  { value: 'refactor', label: 'Refactor' },
-  { value: 'performance', label: 'Performance' },
-  { value: 'architecture', label: 'Architecture' },
-  { value: 'skill', label: 'Skill' },
-  { value: 'insight', label: 'Insight' },
+  ...VALID_CATEGORIES.map(c => ({ value: c, label: c.replace('_', ' ') })),
 ];
 
 function OutcomeBadge({ outcome }: { outcome: string | null }) {

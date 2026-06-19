@@ -36,6 +36,7 @@ export {
   useSkills,
   useMemory,
 } from './hooks/use-harness-data';
+export { useAgentLive } from './hooks/use-agent-live';
 
 // ─── Agent Live Store (avatar 3D) ─────────────────────────────────────────
 export { useAgentLiveStore } from './store/agent-live-store';

@@ -1,11 +1,12 @@
 'use client';
 
-import { Zap, Eye } from 'lucide-react';
+import { Zap, Eye, Clock } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 
 interface HarnessHeaderProps {
-  githubStatus?: { status: string; username: string | null; repoName: string | null };
+  githubStatus?: { status: string; username: string | null; repoName: string | null; lastSyncAt: string | null };
   totalWaves?: number;
 }
 
@@ -103,6 +104,12 @@ export function HarnessHeader({ githubStatus, totalWaves }: HarnessHeaderProps) 
               >
                 {isConnected ? 'LINKED' : 'UNLINKED'}
               </span>
+              {isConnected && githubStatus.lastSyncAt && (
+                <span className="flex items-center gap-1 text-[9px] text-amber-500/40 font-mono">
+                  <Clock className="h-2.5 w-2.5" />
+                  {formatDistanceToNow(new Date(githubStatus.lastSyncAt), { addSuffix: true })}
+                </span>
+              )}
             </div>
           )}
         </motion.div>
