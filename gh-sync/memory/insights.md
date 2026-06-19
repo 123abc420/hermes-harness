@@ -38,3 +38,15 @@
 - Los ojos que siguen al mouse generan conexion emocional inmediata con el usuario
 - El parpadeo periodico (~cada 3.5s) hace que el avatar se sienta vivo incluso en idle
 - Las cejas y boca son los elementos mas expresivos — priorizarlos
+
+## 2026-06-19 — Wave 4: Live Updates Pattern
+
+### Wave Live Updates
+- El patron funciona: llamar agent-status en cada fase genera actividad en vivo (34 eventos en una wave)
+- El polling fallback del hook genera GET /agent-status cada 3s — visible en dev.log
+- El tipo "activity" genera entries en el feed; el tipo "status" actualiza el estado completo
+- Es crucial enviar "celebrating" al final — el usuario ve al personaje feliz al completar
+
+### Data Integrity
+- Waves pueden quedar atascadas en "running" si el proceso se interrumpe — checkear siempre al ASSESS
+- Las decisions/metrics siempre deben vincularse al waveId correcto

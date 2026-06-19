@@ -13,10 +13,13 @@ Web app de auto-evolución tipo HARNESS inspirada en agentes HERMES (NousResearc
 - ✅ Investigación completada (Hermes Agent, Harness Engineering, Spec-Driven Development, Anthropic)
 - ✅ GitHub conectado y repo creado
 - ✅ SPEC.md escrito (fuente de verdad del sistema)
-- ✅ Dashboard funcional con 7 tabs
-- ✅ 20 API routes operativas
+- ✅ Dashboard funcional con 6 tabs (incluyendo Agent Live con avatar)
+- ✅ 20+ API routes operativas
 - ✅ 2 cron jobs configurados (10min wave + 15min webdev review)
-- ✅ Verificación end-to-end con agent-browser (0 errores)
+- ✅ **Avatar procedural Canvas** con ojos que siguen cursor, partículas, anillos orbitales, 10 estados visuales
+- ✅ **Panel Agent Live** con feed en tiempo real (SSE), sistema de niveles/XP, tracker de fases
+- ✅ **Mini servicio agent-live** (port 3004) para broadcast en tiempo real
+- ✅ Verificación end-to-end con agent-browser (0 errores, mobile responsive)
 
 ## Arquitectura
 ```
@@ -266,3 +269,55 @@ Stage Summary:
 - Dashboard opens on Agent Live tab — avatar is the first thing you see
 - The character follows your mouse with its eyes, blinks, and its face smoothly transitions between emotions
 - Next step: Wave engine should call POST /api/harness/agent-status during each phase for live updates
+
+---
+Task ID: 4
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 4 — Fix wave 2 + skill live-updates + limpiar deps
+
+Work Log:
+- ASSESS: Read context.md (3 waves, avatar live done), insights.md, guardrails.md, skills/ (3 skills), dev.log (clean), dashboard API
+- Found: Wave 2 stuck in "running" status; socket.io deps unused; no documented pattern for live updates
+- Called agent-status API at each phase — avatar updated LIVE during this wave (34 activities generated)
+- EXECUTE Decision 1 (fix/critical): PATCH Wave 2 from "running" to "completed"
+- EXECUTE Decision 2 (feature/high): Created gh-sync/skills/wave-live-updates.md with phase→state mapping and API templates
+- EXECUTE Decision 3 (code_quality/medium): Removed socket.io and socket.io-client from package.json (verified no imports)
+- VERIFY: lint clean (0 errors), dev.log clean, polling fallback working (saw GET /agent-status in dev.log)
+- PERSIST: Wave 4 recorded, 3 decisions, 2 metrics, git commit, push to GitHub
+
+Stage Summary:
+- First wave with LIVE avatar updates — 34 activity events broadcasted during execution
+- Wave 2 data integrity fixed
+- New skill documents the repeatable pattern for future waves to update avatar live
+- Unused dependencies removed (socket.io → ws migration complete)
+- All future waves should follow the wave-live-updates skill pattern
+
+---
+Task ID: Avatar Live System
+Agent: Main Developer
+Task: Build live avatar "videojuego del cerebro" with real-time state visualization
+
+Work Log:
+- Designed procedural Canvas-based avatar with 10 visual states (idle, thinking, searching, planning, executing, verifying, celebrating, error, evolving, offline)
+- Created agent-avatar-canvas.tsx: Core orb with gradient, hexagonal inner pattern, eye tracking (follows cursor), blinking, orbital ring system, particle system with physics, confetti on celebration, screen shake on error
+- Created agent-live-store.ts: Zustand store with level/XP system (7 evolution stages: Nascente → Trascendente), activity feed, connection state
+- Created agent-live-panel.tsx: Game-style UI with large canvas, stats grid (Level, Waves, Improvements, Decisions), live activity feed with phase tracker, connection status badge
+- Created mini-services/agent-live (port 3004): Socket.io service for real-time broadcasting with HTTP REST bridge (/broadcast, /health)
+- Created agent-status API route: In-memory state + SSE stream endpoint + POST for status updates (resilient — works without external service)
+- Created agent-demo API route: Simulates a full wave execution sequence for testing
+- Created use-agent-live.ts hook: SSE connection with polling fallback (3s interval), syncs activities from server
+- Updated harness-header.tsx: Mini avatar in header + LIVE/OFFLINE badge + connection indicator
+- Updated page.tsx: New "Agent Live" as first tab with green pulse dot
+- Updated use-harness-data.ts: Dashboard stats sync to agent live store on load
+- Fixed: Gateway doesn't proxy socket.io — switched from WebSocket to SSE for frontend communication
+- Fixed: Mini-service crashes with bun --hot — removed hot reload flag
+- Verified: All 6 tabs work, mobile responsive, zero console errors, avatar animates at 60fps
+
+Stage Summary:
+- Full avatar system operational: procedural neural entity with 10 state-dependent visual behaviors
+- Real-time updates via SSE (Server-Sent Events) with 3s polling fallback
+- Evolution system: Level 1 (Nascente, 15 particles) → Level 20 (Trascendente, 100 particles, 5 rings)
+- Avatar is the FIRST thing you see (default tab = Agent Live)
+- Eye tracking: The avatar's eyes follow your cursor in real-time
+- Demo endpoint at /api/harness/agent-demo shows the full lifecycle in 14 steps
+- Technologies: Canvas API, Framer Motion, SSE, Zustand, shadcn/ui — all free
