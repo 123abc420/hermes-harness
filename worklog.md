@@ -1460,3 +1460,21 @@ Stage Summary:
 - File: src/components/harness/decisions-tab.tsx (+27 lines)
 - DB: 126 decisions updated with derived outcomes
 - Commit: 35b9606 pushed to main
+
+---
+Task ID: 66
+Agent: HERMES Wave Engine (Wave 66)
+Task: Auto-derive decision outcomes at data layer
+
+Work Log:
+- Found decisions POST didn't accept outcome param
+- Added deriveOutcome(action, waveStatus) helper to route.ts
+- POST now auto-sets outcome based on wave status + action
+- Accepts explicit outcome override if provided
+- Running waves → null (pending), completed+executed → success_verified
+- Lint clean, no errors
+
+Stage Summary:
+- File: src/app/api/harness/decisions/route.ts (+15/-1)
+- Future decisions automatically get correct outcomes
+- Commit: 84cdb96 pushed to main
