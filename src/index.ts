@@ -35,7 +35,11 @@ export {
   useMemory,
 } from './hooks/use-harness-data';
 
-// ─── Store ────────────────────────────────────────────────────────────────
+// ─── Agent Live Store (avatar 3D) ─────────────────────────────────────────
+export { useAgentLiveStore } from './store/agent-live-store';
+export type { LiveActivityEntry, SubAgent } from './store/agent-live-store';
+
+// ─── Store (Dashboard) ────────────────────────────────────────────────────
 export { useHarnessStore } from './store/harness-store';
 export type {
   WaveStatus,
