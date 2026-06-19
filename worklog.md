@@ -1733,3 +1733,23 @@ Stage Summary:
 - New feature: memory health bars visible in Research tab
 - Files modified: memory/route.ts, use-harness-data.ts, memory-section.tsx
 - insights.md currently at ~43% of cap (3472/8000 chars)
+
+---
+Task ID: 82
+Agent: Wave Engine (auto)
+Task: Build Health Card + HarnessDashboard composite export
+
+Work Log:
+- Created BuildHealthCard component (96 lines) with lint status, error/warning counts, cached timestamp
+- Added build health to dashboard API with 5-min TTL cache (bun run lint)
+- Updated DashboardData type to include buildHealth field
+- Restructured overview-tab bottom grid from 2-col to 3-col (Duration + MiniTimeline + BuildHealth)
+- Created HarnessDashboard composite export component (self-contained tabs+header)
+- Exported HarnessErrorBoundary from index.ts export contract
+- Ran bun run lint — zero errors
+
+Stage Summary:
+- SPEC Section 7 "Web app quality" gap now closed
+- New files: build-health-card.tsx (96L), harness-dashboard.tsx (120L)
+- Harness components: 25 (was 24)
+- Export contract now includes HarnessDashboard + HarnessErrorBoundary
