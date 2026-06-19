@@ -1848,3 +1848,22 @@ Stage Summary:
 - API routes: 16 (was 15), Skills: 17 (was 16)
 - Insights at ~23% of cap (was ~48%) — significant headroom restored
 - Files: src/app/api/harness/skills/route.ts (new), gh-sync/memory/insights.md, gh-sync/skills/endpoint-audit.md (new)
+
+---
+Task ID: 88
+Agent: Wave Engine (auto)
+Task: Keyboard tab shortcuts, export module seed, health score header badge
+
+Work Log:
+- Added keyboard shortcuts (keys 1-6) to HarnessDashboard — useKeyDown with input/textarea guard
+- Seeded @hermes/harness-dashboard export module (15 files, isReady: true)
+- Added health score badge to HarnessHeader with color coding (emerald >=80, amber >=50, red below) and trend arrow
+- Wired healthScore + healthScoreTrend props from dashboard data through HarnessHeader
+- Ran bun run lint — zero errors
+- Pushed 1 commit to GitHub
+
+Stage Summary:
+- Keyboard shortcuts now functional (kbd hints were decorative before)
+- GitHub tab Export Modules section now shows the harness package
+- Health score visible on every tab via sticky header
+- Files: harness-dashboard.tsx, harness-header.tsx (modified), DB seed

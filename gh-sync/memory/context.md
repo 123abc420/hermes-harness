@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 07:10 UTC+8
+2026-06-20 07:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 87)
-- **Waves in DB**: 81
+- **Phase**: Post-Compliance Evolution (Wave 88)
+- **Waves in DB**: 82
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -16,21 +16,23 @@
 | API routes | 16 |
 | Dashboard tabs | 6 |
 | Skills | 17 |
-| GitHub commits | 152 |
-| Waves in DB | 81 |
+| Export modules | 1 (seeded) |
+| GitHub commits | 154 |
+| Waves in DB | 82 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~92/100 (stable) |
 | Harness components | 25 |
 | Category colors | 11 |
 
 ## What exists
-- Skills API endpoint: `/api/harness/skills` — YAML frontmatter parser, sorted by category
-- All hooks now have backing endpoints (verified via endpoint-audit pattern)
-- Skills: 17 total (new: endpoint-audit)
-- Insights.md trimmed to ~23% of cap (from ~48%)
+- Keyboard tab shortcuts: keys 1-6 switch tabs (skips inputs)
+- Health score badge in sticky header (emerald/amber/red + trend arrow)
+- Export module: @hermes/harness-dashboard seeded (15 files)
+- Skills API: `/api/harness/skills` with YAML parser
+- All hooks have verified backing endpoints
 - Export contract: 12 hooks, 10 components, HarnessDashboard composite
 
 ## What's next
 1. Skills usage tracking (which skills informed which decisions)
 2. New feature development or UX polish
-3. Consider export module completeness
+3. Consider agent live feed improvements
