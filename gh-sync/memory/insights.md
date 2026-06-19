@@ -68,3 +68,9 @@
 - Color maps for badges vs charts can silently diverge (skill/insight were swapped in hex)
 - Chart tooltip styles are duplicated across components — extract to constants.ts
 - Health score trend can be derived from error trend + success rate without storing history
+
+## Wave 85: Category Color Completeness
+
+- Categories can appear in DB before being added to DECISION_CATEGORIES — always grep DB
+- Variant names (refactoring vs refactor) silently render without color — add aliases
+- VALID_CATEGORIES drives filter buttons — any gap in the map means invisible badges

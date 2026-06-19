@@ -15,7 +15,9 @@ export const DECISION_CATEGORIES: Record<string, CategoryColor> = {
   performance:  { tw: 'bg-orange-500/10 text-orange-400 border-orange-500/20', hex: '#f97316' },
   code_quality: { tw: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',       hex: '#06b6d4' },
   refactor:     { tw: 'bg-violet-500/10 text-violet-400 border-violet-500/20', hex: '#8b5cf6' },
+  refactoring:  { tw: 'bg-violet-500/10 text-violet-400 border-violet-500/20', hex: '#8b5cf6' }, // alias
   architecture: { tw: 'bg-teal-500/10 text-teal-400 border-teal-500/20',       hex: '#14b8a6' },
+  style:        { tw: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20', hex: '#6366f1' },
   skill:        { tw: 'bg-pink-500/10 text-pink-400 border-pink-500/20',       hex: '#ec4899' },
   insight:      { tw: 'bg-amber-500/10 text-amber-400 border-amber-500/20',    hex: '#f59e0b' },
   i18n:         { tw: 'bg-sky-500/10 text-sky-400 border-sky-500/20',          hex: '#0ea5e9' },
