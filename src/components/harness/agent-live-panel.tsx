@@ -27,7 +27,7 @@ import {
   Clock,
   MonitorDot,
 } from 'lucide-react';
-import { HERMES_VERSION } from '@/lib/constants';
+import { HERMES_VERSION, getLevelName } from '@/lib/constants';
 
 // Dynamic import for 3D components (avoid SSR issues with Three.js)
 const Agent3DSandbox = dynamic(
@@ -191,6 +191,13 @@ export function AgentLivePanel() {
     setIsReplaying, setLastTurn, addActivity,
   } = useAgentLiveStore();
 
+  // Brief skeleton on initial mount while SSE connects
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setIsInitialLoad(false), 600);
+    return () => clearTimeout(t);
+  }, []);
+
   const feedRef = useRef<HTMLDivElement>(null);
   const prevActivityCount = useRef(0);
   const replayIndexRef = useRef(0);
@@ -258,6 +265,31 @@ export function AgentLivePanel() {
   const displayActivities = isReplaying
     ? activities.slice(0, 30)
     : activities;
+
+  if (isInitialLoad) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
+        <div className="flex flex-col gap-5">
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] h-[400px]" />
+          <div className="grid grid-cols-2 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] h-[80px]" />
+            ))}
+          </div>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] h-[60px]" />
+        </div>
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] h-[620px] flex flex-col">
+          <div className="h-12 border-b border-white/[0.06] bg-white/[0.01]" />
+          <div className="flex-1 p-2 space-y-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-12 rounded-lg bg-white/[0.02]" />
+            ))}
+          </div>
+          <div className="h-10 border-t border-white/[0.06] bg-white/[0.01]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -464,23 +496,4 @@ export function AgentLivePanel() {
       </Card>
     </div>
   );
-}
-
-// ─── Helper ──────────────────────────────────────────────────────────
-const LEVEL_NAMES: Record<number, string> = {
-  1: 'Nascent',
-  2: 'Apprentice',
-  3: 'Operational',
-  5: 'Specialist',
-  8: 'Architect',
-  12: 'Master',
-  20: 'Transcendent',
-};
-
-function getLevelName(level: number): string {
-  let name = 'Nascent';
-  for (const [lvl, n] of Object.entries(LEVEL_NAMES).map(([k, v]) => [Number(k), v])) {
-    if (level >= lvl) name = n;
-  }
-  return name;
 }

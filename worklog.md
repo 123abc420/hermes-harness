@@ -788,3 +788,19 @@ Stage Summary:
 - 3 duplicate LEVEL_NAMES definitions all aligned to English
 - Version string centralized in src/lib/constants.ts
 - New file: src/lib/constants.ts
+---
+Task ID: 30
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 30 — Deduplicate LEVEL_NAMES, agent panel loading skeleton
+
+Work Log:
+- ASSESS: Clean state, 24 waves, 0 errors, 100% recent success rate. Followed context.md "What's next" items #1 and #2.
+- EXECUTE Decision 1 (refactor/high): Extracted LEVEL_NAMES + getLevelName from agent-live-store.ts and agent-live-panel.tsx into src/lib/constants.ts. Both files now import the shared function. Reduced from 3 duplicate definitions to 1 canonical source (canvas keeps EVOLUTION_STAGES which has extra visual fields).
+- EXECUTE Decision 2 (feature/medium): Added 600ms initial load skeleton to AgentLivePanel. Animated pulse placeholder matches 2-column layout structure (avatar card, 4 stat cards, XP bar, activity feed, bottom bar).
+- VERIFY: lint 0 errors, no new dev.log errors. Verified only 1 LEVEL_NAMES definition remains (in constants.ts).
+- PERSIST: Wave 25 in DB completed, 2 decisions, 1 metric.
+
+Stage Summary:
+- LEVEL_NAMES deduplicated from 3 files to 1 shared constant
+- Agent panel now shows a polished skeleton on initial mount
+- constants.ts now holds HERMES_VERSION, LEVEL_NAMES, getLevelName

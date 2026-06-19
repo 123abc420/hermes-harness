@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getLevelName } from '@/lib/constants';
 
 export type AgentVisualState =
   | 'idle'
@@ -72,26 +73,8 @@ export interface AgentLiveState {
   reset: () => void;
 }
 
-const LEVEL_NAMES: Record<number, string> = {
-  1: 'Nascent',
-  2: 'Apprentice',
-  3: 'Operational',
-  5: 'Specialist',
-  8: 'Architect',
-  12: 'Master',
-  20: 'Transcendent',
-};
-
 function getLevel(waves: number, improvements: number) {
   return Math.floor(waves / 2) + Math.floor(improvements / 5) + 1;
-}
-
-function getLevelName(level: number): string {
-  let name = 'Nascent';
-  for (const [lvl, n] of Object.entries(LEVEL_NAMES).map(([k, v]) => [Number(k), v])) {
-    if (level >= lvl) name = n;
-  }
-  return name;
 }
 
 function getXpToNext(level: number): number {
