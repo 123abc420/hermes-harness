@@ -1646,3 +1646,27 @@ Stage Summary:
 - Harness components: 18 (3 new)
 - overview-tab now 768 lines with 5 remaining inline components (Sparkline, StatCard, StatsGrid, SpecCompliance, Milestones, RecentCommits, OverviewTab)
 - Commit: 8c7abee pushed to main
+
+---
+Task ID: 76
+Agent: Wave Engine (auto)
+Task: Extract SpecComplianceCard + MilestonesTimeline from overview-tab
+
+Work Log:
+- Read context.md, insights.md, guardrails.md, worklog.md, dev.log
+- Assessed overview-tab.tsx at 769 lines with 7 inline components remaining
+- Identified SpecComplianceCard (~75 lines) and MilestonesTimeline (~80 lines) as extraction targets
+- Created spec-compliance-card.tsx (99 lines) with SPEC_CHECKLIST constant and animated checklist
+- Created milestones-timeline.tsx (86 lines) with MILESTONE_WAVES constant and timeline rendering
+- Removed inline definitions from overview-tab.tsx
+- Removed unused imports: Check, Minus, Trophy
+- Cleaned up extra blank lines left by removal
+- Ran bun run lint — zero errors
+- Verified overview-tab reduced from 769 → 589 lines (23% reduction)
+- Git committed, DB records created (wave 78), context.md updated
+
+Stage Summary:
+- overview-tab.tsx: 769 → 589 lines
+- New files: spec-compliance-card.tsx (99L), milestones-timeline.tsx (86L)
+- Total harness components: 20
+- Lint: clean
