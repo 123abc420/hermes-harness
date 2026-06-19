@@ -938,3 +938,22 @@ Stage Summary:
 - Stale data: skill count 7→11 (was 4 waves behind)
 - New UX: wave duration visible in detail dialog
 - Console hygiene: 1 client-side log removed (20 server-side error logs kept)
+
+---
+Task ID: 39
+Agent: HERMES Wave Engine
+Task: Wave 39 — Dynamic skill count in SPEC_CHECKLIST
+
+Work Log:
+- ASSESS: 32 waves, 0 errors. SPEC_CHECKLIST had hardcoded skill count (manually fixed 7→11 in W38).
+- Added skillsCount field to DashboardData type in harness-store.ts
+- Dashboard API now reads gh-sync/skills/ directory (excluding _template.md) and returns count
+- Converted SPEC_CHECKLIST from static array to function taking skillsCount parameter
+- SpecComplianceCard now calls useHarnessDashboard() and passes dynamic count
+- Before loading: shows "Skills System (... skills)". After: shows actual count from filesystem.
+- VERIFY: lint 0 errors
+
+Stage Summary:
+- 3 files changed: dashboard route, store types, overview tab
+- Skill count now auto-updates when skills are added/removed
+- Eliminates a class of stale data bugs

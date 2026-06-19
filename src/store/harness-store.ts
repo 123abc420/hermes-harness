@@ -111,6 +111,7 @@ export interface DashboardData {
   exports: ExportModule[];
   recentDecisions: Decision[];
   errorTrend: { wave: number; errors: number; status: string }[];
+  skillsCount: number;
 }
 
 interface HarnessState {

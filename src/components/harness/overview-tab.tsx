@@ -26,7 +26,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import type { Wave, TotalStats, GithubStatus } from '@/store/harness-store';
 
-const SPEC_CHECKLIST = [
+const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'Spec-Driven Architecture', done: true },
   { label: 'Wave Lifecycle Protocol', done: true },
   { label: 'Decision Tracking System', done: true },
@@ -35,7 +35,7 @@ const SPEC_CHECKLIST = [
   { label: 'Metrics & Observability', done: true },
   { label: 'Dashboard Control Plane', done: true },
   { label: 'Memory & Context System', done: true },
-  { label: 'Skills System (11 skills)', done: true },
+  { label: `Skills System (${skillsCount ?? '...'} skills)`, done: (skillsCount ?? 0) > 0 },
   { label: 'Export Contract (src/index.ts)', done: true },
   { label: 'Agent Live 3D (VRM walk + Chibi gestures)', done: true },
   { label: 'Cron Jobs (2 active)', done: true },
@@ -584,8 +584,10 @@ function QuickMetricsChart() {
 
 /* ── Spec Compliance Badge ────────────────────────────── */
 function SpecComplianceCard() {
-  const doneCount = SPEC_CHECKLIST.filter((s) => s.done).length;
-  const totalCount = SPEC_CHECKLIST.length;
+  const { data: dash } = useHarnessDashboard();
+  const checklist = SPEC_CHECKLIST(dash?.skillsCount);
+  const doneCount = checklist.filter((s) => s.done).length;
+  const totalCount = checklist.length;
   const percent = Math.round((doneCount / totalCount) * 100);
   const isComplete = percent === 100;
 
@@ -622,7 +624,7 @@ function SpecComplianceCard() {
         )}
       </CardHeader>
       <CardContent className="space-y-2">
-        {SPEC_CHECKLIST.map((item, i) => (
+        {checklist.map((item, i) => (
           <motion.div
             key={item.label}
             className="flex items-center gap-2.5"

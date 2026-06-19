@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { execSync } from 'child_process';
+import { readdirSync } from 'fs';
+import { join } from 'path';
 import { db } from '@/lib/db';
 
 export async function GET() {
@@ -96,6 +98,14 @@ export async function GET() {
     const recentCompleted = recentWavesForRate.filter((w) => w.status === 'completed').length;
     const recentSuccessRate = Math.round((recentCompleted / recentWavesForRate.length) * 100);
 
+    // Skills count (md files in gh-sync/skills/, excluding _template.md)
+    let skillsCount = 0;
+    try {
+      const skillsDir = join(process.cwd(), 'gh-sync', 'skills');
+      const files = readdirSync(skillsDir).filter(f => f.endsWith('.md') && f !== '_template.md');
+      skillsCount = files.length;
+    } catch { /* skills dir not found */ }
+
     return NextResponse.json({
       waves,
       totalStats: {
@@ -131,6 +141,7 @@ export async function GET() {
         errors: w.errorsCount ?? 0,
         status: w.status,
       })),
+      skillsCount,
     });
   } catch (error) {
     console.error('[DASHBOARD] Error:', error);
