@@ -172,7 +172,13 @@ export function DecisionsTab() {
   const decisions = data?.decisions ?? [];
   const totalDecisions = data?.total ?? 0;
   const categoryCounts = data?.countsByCategory ?? {};
+  const actionCounts = data?.countsByAction ?? {};
   const hasMore = decisions.length < totalDecisions;
+
+  // Summary stats
+  const executedCount = actionCounts['executed'] ?? 0;
+  const executedPct = totalDecisions > 0 ? Math.round((executedCount / totalDecisions) * 100) : 0;
+  const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
   const showingCount = Math.min(page * limit, totalDecisions);
 
   const handleFilterChange = (val: string) => {
@@ -219,6 +225,35 @@ export function DecisionsTab() {
           </div>
         </div>
       </motion.div>
+
+      {/* Summary bar */}
+      {!isError && !isLoading && totalDecisions > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2.5"
+        >
+          <div className="flex items-center gap-1.5">
+            <Brain className="h-3 w-3 text-violet-400" />
+            <span className="text-xs font-mono text-zinc-300 tabular-nums">{totalDecisions}</span>
+            <span className="text-[10px] text-zinc-600">total</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+            <span className="text-xs font-mono text-zinc-300 tabular-nums">{executedPct}%</span>
+            <span className="text-[10px] text-zinc-600">executed</span>
+          </div>
+          {topCategory && (
+            <div className="flex items-center gap-1.5">
+              <span className={`rounded px-1.5 py-0.5 text-[9px] font-mono ${CATEGORY_TW[topCategory[0]] ?? 'bg-violet-500/10 text-violet-400'}`}>
+                {topCategory[0].replace('_', ' ')}
+              </span>
+              <span className="text-[10px] text-zinc-600">top category</span>
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Decision Cards */}
       {isError ? (

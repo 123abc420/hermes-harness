@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Activity, Brain, TrendingUp, AlertTriangle, Target } from 'lucide-react';
+import { Activity, Brain, TrendingUp, AlertTriangle, Target, GitBranch } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Wave, TotalStats, Metric } from '@/store/harness-store';
 
@@ -160,7 +160,7 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
     : [];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
       <StatCard
         label="Total Waves"
         value={stats.totalWaves}
@@ -206,6 +206,14 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         delay={0.25}
         sparkline={errorsSparkline}
         sparkColor="#ef4444"
+      />
+      <StatCard
+        label="Git Commits"
+        value={stats.githubCommits}
+        icon={GitBranch}
+        color="bg-amber-500/10 text-amber-400"
+        delay={0.3}
+        subLabel="Pushed to GitHub"
       />
     </div>
   );

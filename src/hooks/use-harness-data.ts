@@ -92,7 +92,7 @@ export function useCreateWave() {
 export function useDecisions(page = 1, limit = 50, category = '') {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (category) params.set('category', category);
-  return useQuery<{ decisions: Decision[]; total: number; page: number; limit: number; countsByCategory: Record<string, number> }>({
+  return useQuery<{ decisions: Decision[]; total: number; page: number; limit: number; countsByCategory: Record<string, number>; countsByAction: Record<string, number> }>({
     queryKey: ['harness-decisions', page, limit, category],
     queryFn: () => fetchJSON(`${API_BASE}/decisions?${params}`),
   });

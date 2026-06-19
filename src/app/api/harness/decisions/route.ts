@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     if (category) where.category = category;
     if (action) where.action = action;
 
-    const [decisions, total, categoryCounts] = await Promise.all([
+    const [decisions, total, categoryCounts, actionCounts] = await Promise.all([
       db.harnessDecision.findMany({
         where,
         orderBy: { createdAt: 'desc' },
@@ -37,6 +37,10 @@ export async function GET(req: NextRequest) {
         by: ['category'],
         _count: { category: true },
       }),
+      db.harnessDecision.groupBy({
+        by: ['action'],
+        _count: { action: true },
+      }),
     ]);
 
     const countsByCategory: Record<string, number> = {};
@@ -44,7 +48,12 @@ export async function GET(req: NextRequest) {
       countsByCategory[c.category] = c._count.category;
     }
 
-    return NextResponse.json({ decisions, total, page, limit, countsByCategory });
+    const countsByAction: Record<string, number> = {};
+    for (const a of actionCounts) {
+      countsByAction[a.action] = a._count.action;
+    }
+
+    return NextResponse.json({ decisions, total, page, limit, countsByCategory, countsByAction });
   } catch (error) {
     console.error('[DECISIONS] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch decisions' }, { status: 500 });
