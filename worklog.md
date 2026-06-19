@@ -1807,3 +1807,25 @@ Stage Summary:
 - 2 uncolored decisions (style) + 6 miscolored (refactoring) now display correctly
 - DECISION_CATEGORIES: 11 entries, all DB categories covered
 - Files: category-colors.ts, insights.md
+
+---
+Task ID: 86
+Agent: Wave Engine (auto)
+Task: Hero agent-state awareness + wave filter counts + skill
+
+Work Log:
+- Connected HeroStatusCard to useAgentLiveStore for real-time agent state
+- Replaced static green dot with Activity icon + state-aware colors (emerald/amber/zinc)
+- Ping animation only fires during active states (thinking/executing/etc)
+- State label: THINKING, STANDBY, WAVE COMPLETE, OFFLINE
+- Fixed React hooks-after-early-return lint error (moved hooks before guard)
+- Added groupBy status to waves API, showing countsByStatus
+- Added count badges to waves tab filter buttons
+- Created agent-state-awareness skill (16th skill)
+- Ran bun run lint — zero errors
+
+Stage Summary:
+- Hero card is now honest about agent state (not always ACTIVE)
+- Waves tab filters show counts (e.g., "Completed 72", "Failed 1")
+- Skills count: 16 (was 15)
+- Files: hero-status-card.tsx (rewrite), waves/route.ts, waves-tab.tsx
