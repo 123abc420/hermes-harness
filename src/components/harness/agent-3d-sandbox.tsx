@@ -298,6 +298,63 @@ function ChibiCharacter() {
       headRef.current.rotation.x = Math.sin(t * 0.5) * 0.02;
     }
 
+    // State-specific gestures (only when not moving)
+    if (!isMoving.current) {
+      const st = stateRef.current;
+      if (st === 'celebrating') {
+        // Both arms wave up
+        const wave = Math.sin(t * 4) * 0.3;
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 1.2 + wave; leftArmRef.current.rotation.x = -0.5; }
+        if (rightArmRef.current) { rightArmRef.current.rotation.z = -1.2 - wave; rightArmRef.current.rotation.x = -0.5; }
+        // Bounce
+        if (headRef.current) headRef.current.position.y = Math.abs(Math.sin(t * 5)) * 0.05;
+      } else if (st === 'thinking') {
+        // Right hand near chin, left down
+        if (rightArmRef.current) { rightArmRef.current.rotation.z = -0.3; rightArmRef.current.rotation.x = -1.0; }
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 0.1; leftArmRef.current.rotation.x = 0; }
+        // Head tilt
+        if (headRef.current) headRef.current.rotation.z = THREE.MathUtils.lerp(headRef.current.rotation.z, 0.15, delta * 3);
+      } else if (st === 'executing') {
+        // Punching motion with right arm
+        const punch = Math.max(0, Math.sin(t * 3));
+        if (rightArmRef.current) { rightArmRef.current.rotation.x = -punch * 1.2; rightArmRef.current.rotation.z = -0.2; }
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 0.2; leftArmRef.current.rotation.x = -0.3; }
+      } else if (st === 'searching') {
+        // Hand over eyes (looking far)
+        if (rightArmRef.current) { rightArmRef.current.rotation.x = -1.3; rightArmRef.current.rotation.z = -0.3; }
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 0.1; leftArmRef.current.rotation.x = 0; }
+        if (headRef.current) headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, -0.1, delta * 2);
+      } else if (st === 'error') {
+        // Hands on head
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 0.8; leftArmRef.current.rotation.x = -1.5; }
+        if (rightArmRef.current) { rightArmRef.current.rotation.z = -0.8; rightArmRef.current.rotation.x = -1.5; }
+        // Shake head
+        if (headRef.current) headRef.current.rotation.z = Math.sin(t * 8) * 0.1;
+      } else if (st === 'planning') {
+        // Arms crossed (both slightly forward)
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 0.5; leftArmRef.current.rotation.x = -0.6; }
+        if (rightArmRef.current) { rightArmRef.current.rotation.z = -0.5; rightArmRef.current.rotation.x = -0.6; }
+      } else if (st === 'verifying') {
+        // Nodding head
+        if (headRef.current) headRef.current.rotation.x = Math.sin(t * 3) * 0.08;
+        if (leftArmRef.current) leftArmRef.current.rotation.z = 0.1;
+        if (rightArmRef.current) rightArmRef.current.rotation.z = -0.1;
+      } else if (st === 'evolving') {
+        // Spin effect via arm rotation
+        const spin = t * 2;
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = 1.0 + Math.sin(spin) * 0.3; leftArmRef.current.rotation.x = -0.5 + Math.cos(spin) * 0.3; }
+        if (rightArmRef.current) { rightArmRef.current.rotation.z = -1.0 - Math.sin(spin) * 0.3; rightArmRef.current.rotation.x = -0.5 + Math.cos(spin) * 0.3; }
+      } else {
+        // Reset arms to neutral
+        if (leftArmRef.current) { leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0, delta * 3); leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, 0, delta * 3); }
+        if (rightArmRef.current) { rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, 0, delta * 3); rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, delta * 3); }
+      }
+    } else {
+      // Reset gesture rotations while walking
+      if (leftArmRef.current) { leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0, delta * 5); }
+      if (rightArmRef.current) { rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, 0, delta * 5); }
+    }
+
     // Eye tracking
     const mx = mousePosition.x * 0.02;
     const my = mousePosition.y * 0.015;
@@ -512,6 +569,8 @@ function VRMCharacter() {
     );
   }, []);
 
+  const isMovingVrm = useRef(false);
+
   useFrame((state, delta) => {
     if (!activeVRM) return;
     const t = state.clock.elapsedTime;
@@ -522,17 +581,55 @@ function VRMCharacter() {
     // Move towards target
     const vrmScene = activeVRM.scene;
     const dist = vrmScene.position.distanceTo(targetPos);
-    if (dist > 0.05) {
+    isMovingVrm.current = dist > 0.05;
+    if (isMovingVrm.current) {
       vrmScene.position.lerp(targetPos, delta * 2.5);
     }
 
-    // Rotation
-    const stationAngle = targetRot.current + Math.PI;
-    vrmScene.rotation.y = THREE.MathUtils.lerp(vrmScene.rotation.y, stationAngle, delta * 2);
+    // Face movement direction while walking
+    if (isMovingVrm.current) {
+      const dir = new THREE.Vector3().subVectors(targetPos, vrmScene.position);
+      if (dir.length() > 0.01) {
+        const angle = Math.atan2(dir.x, dir.z) + Math.PI;
+        vrmScene.rotation.y = THREE.MathUtils.lerp(vrmScene.rotation.y, angle, delta * 5);
+      }
+    } else {
+      // At station — face the target rotation
+      const stationAngle = targetRot.current + Math.PI;
+      vrmScene.rotation.y = THREE.MathUtils.lerp(vrmScene.rotation.y, stationAngle, delta * 2);
+    }
+
+    // Walk animation via VRM bones
+    const humanoid = activeVRM.humanoid;
+    if (humanoid) {
+      const walkSpeed = 6;
+      const walkAmp = isMovingVrm.current ? 0.5 : 0;
+
+      // Legs swing
+      const leftLeg = humanoid.getNormalizedBoneNode('leftLowerLeg');
+      const rightLeg = humanoid.getNormalizedBoneNode('rightLowerLeg');
+      const leftUpperLeg = humanoid.getNormalizedBoneNode('leftUpperLeg');
+      const rightUpperLeg = humanoid.getNormalizedBoneNode('rightUpperLeg');
+      if (leftLeg) leftLeg.rotation.x = Math.sin(t * walkSpeed) * walkAmp * 0.6;
+      if (rightLeg) rightLeg.rotation.x = Math.sin(t * walkSpeed + Math.PI) * walkAmp * 0.6;
+      if (leftUpperLeg) leftUpperLeg.rotation.x = Math.sin(t * walkSpeed) * walkAmp * 0.4;
+      if (rightUpperLeg) rightUpperLeg.rotation.x = Math.sin(t * walkSpeed + Math.PI) * walkAmp * 0.4;
+
+      // Arms swing opposite to legs
+      const leftArm = humanoid.getNormalizedBoneNode('leftUpperArm');
+      const rightArm = humanoid.getNormalizedBoneNode('rightUpperArm');
+      if (leftArm) leftArm.rotation.x = Math.sin(t * walkSpeed + Math.PI) * walkAmp * 0.35;
+      if (rightArm) rightArm.rotation.x = Math.sin(t * walkSpeed) * walkAmp * 0.35;
+
+      // Idle breathing when not moving
+      if (!isMovingVrm.current) {
+        const spine = humanoid.getNormalizedBoneNode('spine');
+        if (spine) spine.rotation.x = Math.sin(t * 1.5) * 0.01;
+      }
+    }
 
     // Expressions
     const exprName = STATE_VRM_EXPRESSION[stateRef.current] || 'neutral';
-    // Reset all main expressions, then set current
     const mainExprs = ['happy', 'angry', 'surprised', 'relaxed', 'sad', 'neutral'];
     for (const name of mainExprs) {
       const w = name === exprName ? 1.0 : 0.0;

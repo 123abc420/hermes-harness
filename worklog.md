@@ -538,3 +538,22 @@ Stage Summary:
 - Added 7 new checklist items: Skills, Export Contract, 3D Avatar, Crons, user_profile, wave_protocol
 - Identified 2 remaining gaps: Turborepo Package Layout, Error Rate Trend
 - Metric chart labels now human-readable with fallback
+---
+Task ID: 16
+Agent: Wave Engine (cron)
+Task: Wave 16 — 3D character animation improvements
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, skills, dev.log, dashboard. Lint clean, dev.log clean (all 200 OK), spec compliance 87.5%.
+- PLAN: 3 improvements identified: (1) VRM walk animation missing — character slides between stations, (2) Chibi has no state-specific gestures, (3) Create 3d-character-patterns skill
+- EXECUTE Decision 1 (feature/high): Added VRM bone-driven walk animation using humanoid.getNormalizedBoneNode — legs swing, arms counter-swing, spine breathing. Also added movement-direction facing while walking (was only facing station rotation before).
+- EXECUTE Decision 2 (feature/high): Added 8 state-specific Chibi gestures: celebrating (arms up wave+bounce), thinking (hand on chin+head tilt), executing (punch motion), searching (hand over eyes), error (hands on head+shake), planning (arms crossed), verifying (nodding), evolving (spinning arms). All with smooth lerp transitions and walk-reset.
+- EXECUTE Decision 3 (skill/medium): Created gh-sync/skills/3d-character-patterns.md documenting VRM bone animation, expression management, movement direction, Chibi gesture patterns, shared world position, module-level state.
+- VERIFY: bun run lint → 0 errors, 0 warnings. dev.log clean.
+- PERSIST: Wave+3 decisions+2 metrics recorded, GitHub sync triggered (commit ede5705)
+
+Stage Summary:
+- VRM character now has bone-driven walk animation (was sliding before)
+- Chibi character has 8 distinct state gestures (was static before)
+- New skill: 3d-character-patterns (6 total skills)
+- Lines added: ~80 lines of animation code
