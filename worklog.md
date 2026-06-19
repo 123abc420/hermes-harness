@@ -1333,3 +1333,22 @@ Stage Summary:
 - Health score now visible in Agent Live (primary at-a-glance view), not just Overview
 - Error states properly surface in Agent Live instead of showing empty sections
 - Files changed: agent-live-store.ts, use-harness-data.ts, agent-live-panel.tsx
+
+---
+Task ID: 59
+Agent: Wave Engine
+Task: Wave 59 — Responsive sparklines + overview error handling
+
+Work Log:
+- Changed Sparkline SVG from fixed width/height to responsive (w-full, viewBox-based)
+- Added isError destructuring to OverviewTab from useHarnessDashboard
+- Added error banner with retry button when dashboard API fails
+- Ran lint: clean
+- Dev.log: no errors
+- Created wave 59 record with 2 decisions, 2 metrics
+- Git commit + push
+
+Stage Summary:
+- Sparklines now scale to fill card width on all breakpoints
+- Overview tab shows explicit error state instead of empty skeletons on API failure
+- Files: overview-tab.tsx

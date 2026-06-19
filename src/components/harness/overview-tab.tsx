@@ -29,20 +29,21 @@ import { formatDistanceToNow } from 'date-fns';
 import type { Wave, TotalStats, GithubStatus, DashboardData, Metric } from '@/store/harness-store';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
-function Sparkline({ data, color = 'currentColor', width = 64, height = 20 }: {
-  data: number[]; color?: string; width?: number; height?: number;
+function Sparkline({ data, color = 'currentColor' }: {
+  data: number[]; color?: string;
 }) {
   if (data.length < 2) return null;
+  const W = 120, H = 24;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
   const points = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * width;
-    const y = height - ((v - min) / range) * (height - 2) - 1;
+    const x = (i / (data.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 2) - 1;
     return `${x},${y}`;
   }).join(' ');
   return (
-    <svg width={width} height={height} className="shrink-0" viewBox={`0 0 ${width} ${height}`}>
+    <svg width="100%" height={H} className="shrink-0" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
       <polyline
         fill="none"
         stroke={color}
@@ -786,7 +787,7 @@ function RecentCommitsCard({ commits }: { commits?: { sha: string; message: stri
 
 /* ── Overview Tab ─────────────────────────────────────── */
 export function OverviewTab() {
-  const { data: dash, isLoading } = useHarnessDashboard();
+  const { data: dash, isLoading, isError, error, refetch } = useHarnessDashboard();
 
   const stats = dash?.totalStats;
   const waves = dash?.waves ?? [];
@@ -812,6 +813,18 @@ export function OverviewTab() {
 
   return (
     <div className="space-y-6">
+      {isError && !isLoading && (
+        <Card className="border-red-500/10 bg-red-500/[0.03]">
+          <CardContent className="p-4 flex items-center gap-3">
+            <AlertTriangle className="h-4 w-4 text-red-400/70 shrink-0" />
+            <span className="text-sm text-red-400/80 flex-1">Failed to load dashboard data</span>
+            <button onClick={() => refetch()} className="text-[10px] font-mono text-zinc-400 hover:text-white px-2 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] transition-colors">
+              Retry
+            </button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Hero Status Card */}
       <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} isLoading={isLoading} />
 
