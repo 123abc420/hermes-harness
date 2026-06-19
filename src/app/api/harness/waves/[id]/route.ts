@@ -31,18 +31,33 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
 
+    const updateData: Record<string, unknown> = {
+      ...(body.status && { status: body.status }),
+      ...(body.completedAt && { completedAt: new Date(body.completedAt) }),
+      ...(body.summary !== undefined && { summary: body.summary }),
+      ...(body.decisionsCount !== undefined && { decisionsCount: body.decisionsCount }),
+      ...(body.improvementsCount !== undefined && { improvementsCount: body.improvementsCount }),
+      ...(body.errorsCount !== undefined && { errorsCount: body.errorsCount }),
+      ...(body.metricsSnapshot && { metricsSnapshot: body.metricsSnapshot }),
+    };
+
     const wave = await db.harnessWave.update({
       where: { id },
-      data: {
-        ...(body.status && { status: body.status }),
-        ...(body.completedAt && { completedAt: new Date(body.completedAt) }),
-        ...(body.summary !== undefined && { summary: body.summary }),
-        ...(body.decisionsCount !== undefined && { decisionsCount: body.decisionsCount }),
-        ...(body.improvementsCount !== undefined && { improvementsCount: body.improvementsCount }),
-        ...(body.errorsCount !== undefined && { errorsCount: body.errorsCount }),
-        ...(body.metricsSnapshot && { metricsSnapshot: body.metricsSnapshot }),
-      },
+      data: updateData,
     });
+
+    // Cascade: when wave is completed/failed/interrupted, backfill outcomes for its decisions
+    if (body.status && body.status !== 'running' && body.status !== 'pending') {
+      await db.harnessDecision.updateMany({
+        where: { waveId: id, outcome: null },
+        data: {
+          outcome:
+            body.status === 'completed' ? 'success_verified' :
+            body.status === 'failed' || body.status === 'error' ? 'failed_wave' :
+            'interrupted',
+        },
+      }).catch(() => { /* non-critical */ });
+    }
 
     return NextResponse.json(wave);
   } catch (error) {
