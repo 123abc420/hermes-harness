@@ -113,6 +113,7 @@ export interface DashboardData {
   recentDecisions: Decision[];
   errorTrend: { wave: number; errors: number; status: string }[];
   skillsCount: number;
+  healthScore: number;
 }
 
 interface HarnessState {

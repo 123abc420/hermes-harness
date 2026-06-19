@@ -93,6 +93,7 @@ function HeroStatusCard({
   firstWaveStart,
   waveVelocity,
   npmDeps,
+  healthScore,
   isLoading,
 }: {
   stats?: TotalStats;
@@ -101,6 +102,7 @@ function HeroStatusCard({
   firstWaveStart?: string;
   waveVelocity?: string | null;
   npmDeps?: number;
+  healthScore?: number;
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -144,6 +146,15 @@ function HeroStatusCard({
                   <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
                     HARNESS ACTIVE
                   </h2>
+                  {healthScore !== undefined && (
+                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-mono font-bold tabular-nums ${
+                      healthScore >= 90 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                      healthScore >= 70 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                      'bg-red-500/10 text-red-400 border border-red-500/20'
+                    }`}>
+                      {healthScore}/100
+                    </span>
+                  )}
                   <span className="hidden rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-400 sm:inline">
                     LIVE
                   </span>
@@ -802,7 +813,7 @@ export function OverviewTab() {
   return (
     <div className="space-y-6">
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />

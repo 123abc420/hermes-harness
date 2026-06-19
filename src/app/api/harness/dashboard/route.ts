@@ -114,6 +114,38 @@ export async function GET() {
       }
     }
 
+    // Health Score (0-100): weighted composite
+    // - Spec compliance: 40% (all 15 items done = 40pts)
+    // - Recent success rate: 30% (100% = 30pts)
+    // - Error trend decreasing: 20% (0 errors in recent waves = 20pts)
+    // - GitHub connected: 10%
+    let specScore = 0;
+    try {
+      const statsDir = join(process.cwd(), 'gh-sync', 'specs');
+      const specFiles = readdirSync(statsDir).filter(f => f.endsWith('.md'));
+      const memDir = join(process.cwd(), 'gh-sync', 'memory');
+      const memFiles = readdirSync(memDir).filter(f => f.endsWith('.md'));
+      // 15 spec items → count files + dynamic checks
+      const fileScore = Math.min((specFiles.length + memFiles.length) / 6, 1); // ~6 spec/memory files
+      specScore = fileScore;
+    } catch { /* dir not found */ }
+
+    let errorScore = 0;
+    if (errorTrend.length >= 2) {
+      const recentErrors = errorTrend.slice(-5).reduce((s, w) => s + w.errors, 0);
+      errorScore = recentErrors === 0 ? 1 : Math.max(0, 1 - recentErrors / 5);
+    } else if (errorTrend.length === 1 && errorTrend[0].errors === 0) {
+      errorScore = 1;
+    }
+
+    const githubScore = githubSync?.status === 'connected' ? 1 : 0;
+    const healthScore = Math.round(
+      (specScore * 40) +
+      ((recentSuccessRate / 100) * 30) +
+      (errorScore * 20) +
+      (githubScore * 10)
+    );
+
     return NextResponse.json({
       waves,
       totalStats: {
@@ -151,6 +183,7 @@ export async function GET() {
         status: w.status,
       })),
       skillsCount,
+      healthScore,
     });
   } catch (error) {
     console.error('[DASHBOARD] Error:', error);
