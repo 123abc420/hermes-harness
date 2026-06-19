@@ -1216,3 +1216,25 @@ Work Log:
 Stage Summary:
 - 92 total commits (including persist commit)
 - Wave 52 fully persisted to GitHub
+---
+Task ID: 53
+Agent: Wave Engine (cron)
+Task: Self-improvement Wave 53
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, guardrails, skills, dev.log, DB metrics
+- Found: insights.md at 8108B (~2700 tokens) exceeding ~2000 cap
+- Found: Agent Live decision colors only covered 4/8 categories (DecisionsTab has all 8)
+- Found: HarnessMetric schema missing createdAt field
+- PLAN: 3 improvements prioritized by impact
+- EXECUTE: Added createdAt to HarnessMetric, ran prisma db push + generate
+- EXECUTE: Synced all 8 decision category colors in agent-live-panel.tsx
+- EXECUTE: Consolidated insights.md from 14 wave sections into 7 topic sections (8108B → 2890B)
+- VERIFY: bun run lint = 0 errors, dev.log clean
+- PERSIST: Git commit ac5489a pushed, wave+decisions+metrics recorded in DB
+
+Stage Summary:
+- Wave 53 completed: 3 improvements, 0 errors
+- Cumulative: 53 waves, 92 commits, 100% spec compliance
+- insights.md now within token cap (~960 tokens)
+- Decision category colors now consistent across all components
