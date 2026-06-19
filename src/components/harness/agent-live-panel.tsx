@@ -458,6 +458,11 @@ export function AgentLivePanel() {
                       d.category === 'feature' ? 'bg-emerald-500/10 text-emerald-400' :
                       d.category === 'fix' ? 'bg-red-500/10 text-red-400' :
                       d.category === 'performance' ? 'bg-orange-500/10 text-orange-400' :
+                      d.category === 'code_quality' ? 'bg-cyan-500/10 text-cyan-400' :
+                      d.category === 'refactor' ? 'bg-violet-500/10 text-violet-400' :
+                      d.category === 'skill' ? 'bg-pink-500/10 text-pink-400' :
+                      d.category === 'insight' ? 'bg-amber-500/10 text-amber-400' :
+                      d.category === 'i18n' ? 'bg-sky-500/10 text-sky-400' :
                       'bg-violet-500/10 text-violet-400'
                     }`}>
                       {d.category.replace('_', ' ')}
