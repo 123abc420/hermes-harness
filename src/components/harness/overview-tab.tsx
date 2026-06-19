@@ -13,6 +13,7 @@ import {
   Minus,
   Github,
   Target,
+  GitCommitHorizontal,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
@@ -43,7 +44,7 @@ const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'user_profile.md', done: true },
   { label: 'wave_protocol.md', done: true },
   { label: 'Turborepo Package Layout', done: true },
-  { label: 'Error Rate Decreasing Trend', done: true },
+  { label: 'Error Rate Decreasing Trend', done: undefined as boolean | undefined },
 ];
 
 /* ── Hero Status Card ─────────────────────────────────── */
@@ -113,7 +114,7 @@ function HeroStatusCard({
                     <>
                       {' '}&middot;{' '}
                       <span className="text-zinc-600">
-                        uptime {formatDistanceToNow(new Date(firstWaveStart), { addSuffix: false })}
+                        running for {formatDistanceToNow(new Date(firstWaveStart), { addSuffix: false })}
                       </span>
                     </>
                   )}
@@ -580,8 +581,12 @@ function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['me
 }
 
 /* ── Spec Compliance Badge ────────────────────────────── */
-function SpecComplianceCard({ skillsCount }: { skillsCount?: number }) {
-  const checklist = SPEC_CHECKLIST(skillsCount);
+function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skillsCount?: number; errorTrendDecreasing?: boolean }) {
+  const checklist = SPEC_CHECKLIST(skillsCount).map((item) =>
+    item.label === 'Error Rate Decreasing Trend' && errorTrendDecreasing !== undefined
+      ? { ...item, done: errorTrendDecreasing }
+      : item.done !== undefined ? item : { ...item, done: false }
+  );
   const doneCount = checklist.filter((s) => s.done).length;
   const totalCount = checklist.length;
   const percent = Math.round((doneCount / totalCount) * 100);
@@ -647,6 +652,39 @@ function SpecComplianceCard({ skillsCount }: { skillsCount?: number }) {
   );
 }
 
+/* ── Recent Commits ──────────────────────────────────── */
+function RecentCommitsCard({ commits }: { commits?: { sha: string; message: string }[] }) {
+  if (!commits?.length) return null;
+
+  return (
+    <Card className="glass-card">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GitCommitHorizontal className="h-4 w-4 text-cyan-400" />
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Recent Commits
+            </CardTitle>
+          </div>
+          <span className="rounded bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-500">
+            {commits.length}
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {commits.map((c) => (
+          <div key={c.sha} className="flex items-start gap-2.5">
+            <code className="mt-0.5 shrink-0 rounded bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-mono text-cyan-400/80">
+              {c.sha}
+            </code>
+            <span className="truncate text-xs text-zinc-400">{c.message}</span>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 /* ── Overview Tab ─────────────────────────────────────── */
 export function OverviewTab() {
   const { data: dash, isLoading } = useHarnessDashboard();
@@ -655,6 +693,15 @@ export function OverviewTab() {
   const waves = dash?.waves ?? [];
   const githubStatus = dash?.githubStatus;
   const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
+  const recentCommits = githubStatus?.recentCommits;
+
+  // Compute dynamic error trend for spec compliance
+  const errorTrend = dash?.errorTrend;
+  const isErrorsDecreasing = errorTrend && errorTrend.length >= 6
+    ? errorTrend.slice(-3).reduce((s, t) => s + t.errors, 0) <= errorTrend.slice(-6, -3).reduce((s, t) => s + t.errors, 0)
+    : errorTrend && errorTrend.length >= 2
+      ? errorTrend[errorTrend.length - 1].errors <= errorTrend[errorTrend.length - 2].errors
+      : undefined;
 
   return (
     <div className="space-y-6">
@@ -664,14 +711,14 @@ export function OverviewTab() {
       {/* Stats Grid */}
       <StatsGrid stats={stats} />
 
-      {/* Two-column: Spec Compliance + Metrics Chart */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      {/* Three-column: Spec Compliance + Metrics Chart + Recent Commits */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <SpecComplianceCard skillsCount={dash?.skillsCount} />
+          <SpecComplianceCard skillsCount={dash?.skillsCount} errorTrendDecreasing={isErrorsDecreasing} />
         </motion.div>
 
         <motion.div
@@ -682,13 +729,37 @@ export function OverviewTab() {
           <QuickMetricsChart metrics={dash?.metrics} isLoading={isLoading} />
           <ErrorTrendChart errorTrend={dash?.errorTrend} />
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        >
+          {isLoading ? (
+            <Card className="glass-card">
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-28" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex gap-2">
+                    <Skeleton className="h-4 w-12 rounded" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ) : (
+            <RecentCommitsCard commits={recentCommits} />
+          )}
+        </motion.div>
       </div>
 
       {/* Recent Activity */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
+        transition={{ duration: 0.4, delay: 0.35 }}
       >
         {isLoading ? (
           <Card className="glass-card">
