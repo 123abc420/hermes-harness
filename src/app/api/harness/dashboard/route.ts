@@ -4,6 +4,45 @@ import { readdirSync } from 'fs';
 import { join } from 'path';
 import { db } from '@/lib/db';
 
+// ── Build health cache (module-level, survives between requests) ────
+let buildHealthCache: {
+  lintPassed: boolean;
+  lintErrors: number;
+  lintWarnings: number;
+  checkedAt: string;
+} | null = null;
+let buildHealthCheckedAt = 0;
+const BUILD_HEALTH_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getBuildHealth() {
+  const now = Date.now();
+  if (buildHealthCache && now - buildHealthCheckedAt < BUILD_HEALTH_TTL) {
+    return buildHealthCache;
+  }
+  let output = '';
+  let exitCode = 0;
+  try {
+    output = execSync('bun run lint 2>&1', {
+      encoding: 'utf-8',
+      timeout: 60_000,
+      cwd: process.cwd(),
+    });
+  } catch (err: any) {
+    // bun run lint exits with code 1 when lint errors are found
+    output = err?.stdout ?? err?.message ?? '';
+    exitCode = err?.status ?? 1;
+  }
+  const hasErrors = exitCode !== 0 && output.length > 0;
+  buildHealthCache = {
+    lintPassed: !hasErrors,
+    lintErrors: hasErrors ? (output.match(/\berror\b/gi)?.length ?? 1) : 0,
+    lintWarnings: (output.match(/\bwarning\b/gi)?.length ?? 0),
+    checkedAt: new Date().toISOString(),
+  };
+  buildHealthCheckedAt = now;
+  return buildHealthCache;
+}
+
 export async function GET() {
   try {
     // Fire-and-forget: cleanup stale running waves (>15 min old)
@@ -198,6 +237,7 @@ export async function GET() {
       skillsCount,
       healthScore,
       healthScoreTrend,
+      buildHealth: getBuildHealth(),
     });
   } catch (error) {
     console.error('[DASHBOARD] Error:', error);

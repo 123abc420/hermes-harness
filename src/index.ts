@@ -8,6 +8,9 @@
  *   import { HarnessDashboard, useHarnessDashboard, useHarnessStore } from '@/harness';
  */
 
+// ─── Composite ────────────────────────────────────────────────────────────
+export { HarnessDashboard } from './components/harness/harness-dashboard';
+
 // ─── Components ───────────────────────────────────────────────────────────
 export { OverviewTab } from './components/harness/overview-tab';
 export { WavesTab } from './components/harness/waves-tab';
@@ -17,6 +20,7 @@ export { GithubTab } from './components/harness/github-tab';
 export { AgentLivePanel } from './components/harness/agent-live-panel';
 export { Agent3DSandbox } from './components/harness/agent-3d-sandbox';
 export { HarnessHeader } from './components/harness/harness-header';
+export { HarnessErrorBoundary } from './components/harness/error-boundary';
 
 // ─── Hooks ────────────────────────────────────────────────────────────────
 export {

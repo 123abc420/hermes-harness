@@ -115,6 +115,12 @@ export interface DashboardData {
   skillsCount: number;
   healthScore: number;
   healthScoreTrend: 'up' | 'down' | 'stable';
+  buildHealth: {
+    lintPassed: boolean;
+    lintErrors: number;
+    lintWarnings: number;
+    checkedAt: string;
+  };
 }
 
 interface HarnessState {

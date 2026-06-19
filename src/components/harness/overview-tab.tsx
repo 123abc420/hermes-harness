@@ -14,6 +14,7 @@ import { StatsGrid } from './stats-grid';
 import { MiniWaveTimeline } from './mini-wave-timeline';
 import { ErrorTrendChart } from './error-trend-chart';
 import { RecentCommitsCard } from './recent-commits-card';
+import { BuildHealthCard } from './build-health-card';
 
 /* ── Overview Tab ─────────────────────────────────────── */
 export function OverviewTab() {
@@ -129,8 +130,8 @@ export function OverviewTab() {
         )}
       </motion.div>
 
-      {/* Wave Duration + Recent Activity */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      {/* Wave Duration + Recent Activity + Build Health */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -157,7 +158,7 @@ export function OverviewTab() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.48 }}
+          transition={{ duration: 0.4, delay: 0.46 }}
         >
           {isLoading ? (
             <Card className="glass-card">
@@ -177,6 +178,14 @@ export function OverviewTab() {
           ) : (
             <MiniWaveTimeline waves={waves} />
           )}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.50 }}
+        >
+          <BuildHealthCard health={dash?.buildHealth} isLoading={isLoading} />
         </motion.div>
       </div>
     </div>
