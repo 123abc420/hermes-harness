@@ -1,68 +1,44 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import path from 'path';
-
-interface SkillFrontmatter {
-  name?: string;
-  title?: string;
-  version?: string;
-  created?: string;
-  category?: string;
-  trigger?: string;
-}
-
-function parseFrontmatter(raw: string): { frontmatter: SkillFrontmatter; content: string } {
-  const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, content: raw };
-
-  const fm: Record<string, string> = {};
-  for (const line of match[1].split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx > 0) {
-      fm[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
-    }
-  }
-
-  return {
-    frontmatter: fm as unknown as SkillFrontmatter,
-    content: match[2].trim(),
-  };
-}
 
 export async function GET() {
   try {
     const skillsDir = path.join(process.cwd(), 'gh-sync', 'skills');
-    let files: string[];
-    try {
-      files = (await fs.readdir(skillsDir)).filter(
-        (f) => f.endsWith('.md') && !f.startsWith('_')
-      );
-    } catch {
+    if (!fs.existsSync(skillsDir)) {
       return NextResponse.json({ skills: [] });
     }
 
-    const skills = [];
-    for (const file of files) {
-      const raw = await fs.readFile(path.join(skillsDir, file), 'utf-8');
-      const { frontmatter, content } = parseFrontmatter(raw);
+    const files = fs
+      .readdirSync(skillsDir)
+      .filter((f) => f.endsWith('.md') && !f.startsWith('_'));
 
-      // Derive title from name if not in frontmatter
-      const name = frontmatter.name ?? file.replace('.md', '');
-      const title = frontmatter.title ?? name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const skills = files.map((filename) => {
+      const filePath = path.join(skillsDir, filename);
+      const raw = fs.readFileSync(filePath, 'utf-8');
 
-      skills.push({
-        name,
-        title,
+      // Parse YAML frontmatter
+      const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---\n?/);
+      const meta: Record<string, string> = {};
+      if (frontmatterMatch) {
+        for (const line of frontmatterMatch[1].split('\n')) {
+          const m = line.match(/^(\w+):\s*(.+)$/);
+          if (m) meta[m[1]] = m[2].trim();
+        }
+      }
+
+      const content = raw.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
+
+      return {
+        name: meta.name ?? filename.replace('.md', ''),
+        title: meta.name ? `${meta.name[0].toUpperCase()}${meta.name.slice(1).replace(/-/g, ' ')}` : filename.replace('.md', ''),
         content,
-        version: frontmatter.version ?? undefined,
-        created: frontmatter.created ?? undefined,
-        category: frontmatter.category ?? undefined,
-        trigger: frontmatter.trigger ?? undefined,
-      });
-    }
-
-    // Sort by name for consistent ordering
-    skills.sort((a, b) => a.name.localeCompare(b.name));
+        version: meta.version,
+        created: meta.created,
+        category: meta.category,
+        trigger: meta.trigger,
+      };
+    });
 
     return NextResponse.json({ skills });
   } catch (error) {

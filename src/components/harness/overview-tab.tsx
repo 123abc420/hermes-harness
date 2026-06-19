@@ -82,7 +82,7 @@ const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'user_profile.md', done: true },
   { label: 'wave_protocol.md', done: true },
   { label: 'Turborepo Package Layout', done: true },
-  { label: 'Error Rate Decreasing Trend', done: undefined as boolean | undefined },
+  { label: 'Error Rate Decreasing Trend', done: null as boolean | null },
 ];
 
 /* ── Hero Status Card ─────────────────────────────────── */
@@ -664,11 +664,15 @@ function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['me
 
 /* ── Spec Compliance Badge ────────────────────────────── */
 function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skillsCount?: number; errorTrendDecreasing?: boolean }) {
-  const checklist = SPEC_CHECKLIST(skillsCount).map((item) =>
-    item.label === 'Error Rate Decreasing Trend' && errorTrendDecreasing !== undefined
-      ? { ...item, done: errorTrendDecreasing }
-      : item.done !== undefined ? item : { ...item, done: false }
-  );
+  const checklist = SPEC_CHECKLIST(skillsCount).map((item) => {
+    if (item.label === 'Error Rate Decreasing Trend') {
+      // Keep null (unknown) when no trend data, use computed boolean otherwise
+      return errorTrendDecreasing !== undefined
+        ? { ...item, done: errorTrendDecreasing }
+        : item; // done stays null
+    }
+    return item.done !== null ? item : { ...item, done: false };
+  });
   const doneCount = checklist.filter((s) => s.done).length;
   const totalCount = checklist.length;
   const percent = Math.round((doneCount / totalCount) * 100);
@@ -715,14 +719,16 @@ function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skillsCount
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.03 }}
           >
-            {item.done ? (
+            {item.done === true ? (
               <Check className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+            ) : item.done === null ? (
+              <span className="h-3.5 w-3.5 shrink-0 flex items-center justify-center text-[10px] font-mono text-zinc-600">—</span>
             ) : (
               <Minus className="h-3.5 w-3.5 shrink-0 text-zinc-700" />
             )}
             <span
               className={`text-xs ${
-                item.done ? 'text-zinc-300' : 'text-zinc-600'
+                item.done === true ? 'text-zinc-300' : item.done === null ? 'text-zinc-500 italic' : 'text-zinc-600'
               }`}
             >
               {item.label}

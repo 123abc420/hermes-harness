@@ -15,6 +15,8 @@ import type {
 } from '@/store/harness-store';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 
+const API_BASE = '/api/harness';
+
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
   if (!res.ok) {
@@ -29,7 +31,7 @@ export function useHarnessDashboard() {
 
   const query = useQuery<DashboardData>({
     queryKey: ['harness-dashboard'],
-    queryFn: () => fetchJSON<DashboardData>('/api/harness/dashboard'),
+    queryFn: () => fetchJSON<DashboardData>(`${API_BASE}/dashboard`),
     refetchInterval: 30_000,
   });
 
@@ -56,14 +58,14 @@ export function useWaves(page = 1, limit = 20, status = '') {
   if (status) params.set('status', status);
   return useQuery<{ waves: Wave[]; total: number; page: number; limit: number }>({
     queryKey: ['harness-waves', page, limit, status],
-    queryFn: () => fetchJSON(`/api/harness/waves?${params}`),
+    queryFn: () => fetchJSON(`${API_BASE}/waves?${params}`),
   });
 }
 
 export function useWave(id: string | null) {
   return useQuery<Wave>({
     queryKey: ['harness-wave', id],
-    queryFn: () => fetchJSON<Wave>(`/api/harness/waves/${id!}`),
+    queryFn: () => fetchJSON<Wave>(`${API_BASE}/waves/${id!}`),
     enabled: !!id,
   });
 }
@@ -72,7 +74,7 @@ export function useCreateWave() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (summary?: string) =>
-      fetchJSON<Wave>('/api/harness/waves', {
+      fetchJSON<Wave>(`${API_BASE}/waves`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ summary: summary ?? undefined }),
@@ -90,7 +92,7 @@ export function useDecisions(page = 1, limit = 50, category = '') {
   if (category) params.set('category', category);
   return useQuery<{ decisions: Decision[]; total: number; page: number; limit: number; countsByCategory: Record<string, number> }>({
     queryKey: ['harness-decisions', page, limit, category],
-    queryFn: () => fetchJSON(`/api/harness/decisions?${params}`),
+    queryFn: () => fetchJSON(`${API_BASE}/decisions?${params}`),
   });
 }
 
@@ -98,14 +100,14 @@ export function useMetrics(metricKey = '') {
   const params = metricKey ? `?metricKey=${metricKey}` : '';
   return useQuery<{ metrics: Metric[] }>({
     queryKey: ['harness-metrics', metricKey],
-    queryFn: () => fetchJSON<{ metrics: Metric[] }>(`/api/harness/metrics${params}`),
+    queryFn: () => fetchJSON<{ metrics: Metric[] }>(`${API_BASE}/metrics${params}`),
   });
 }
 
 export function useGithubStatus() {
   return useQuery<GithubStatus>({
     queryKey: ['harness-github-status'],
-    queryFn: () => fetchJSON<GithubStatus>('/api/harness/github/status'),
+    queryFn: () => fetchJSON<GithubStatus>(`${API_BASE}/github/status`),
   });
 }
 
@@ -113,7 +115,7 @@ export function useGithubSync() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      fetchJSON<GithubStatus>('/api/harness/github/sync', { method: 'POST' }),
+      fetchJSON<GithubStatus>(`${API_BASE}/github/sync`, { method: 'POST' }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['harness-github-status'] });
       qc.invalidateQueries({ queryKey: ['harness-dashboard'] });
@@ -126,20 +128,20 @@ export function useGithubSync() {
 export function useSpec() {
   return useQuery<SpecData>({
     queryKey: ['harness-spec'],
-    queryFn: () => fetchJSON<SpecData>('/api/harness/spec'),
+    queryFn: () => fetchJSON<SpecData>(`${API_BASE}/spec`),
   });
 }
 
 export function useSkills() {
   return useQuery<{ skills: Skill[] }>({
     queryKey: ['harness-skills'],
-    queryFn: () => fetchJSON<{ skills: Skill[] }>('/api/harness/skills'),
+    queryFn: () => fetchJSON<{ skills: Skill[] }>(`${API_BASE}/skills`),
   });
 }
 
 export function useMemory() {
   return useQuery<{ context: string; insights: string; userProfile: string }>({
     queryKey: ['harness-memory'],
-    queryFn: () => fetchJSON<{ context: string; insights: string; userProfile: string }>('/api/harness/memory'),
+    queryFn: () => fetchJSON<{ context: string; insights: string; userProfile: string }>(`${API_BASE}/memory`),
   });
 }
