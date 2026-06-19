@@ -210,7 +210,7 @@ export function WavesTab() {
                       Errors
                     </TableHead>
                     <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                      Time
+                      Duration
                     </TableHead>
                     <TableHead className="hidden max-w-[200px] text-[10px] font-medium uppercase tracking-wider text-zinc-500 md:table-cell">
                       Summary
@@ -218,52 +218,61 @@ export function WavesTab() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {waves.map((wave) => (
-                    <TableRow
-                      key={wave.id}
-                      tabIndex={0}
-                      role="button"
-                      aria-label={`View details for wave ${wave.waveNumber}`}
-                      className="border-white/[0.04] transition-colors hover:bg-white/[0.02] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px]"
-                      onClick={() => setDetailId(wave.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setDetailId(wave.id);
-                        }
-                      }}
-                    >
-                      <TableCell className="font-mono text-xs font-bold text-white">
-                        #{String(wave.waveNumber).padStart(3, '0')}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
-                            STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending
-                          }`}
-                        >
-                          {wave.status.toUpperCase()}
-                        </span>
-                      </TableCell>
-                      <TableCell className="tabular-nums text-xs text-zinc-400 sm:table-cell">
-                        {wave._count?.decisions ?? wave.decisionsCount}
-                      </TableCell>
-                      <TableCell className="tabular-nums text-xs text-emerald-400 md:table-cell">
-                        {wave.improvementsCount}
-                      </TableCell>
-                      <TableCell className="tabular-nums text-xs text-red-400 lg:table-cell">
-                        {wave.errorsCount}
-                      </TableCell>
-                      <TableCell className="text-xs text-zinc-500">
-                        {formatDistanceToNow(new Date(wave.startedAt), {
-                          addSuffix: true,
-                        })}
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate text-xs text-zinc-500 md:table-cell">
-                        {wave.summary || '—'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {waves.map((wave) => {
+                    const duration = wave.completedAt && wave.startedAt
+                      ? Math.round((new Date(wave.completedAt).getTime() - new Date(wave.startedAt).getTime()) / 1000)
+                      : null;
+                    return (
+                      <TableRow
+                        key={wave.id}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`View details for wave ${wave.waveNumber}`}
+                        className="border-white/[0.04] transition-colors hover:bg-white/[0.02] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px]"
+                        onClick={() => setDetailId(wave.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setDetailId(wave.id);
+                          }
+                        }}
+                      >
+                        <TableCell className="font-mono text-xs font-bold text-white">
+                          #{String(wave.waveNumber).padStart(3, '0')}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
+                              STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending
+                            }`}
+                          >
+                            {wave.status.toUpperCase()}
+                          </span>
+                        </TableCell>
+                        <TableCell className="tabular-nums text-xs text-zinc-400 sm:table-cell">
+                          {wave._count?.decisions ?? wave.decisionsCount}
+                        </TableCell>
+                        <TableCell className="tabular-nums text-xs text-emerald-400 md:table-cell">
+                          {wave.improvementsCount}
+                        </TableCell>
+                        <TableCell className="tabular-nums text-xs text-red-400 lg:table-cell">
+                          {wave.errorsCount}
+                        </TableCell>
+                        <TableCell className="text-xs text-zinc-500">
+                          {duration !== null ? (
+                            <span className="font-mono tabular-nums">
+                              {duration < 60 ? `${duration}s` : `${Math.floor(duration / 60)}m${duration % 60 > 0 ? ` ${duration % 60}s` : ''}`}
+                            </span>
+                          ) : (
+                            <span className="text-zinc-600">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate text-xs text-zinc-500 md:table-cell">
+                          {wave.summary || '—'}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </ScrollArea>

@@ -53,12 +53,14 @@ function HeroStatusCard({
   githubStatus,
   latestWave,
   firstWaveStart,
+  waveVelocity,
   isLoading,
 }: {
   stats?: TotalStats;
   githubStatus?: GithubStatus;
   latestWave?: { status: string; summary?: string | null; waveNumber?: number };
   firstWaveStart?: string;
+  waveVelocity?: string | null;
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -115,6 +117,14 @@ function HeroStatusCard({
                       {' '}&middot;{' '}
                       <span className="text-zinc-600">
                         running for {formatDistanceToNow(new Date(firstWaveStart), { addSuffix: false })}
+                      </span>
+                    </>
+                  )}
+                  {waveVelocity && (
+                    <>
+                      {' '}&middot;{' '}
+                      <span className="text-zinc-600">
+                        {waveVelocity} waves/hr
                       </span>
                     </>
                   )}
@@ -695,6 +705,11 @@ export function OverviewTab() {
   const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
   const recentCommits = githubStatus?.recentCommits;
 
+  // Compute wave velocity (waves per hour from first to last wave)
+  const waveVelocity = waves.length >= 2 && firstWave?.startedAt && waves[0]?.startedAt
+    ? (waves.length / ((new Date(waves[0].startedAt).getTime() - new Date(firstWave.startedAt).getTime()) / 3_600_000)).toFixed(1)
+    : null;
+
   // Compute dynamic error trend for spec compliance
   const errorTrend = dash?.errorTrend;
   const isErrorsDecreasing = errorTrend && errorTrend.length >= 6
@@ -706,7 +721,7 @@ export function OverviewTab() {
   return (
     <div className="space-y-6">
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} />
