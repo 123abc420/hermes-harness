@@ -242,3 +242,27 @@ Stage Summary:
 - GitHub status correctly shows "connected"
 - context.md accurate for next wave
 - Key insight: GitHubSync route needs upsert logic to prevent duplicate records (future improvement)
+
+---
+Task ID: 3-a, 3-b, 3-c
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 3 — Avatar vivo con expresiones faciales + servicio live real
+
+Work Log:
+- ASSESS: Read context.md (1 wave completed), insights.md, guardrails.md, skills/ (3 skills), dev.log (clean), dashboard API
+- Found: Avatar components existed but no WebSocket server — hook connected to port 3004 with nothing listening
+- PLAN: 3 improvements — (1) Live WebSocket service, (2) Facial expressions on avatar, (3) Agent Live as default tab
+- EXECUTE 1 (feature/high): Created scripts/agent-live-service.mjs — lightweight ws server on port 3004 with HTTP REST bridge (/health, /broadcast), WebSocket retransmission, activity log, graceful shutdown
+- EXECUTE 2 (feature/high): Rewrote agent-avatar-canvas.tsx — added 10 facial parameters per state (eyeSize, pupilSize, browAngle, browY, mouthCurve, mouthOpen, mouthWidth, cheekGlow, eyeSquint, eyeSparkle), smooth lerp transitions between states, thinking dots animation, eye tracking follows mouse
+- EXECUTE 3 (feature/medium): Changed default tab from 'overview' to 'agent' in harness-store.ts
+- Also: Rewrote use-agent-live.ts — WebSocket with polling fallback (3s interval), removed socket.io dependency usage
+- Added ws@8.21.0 dependency, updated dev script to start live service alongside Next.js
+- VERIFY: lint clean (0 errors), build passes, live service starts correctly
+- PERSIST: Wave 3 recorded with 3 decisions, 3 metrics
+
+Stage Summary:
+- Avatar now has a full face with expressions that change per state (10 unique expressions)
+- Real-time bridge operational: wave engine POSTs to API → API forwards to WS service → WS broadcasts to clients
+- Dashboard opens on Agent Live tab — avatar is the first thing you see
+- The character follows your mouse with its eyes, blinks, and its face smoothly transitions between emotions
+- Next step: Wave engine should call POST /api/harness/agent-status during each phase for live updates

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -12,6 +13,7 @@ import type {
   SpecData,
   Skill,
 } from '@/store/harness-store';
+import { useAgentLiveStore } from '@/store/agent-live-store';
 
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -23,11 +25,29 @@ async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export function useHarnessDashboard() {
-  return useQuery<DashboardData>({
+  const { setStatus } = useAgentLiveStore();
+
+  const query = useQuery<DashboardData>({
     queryKey: ['harness-dashboard'],
     queryFn: () => fetchJSON<DashboardData>('/api/harness/dashboard'),
     refetchInterval: 30_000,
   });
+
+  // Sync dashboard stats to agent live store
+  useEffect(() => {
+    if (query.data) {
+      const { totalStats } = query.data;
+      if (totalStats) {
+        setStatus({
+          waveCount: totalStats.totalWaves,
+          totalImprovements: totalStats.totalImprovements,
+          totalDecisions: totalStats.totalDecisions,
+        });
+      }
+    }
+  }, [query.data, setStatus]);
+
+  return query;
 }
 
 export function useWaves(page = 1, limit = 20, status = '') {

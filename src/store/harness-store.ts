@@ -115,7 +115,7 @@ interface HarnessState {
 }
 
 export const useHarnessStore = create<HarnessState>((set) => ({
-  activeTab: 'overview',
+  activeTab: 'agent',
   setActiveTab: (tab) => set({ activeTab: tab }),
   waveFilter: '',
   setWaveFilter: (filter) => set({ waveFilter: filter }),

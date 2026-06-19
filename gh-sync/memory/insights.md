@@ -24,3 +24,17 @@
 - Cron minimum interval: 5 minutes
 - All tools are FREE through the platform
 - GitHub integration via REST API
+
+## 2026-06-19 — Wave 3: Avatar Vivo
+
+### Real-Time Architecture
+- WebSocket puro (ws) es mas ligero que socket.io para este caso de uso simple
+- El patron correcto: servicio externo (port 3004) + REST bridge desde Next.js API + WS a clientes
+- Fallback polling es esencial — el servicio live puede no estar corriendo
+- Interpolacion suave de parametros faciales (lerp) crea transiciones naturales entre estados
+
+### Avatar Design
+- 10 parametros faciales por estado permiten expresiones muy diferenciadas
+- Los ojos que siguen al mouse generan conexion emocional inmediata con el usuario
+- El parpadeo periodico (~cada 3.5s) hace que el avatar se sienta vivo incluso en idle
+- Las cejas y boca son los elementos mas expresivos — priorizarlos

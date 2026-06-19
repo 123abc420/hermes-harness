@@ -1,0 +1,161 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+// ─── In-memory state (always available, no external service needed) ─
+let latestStatus: Record<string, unknown> = {
+  agentState: 'idle',
+  message: 'Esperando actividad...',
+  phase: '',
+  waveNumber: 0,
+  progress: 0,
+  waveCount: 0,
+  totalImprovements: 0,
+  totalDecisions: 0,
+  timestamp: Date.now(),
+};
+
+let activityLog: Array<Record<string, unknown>> = [];
+const MAX_LOG = 50;
+let activityTimestamp = 0;
+
+// Also try to forward to the agent-live service (best-effort)
+async function forwardToService(data: { type: string; payload: Record<string, unknown> }) {
+  try {
+    await fetch('http://localhost:3004/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    // Service might not be running, that's OK
+  }
+}
+
+// GET: Return latest state + activities (also supports SSE stream)
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+
+  // Server-Sent Events endpoint
+  if (searchParams.get('stream') === 'true') {
+    const encoder = new TextEncoder();
+    let lastDataHash = '';
+
+    const getHash = () => `${latestStatus.timestamp}_${activityTimestamp}`;
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const sendData = () => {
+          const payload = JSON.stringify({
+            status: 'ok',
+            clients: 0,
+            latestStatus,
+            activities: activityLog,
+            activityCount: activityLog.length,
+            activityTimestamp,
+          });
+          const hash = getHash();
+          if (hash !== lastDataHash) {
+            controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+            lastDataHash = hash;
+          }
+        };
+
+        // Send initial data
+        sendData();
+
+        // Poll every 2 seconds for changes
+        const interval = setInterval(sendData, 2000);
+
+        // Keep alive every 30s
+        const keepAlive = setInterval(() => {
+          try { controller.enqueue(encoder.encode(`: keepalive\n\n`)); } catch { clearInterval(keepAlive); }
+        }, 30000);
+
+        req.signal.addEventListener('abort', () => {
+          clearInterval(interval);
+          clearInterval(keepAlive);
+          controller.close();
+        });
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
+  }
+
+  // Regular GET
+  return NextResponse.json({
+    status: 'ok',
+    clients: 0,
+    latestStatus,
+    activities: activityLog,
+    activityCount: activityLog.length,
+    activityTimestamp,
+  });
+}
+
+// POST: Update agent status (called by wave engine, cron, or demo)
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { agentState, message, phase, waveNumber, progress, type } = body;
+
+    if (!agentState && !message && !type) {
+      return NextResponse.json({ error: 'Missing agentState or message' }, { status: 400 });
+    }
+
+    if (type === 'activity') {
+      const entry = {
+        agentState: agentState || 'idle',
+        message: message || '',
+        phase: phase || '',
+        id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: Date.now(),
+      };
+      activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
+      activityTimestamp = Date.now();
+
+      // Also update latest status
+      latestStatus = { ...latestStatus, agentState: entry.agentState, message: entry.message, phase: entry.phase, timestamp: Date.now() };
+
+      // Best-effort forward to service
+      forwardToService({ type: 'activity', payload: entry }).catch(() => {});
+
+      return NextResponse.json({ ok: true, activities: activityLog.length });
+    }
+
+    if (type === 'full-update') {
+      latestStatus = { ...latestStatus, ...body, timestamp: Date.now() };
+      forwardToService({ type: 'full-update', payload: body }).catch(() => {});
+      return NextResponse.json({ ok: true });
+    }
+
+    // Default: status update
+    latestStatus = {
+      ...latestStatus,
+      agentState: agentState || 'idle',
+      message: message || '',
+      phase: phase || '',
+      waveNumber: waveNumber || 0,
+      progress: progress || 0,
+      waveCount: body.waveCount || latestStatus.waveCount || 0,
+      totalImprovements: body.totalImprovements || latestStatus.totalImprovements || 0,
+      totalDecisions: body.totalDecisions || latestStatus.totalDecisions || 0,
+      timestamp: Date.now(),
+    };
+
+    forwardToService({
+      type: 'status',
+      payload: latestStatus,
+    }).catch(() => {});
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('[AgentStatus] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
