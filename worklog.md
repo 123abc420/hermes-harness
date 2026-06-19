@@ -1713,3 +1713,23 @@ Stage Summary:
 - New files: error-trend-chart.tsx (76L), recent-commits-card.tsx (35L)
 - Total harness components: 24
 - Overview tab is now a pure layout orchestrator (imports + data + layout only)
+
+---
+Task ID: 79
+Agent: Wave Engine (auto)
+Task: Add memory health indicator bars
+
+Work Log:
+- Checked insights.md: 3472 chars (~800 tokens), within but near cap
+- Enhanced /api/harness/memory to return health object with chars/cap/pct
+- Context cap: 3200 chars (~800 tokens), Insights cap: 8000 chars (~2000 tokens)
+- Created HealthBar component: color-coded (green <70%, amber 70-90%, red >90%)
+- Added AlertTriangle icon when usage >90%
+- Updated useMemory hook with MemoryHealth type
+- Updated memory-section.tsx with inline usage bars per section header
+- Ran bun run lint — zero errors
+
+Stage Summary:
+- New feature: memory health bars visible in Research tab
+- Files modified: memory/route.ts, use-harness-data.ts, memory-section.tsx
+- insights.md currently at ~43% of cap (3472/8000 chars)
