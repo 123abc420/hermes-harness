@@ -43,7 +43,7 @@ export async function GET() {
       db.harnessExport.findMany({ orderBy: { createdAt: 'desc' } }),
       db.harnessDecision.findMany({
         orderBy: { createdAt: 'desc' },
-        take: 20,
+        take: 50,
         include: { wave: { select: { waveNumber: true, status: true } } },
       }),
       // Error rate trend: errors per wave, last 20 waves
