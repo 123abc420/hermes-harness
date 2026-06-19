@@ -1495,3 +1495,18 @@ Stage Summary:
 - File: src/app/api/harness/waves/[id]/route.ts (+24/-9)
 - Outcome pipeline now complete: creation (W66) + status change (W67)
 - Commit: 9676e08 pushed to main
+
+---
+Task ID: 68
+Agent: HERMES Wave Engine (Wave 68)
+Task: Fix 2 bugs in agent-live-panel
+
+Work Log:
+- Found via Explore scan: unused Suspense import, health bar > 0 bug
+- Wrapped Agent3DSandbox in <Suspense fallback={null}>
+- Changed healthScore > 0 to healthScore >= 0
+- Lint clean, commit 129f021 pushed
+
+Stage Summary:
+- File: src/components/harness/agent-live-panel.tsx (+4/-2)
+- Commit: 129f021 pushed to main
