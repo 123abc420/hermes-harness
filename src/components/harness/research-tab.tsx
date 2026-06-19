@@ -1,13 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import {
   PieChart as PieChartIcon,
   ListChecks,
   CheckCircle2,
+  ChevronDown,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CATEGORY_HEX } from '@/lib/category-colors';
 import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
@@ -202,9 +204,20 @@ function OutcomeDistribution({ recentDecisions }: { recentDecisions?: DashboardD
 /* ── Decision Timeline ──────────────────────────────── */
 function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDecisions'] }) {
   const items = decisions ?? [];
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
   if (items.length === 0) return null;
 
   const shown = items.slice(0, 8);
+
+  const toggle = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   return (
     <Card className="glass-card">
@@ -225,6 +238,7 @@ function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDeci
         <div className="max-h-72 space-y-0 overflow-y-auto scrollbar-dark px-5 pb-4">
           {shown.map((d, i) => {
             const color = CATEGORY_HEX[d.category] ?? '#71717a';
+            const isOpen = expanded.has(d.id);
             return (
               <div key={d.id} className="relative flex gap-3 py-2.5">
                 {i < shown.length - 1 && (
@@ -235,7 +249,13 @@ function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDeci
                   style={{ backgroundColor: color }}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
+                  <div
+                    className="flex cursor-pointer items-center gap-2"
+                    onClick={() => toggle(d.id)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggle(d.id); }}
+                  >
                     <span className="text-[10px] font-mono text-zinc-500">
                       W{d.wave?.waveNumber ?? '?'}
                     </span>
@@ -245,7 +265,7 @@ function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDeci
                     >
                       {d.category.replace('_', ' ')}
                     </span>
-                    <span className={`ml-auto rounded px-1.5 py-0.5 text-[9px] font-mono ${
+                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-mono ${
                       d.action === 'executed'
                         ? 'bg-emerald-500/10 text-emerald-400'
                         : d.action === 'failed'
@@ -254,11 +274,29 @@ function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDeci
                     }`}>
                       {d.action}
                     </span>
+                    {(d.reasoning || d.targetFile) && (
+                      <ChevronDown className={`ml-auto h-3 w-3 shrink-0 text-zinc-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    )}
                   </div>
-                  <p className="mt-0.5 truncate text-xs text-zinc-400">{d.description}</p>
+                  <p className={`mt-0.5 text-xs text-zinc-400 ${isOpen ? '' : 'truncate'}`}>{d.description}</p>
                   {d.targetFile && (
                     <p className="mt-0.5 text-[10px] text-zinc-600 font-mono truncate">{d.targetFile}</p>
                   )}
+                  <AnimatePresence>
+                    {isOpen && d.reasoning && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <p className="mt-1.5 rounded-md border border-white/[0.04] bg-white/[0.02] px-2.5 py-2 text-[11px] leading-relaxed text-zinc-500 italic">
+                          {d.reasoning}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             );
