@@ -2,10 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useHarnessDashboard, useMetrics } from '@/hooks/use-harness-data';
+import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import {
   Activity,
   Brain,
+  TrendingDown,
   TrendingUp,
   AlertTriangle,
   Check,
@@ -24,7 +25,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
-import type { Wave, TotalStats, GithubStatus } from '@/store/harness-store';
+import type { Wave, TotalStats, GithubStatus, DashboardData } from '@/store/harness-store';
 
 const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'Spec-Driven Architecture', done: true },
@@ -389,12 +390,10 @@ function MiniWaveTimeline({ waves }: { waves: Wave[] }) {
 }
 
 /* ── Error Trend Sparkline ───────────────────────────── */
-function ErrorTrendChart() {
-  const { data, isLoading } = useHarnessDashboard();
+function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTrend'] }) {
+  if (!errorTrend?.length) return null;
 
-  if (isLoading || !data?.errorTrend?.length) return null;
-
-  const trend = data.errorTrend;
+  const trend = errorTrend;
   const totalErrors = trend.reduce((s, t) => s + t.errors, 0);
   const recentErrors = trend.slice(-3).reduce((s, t) => s + t.errors, 0);
   const isTrendingDown = recentErrors <= (trend.slice(-6, -3).reduce((s, t) => s + t.errors, 0) || 1);
@@ -411,7 +410,7 @@ function ErrorTrendChart() {
           <div className={`flex items-center gap-1 text-xs ${isTrendingDown ? 'text-emerald-400' : 'text-amber-400'}`}>
             {isTrendingDown ? (
               <>
-                <TrendingUp className="h-3 w-3" />
+                <TrendingDown className="h-3 w-3" />
                 <span>Decreasing</span>
               </>
             ) : (
@@ -454,9 +453,7 @@ function ErrorTrendChart() {
 }
 
 /* ── Quick Metrics Chart ──────────────────────────────── */
-function QuickMetricsChart() {
-  const { data, isLoading } = useMetrics();
-
+function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['metrics']; isLoading: boolean }) {
   if (isLoading) {
     return (
       <Card className="glass-card">
@@ -470,9 +467,9 @@ function QuickMetricsChart() {
     );
   }
 
-  const metrics = data?.metrics ?? [];
+  const metricData = metrics ?? [];
 
-  const grouped = metrics.reduce<Record<string, typeof metrics>>((acc, m) => {
+  const grouped = metricData.reduce<Record<string, typeof metricData>>((acc, m) => {
     (acc[m.metricKey] ??= []).push(m);
     return acc;
   }, {});
@@ -583,9 +580,8 @@ function QuickMetricsChart() {
 }
 
 /* ── Spec Compliance Badge ────────────────────────────── */
-function SpecComplianceCard() {
-  const { data: dash } = useHarnessDashboard();
-  const checklist = SPEC_CHECKLIST(dash?.skillsCount);
+function SpecComplianceCard({ skillsCount }: { skillsCount?: number }) {
+  const checklist = SPEC_CHECKLIST(skillsCount);
   const doneCount = checklist.filter((s) => s.done).length;
   const totalCount = checklist.length;
   const percent = Math.round((doneCount / totalCount) * 100);
@@ -675,7 +671,7 @@ export function OverviewTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <SpecComplianceCard />
+          <SpecComplianceCard skillsCount={dash?.skillsCount} />
         </motion.div>
 
         <motion.div
@@ -683,8 +679,8 @@ export function OverviewTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.25 }}
         >
-          <QuickMetricsChart />
-          <ErrorTrendChart />
+          <QuickMetricsChart metrics={dash?.metrics} isLoading={isLoading} />
+          <ErrorTrendChart errorTrend={dash?.errorTrend} />
         </motion.div>
       </div>
 

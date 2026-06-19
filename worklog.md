@@ -975,3 +975,23 @@ Stage Summary:
 - 1 file changed: agent-3d-sandbox.tsx
 - 6 components memo-ized, 1 structural split (CharacterBridge → CharacterGroup + ChatBubble)
 - Estimated re-render reduction: ~60% fewer wasted renders on message updates
+
+---
+Task ID: 41
+Agent: HERMES Wave Engine
+Task: Wave 41 — Eliminate triple dashboard fetch, fix icon, remove redundant useMetrics call
+
+Work Log:
+- ASSESS: 34 waves, 0 errors, clean. Explore agent audit found 3 independent useHarnessDashboard() calls in overview-tab.tsx + 1 redundant useMetrics() call.
+- Converted ErrorTrendChart to accept errorTrend prop (was: own useHarnessDashboard call)
+- Converted SpecComplianceCard to accept skillsCount prop (was: own useHarnessDashboard call)
+- Converted QuickMetricsChart to accept metrics+isLoading props from parent (was: own useMetrics call to separate endpoint)
+- Removed useMetrics import — now uses dashboard's metrics array (same data, no extra fetch)
+- Fixed TrendingUp → TrendingDown icon for "Decreasing" error trend (semantic mismatch)
+- Added DashboardData type import for prop typing
+- VERIFY: lint 0 errors, dev.log clean
+
+Stage Summary:
+- 1 file changed: overview-tab.tsx
+- 3 hook calls eliminated (2x useHarnessDashboard, 1x useMetrics) — single source of data from parent
+- 1 icon fix (TrendingDown for decreasing errors)
