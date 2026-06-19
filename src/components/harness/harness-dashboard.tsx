@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useCallback } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -40,11 +41,28 @@ export function HarnessDashboard() {
   // Connect to the real-time agent live service
   useAgentLive();
 
+  // Keyboard shortcuts: 1-6 to switch tabs (only when not in an input/textarea)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target as HTMLElement)?.isContentEditable) return;
+    const num = parseInt(e.key, 10);
+    if (num >= 1 && num <= TAB_CONFIG.length) {
+      setActiveTab(TAB_CONFIG[num - 1].value);
+    }
+  }, [setActiveTab]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <div className="dot-pattern min-h-screen flex flex-col bg-[#0d0906]">
       <HarnessHeader
         githubStatus={dash?.githubStatus}
         totalWaves={dash?.totalStats?.totalWaves}
+        healthScore={dash?.healthScore}
+        healthScoreTrend={dash?.healthScoreTrend}
       />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">

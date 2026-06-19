@@ -8,6 +8,8 @@ import { useAgentLiveStore } from '@/store/agent-live-store';
 interface HarnessHeaderProps {
   githubStatus?: { status: string; username: string | null; repoName: string | null; lastSyncAt: string | null };
   totalWaves?: number;
+  healthScore?: number;
+  healthScoreTrend?: 'up' | 'down' | 'stable';
 }
 
 const STATE_COLORS_MAP: Record<string, string> = {
@@ -16,7 +18,13 @@ const STATE_COLORS_MAP: Record<string, string> = {
   celebrating: '#fde047', error: '#f87171', evolving: '#e879f9', offline: '#71717a',
 };
 
-export function HarnessHeader({ githubStatus, totalWaves }: HarnessHeaderProps) {
+const HEALTH_COLOR = (score: number) => {
+  if (score >= 80) return 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10';
+  if (score >= 50) return 'text-amber-400 border-amber-500/20 bg-amber-500/10';
+  return 'text-red-400 border-red-500/20 bg-red-500/10';
+};
+
+export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthScoreTrend }: HarnessHeaderProps) {
   const isConnected = githubStatus?.status === 'connected';
   const agentState = useAgentLiveStore(s => s.agentState);
   const isLiveConnected = useAgentLiveStore(s => s.isConnected);
@@ -85,6 +93,14 @@ export function HarnessHeader({ githubStatus, totalWaves }: HarnessHeaderProps) 
             <span className="hidden sm:inline text-xs tabular-nums text-amber-700/60 font-mono">
               {totalWaves} waves
             </span>
+          )}
+          {healthScore !== undefined && (
+            <div className="hidden md:flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums {HEALTH_COLOR(healthScore)}">
+              <span>{healthScore}</span>
+              <span className="text-[8px] opacity-50">/100</span>
+              {healthScoreTrend === 'up' && <span className="text-[8px]">↑</span>}
+              {healthScoreTrend === 'down' && <span className="text-[8px]">↓</span>}
+            </div>
           )}
           {githubStatus && (
             <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-amber-900/[0.15] px-2.5 py-1 text-[10px] font-mono font-medium tracking-wider">
