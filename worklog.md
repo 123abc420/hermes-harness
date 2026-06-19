@@ -1867,3 +1867,24 @@ Stage Summary:
 - GitHub tab Export Modules section now shows the harness package
 - Health score visible on every tab via sticky header
 - Files: harness-dashboard.tsx, harness-header.tsx (modified), DB seed
+
+---
+Task ID: 89
+Agent: Wave Engine (auto)
+Task: Decisions summary bar, Git Commits stat card, ux-summary-bar skill
+
+Work Log:
+- Added countsByAction groupBy to decisions API route
+- Updated useDecisions hook type to include countsByAction
+- Added compact summary bar to DecisionsTab (total count, executed %, top category badge)
+- Added Git Commits as 6th StatCard in StatsGrid (GitBranch icon, amber color)
+- Fixed stats grid responsive: lg:grid-cols-3 xl:grid-cols-6 (was lg:grid-cols-5)
+- Created ux-summary-bar.md skill (#18)
+- Ran bun run lint — zero errors
+- Pushed 2 commits to GitHub
+
+Stage Summary:
+- Decisions tab now shows at-a-glance summary before the card list
+- Stats Grid fills better on all screen sizes with 6 cards
+- Skills count: 18 (was 17)
+- Files: decisions/route.ts, use-harness-data.ts, decisions-tab.tsx, stats-grid.tsx, ux-summary-bar.md
