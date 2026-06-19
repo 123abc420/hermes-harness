@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useCallback, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry } from '@/store/agent-live-store';
-import { useWaves } from '@/hooks/use-harness-data';
+import { useWaves, useDecisions } from '@/hooks/use-harness-data';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -26,6 +26,7 @@ import {
   Clock,
   MonitorDot,
   CheckCircle2,
+  FileCode2,
 } from 'lucide-react';
 import { HERMES_VERSION, getLevelName } from '@/lib/constants';
 
@@ -194,6 +195,10 @@ export function AgentLivePanel() {
   // Fetch latest completed wave for summary display
   const { data: latestWavesData } = useWaves(1, 1);
   const latestWave = latestWavesData?.waves?.[0] ?? null;
+
+  // Fetch recent decisions for compact feed
+  const { data: recentDecisionsData } = useDecisions(1, 3);
+  const recentDecisions = recentDecisionsData?.decisions ?? [];
 
   // Brief skeleton on initial mount while SSE connects
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -433,6 +438,36 @@ export function AgentLivePanel() {
                     <span className="text-red-400/70">{latestWave.errorsCount} errors</span>
                   </>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Recent Decisions */}
+        {recentDecisions.length > 0 && (
+          <Card className="border-white/[0.06] bg-white/[0.02]">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2.5">
+                <Brain className="h-3.5 w-3.5 text-violet-400" />
+                <span className="text-[11px] font-mono text-zinc-400 tracking-wider">RECENT DECISIONS</span>
+              </div>
+              <div className="space-y-2">
+                {recentDecisions.map((d) => (
+                  <div key={d.id} className="flex items-start gap-2">
+                    <span className={`mt-0.5 shrink-0 inline-flex rounded px-1 py-0.5 text-[8px] font-mono font-medium ${
+                      d.category === 'feature' ? 'bg-emerald-500/10 text-emerald-400' :
+                      d.category === 'fix' ? 'bg-red-500/10 text-red-400' :
+                      d.category === 'performance' ? 'bg-orange-500/10 text-orange-400' :
+                      'bg-violet-500/10 text-violet-400'
+                    }`}>
+                      {d.category.replace('_', ' ')}
+                    </span>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-1 flex-1">{d.description}</p>
+                    {d.targetFile && (
+                      <FileCode2 className="h-3 w-3 shrink-0 text-zinc-600 mt-0.5" />
+                    )}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
