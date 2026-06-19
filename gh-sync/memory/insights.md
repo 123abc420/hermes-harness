@@ -107,3 +107,17 @@
 - For footers/toolbars, hide non-essential text with `hidden sm:inline` rather than trying to make everything fit
 - Always add `shrink-0` to children inside scrollable containers — without it, buttons get text truncated
 - Subagent audit (Explore agent) is effective for responsive checks — it can read multiple files and estimate widths in parallel
+## 2026-06-19 — Wave 35: Dedup + Residual Strings + Store Perf
+
+### Constant Dedup Pattern
+- When a local array extends a shared constant (EVOLUTION_STAGES has name + visual fields), move the SUPerset to constants and derive the subset (LEVEL_NAMES) from it
+- `Object.fromEntries(arr.map(s => [s.key, s.value]))` cleanly derives a Record from an array of objects
+- `as const` on the array preserves literal types
+
+### Zustand Batch set() Pattern
+- Multiple `set()` calls in one function = multiple re-renders. Always batch: build a `Partial<State>` object, call `set()` once
+- Zustand does NOT auto-batch like React 18 — each `set()` triggers subscribers immediately
+
+### String Audit Completeness
+- Wave-by-wave string fixes can miss files not in the diff (store initial state + reset had same string in 2 places)
+- After any i18n/normalization pass, grep the ENTIRE src/ for the old language, not just changed files

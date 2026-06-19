@@ -854,3 +854,27 @@ Stage Summary:
 - Full keyboard audit of 6 tabs found exactly 1 gap (wave table rows)
 - All Radix UI primitives confirmed keyboard-accessible by default
 - Wave table rows now support Tab focus, Enter/Space activation, visible focus ring
+
+---
+Task ID: 35
+Agent: HERMES Wave Engine
+Task: Wave 35 — EVOLUTION_STAGES dedup, residual Spanish fix, store perf
+
+Work Log:
+- Assessed state: 28 waves in DB, 100% spec compliance, 0 a11y gaps, 0 mobile overflow
+- Identified: EVOLUTION_STAGES still duplicated in canvas (context.md What's Next #1)
+- Discovered 2 residual Spanish strings missed in Wave 29 ("Esperando actividad..." x2, "Nascente" typo)
+- Found addActivity() calling set() 4x per activity causing unnecessary re-renders
+- Moved EVOLUTION_STAGES superset (7 stages with visual params) to constants.ts
+- Derived LEVEL_NAMES from EVOLUTION_STAGES — single source of truth
+- Canvas now imports EVOLUTION_STAGES from constants, removed 9-line local copy
+- Fixed Spanish strings: "Esperando actividad..." → "Waiting for activity...", "Nascente" → "Nascent"
+- Batched 4 set() calls into 1 in addActivity() using Partial<AgentLiveState> object
+- Verified: lint passes, no dev.log errors, 0 Spanish strings remaining
+
+Stage Summary:
+- 3 improvements across 3 files (constants.ts, agent-avatar-canvas.tsx, agent-live-store.ts)
+- Spanish strings: 2 → 0 (100% reduction)
+- Store re-renders per activity: 4 → 1 (75% reduction)
+- Evolution stages sources: 2 → 1 (single source of truth)
+- Commit: f28d039, pushed to GitHub
