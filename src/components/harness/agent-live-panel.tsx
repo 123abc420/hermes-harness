@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useCallback, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry } from '@/store/agent-live-store';
+import { useWaves } from '@/hooks/use-harness-data';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -24,6 +25,7 @@ import {
   Pause,
   Clock,
   MonitorDot,
+  CheckCircle2,
 } from 'lucide-react';
 import { HERMES_VERSION, getLevelName } from '@/lib/constants';
 
@@ -188,6 +190,10 @@ export function AgentLivePanel() {
     activities, subAgents, lastTurnActivities, isReplaying,
     setIsReplaying, setLastTurn, addActivity,
   } = useAgentLiveStore();
+
+  // Fetch latest completed wave for summary display
+  const { data: latestWavesData } = useWaves(1, 1);
+  const latestWave = latestWavesData?.waves?.[0] ?? null;
 
   // Brief skeleton on initial mount while SSE connects
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -402,6 +408,35 @@ export function AgentLivePanel() {
             iconColor="text-violet-400"
           />
         </div>
+
+        {/* Last Wave Summary */}
+        {latestWave && (
+          <Card className="border-white/[0.06] bg-white/[0.02]">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="text-[11px] font-mono text-zinc-400 tracking-wider">LAST WAVE</span>
+                <Badge variant="outline" className="ml-auto text-[9px] px-1.5 py-0 text-emerald-400/70 border-emerald-500/20">
+                  #{latestWave.waveNumber}
+                </Badge>
+              </div>
+              {latestWave.summary && (
+                <p className="text-xs text-zinc-300 leading-relaxed line-clamp-2">{latestWave.summary}</p>
+              )}
+              <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-500 font-mono">
+                <span>{latestWave.decisionsCount} decisions</span>
+                <span className="text-zinc-700">|</span>
+                <span>{latestWave.improvementsCount} improvements</span>
+                {latestWave.errorsCount > 0 && (
+                  <>
+                    <span className="text-zinc-700">|</span>
+                    <span className="text-red-400/70">{latestWave.errorsCount} errors</span>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* XP Bar */}
         <Card className="border-white/[0.06] bg-white/[0.02]">

@@ -54,6 +54,7 @@ function HeroStatusCard({
   latestWave,
   firstWaveStart,
   waveVelocity,
+  npmDeps,
   isLoading,
 }: {
   stats?: TotalStats;
@@ -61,6 +62,7 @@ function HeroStatusCard({
   latestWave?: { status: string; summary?: string | null; waveNumber?: number };
   firstWaveStart?: string;
   waveVelocity?: string | null;
+  npmDeps?: number;
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -125,6 +127,14 @@ function HeroStatusCard({
                       {' '}&middot;{' '}
                       <span className="text-zinc-600">
                         {waveVelocity} waves/hr
+                      </span>
+                    </>
+                  )}
+                  {npmDeps !== undefined && (
+                    <>
+                      {' '}&middot;{' '}
+                      <span className="text-zinc-600">
+                        {npmDeps} deps
                       </span>
                     </>
                   )}
@@ -501,6 +511,7 @@ function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['me
     exported_types: 'Exported Types',
     spec_compliance_export: 'Spec Compliance',
     db_records: 'DB Records',
+    npm_dependencies: 'NPM Dependencies',
   };
 
   const metricLabel = METRIC_LABELS[primaryMetric] ?? primaryMetric.replace(/_/g, ' ');
@@ -718,10 +729,13 @@ export function OverviewTab() {
       ? errorTrend[errorTrend.length - 1].errors <= errorTrend[errorTrend.length - 2].errors
       : undefined;
 
+  // Extract npm_dependencies from metrics
+  const npmDep = dash?.metrics?.find(m => m.metricKey === 'npm_dependencies');
+
   return (
     <div className="space-y-6">
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} />

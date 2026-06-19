@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
@@ -25,12 +26,33 @@ const TAB_CONFIG = [
   { value: 'github', label: 'GitHub & Export', icon: Github },
 ] as const;
 
+// Map keyboard digit keys (1-6) to tab values for quick navigation
+const TAB_KEY_MAP: Record<string, string> = {
+  '1': 'agent', '2': 'overview', '3': 'waves',
+  '4': 'decisions', '5': 'research', '6': 'github',
+};
+
 export default function Home() {
   const { activeTab, setActiveTab } = useHarnessStore();
   const { data: dash } = useHarnessDashboard();
 
   // Connect to the real-time agent live service
   useAgentLive();
+
+  // Keyboard shortcuts: 1-6 to switch tabs (only when no input/textarea focused)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+    const tabValue = TAB_KEY_MAP[e.key];
+    if (tabValue && tabValue !== activeTab) {
+      setActiveTab(tabValue);
+    }
+  }, [activeTab, setActiveTab]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <div className="dot-pattern min-h-screen flex flex-col bg-[#0d0906]">
@@ -75,6 +97,9 @@ export default function Home() {
                     <Icon className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">{tab.label}</span>
                     <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                    <kbd className="hidden lg:inline-flex items-center justify-center h-4 w-4 rounded text-[9px] font-mono text-zinc-600 bg-white/[0.04] border border-white/[0.06]">
+                      {TAB_CONFIG.indexOf(tab) + 1}
+                    </kbd>
                   </TabsTrigger>
                 );
               })}
