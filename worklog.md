@@ -220,3 +220,25 @@ Stage Summary:
 - GitHub connected and clean (2 commits)
 - 1 skill created from this session's learning
 - Platform-aligned: all tools are free through chat.z.ai
+---
+Task ID: 2 (autonomous)
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 1 — Autonomous self-improvement wave
+
+Work Log:
+- ASSESS: Read context.md, insights.md, guardrails.md, skills/, dev.log, dashboard API
+- Found: DB empty (0 waves/decisions/metrics), GitHubSync had 5 stale records, context.md stale
+- PLAN: Identified 3 improvements (GitHubSync fix, proper DB recording, context update)
+- EXECUTE Decision 1 (fix/high): Cleaned GitHubSync table, created single connected record
+- EXECUTE Decision 2 (code_quality/high): Recorded wave, decisions, metrics via API for dashboard
+- EXECUTE Decision 3 (fix/medium): Updated context.md with accurate state
+- Recorded 7 metrics: api_routes=14, dashboard_tabs=5, skills=2, github_commits=3, db_records=4, spec_files=6, memory_files=3
+- VERIFY: lint clean (0 errors), dev.log shows no errors
+- PERSIST: Wave marked completed, all data in DB
+
+Stage Summary:
+- First autonomous wave executed successfully
+- Dashboard now shows real data (1 wave, 3 decisions, 7 metrics)
+- GitHub status correctly shows "connected"
+- context.md accurate for next wave
+- Key insight: GitHubSync route needs upsert logic to prevent duplicate records (future improvement)
