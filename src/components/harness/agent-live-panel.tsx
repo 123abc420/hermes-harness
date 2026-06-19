@@ -350,7 +350,9 @@ export function AgentLivePanel() {
             </div>
 
             {/* 3D Sandbox */}
-            <Agent3DSandbox />
+            <Suspense fallback={null}>
+              <Agent3DSandbox />
+            </Suspense>
 
             {/* Current message — more visible */}
             <div className="mt-4 text-center min-h-[2.5rem] flex items-center justify-center">
@@ -419,7 +421,7 @@ export function AgentLivePanel() {
         </Card>
 
         {/* Health Score Bar */}
-        {healthScore > 0 && (
+        {healthScore >= 0 && (
           <div className="flex items-center gap-3 px-1">
             <Shield className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
             <span className="text-[10px] font-mono text-zinc-500 tracking-wider shrink-0">HEALTH</span>
