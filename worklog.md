@@ -665,3 +665,21 @@ Stage Summary:
 - Skills UI now shows category badges, versions, and trigger conditions
 - New skill: post-compliance-evolution (8 total skills)
 - API routes: 15 → 16
+---
+Task ID: 23
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 23 — Real git data, wave success rate
+
+Work Log:
+- ASSESS: 100% compliance, 0 errors. Found: DB commit counter said 11 but repo has 40+ commits. CommitHistory showed fake placeholder data (abc0def SHAs).
+- EXECUTE Decision 1 (fix/high): Replaced DB increment counter with `git rev-list --count HEAD` in status and sync routes. Now shows real commit count (40).
+- EXECUTE Decision 2 (fix/high): Replaced fake CommitHistory with real `git log --oneline -5` data. SHAs link to GitHub. Real commit messages shown.
+- EXECUTE Decision 3 (feature/medium): Added waveSuccessRate to dashboard API (groupBy status query) and overview StatsGrid as 5th card with Target icon and % suffix.
+- VERIFY: lint 0 errors. Status API returns 40 commits, 5 real recent commits. Dashboard shows 59% success rate.
+- PERSIST: Wave completed, 3 decisions, 2 metrics, GitHub synced (commit 60c1348).
+
+Stage Summary:
+- Commit count: 11 (fake) → 40 (real git count)
+- Commit history: fake placeholders → real git log with GitHub links
+- Dashboard now shows 5 stat cards including Wave Success Rate (59%)
+- Success rate reveals 7/17 DB waves were interrupted (early waves before PATCH pattern)
