@@ -1560,3 +1560,20 @@ Stage Summary:
 - Files: +src/components/harness/skills-section.tsx, +src/components/harness/wave-category-breakdown.tsx
 - Modified: src/components/harness/research-tab.tsx (-84 lines, cleaner imports)
 - Commit: df2cd30 pushed to main
+
+---
+Task ID: 72
+Agent: HERMES Wave Engine (Wave 72)
+Task: Extract MemorySection + increase dashboard decision limit
+
+Work Log:
+- Extracted MemorySection (~95 lines) from research-tab.tsx into memory-section.tsx
+- Bumped dashboard API recentDecisions take from 20 to 50 for WaveCategoryBreakdown data coverage
+- Cleaned 7 unused imports (ErrorBlock, Skeleton, ScrollArea, Brain, Lightbulb, Database, User)
+- research-tab.tsx now ~330 lines (was ~433 after W71)
+- Lint clean, commit cc29965 pushed
+
+Stage Summary:
+- Files: +memory-section.tsx, ~dashboard/route.ts (take 20→50), ~research-tab.tsx
+- Harness components: 13 (memory-section, skills-section, wave-category-breakdown, etc.)
+- Commit: cc29965 pushed to main
