@@ -519,3 +519,22 @@ Stage Summary:
 - STATION_COLORS extracted to shared.ts as canonical color source
 - insights.md trimmed from 93→65 lines, all content current
 - Net -36 lines of code despite adding STATION_COLORS
+---
+Task ID: Wave 16
+Agent: HERMES Harness Wave Engine (cron job 216402)
+Task: Wave 16 — Honest spec compliance + polished metric labels
+
+Work Log:
+- ASSESS: Server alive (GET / 200 in 44ms!), dev.log clean
+- Found: SPEC_CHECKLIST hardcoded 8 items all done=true → fake 100% compliance
+- Found: Metrics chart showed raw snake_case keys (dead_files_removed, station_sources)
+- EXECUTE Decision 1 (fix/high): Expanded checklist to 15 items, 13 done, 2 not done → honest 87.5%
+- EXECUTE Decision 2 (feature/medium): Added METRIC_LABELS map for human-readable chart labels
+- VERIFY: lint 0 errors
+- PERSIST: Commit af7d0c1, pushed, wave+decisions+metrics recorded
+
+Stage Summary:
+- Dashboard now shows honest 87.5% spec compliance (was lying at 100%)
+- Added 7 new checklist items: Skills, Export Contract, 3D Avatar, Crons, user_profile, wave_protocol
+- Identified 2 remaining gaps: Turborepo Package Layout, Error Rate Trend
+- Metric chart labels now human-readable with fallback

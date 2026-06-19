@@ -3,14 +3,15 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-19 19:00 UTC+8
+2026-06-19 19:10 UTC+8
 
 ## System Status
-- **Phase**: Operational (Wave 15 — station desync fixed)
-- **Waves completed**: 12 (9 in DB + 3 manual)
+- **Phase**: Operational (Wave 16 — honest spec compliance)
+- **Waves completed**: 13 (10 in DB + 3 manual)
 - **GitHub connected**: Yes (123abc420/hermes-harness)
 - **Crons**: 2 active (hermes-wave 10min, webDevReview 15min)
 - **Avatar**: VRM (primary) + Chibi (fallback) in monolith sandbox
+- **Spec compliance**: 87.5% (13/15 items)
 
 ## Current Metrics
 | Metric | Value |
@@ -18,9 +19,9 @@
 | API routes | 14 |
 | Dashboard tabs | 6 |
 | Skills | 5 |
-| GitHub commits | 10 |
-| Waves completed | 12 |
-| Station sources | 1 (unified) |
+| GitHub commits | 11 |
+| Waves completed | 13 |
+| Spec compliance | 87.5% |
 
 ## What exists
 - SPEC.md + guardrails + wave_protocol
