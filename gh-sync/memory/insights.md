@@ -141,3 +141,8 @@
 
 - A hook can reference an API route for 20+ waves and the bug is invisible if the component has ErrorBlock — always verify endpoints exist
 - Prisma groupBy is a free way to add count metadata to list endpoints without extra round-trips
+
+## 2026-06-20 — Wave 50: Path Bugs
+
+- readFileSafe's silent catch hides wrong directory paths — the memory API returned empty strings for 40+ waves
+- New categories appear in DB before they appear in color maps — always grep the schema/types for valid enum values

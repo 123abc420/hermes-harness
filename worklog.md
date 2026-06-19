@@ -1162,3 +1162,23 @@ Stage Summary:
 - 6 files changed, +117 -72 lines
 - 88 total commits, 44 waves in DB
 - API routes: 16 → 17 (new /api/harness/skills)
+
+---
+Task ID: 50
+Agent: Main Wave Engine
+Task: Wave 50 — Fix memory API path bug, user_profile display, i18n colors, skill
+
+Work Log:
+- Fixed memory API: path was `memory/` instead of `gh-sync/memory/` — all 3 memory sections showed empty for 40+ waves
+- Added `userProfile` field to memory API GET response
+- Updated useMemory hook type to include `userProfile: string`
+- Added User Profile section to Research tab MemorySection with sky-400 User icon
+- Added `i18n` category to CATEGORY_COLORS (decisions-tab), PIE_COLORS (research-tab), and FILTER_BUTTONS
+- Created `hidden-endpoint-audit` skill (#14) — codifies the pattern of verifying hook→route pairs
+- Lint: clean. Git push: success (6387dbf).
+
+Stage Summary:
+- 5 files changed, +31 -5 lines
+- 90 total commits, 45 waves in DB
+- Skills: 13 → 14
+- Critical bug fixed: memory API returned empty for entire project lifetime
