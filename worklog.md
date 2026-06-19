@@ -1238,3 +1238,22 @@ Stage Summary:
 - Cumulative: 53 waves, 92 commits, 100% spec compliance
 - insights.md now within token cap (~960 tokens)
 - Decision category colors now consistent across all components
+---
+Task ID: 54
+Agent: Wave Engine (cron)
+Task: Self-improvement Wave 54
+
+Work Log:
+- ASSESS: Read context, insights, dev.log (clean), DB metrics. Launched subagent scan.
+- Subagent found: /api/harness/skills route MISSING (useSkills 404), error trend unknown=failing, 12x URL duplication
+- PLAN: 3 improvements — skills route (high), error trend semantic (medium), API_BASE DRY (low)
+- EXECUTE: Created /api/harness/skills/route.ts with YAML frontmatter parser for 13 skill files
+- EXECUTE: Changed SpecComplianceCard to use null=unknown state (renders "—" dash) instead of false
+- EXECUTE: Extracted API_BASE = "/api/harness" constant, replaced 12 hardcoded URL prefixes
+- VERIFY: bun run lint = 0 errors, dev.log clean
+- PERSIST: Git commit d988851 pushed, wave+decisions+metrics recorded
+
+Stage Summary:
+- Wave 54 completed: 3 improvements, 0 errors
+- API routes now 18 (skills route restored)
+- Cumulative: 54 waves, 94 commits, 100% spec compliance
