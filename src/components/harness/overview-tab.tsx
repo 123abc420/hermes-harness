@@ -95,6 +95,7 @@ function HeroStatusCard({
   waveVelocity,
   npmDeps,
   healthScore,
+  healthScoreTrend,
   isLoading,
 }: {
   stats?: TotalStats;
@@ -104,6 +105,7 @@ function HeroStatusCard({
   waveVelocity?: string | null;
   npmDeps?: number;
   healthScore?: number;
+  healthScoreTrend?: 'up' | 'down' | 'stable';
   isLoading: boolean;
 }) {
   if (isLoading) {
@@ -153,6 +155,9 @@ function HeroStatusCard({
                       healthScore >= 70 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
                       'bg-red-500/10 text-red-400 border border-red-500/20'
                     }`}>
+                      {healthScoreTrend === 'up' && <span className="text-[8px]">&#9650;</span>}
+                      {healthScoreTrend === 'down' && <span className="text-[8px] opacity-70">&#9660;</span>}
+                      {healthScoreTrend === 'stable' && <span className="text-[6px] opacity-50">&#9679;</span>}
                       {healthScore}/100
                     </span>
                   )}
@@ -826,7 +831,7 @@ export function OverviewTab() {
       )}
 
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} healthScoreTrend={dash?.healthScoreTrend} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />

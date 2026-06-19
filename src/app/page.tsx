@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useCallback, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
 import { useHarnessStore } from '@/store/harness-store';
@@ -35,6 +35,7 @@ const TAB_KEY_MAP: Record<string, string> = {
 export default function Home() {
   const { activeTab, setActiveTab } = useHarnessStore();
   const { data: dash } = useHarnessDashboard();
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Connect to the real-time agent live service
   useAgentLive();
@@ -137,7 +138,7 @@ export default function Home() {
         </Tabs>
       </main>
 
-      <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906]">
+      <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906] relative">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2 text-xs text-amber-800/50">
             <Zap className="h-3 w-3 text-amber-500/30" />
@@ -148,8 +149,41 @@ export default function Home() {
             <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">
               Spec-Driven Self-Evolution
             </span>
+            <button
+              onClick={() => setShowShortcuts(v => !v)}
+              className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-amber-900/40 hover:text-amber-400/70 bg-white/[0.03] border border-white/[0.06] hover:border-amber-500/20 transition-colors"
+              aria-label="Keyboard shortcuts"
+            >
+              ?
+            </button>
           </div>
         </div>
+        <AnimatePresence>
+          {showShortcuts && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute bottom-full right-4 sm:right-6 mb-2 z-50 w-64 rounded-xl border border-white/[0.08] bg-[#1a1510] p-4 shadow-2xl"
+              >
+                <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3">Keyboard Shortcuts</p>
+                <div className="space-y-1.5">
+                  {TAB_CONFIG.map((tab) => (
+                    <div key={tab.value} className="flex items-center justify-between">
+                      <span className="text-xs text-zinc-400">{tab.label}</span>
+                      <kbd className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-zinc-500 bg-white/[0.05] border border-white/[0.08]">
+                        {TAB_CONFIG.indexOf(tab) + 1}
+                      </kbd>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </footer>
     </div>
   );

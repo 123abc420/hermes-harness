@@ -114,6 +114,7 @@ export interface DashboardData {
   errorTrend: { wave: number; errors: number; status: string }[];
   skillsCount: number;
   healthScore: number;
+  healthScoreTrend: 'up' | 'down' | 'stable';
 }
 
 interface HarnessState {

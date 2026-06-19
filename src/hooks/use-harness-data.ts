@@ -38,7 +38,7 @@ export function useHarnessDashboard() {
   // Sync dashboard stats to agent live store
   useEffect(() => {
     if (query.data) {
-      const { totalStats, healthScore } = query.data;
+      const { totalStats, healthScore, healthScoreTrend } = query.data;
       if (totalStats) {
         setStatus({
           waveCount: totalStats.totalWaves,
@@ -46,6 +46,7 @@ export function useHarnessDashboard() {
           totalDecisions: totalStats.totalDecisions,
           recentSuccessRate: totalStats.recentSuccessRate,
           ...(healthScore != null && { healthScore }),
+          ...(healthScoreTrend && { healthScoreTrend }),
         });
       }
     }

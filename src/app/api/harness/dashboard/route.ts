@@ -146,6 +146,19 @@ export async function GET() {
       (githubScore * 10)
     );
 
+    // Health score trend: derive from error trend + success rate signals
+    let healthScoreTrend: 'up' | 'down' | 'stable' = 'stable';
+    if (errorTrend.length >= 6) {
+      const recent3Err = errorTrend.slice(-3).reduce((s, w) => s + w.errors, 0);
+      const prev3Err = errorTrend.slice(-6, -3).reduce((s, w) => s + w.errors, 0);
+      if (recent3Err < prev3Err) healthScoreTrend = 'up';
+      else if (recent3Err > prev3Err) healthScoreTrend = 'down';
+    }
+    if (healthScoreTrend === 'stable') {
+      if (recentSuccessRate > waveSuccessRate + 5) healthScoreTrend = 'up';
+      else if (recentSuccessRate < waveSuccessRate - 5) healthScoreTrend = 'down';
+    }
+
     return NextResponse.json({
       waves,
       totalStats: {
@@ -184,6 +197,7 @@ export async function GET() {
       })),
       skillsCount,
       healthScore,
+      healthScoreTrend,
     });
   } catch (error) {
     console.error('[DASHBOARD] Error:', error);

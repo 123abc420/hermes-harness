@@ -187,7 +187,7 @@ function StatCard({ icon: Icon, label, value, subtitle, iconColor }: {
 export function AgentLivePanel() {
   const {
     agentState, message, phase, waveNumber, progress, isConnected,
-    waveCount, totalImprovements, totalDecisions, recentSuccessRate, healthScore,
+    waveCount, totalImprovements, totalDecisions, recentSuccessRate, healthScore, healthScoreTrend,
     level, levelName, xp, xpToNext,
     activities, subAgents, lastTurnActivities, isReplaying,
     setIsReplaying, setLastTurn, addActivity,
@@ -438,7 +438,12 @@ export function AgentLivePanel() {
               healthScore >= 90 ? 'text-emerald-400' :
               healthScore >= 70 ? 'text-amber-400' :
               'text-red-400'
-            }`}>{healthScore}</span>
+            }`}>
+              {healthScoreTrend === 'up' && <span className="text-[8px] mr-0.5">&#9650;</span>}
+              {healthScoreTrend === 'down' && <span className="text-[8px] opacity-70 mr-0.5">&#9660;</span>}
+              {healthScoreTrend === 'stable' && <span className="text-[6px] opacity-50 mr-0.5">&#9679;</span>}
+              {healthScore}
+            </span>
           </div>
         )}
 
