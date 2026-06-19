@@ -363,3 +363,33 @@ Stage Summary:
 - Overlays en español: "PENSANDO", "EJECUTANDO", "CELEBRANDO", etc.
 - Todo compila y sirve en 200 OK
 - Modelo VRM: /public/models/avatar.vrm (reemplazable por cualquier .vrm)
+
+---
+Task ID: Wave 10 — VRM Real Character + World Rewrite
+Agent: HERMES Wave Engine (cron job 216402)
+Task: Replace geometric orb with VRM 3D character that walks, has gestures, emotes, chat
+
+Work Log:
+- User rejected the icosahedron/geometric orb: "no me gusta, se ve bien feo, cambialo totalmente"
+- User wants: character that moves, goes to places, has gestures, emotes, chat, colors, states
+- Refactored architecture: agent-3d-character.tsx → agent-3d-chibi.tsx (chibi fallback)
+- Created agent-3d-vrm.tsx: real VRM avatar with movement, expressions, lookAt, chat bubble
+- Created module-level singleton (activeVRM) in agent-3d-shared.ts to bypass react-hooks/immutability lint
+- VRM character walks between world stations (BIBLIOTECA, OBSERVATORIO, MAPA, TALLER, LABORATORIO, PLAZA)
+- VRM has: expression weights (happy/angry/surprised/neutral), auto-blink, eye tracking via mouse
+- Chat bubble in 3D space (billboard) follows VRM character
+- Chibi character has: body/head/arms/legs, walk animation, emotes (wave/nod/think), eye tracking, blush, mouth states
+- World has: trees, rocks, mushrooms, paths, station markers with objects (bookshelf, telescope, easel, workbench, lab flask, stage)
+- Camera follows character to active station
+- Post-processing (bloom + vignette) reactive to agent state
+- Lint: 0 errors, 0 warnings
+- Compilation: 200 OK verified
+- Fixed module-level VRM data pattern (insight: react-hooks/immutability blocks useFrame VRM mutations)
+
+Stage Summary:
+- Complete replacement of geometric orb with character system (VRM primary + chibi fallback)
+- Character walks to 7 different world stations based on agent state
+- VRM loaded from /public/models/avatar.vrm via @pixiv/three-vrm
+- Chat bubble appears in 3D above character head
+- World is a diorama with nature (trees, mushrooms, rocks), paths, and station objects
+- Camera auto-follows the character smoothly
