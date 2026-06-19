@@ -28,7 +28,7 @@
 
 ## API & Data
 
-- A hook can reference an API route that doesn't exist — no build error, just empty data
+- A hook can reference an API route that doesn't exist — no build error, just empty data. ALWAYS verify endpoints exist.
 - Always verify endpoints exist, not just "does the component render"
 - Composite APIs: always override DB fields with live git data
 - Prisma groupBy is free count metadata for list endpoints
@@ -53,24 +53,12 @@
 - After any string normalization, grep ENTIRE src/ for the old language
 - New categories appear in DB before color maps — always grep schema for valid values
 - Wave-by-wave fixes can miss files not in the diff (store init + reset)
+- Variant names (refactoring vs refactor) silently render without color — add aliases
 
-## Wave 53: Schema + Color Consistency
+## Schema & Color Consistency
 
-- HarnessMetric lacked `createdAt` field — time-based queries were impossible
 - Decision category colors must be synced across ALL components that render them
 - insights.md can exceed token cap silently — monitor file size periodically
-
-## Waves 58-61: Error Handling, Responsiveness, DRY
-
-- isError checks needed in every tab — silent empty states mislead users on API failure
-- SVG sparklines: use `width="100%"` + `viewBox` instead of fixed pixel widths
-- Inline ternary chains for colors = drift risk — extract to shared constants immediately
-- Color maps for badges vs charts can silently diverge (skill/insight were swapped in hex)
 - Chart tooltip styles are duplicated across components — extract to constants.ts
 - Health score trend can be derived from error trend + success rate without storing history
-
-## Wave 85: Category Color Completeness
-
-- Categories can appear in DB before being added to DECISION_CATEGORIES — always grep DB
-- Variant names (refactoring vs refactor) silently render without color — add aliases
-- VALID_CATEGORIES drives filter buttons — any gap in the map means invisible badges
+- Categories can appear in DB before being added to maps — always grep DB for actual values
