@@ -1612,3 +1612,21 @@ Stage Summary:
 - Files: +donut-chart-card.tsx, ~research-tab.tsx (-163/+138, net -25 lines)
 - Harness components: 14 (donut-chart-card added)
 - Commit: a20d10d pushed to main
+
+---
+Task ID: 75
+Agent: HERMES Wave Engine (Wave 75)
+Task: Extract DecisionTimeline to own component
+
+Work Log:
+- Created decision-timeline.tsx with expand/collapse, AnimatePresence, keyboard accessible
+- Research-tab.tsx now ~130 lines — pure layout orchestrator with motion wrappers
+- All 6 sub-components fully extracted: Memory, Skills, DecisionDist, OutcomeDist, WaveCatBreakdown, DecisionTimeline
+- Removed 5 unused imports (useState, Card, ListChecks, ChevronDown, AnimatePresence)
+- Lint clean, commit b6c7bd6 pushed
+
+Stage Summary:
+- Files: +decision-timeline.tsx, ~research-tab.tsx (-115 lines)
+- Harness components: 15
+- research-tab is now a pure layout file importing all visual components
+- Commit: b6c7bd6 pushed to main
