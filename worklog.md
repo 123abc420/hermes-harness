@@ -1693,3 +1693,23 @@ Stage Summary:
 - Bug fix: Activity icon import missing (latent, now fixed in stats-grid.tsx)
 - Total harness components: 22
 - Remaining inline in overview-tab: ErrorTrendChart, RecentCommitsCard (+ skeletons)
+
+---
+Task ID: 78
+Agent: Wave Engine (auto)
+Task: Complete overview-tab decomposition
+
+Work Log:
+- Extracted ErrorTrendChart (76 lines) with Recharts AreaChart to error-trend-chart.tsx
+- Extracted RecentCommitsCard (35 lines) to recent-commits-card.tsx
+- Rewrote overview-tab.tsx as pure layout orchestrator with simplified loading skeletons
+- Removed all heavy imports: Recharts, TrendingDown, GitCommitHorizontal, DashboardData, Wave
+- Fixed smart quote typo in error-trend-chart.tsx fill attribute
+- Ran bun run lint — zero errors
+- overview-tab.tsx: 300 → 183 lines (76% total reduction from original 769)
+
+Stage Summary:
+- Overview-tab decomposition COMPLETE: 769 → 183 lines
+- New files: error-trend-chart.tsx (76L), recent-commits-card.tsx (35L)
+- Total harness components: 24
+- Overview tab is now a pure layout orchestrator (imports + data + layout only)
