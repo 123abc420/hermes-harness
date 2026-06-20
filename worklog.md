@@ -2876,3 +2876,19 @@ Stage Summary:
 - Cross-tab wave navigation: clicking a wave link in decisions tab now opens the detail dialog
 - Tab triggers are screen-reader accessible
 - 28 skills total (new: wave-data-hygiene)
+---
+Task ID: w136
+Agent: Wave Engine (W136)
+Task: Version from package.json, agent skeleton from data, command palette skills search
+
+Work Log:
+- EXECUTE (1/3): HERMES_VERSION now reads from NEXT_PUBLIC_VERSION (set in next.config.ts from package.json). Fallback 'v0.4.0' for non-Next.js contexts.
+- EXECUTE (2/3): Agent Live skeleton derives from actual data readiness (isConnected, activities, waveCount) instead of fixed 600ms timer.
+- EXECUTE (3/3): Command palette now searches skills API in parallel with waves/decisions. Added search param to skills API route. Skill results show Sparkles icon, navigate to Analytics tab.
+- VERIFY: Lint 0 errors
+- PERSIST: Git commit, DB records
+
+Stage Summary:
+- Version auto-syncs from package.json (no more drift risk)
+- Agent skeleton shows until real data arrives (not arbitrary timer)
+- Cmd+K can now find skills by name, title, category, or trigger
