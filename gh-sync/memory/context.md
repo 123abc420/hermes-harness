@@ -6,8 +6,8 @@
 2026-06-20 17:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 148)
-- **Waves in DB**: 148
+- **Phase**: Post-Compliance Evolution (Wave 149)
+- **Waves in DB**: 149
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -15,11 +15,11 @@
 |--------|-------|
 | API routes | 16 |
 | Dashboard tabs | 6 |
-| Skills | 6 |
+| Skills | 7 |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~275 |
-| Waves in DB | 145 |
+| GitHub commits | ~281 |
+| Waves in DB | 149 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 | execSync calls | 0 |

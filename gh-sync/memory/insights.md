@@ -115,3 +115,9 @@
 
 - `.gitignore` patterns without a leading `/` match ANY directory in the tree. `skills/` matches `gh-sync/skills/`. Use `/skills/` for root-only.
 - If a file keeps "disappearing" across sessions, check `.gitignore` FIRST — it may never have been tracked.
+
+## Client-Side Logging
+
+- `console.warn` in client hooks pollutes production browser consoles — gate behind `process.env.NODE_ENV !== 'production'`.
+- SSE `onmessage` JSON.parse failures are normal during reconnects — silent catch is acceptable but comment should explain WHY it's silent.
+- The server-side `logError`/`logDebug` helpers are server-only. Client code needs its own pattern (dev-gate or noop in prod).

@@ -3126,3 +3126,21 @@ Stage Summary:
 - Zero ungated console.warn in client code
 - Audit confirmed: 0 console.error bypasses, 0 silent catches, 0 bare .json(), 0 as any, 0 TODO/FIXME
 - Lint: 0 errors
+
+---
+Task ID: W149
+Agent: HERMES Wave Engine
+Task: Maintenance wave — metric fix, skill creation, insight update
+
+Work Log:
+- ASSESSED: System fully in maintenance mode. No code changes needed.
+- EXECUTED 1: Fixed stale context.md metrics (Waves in DB 145→148, commits ~275→~281)
+- EXECUTED 2: Created gh-sync/skills/zod-route-validation.md — documents schema location, safeParse pattern, enum vs freefield rules
+- EXECUTED 3: Added "Client-Side Logging" section to insights.md (dev-gate pattern, SSE catch justification)
+- VERIFIED: rm -rf .next && bun run lint — 0 errors
+
+Stage Summary:
+- New skill: zod-route-validation.md (7 skills total)
+- Updated: context.md (metric fix), insights.md (new section)
+- No code changes — pure maintenance
+- Lint: 0 errors
