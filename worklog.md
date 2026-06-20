@@ -2092,3 +2092,25 @@ Stage Summary:
 - Overview retry button now accessible
 - SSE route no longer has unexplained magic numbers
 - 93 waves in DB, health ~92/100
+---
+Task ID: 98
+Agent: Wave Engine (Wave 98)
+Task: Extract agent-live sub-components, spec a11y, new skill
+
+Work Log:
+- ASSESS: 93 waves, clean. Tackled largest remaining quality item: agent-live-panel 646 lines.
+- PLAN: (1) Extract 4 sub-components + 3 constants, (2) Spec checklist a11y, (3) Component extraction skill
+- EXECUTE:
+  - Created agent-live-subcomponents.tsx with ActivityEntry, PhaseTracker, SubAgentBadge, StatCard + STATE_ICONS, STATE_COLORS, PHASE_STEPS
+  - agent-live-panel.tsx: 646→496 lines, imports from new file, removed unused Clock import (inline SVG in subcomponent)
+  - spec-compliance-card.tsx: Added role="list", aria-label, role="listitem", aria-checked
+  - Created gh-sync/skills/component-extraction.md (skill #20)
+- VERIFY: `bun run lint` — 0 errors.
+- PERSIST: Wave #100 in DB, 3 decisions, 4 metrics, git push
+
+Stage Summary:
+- Agent live panel reduced from 646 to 496 lines (23% reduction)
+- New agent-live-subcomponents.tsx (142 lines) with 4 extracted components
+- Spec checklist now accessible to screen readers
+- 20 skills created (milestone)
+- 94 waves in DB, health ~92/100

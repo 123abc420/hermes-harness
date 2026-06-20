@@ -69,10 +69,12 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
           </motion.p>
         )}
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2" role="list" aria-label="Spec compliance checklist">
         {checklist.map((item, i) => (
           <motion.div
             key={item.label}
+            role="listitem"
+            aria-checked={item.done === true ? true : item.done === false ? false : undefined}
             className="flex items-center gap-2.5"
             initial={{ opacity: 0, x: -6 }}
             animate={{ opacity: 1, x: 0 }}
