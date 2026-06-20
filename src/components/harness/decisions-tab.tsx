@@ -59,6 +59,7 @@ function OutcomeBadge({ outcome }: { outcome: string | null }) {
 }
 
 function DecisionCard({ decision }: { decision: Decision }) {
+  const { setActiveTab } = useHarnessStore();
   const [open, setOpen] = useState(false);
 
   return (

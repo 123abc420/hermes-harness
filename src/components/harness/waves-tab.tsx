@@ -28,6 +28,7 @@ import { Play, Loader2, Waves as WavesIcon, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 import { CATEGORY_TW } from '@/lib/category-colors';
+import { formatDuration } from '@/lib/constants';
 
 const STATUS_COLORS: Record<string, string> = {
   running: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -271,7 +272,7 @@ export function WavesTab() {
                         <TableCell className="text-xs text-zinc-500">
                           {duration !== null ? (
                             <span className="font-mono tabular-nums">
-                              {duration < 60 ? `${duration}s` : `${Math.floor(duration / 60)}m${duration % 60 > 0 ? ` ${duration % 60}s` : ''}`}
+                              {formatDuration(duration)}
                             </span>
                           ) : (
                             <span className="text-zinc-600">—</span>
@@ -335,10 +336,7 @@ export function WavesTab() {
                   </span>
                   {waveDetail.completedAt && (
                     <span className="text-[10px] font-mono text-zinc-600">
-                      Duration: {(() => {
-                        const secs = Math.round((new Date(waveDetail.completedAt).getTime() - new Date(waveDetail.startedAt).getTime()) / 1000);
-                        return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m${secs % 60 > 0 ? ` ${secs % 60}s` : ''}`;
-                      })()}
+                      Duration: {formatDuration(Math.round((new Date(waveDetail.completedAt).getTime() - new Date(waveDetail.startedAt).getTime()) / 1000))}
                     </span>
                   )}
                 </div>

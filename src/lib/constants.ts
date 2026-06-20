@@ -44,3 +44,11 @@ export const CHART_TOOLTIP_STYLE_DARK = {
 
 // Shared tooltip label style for Recharts <Tooltip labelStyle>
 export const CHART_TOOLTIP_LABEL_STYLE = { color: '#a1a1aa' } as const;
+
+// Format seconds into human-readable "Xm Ys" or "Xs" string
+export function formatDuration(totalSeconds: number): string {
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+}

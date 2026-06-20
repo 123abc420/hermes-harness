@@ -3,12 +3,15 @@
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { PieChart as PieChartIcon, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 import { CATEGORY_HEX } from '@/lib/category-colors';
 import { MemorySection } from './memory-section';
 import { SkillsSection } from './skills-section';
 import { WaveCategoryBreakdown } from './wave-category-breakdown';
 import { DecisionTimeline } from './decision-timeline';
 import { DonutChartCard } from './donut-chart-card';
+import { ErrorBlock } from './error-block';
 import type { DonutSlice } from './donut-chart-card';
 import type { DashboardData } from '@/store/harness-store';
 
@@ -66,9 +69,35 @@ function OutcomeDistribution({ recentDecisions }: { recentDecisions?: DashboardD
   );
 }
 
-/* ── Research Tab ─────────────────────────────────────── */
+/* ── Analytics Tab ─────────────────────────────────────── */
 export function ResearchTab() {
-  const { data: dash } = useHarnessDashboard();
+  const { data: dash, isLoading, isError, error, refetch } = useHarnessDashboard();
+
+  // Error state
+  if (isError && !isLoading) {
+    return (
+      <ErrorBlock message={error?.message} onRetry={() => refetch()} />
+    );
+  }
+
+  // Loading skeleton
+  if (isLoading || !dash) {
+    return (
+      <div className="space-y-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="glass-card">
+            <CardContent className="p-4 space-y-3">
+              <Skeleton className="h-4 w-36" />
+              <div className="grid grid-cols-2 gap-4">
+                <Skeleton className="h-40 rounded-xl" />
+                <Skeleton className="h-40 rounded-xl" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
