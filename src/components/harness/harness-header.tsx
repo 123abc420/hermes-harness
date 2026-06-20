@@ -1,6 +1,6 @@
 'use client';
 
-import { Zap, Eye, Clock } from 'lucide-react';
+import { Zap, Eye, Clock, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
@@ -10,6 +10,7 @@ interface HarnessHeaderProps {
   totalWaves?: number;
   healthScore?: number;
   healthScoreTrend?: 'up' | 'down' | 'stable';
+  onSearch?: () => void;
 }
 
 const STATE_COLORS_MAP: Record<string, string> = {
@@ -24,7 +25,7 @@ const HEALTH_COLOR = (score: number) => {
   return 'text-red-400 border-red-500/20 bg-red-500/10';
 };
 
-export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthScoreTrend }: HarnessHeaderProps) {
+export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthScoreTrend, onSearch }: HarnessHeaderProps) {
   const isConnected = githubStatus?.status === 'connected';
   const agentState = useAgentLiveStore(s => s.agentState);
   const isLiveConnected = useAgentLiveStore(s => s.isConnected);
@@ -62,6 +63,20 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
             </p>
           </div>
         </motion.div>
+
+        {/* Search trigger */}
+        {onSearch && (
+          <button
+            onClick={onSearch}
+            className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-1 text-[10px] font-mono text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] hover:border-white/[0.1] transition-all"
+          >
+            <Search className="h-3 w-3" />
+            <span className="hidden sm:inline">Search</span>
+            <kbd className="hidden sm:inline-flex items-center justify-center h-4 px-1 rounded text-[9px] font-mono text-zinc-600 bg-white/[0.04] border border-white/[0.06]">
+              ⌘K
+            </kbd>
+          </button>
+        )}
 
         {/* Right status indicators */}
         <motion.div

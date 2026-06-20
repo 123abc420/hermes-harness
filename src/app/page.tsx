@@ -86,6 +86,7 @@ export default function Home() {
       <HarnessHeader
         githubStatus={dash?.githubStatus}
         totalWaves={dash?.totalStats?.totalWaves}
+        onSearch={() => setShowPalette(true)}
       />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">

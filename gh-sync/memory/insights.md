@@ -73,3 +73,9 @@
 - Module-level mutable VRM state must use a shared object (not `export let`) to avoid ESM import-reassignment errors
 - Components that share module-level refs (characterWorldPos, arrivalFlash) must import from same shared module
 - Always check `agentState` usage — a child component CANNOT access parent scope variables
+
+## Single-Source-of-Truth Pattern
+
+- Define color/config maps once as a canonical object (e.g. DECISION_CATEGORIES), derive all consumers (TW classes, hex, valid list) from it
+- When DB adds a new enum value, only one file needs updating — all 8+ consumers auto-sync
+- Fallback defaults in consumers mask missing entries — audit with groupBy to find gaps

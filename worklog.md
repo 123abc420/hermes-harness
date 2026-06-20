@@ -2419,3 +2419,25 @@ Work Log:
 Stage Summary:
 - category-colors.ts: 14→16 explicit category color mappings
 - All 16 DB categories now render consistently in badges + charts
+
+---
+Task ID: 114
+Agent: Wave Engine
+Task: Add ⌘K search button to header + insights update
+
+Work Log:
+- Assessed: 110 waves, 100% compliance, 0 errors
+- Added Search⌘K button to harness-header.tsx (136→150L, +14L)
+  - Search icon + "Search" label + ⌘K kbd hint
+  - Styled to match existing header indicators (border, bg, hover states)
+  - Conditionally rendered via onSearch prop
+- Wired in page.tsx: onSearch={() => setShowPalette(true)}
+- Appended "Single-Source-of-Truth Pattern" section to insights.md
+  - Documents DECISION_CATEGORIES derive pattern (TW + HEX + VALID_CATEGORIES)
+- Lint clean, dev.log clean, git push successful
+
+Stage Summary:
+- harness-header.tsx: 136→150L (search trigger button)
+- page.tsx: +1 line (onSearch prop)
+- insights.md: +3 lines (new section)
+- Command palette now discoverable via header button + keyboard shortcut
