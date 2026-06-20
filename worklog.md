@@ -2279,3 +2279,25 @@ Stage Summary:
 - decisions-tab.tsx: 332→181 lines (-45%)
 - New files: github-subcomponents.tsx (317L), decision-card.tsx (157L)
 - All tab components now <200 lines (orchestrators only)
+
+---
+Task ID: 108
+Agent: Wave Engine
+Task: New feature — Wave Comparison Card
+
+Work Log:
+- Assessed state: 103 waves, 100% compliance, 0 errors, component extraction complete
+- Context.md flagged wave comparison as next priority
+- Created WaveComparisonCard (102L): auto-compares 2 most recent completed waves
+  - Side-by-side columns with decisions, improvements, errors, duration, summary
+  - Delta indicators with TrendingUp/TrendingDown icons, invert flag for errors
+  - Graceful null return if <2 completed waves
+- Integrated into overview-tab after StatsGrid (195→209L, +14L for insertion)
+- Created skill #23 wave-comparison.md documenting the comparison pattern
+- Cleared .next cache, ran lint — 0 errors, dev.log clean
+
+Stage Summary:
+- New component: wave-comparison-card.tsx (102L)
+- New skill: wave-comparison.md (#23)
+- overview-tab.tsx: 195→209L (feature addition, not bloat)
+- 23 skills total, 104 waves in DB

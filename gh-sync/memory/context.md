@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 10:40 UTC+8
+2026-06-20 10:50 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 108)
-- **Waves in DB**: 103
+- **Phase**: Post-Compliance Evolution (Wave 109)
+- **Waves in DB**: 104
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -15,23 +15,22 @@
 |--------|-------|
 | API routes | 15 |
 | Dashboard tabs | 6 |
-| Skills | 22 |
+| Skills | 23 |
 | Export modules | 1 |
-| GitHub commits | ~182 |
-| Waves in DB | 103 |
+| GitHub commits | ~183 |
+| Waves in DB | 104 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~92/100 (stable) |
 
 ## What exists
-- All tab orchestrators <200 lines: agent-live(320), waves(213), github(59), decisions(181), overview(195), research(67)
-- 3D sandbox: 6 modules (sandbox=54 lines orchestrator)
-- Sub-components extracted: github-subcomponents(317L), decision-card(157L), wave-detail-dialog(109L), trigger-wave-dialog(73L), agent-live-subcomponents(248L)
-- All Zustand subscriptions fine-grained, DecisionCard memoized
-- Category color map covers all 14 DB categories, no aliases
-- 22 skills, insights updated with extraction + hygiene patterns
+- All tab orchestrators decomposed: agent-live(320), waves(213), github(59), decisions(181), overview(209), research(67)
+- Sub-components: github-subcomponents(317L), decision-card(157L), wave-detail-dialog(109L), trigger-wave-dialog(73L), agent-live-subcomponents(248L)
+- NEW: WaveComparisonCard (102L) — auto-compares 2 most recent waves with deltas
+- 3D sandbox: 6 modules (sandbox=54L orchestrator)
+- 23 skills, insights at ~75 lines (healthy)
 
 ## What's next
-1. All major tabs now decomposed — component extraction series complete
-2. Potential new feature: wave comparison (compare two waves side by side)
-3. UX polish: verify 14 category colors render correctly in all charts
-4. Monitor insights.md token cap (currently ~75 lines, healthy)
+1. More comparison features (e.g., decision category comparison across wave ranges)
+2. UX polish: verify 14 category colors in all chart renderings
+3. Search/filter across waves and decisions (text search)
+4. Consider adding export (CSV/JSON) for waves data

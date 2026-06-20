@@ -15,6 +15,7 @@ import { MiniWaveTimeline } from './mini-wave-timeline';
 import { ErrorTrendChart } from './error-trend-chart';
 import { RecentCommitsCard } from './recent-commits-card';
 import { BuildHealthCard } from './build-health-card';
+import { WaveComparisonCard } from './wave-comparison-card';
 import { isErrorsTrendingDown } from '@/lib/constants';
 
 /* ── Overview Tab ─────────────────────────────────────── */
@@ -57,6 +58,19 @@ export function OverviewTab() {
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />
+
+      {/* Wave Comparison — auto-compares 2 most recent completed waves */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.18 }}
+      >
+        {!isLoading && waves.length >= 2 ? (
+          <WaveComparisonCard waves={waves} />
+        ) : !isLoading ? null : (
+          <Card className="glass-card"><CardContent className="p-6"><div className="flex items-center gap-4"><div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.04]" /><div className="space-y-2"><div className="h-4 w-40 animate-pulse rounded bg-white/[0.04]" /><div className="h-3 w-60 animate-pulse rounded bg-white/[0.03]" /></div></div></CardContent></Card>
+        )}
+      </motion.div>
 
       {/* Four-column: Spec Compliance + Quick Metrics + Error Trend + Recent Commits */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-4">
