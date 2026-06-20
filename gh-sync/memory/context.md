@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 16:11 UTC+8
+2026-06-20 16:21 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 140)
-- **Waves in DB**: 137
+- **Phase**: Post-Compliance Evolution (Wave 141)
+- **Waves in DB**: 138
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 28 |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~263 |
-| Waves in DB | 137 |
+| GitHub commits | ~264 |
+| Waves in DB | 138 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 | Dashboard cache TTL | 12s (functional) |
@@ -42,8 +42,11 @@
 - All data visualizations have accessible text alternatives (sparklines, bar charts)
 - All buttons and collapsible controls have descriptive ARIA attributes
 - All collapsible sections linked via aria-controls/aria-expanded
+- Wave replay auto-stops after 3 cycles (was infinite loop)
+- Phase timeline clearly labeled as estimated
 - 28 skills including wave-data-hygiene
 
 ## What's next
-1. Consider per-wave replay with real phase data
-2. All known accessibility issues resolved
+1. Consider per-wave replay with real phase data (requires schema change)
+2. Consider agent-status POST input validation (security hardening)
+3. Consider agent-demo route auth gate
