@@ -3144,3 +3144,21 @@ Stage Summary:
 - Updated: context.md (metric fix), insights.md (new section)
 - No code changes — pure maintenance
 - Lint: 0 errors
+
+---
+Task ID: W150
+Agent: HERMES Wave Engine
+Task: Spec compliance fix — restore missing _template.md
+
+Work Log:
+- ASSESSED: Full audit of SPEC.md against filesystem. Found 2 gaps.
+- EXECUTED 1: Created gh-sync/skills/_template.md (spec Section 6 requires it, was missing)
+- EXECUTED 2: Fixed stale context.md metric (Skills tracked in git: 6 → 7 + 1 template)
+- Verified export contract (11 components, all exist), all imports valid, no dead code
+- VERIFIED: rm -rf .next && bun run lint — 0 errors
+
+Stage Summary:
+- New file: gh-sync/skills/_template.md
+- Updated: context.md metric fix
+- Spec compliance: still 100% (template restored)
+- Lint: 0 errors

@@ -6,8 +6,8 @@
 2026-06-20 17:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 149)
-- **Waves in DB**: 149
+- **Phase**: Post-Compliance Evolution (Wave 150)
+- **Waves in DB**: 150
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -19,7 +19,7 @@
 | Components | 28 |
 | Exported components | 11 |
 | GitHub commits | ~281 |
-| Waves in DB | 149 |
+| Waves in DB | 150 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 | execSync calls | 0 |
@@ -30,7 +30,7 @@
 | Bare req.json() calls | 0 |
 | Ungated client console.warn | 0 |
 | Shared zod schemas | 8 |
-| Skills tracked in git | 6 |
+| Skills tracked in git | 7 (+ 1 template) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
