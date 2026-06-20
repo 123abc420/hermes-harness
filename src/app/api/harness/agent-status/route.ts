@@ -160,7 +160,11 @@ export async function GET(req: NextRequest) {
 // POST: Update agent status (called by wave engine, cron, or demo)
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
     const { agentState, message, phase, waveNumber, progress, type } = body;
 
     if (!agentState && !message && !type) {

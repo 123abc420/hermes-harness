@@ -101,12 +101,14 @@ export function useAgentLive() {
           const data: HealthData = JSON.parse(event.data);
           processData(data);
         } catch {
-          // Ignore parse errors
+          // Malformed SSE event — skip silently (common during reconnect)
         }
       };
 
       es.onerror = () => {
-        console.warn('[AgentLive] SSE error, falling back to polling');
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[AgentLive] SSE error, falling back to polling');
+        }
         es.close();
         eventSourceRef.current = null;
         setConnected(false);
@@ -116,7 +118,9 @@ export function useAgentLive() {
         if (!sseRetryRef.current) {
           sseRetryRef.current = setInterval(() => {
             if (eventSourceRef.current) return; // already connected via SSE
-            console.warn('[AgentLive] Attempting SSE reconnection...');
+            if (process.env.NODE_ENV !== 'production') {
+              console.warn('[AgentLive] Attempting SSE reconnection...');
+            }
             if (pollRef.current) {
               clearInterval(pollRef.current);
               pollRef.current = undefined;
@@ -141,7 +145,7 @@ export function useAgentLive() {
                   const data: HealthData = JSON.parse(event.data);
                   processData(data);
                 } catch {
-                  // Ignore parse errors
+                  // Malformed SSE event — skip silently (common during reconnect)
                 }
               };
               retryEs.onerror = () => {
@@ -157,7 +161,9 @@ export function useAgentLive() {
         }
       };
     } catch {
-      console.warn('[AgentLive] SSE not supported, using polling');
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[AgentLive] SSE not supported, using polling');
+      }
       useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
       startPolling();
     }
