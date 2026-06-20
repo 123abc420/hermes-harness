@@ -2630,3 +2630,23 @@ Stage Summary:
 - wave-detail-dialog.tsx: 110→160L (reasoning, outcome, copy button, DecisionItem extraction)
 - insights.md: +1 line (prop destructuring lesson)
 - 27 skills, 119 waves in DB
+
+---
+Task ID: 125
+Agent: Wave Engine
+Task: Command palette bug fix + tab nav + PhaseTracker mobile
+
+Work Log:
+- Assessed: 119 waves, 100% compliance, 0 errors
+- BUG FIX: command-palette.tsx result buttons missing `group` class — ArrowRight icon with group-hover:opacity-100 was always invisible
+- Added 6 tab quick-nav items (Agent Live, Overview, Waves, Decisions, Research, GitHub) to command palette empty state with icons + hover arrows
+- Added "Results" section header when query is active
+- Hit JSX parser edge case (skill #27): multi-line template literal in className attr → extracted to plain variables
+- PhaseTracker: step boxes w-7→w-6 sm:w-7, connectors w-4→w-3 sm:w-4 for 320px safety
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- command-palette.tsx: 195→223L (tab nav, group fix, parser workaround)
+- agent-live-subcomponents.tsx: PhaseTracker responsive
+- 27 skills, 120 waves in DB

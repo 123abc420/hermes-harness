@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Waves, Brain, Loader2, ArrowRight } from 'lucide-react';
+import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github } from 'lucide-react';
 
 /* ── Types ─────────────────────────────────────────────── */
 interface WaveResult {
@@ -26,6 +26,15 @@ interface CommandPaletteProps {
   onClose: () => void;
   onNavigate: (tab: string) => void;
 }
+
+const TAB_NAV_ITEMS = [
+  { key: 'agent', label: 'Agent Live', icon: Eye },
+  { key: 'overview', label: 'Overview', icon: Zap },
+  { key: 'waves', label: 'Waves', icon: Waves },
+  { key: 'decisions', label: 'Decisions', icon: Brain },
+  { key: 'research', label: 'Research & Memory', icon: BookOpen },
+  { key: 'github', label: 'GitHub & Export', icon: Github },
+];
 
 /* ── Component ─────────────────────────────────────────── */
 export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProps) {
@@ -145,9 +154,26 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
               {/* Results */}
               <div ref={listRef} className="max-h-72 overflow-y-auto p-2 scrollbar-dark">
                 {!query.trim() && (
-                  <div className="px-3 py-8 text-center text-xs text-zinc-600">
-                    Type to search across all waves and decisions
-                  </div>
+                  <>
+                    <div className="px-3 py-1.5 text-[10px] font-mono text-zinc-600 uppercase tracking-wider">Navigate</div>
+                    {TAB_NAV_ITEMS.map((tab) => {
+                      const TabIcon = tab.icon;
+                      return (
+                        <button
+                          key={tab.key}
+                          onClick={() => { onNavigate(tab.key); onClose(); }}
+                          className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-zinc-400 hover:bg-white/[0.04] transition-colors"
+                        >
+                          <TabIcon className="h-3.5 w-3.5 shrink-0 text-zinc-600" />
+                          <span className="text-xs">{tab.label}</span>
+                          <ArrowRight className="ml-auto h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      );
+                    })}
+                  </>
+                )}
+                {query.trim() && (
+                  <div className="px-3 py-1.5 text-[10px] font-mono text-zinc-600 uppercase tracking-wider">Results</div>
                 )}
                 {query.trim() && !loading && totalResults === 0 && (
                   <div className="px-3 py-8 text-center text-xs text-zinc-600">
@@ -157,15 +183,17 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
                 {allResults.map((item, idx) => {
                   const Icon = item.type === 'wave' ? Waves : Brain;
                   const isActive = idx === activeIdx;
+                  const btnCls = isActive
+                    ? 'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors bg-amber-500/10 text-amber-200'
+                    : 'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors text-zinc-400 hover:bg-white/[0.04]';
+                  const iconCls = isActive ? 'mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400' : 'mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-600';
                   return (
                     <button
                       key={`${item.type}-${item.data.id}`}
                       onClick={() => { onNavigate(item.type === 'wave' ? 'waves' : 'decisions'); onClose(); }}
-                      className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
-                        isActive ? 'bg-amber-500/10 text-amber-200' : 'text-zinc-400 hover:bg-white/[0.04]'
-                      }`}
+                      className={btnCls}
                     >
-                      <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${isActive ? 'text-amber-400' : 'text-zinc-600'}`} />
+                      <Icon className={iconCls} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-medium truncate">{item.label}</span>

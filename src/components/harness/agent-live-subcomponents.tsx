@@ -89,7 +89,7 @@ export function PhaseTracker({ phase, progress }: { phase: string; progress: num
           <div key={p.key} className="flex items-center gap-1">
             <div
               className={`
-                flex items-center justify-center w-7 h-7 rounded-md text-[9px] font-bold transition-all duration-500
+                flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-md text-[9px] font-bold transition-all duration-500
                 ${isCompleted ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40' :
                   isCurrent ? `${p.color} bg-white/5 ring-1 ring-white/20 animate-pulse` :
                   'bg-white/[0.02] text-zinc-600 ring-1 ring-white/[0.05]'}
@@ -98,7 +98,7 @@ export function PhaseTracker({ phase, progress }: { phase: string; progress: num
               {isCompleted ? '✓' : p.label[0]}
             </div>
             {i < PHASE_STEPS.length - 1 && (
-              <div className={`w-4 h-px ${currentIndex > i ? 'bg-emerald-500/40' : 'bg-white/[0.06]'}`} />
+              <div className={`w-3 sm:w-4 h-px ${currentIndex > i ? 'bg-emerald-500/40' : 'bg-white/[0.06]'}`} />
             )}
           </div>
         );
