@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import type { DashboardData } from '@/store/harness-store';
 import { useId } from 'react';
-import { CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE } from '@/lib/constants';
+import { CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE, isErrorsTrendingDown } from '@/lib/constants';
 
 export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTrend'] }) {
   const gradId = useId();
@@ -40,8 +40,7 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
 
   const trend = errorTrend;
   const totalErrors = trend.reduce((s, t) => s + t.errors, 0);
-  const recentErrors = trend.slice(-3).reduce((s, t) => s + t.errors, 0);
-  const isTrendingDown = recentErrors <= (trend.slice(-6, -3).reduce((s, t) => s + t.errors, 0) || 1);
+  const isTrendingDown = isErrorsTrendingDown(trend);
 
   const chartData = trend.map((t) => ({ wave: `W${t.wave}`, errors: t.errors }));
 
@@ -73,7 +72,7 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
           <span className="text-xs text-zinc-500">total errors across {trend.length} waves</span>
         </div>
         <div className="h-[100px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" role="img" aria-label="Error rate trend chart showing errors per wave">
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id={`errorGrad-${gradId}`} x1="0" y1="0" x2="0" y2="1">

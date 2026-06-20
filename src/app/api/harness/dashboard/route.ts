@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import { readdirSync } from 'fs';
 import { join } from 'path';
 import { db } from '@/lib/db';
+import { getGitData } from '@/lib/git';
 
 // ── Build health cache (module-level, survives between requests) ────
 let buildHealthCache: {
@@ -108,20 +109,11 @@ export async function GET() {
       configMap[c.key] = c.value;
     }
 
-    // Real git commit count
-    let gitCommitCount = githubSync?.totalCommits ?? 0;
-    let recentCommits: { sha: string; message: string }[] = [];
-    let lastSha = githubSync?.lastCommitSha ?? '';
-    try {
-      gitCommitCount = parseInt(execSync('git rev-list --count HEAD', { encoding: 'utf-8' }).trim(), 10);
-      const logRaw = execSync('git log --oneline -5', { encoding: 'utf-8' }).trim();
-      recentCommits = logRaw.split('\n').map((line) => {
-        const sha = line.slice(0, 7);
-        const message = line.slice(8).trim();
-        return { sha, message };
-      });
-      if (recentCommits.length > 0) lastSha = recentCommits[0].sha;
-    } catch { /* git not available */ }
+    // Real git data from shared utility
+    const git = getGitData();
+    const gitCommitCount = git.count;
+    const recentCommits = git.commits;
+    const lastSha = git.lastSha ?? githubSync?.lastCommitSha ?? '';
 
     // Wave success rate (overall)
     const completedCount = waveCounts.find((w) => w.status === 'completed')?._count ?? 0;

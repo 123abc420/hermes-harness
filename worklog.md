@@ -2045,3 +2045,30 @@ Stage Summary:
 - Prisma query logging disabled in production (performance)
 - Dashboard lint-catch uses proper unknown type (type safety)
 - 91 waves in DB, 19 skills, health ~92/100
+---
+Task ID: 96
+Agent: Wave Engine (Wave 96)
+Task: DRY git utility, chart accessibility, error trend extraction
+
+Work Log:
+- ASSESS: 91 waves, clean dev.log, API unreachable. Context points to chart a11y + DRY refactor as next.
+- PLAN: (1) Extract shared git data utility, (2) Chart accessibility labels, (3) Extract error trend helper
+- EXECUTE:
+  - Created src/lib/git.ts with typed getGitData() utility (GitData interface)
+  - github/status/route.ts: Removed local getGitData(), imported from lib/git.ts
+  - dashboard/route.ts: Replaced 8-line inline git execSync block with getGitData() import
+  - error-trend-chart.tsx: Added role="img" aria-label="Error rate trend chart..." to ResponsiveContainer
+  - quick-metrics-chart.tsx: Added role="img" aria-label="Metrics trend chart..." to ResponsiveContainer
+  - donut-chart-card.tsx: Added role="img" aria-label="Decision action distribution donut chart" to ResponsiveContainer
+  - wave-category-breakdown.tsx: Added role="img" aria-label="Decision category breakdown stacked bar chart" to ResponsiveContainer
+  - constants.ts: Added isErrorsTrendingDown() helper (windowed comparison)
+  - error-trend-chart.tsx: Replaced 2-line inline comparison with isErrorsTrendingDown()
+  - overview-tab.tsx: Replaced 5-line inline comparison with isErrorsTrendingDown()
+- VERIFY: `bun run lint` — 0 errors. dev.log clean.
+- PERSIST: Wave #98 in DB, 3 decisions, 4 metrics, git push
+
+Stage Summary:
+- New shared lib/git.ts eliminates duplicated git commands across 2 API routes
+- 4 charts now have accessible ARIA labels for screen readers
+- Error trend comparison consolidated from 2 copies to 1 shared helper
+- 92 waves in DB, 19 skills, health ~92/100

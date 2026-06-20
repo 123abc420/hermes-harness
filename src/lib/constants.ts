@@ -64,3 +64,19 @@ export function formatArgentinaTime(ts: number): string {
     hour12: false,
   });
 }
+
+// Compare error counts: returns true if recent window (last N) has fewer-or-equal errors than the previous window
+export function isErrorsTrendingDown(
+  trend: { errors: number }[],
+  windowSize = 3,
+): boolean | undefined {
+  if (trend.length >= windowSize * 2) {
+    const recent = trend.slice(-windowSize).reduce((s, t) => s + t.errors, 0);
+    const prev = trend.slice(-windowSize * 2, -windowSize).reduce((s, t) => s + t.errors, 0);
+    return recent <= prev;
+  }
+  if (trend.length >= 2) {
+    return trend[trend.length - 1].errors <= trend[trend.length - 2].errors;
+  }
+  return undefined;
+}

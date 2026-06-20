@@ -83,3 +83,9 @@
 
 - Never spread request body directly into Prisma `data:` — whitelist allowed fields with a Set
 - Prisma `log: ['query']` is fine for dev but generates heavy I/O in production — gate with NODE_ENV check
+
+## DRY & Shared Utilities
+
+- Extract early: duplicated logic across routes/components → lib/ utilities with typed interfaces
+- Server-route helpers should be in lib/ (not re-exported from another route) for clean imports
+- When consolidating duplicated logic, verify semantic equivalence — some "copies" have distinct edge-case behavior

@@ -15,6 +15,7 @@ import { MiniWaveTimeline } from './mini-wave-timeline';
 import { ErrorTrendChart } from './error-trend-chart';
 import { RecentCommitsCard } from './recent-commits-card';
 import { BuildHealthCard } from './build-health-card';
+import { isErrorsTrendingDown } from '@/lib/constants';
 
 /* ── Overview Tab ─────────────────────────────────────── */
 export function OverviewTab() {
@@ -32,12 +33,7 @@ export function OverviewTab() {
     : null;
 
   // Compute dynamic error trend for spec compliance
-  const errorTrend = dash?.errorTrend;
-  const isErrorsDecreasing = errorTrend && errorTrend.length >= 6
-    ? errorTrend.slice(-3).reduce((s, t) => s + t.errors, 0) <= errorTrend.slice(-6, -3).reduce((s, t) => s + t.errors, 0)
-    : errorTrend && errorTrend.length >= 2
-      ? errorTrend[errorTrend.length - 1].errors <= errorTrend[errorTrend.length - 2].errors
-      : undefined;
+  const isErrorsDecreasing = isErrorsTrendingDown(dash?.errorTrend ?? []);
 
   // Extract npm_dependencies from metrics
   const npmDep = dash?.metrics?.find(m => m.metricKey === 'npm_dependencies');

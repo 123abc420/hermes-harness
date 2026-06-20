@@ -1,23 +1,6 @@
 import { NextResponse } from 'next/server';
-import { execSync } from 'child_process';
 import { db } from '@/lib/db';
-
-function getGitData() {
-  try {
-    const count = parseInt(execSync('git rev-list --count HEAD', { encoding: 'utf-8' }).trim(), 10);
-    const log = execSync('git log --oneline -5', { encoding: 'utf-8' }).trim();
-    const commits = log.split('\n').map((line) => {
-      const spaceIdx = line.indexOf(' ');
-      const sha = line.slice(0, spaceIdx > 0 ? spaceIdx : 7);
-      const message = line.slice(spaceIdx + 1);
-      return { sha, message };
-    });
-    const lastSha = commits[0]?.sha ?? null;
-    return { count, commits, lastSha };
-  } catch {
-    return { count: 0, commits: [], lastSha: null };
-  }
-}
+import { getGitData } from '@/lib/git';
 
 export async function GET() {
   try {
