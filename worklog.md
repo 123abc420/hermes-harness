@@ -2650,3 +2650,23 @@ Stage Summary:
 - command-palette.tsx: 195→223L (tab nav, group fix, parser workaround)
 - agent-live-subcomponents.tsx: PhaseTracker responsive
 - 27 skills, 120 waves in DB
+
+---
+Task ID: w125
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 125 — Mobile polish across 6 components
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dev.log; dashboard API unreachable (server not running, no errors)
+- PLAN: Conducted thorough mobile audit via subagent — found 6 high-severity and 10 medium-severity mobile issues
+- EXEC-1: Added `min-w-0` to flex-1 text children in recent-commits-card.tsx, wave-detail-dialog.tsx (summary), agent-live-panel.tsx (decision description)
+- EXEC-2: Added `flex-wrap` to hero health breakdown bars in hero-status-card.tsx; made donut chart responsive (100px mobile, 140px sm+); added `min-w-0` to donut legend
+- EXEC-3: Wrapped waves table in `overflow-x-auto` div; added `flex-wrap` to badge rows in decision-timeline.tsx, wave-detail-dialog.tsx DecisionItem, agent-live-panel.tsx (standby + metadata rows)
+- VERIFY: `rm -rf .next && bun run lint` — 0 errors. dev.log clean.
+- PERSIST: DB records via raw SQL (wave + 3 decisions + 3 metrics). Git push to GitHub. context.md updated.
+
+Stage Summary:
+- 7 files changed, 10 mobile overflow/flex-wrap/min-w-0 issues fixed across 6 components
+- Lint: 0 errors
+- Git: 2 commits pushed to main
+- DB: Wave 125 (completed), 3 decisions, 3 metrics recorded
