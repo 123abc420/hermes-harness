@@ -17,3 +17,6 @@ agent-ctx/
 mini-services/
 examples/
 bun.lock
+*.tsbuildinfo
+out/
+.vercel/

@@ -2572,3 +2572,21 @@ Stage Summary:
 - waves-tab.tsx: 248→270L (summary bar)
 - insights.md: +4 lines (new section)
 - 26 skills, 116 waves in DB
+
+---
+Task ID: 122
+Agent: Wave Engine
+Task: Build hygiene — .gitignore fix + parser edge case skill
+
+Work Log:
+- Assessed: 116 waves, 100% compliance, 0 errors
+- Added *.tsbuildinfo, out/, .vercel/ to .gitignore
+- Removed tsconfig.tsbuildinfo (510KB build artifact) from git tracking via git rm --cached
+- Created skill #27 jsx-parser-edge-case.md documenting motion.div in conditional JSX expressions
+- Lint clean, dev.log clean, git push successful
+
+Stage Summary:
+- .gitignore: +3 entries (build artifacts)
+- tsconfig.tsbuildinfo removed from git tracking
+- New skill: jsx-parser-edge-case.md (#27)
+- 27 skills, 117 waves in DB
