@@ -2,7 +2,6 @@
 
 import React, { useRef, useMemo, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Stars, Float, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { STATION_COLORS as STATE_COLORS, STATION_ENTRIES } from './agent-3d-shared';
 
@@ -14,20 +13,15 @@ const DynamicLighting = memo(function DynamicLighting() {
   const dirRef = useRef<THREE.DirectionalLight>(null);
 
   useFrame(() => {
-    // Get Argentina hour (UTC-3)
     const now = new Date();
     const arHour = (now.getUTCHours() - 3 + 24) % 24;
-
-    // Smooth day/night: 0=midnight, 6=sunrise, 12=noon, 18=sunset
-    // Map to 0..1 brightness: night=0.15, day=0.6
-    const sunAngle = ((arHour - 6) / 12) * Math.PI; // 0 at 6am, PI at 6pm
-    const dayFactor = Math.max(0, Math.cos(sunAngle)); // 1 at noon, 0 at night
+    const sunAngle = ((arHour - 6) / 12) * Math.PI;
+    const dayFactor = Math.max(0, Math.cos(sunAngle));
     const brightness = 0.15 + dayFactor * 0.45;
 
     if (ambientRef.current) {
       ambientRef.current.intensity = THREE.MathUtils.lerp(ambientRef.current.intensity, brightness, 0.02);
-      // Warmer at sunrise/sunset, cooler at noon, bluer at night
-      const warmth = 1 - Math.abs(dayFactor - 0.5) * 2; // peaks at dawn/dusk
+      const warmth = 1 - Math.abs(dayFactor - 0.5) * 2;
       const r = 0.5 + warmth * 0.3;
       const g = 0.5 + dayFactor * 0.2;
       const b = 0.6 + dayFactor * 0.2;
@@ -36,11 +30,9 @@ const DynamicLighting = memo(function DynamicLighting() {
     if (dirRef.current) {
       const dirIntensity = 0.3 + dayFactor * 0.7;
       dirRef.current.intensity = THREE.MathUtils.lerp(dirRef.current.intensity, dirIntensity, 0.02);
-      // Sun position follows time of day
       const sunX = Math.sin(sunAngle) * 8;
       const sunY = Math.max(0.5, Math.cos(sunAngle) * 8);
       dirRef.current.position.set(sunX, sunY, 4);
-      // Warmer color at low sun angles
       const sunWarmth = 1 - dayFactor;
       dirRef.current.color.setRGB(1, 0.9 - sunWarmth * 0.3, 0.8 - sunWarmth * 0.4);
     }
@@ -61,13 +53,78 @@ const DynamicLighting = memo(function DynamicLighting() {
 });
 
 /* ═══════════════════════════════════════════════════════════════════════
-   WORLD ENVIRONMENT — ground, trees, rocks, mushrooms, lights
+   STARFIELD — pure Three.js instanced points (replaces drei Stars)
+   ═══════════════════════════════════════════════════════════════════════ */
+const StarField = memo(function StarField() {
+  const count = 600;
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  const stars = useMemo(() =>
+    Array.from({ length: count }, () => {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 15 + Math.random() * 15;
+      return {
+        pos: new THREE.Vector3(
+          r * Math.sin(phi) * Math.cos(theta),
+          Math.abs(r * Math.sin(phi) * Math.sin(theta)) + 2,
+          r * Math.cos(phi)
+        ),
+        twinkleSpeed: 0.5 + Math.random() * 2,
+        offset: Math.random() * Math.PI * 2,
+        baseScale: 0.02 + Math.random() * 0.03,
+      };
+    }), []
+  );
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < count; i++) {
+      const s = stars[i];
+      const twinkle = 0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.offset);
+      dummy.position.copy(s.pos);
+      dummy.scale.setScalar(s.baseScale * twinkle);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      <sphereGeometry args={[1, 4, 4]} />
+      <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
+    </instancedMesh>
+  );
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FLOATING GEM — pure useFrame bob (replaces drei Float)
+   ═══════════════════════════════════════════════════════════════════════ */
+function FloatingGem({ color }: { color: string }) {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (ref.current) {
+      ref.current.position.y = 0.55 + Math.sin(state.clock.elapsedTime * 2) * 0.15;
+    }
+  });
+  return (
+    <mesh ref={ref}>
+      <octahedronGeometry args={[0.08, 0]} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.2} />
+    </mesh>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   WORLD ENVIRONMENT — ground, trees, rocks, mushrooms, station markers
    ═══════════════════════════════════════════════════════════════════════ */
 export const World = memo(function World() {
   const gridRef = useMemo(() => new THREE.GridHelper(24, 36, '#1a3a2a', '#0d1f15'), []);
   return (
     <group>
-      {/* Lighting — dynamic based on Argentina time */}
       <DynamicLighting />
 
       {/* Ground */}
@@ -77,8 +134,8 @@ export const World = memo(function World() {
       </mesh>
       <primitive object={gridRef} position={[0, 0.005, 0]} />
 
-      {/* Stars — visible at night, fade during day */}
-      <Stars radius={30} depth={40} count={1500} factor={3} saturation={0.3} fade speed={1} />
+      {/* Stars — pure Three.js */}
+      <StarField />
 
       {/* Trees */}
       {[
@@ -132,7 +189,7 @@ export const World = memo(function World() {
         </group>
       ))}
 
-      {/* Station markers */}
+      {/* Station markers — no Html (pure 3D) */}
       {STATION_ENTRIES.map(([key, s]) => {
         const color = STATE_COLORS[key];
         return (
@@ -141,26 +198,12 @@ export const World = memo(function World() {
               <cylinderGeometry args={[0.025, 0.025, 0.5, 6]} />
               <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} transparent opacity={0.7} />
             </mesh>
-            <Float speed={2} rotationIntensity={0} floatIntensity={0.15}>
-              <mesh position={[0, 0.55, 0]}>
-                <octahedronGeometry args={[0.08, 0]} />
-                <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.2} />
-              </mesh>
-            </Float>
+            <FloatingGem color={color} />
             <pointLight position={[0, 0.5, 0]} color={color} intensity={0.2} distance={2} />
-            <Html position={[0, 0.85, 0]} center style={{ pointerEvents: 'none' }}>
-              <div style={{
-                color, fontSize: '9px', fontFamily: 'monospace', fontWeight: 700,
-                whiteSpace: 'nowrap', textShadow: `0 0 8px ${color}`, letterSpacing: '1px', opacity: 0.8,
-              }}>
-                {s.label}
-              </div>
-            </Html>
           </group>
         );
       })}
 
-      {/* Station-specific objects */}
       {/* LIBRARY — bookshelf */}
       <group position={[-3, 0, -2]}>
         <mesh position={[-0.3, 0.2, 0]} castShadow>

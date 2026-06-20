@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo, memo } from 'react';
+import React, { useRef, useMemo, memo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import {
@@ -51,42 +50,13 @@ export function CharacterGroup() {
   );
 }
 
-/* Chat bubble — subscribes to message only, isolated from character re-renders */
-export const ChatBubble = memo(function ChatBubble() {
-  const message = useAgentLiveStore(s => s.message);
-  const agentState = useAgentLiveStore(s => s.agentState);
-  const stateColor = STATE_COLORS[agentState];
-  const showChat = message && message !== 'Waiting for activity...';
+/* Chat bubble removed (drei Html eliminated for compile speed). Message shown in sidebar feed instead. */
 
-  if (!showChat) return null;
-
-  return (
-    <Html position={[characterWorldPos.x, 1.6, characterWorldPos.z]} center
-      distanceFactor={5} style={{ pointerEvents: 'none' }}>
-      <div style={{
-        background: 'rgba(0,0,0,0.85)', color: '#e4e4e7', padding: '5px 12px',
-        borderRadius: '14px', fontSize: '11px', fontFamily: 'system-ui, sans-serif',
-        maxWidth: '180px', textAlign: 'center', lineHeight: 1.4,
-        border: `1px solid ${stateColor}33`, backdropFilter: 'blur(6px)',
-        boxShadow: `0 0 20px ${stateColor}22`,
-      }}>
-        <div style={{
-          width: 0, height: 0, borderLeft: '6px solid transparent',
-          borderRight: '6px solid transparent', borderTop: `6px solid rgba(0,0,0,0.85)`,
-          margin: '0 auto', marginTop: '4px',
-        }} />
-        {message}
-      </div>
-    </Html>
-  );
-});
-
-/* Bridge — renders both as siblings so message changes don't cascade into character */
+/* Bridge — renders character (chat bubble removed for compile speed) */
 export function CharacterBridge() {
   return (
     <group>
       <CharacterGroup />
-      <ChatBubble />
     </group>
   );
 }

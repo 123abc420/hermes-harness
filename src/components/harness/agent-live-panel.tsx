@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import { useWaves, useDecisions } from '@/hooks/use-harness-data';
@@ -20,23 +19,7 @@ import {
   ActivityFeedColumn, StatCard, PhaseTracker, SubAgentBadge, STATE_COLORS, STATE_ICONS,
 } from './agent-live-subcomponents';
 
-// Dynamic import for 3D components (avoid SSR issues with Three.js)
-const Agent3DSandbox = dynamic(
-  () => import('./agent-3d-sandbox').then(m => ({ default: m.Agent3DSandbox })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full aspect-square max-w-[560px] mx-auto rounded-2xl border border-amber-500/[0.08] bg-[#0d0906] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full border-2 border-amber-500/20 border-t-amber-400 animate-spin" />
-          </div>
-          <span className="text-xs text-amber-700/50 font-mono">Initializing 3D environment...</span>
-        </div>
-      </div>
-    ),
-  }
-);
+import { AgentAvatarCanvas } from './agent-avatar-canvas';
 
 // ─── Main Panel ──────────────────────────────────────────────────────
 export function AgentLivePanel() {
@@ -125,20 +108,8 @@ export function AgentLivePanel() {
               </Badge>
             </div>
 
-            {/* 3D Sandbox */}
-            <Suspense fallback={null}>
-              <HarnessErrorBoundary
-                label="3D Avatar"
-                fallback={
-                  <div className="w-full aspect-square max-w-[560px] mx-auto rounded-2xl bg-[#050a08] flex flex-col items-center justify-center gap-2">
-                    <span className="text-2xl">🤖</span>
-                    <span className="text-[10px] text-zinc-600">3D avatar unavailable</span>
-                  </div>
-                }
-              >
-                <Agent3DSandbox />
-              </HarnessErrorBoundary>
-            </Suspense>
+            {/* Avatar Canvas (2D — no heavy 3D deps) */}
+            <AgentAvatarCanvas />
 
             {/* Current message */}
             <div className="mt-4 text-center min-h-[2.5rem] flex items-center justify-center">
