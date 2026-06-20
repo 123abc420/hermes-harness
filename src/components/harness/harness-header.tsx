@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { Zap, Eye, Clock, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -41,6 +42,7 @@ const BREAKDOWN_ITEMS: { key: keyof HealthBreakdown; label: string; max: number;
 ];
 
 export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthScoreTrend, healthBreakdown, onSearch }: HarnessHeaderProps) {
+  const [healthOpen, setHealthOpen] = useState(false);
   const isConnected = githubStatus?.status === 'connected';
   const agentState = useAgentLiveStore(s => s.agentState);
   const isLiveConnected = useAgentLiveStore(s => s.isConnected);
@@ -125,16 +127,27 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
             </span>
           )}
           {healthScore !== undefined && (
-            <div className="relative group hidden md:block">
-              <div className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums cursor-default ${HEALTH_COLOR(healthScore)}`}>
+            <div className="relative hidden md:block">
+              <button
+                type="button"
+                aria-label={`Health score: ${healthScore}/100. Press to show breakdown.`}
+                className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums ${HEALTH_COLOR(healthScore)} hover:brightness-125 transition-all focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-1`}
+                onMouseEnter={() => setHealthOpen(true)}
+                onMouseLeave={() => setHealthOpen(false)}
+                onFocus={() => setHealthOpen(true)}
+                onBlur={() => setHealthOpen(false)}
+              >
                 <span>{healthScore}</span>
                 <span className="text-[8px] opacity-50">/100</span>
                 {healthScoreTrend === 'up' && <span className="text-[8px]">↑</span>}
                 {healthScoreTrend === 'down' && <span className="text-[8px]">↓</span>}
-              </div>
-              {/* Health breakdown tooltip */}
+              </button>
+              {/* Health breakdown tooltip — visible on hover and focus */}
               {healthBreakdown && (
-                <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/[0.08] bg-[#1a1510] p-3 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                <div
+                  role="tooltip"
+                  className={`absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/[0.08] bg-[#1a1510] p-3 shadow-2xl transition-all duration-150 z-50 ${healthOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                >
                   <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest mb-2.5">Health Breakdown</p>
                   <div className="space-y-2">
                     {BREAKDOWN_ITEMS.map(({ key, label, max, color }) => {

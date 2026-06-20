@@ -15,6 +15,10 @@ let buildHealthCache: {
 let buildHealthCheckedAt = 0;
 const BUILD_HEALTH_TTL = 5 * 60 * 1000; // 5 minutes
 
+// ── Full dashboard response cache ────
+let dashboardCache: { data: unknown; timestamp: number } | null = null;
+const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
+
 function getBuildHealth() {
   const now = Date.now();
   if (buildHealthCache && now - buildHealthCheckedAt < BUILD_HEALTH_TTL) {
@@ -46,6 +50,12 @@ function getBuildHealth() {
 
 export async function GET() {
   try {
+    // Return cached response if fresh
+    const now = Date.now();
+    if (dashboardCache && now - dashboardCache.timestamp < DASHBOARD_TTL) {
+      return NextResponse.json(dashboardCache.data);
+    }
+
     // Fire-and-forget: cleanup stale running waves (>15 min old)
     db.harnessWave.updateMany({
       where: { status: 'running', startedAt: { lt: new Date(Date.now() - 15 * 60 * 1000) } },
@@ -239,6 +249,11 @@ export async function GET() {
       },
       buildHealth: getBuildHealth(),
     });
+
+    // Cache the response
+    dashboardCache = { data: data, timestamp: Date.now() };
+
+    return NextResponse.json(data);
   } catch (error) {
     console.error('[DASHBOARD] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch dashboard' }, { status: 500 });

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -192,17 +193,31 @@ export function WaveDetailDialog({
   waveId: string | null;
   onClose: () => void;
 }) {
-  const { data: wave } = useWave(waveId);
+  const { data: wave, isLoading } = useWave(waveId);
 
   return (
     <Dialog open={!!waveId} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[80vh] border-white/[0.08] bg-[#0f172a] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-white">
-            {wave ? `Wave ${wave.waveNumber}` : 'Loading...'}
+            {wave ? `Wave ${wave.waveNumber}` : isLoading ? 'Loading wave...' : 'Wave'}
           </DialogTitle>
         </DialogHeader>
-        {wave && (
+        {isLoading ? (
+          <div className="space-y-4 p-1">
+            <div className="flex gap-2"><Skeleton className="h-5 w-16" /><Skeleton className="h-5 w-24" /><Skeleton className="h-5 w-20" /></div>
+            <Skeleton className="h-4 w-full" />
+            <div className="grid grid-cols-3 gap-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-center">
+                  <Skeleton className="mx-auto mb-1 h-6 w-8" />
+                  <Skeleton className="mx-auto h-2.5 w-12" />
+                </div>
+              ))}
+            </div>
+            <Skeleton className="h-16 w-full rounded-lg" />
+          </div>
+        ) : wave ? (
           <ScrollArea className="max-h-[60vh] pr-2">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -256,7 +271,7 @@ export function WaveDetailDialog({
               )}
             </div>
           </ScrollArea>
-        )}
+        ) : null}
       </DialogContent>
     </Dialog>
   );
