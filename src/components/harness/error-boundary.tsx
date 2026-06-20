@@ -7,6 +7,10 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
+  /** Tab name shown in the error message (e.g. "Agent Live") */
+  label?: string;
+  /** Compact inline mode for per-tab boundaries (no min-h, smaller padding) */
+  inline?: boolean;
   fallback?: ReactNode;
 }
 
@@ -35,6 +39,41 @@ export class HarnessErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      // Compact inline mode — used for per-tab boundaries
+      if (this.props.inline) {
+        const label = this.props.label ?? 'this tab';
+        return (
+          <Card className="border-red-500/10 bg-red-500/[0.03]">
+            <CardContent className="flex flex-col items-center p-8 text-center">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
+                <AlertTriangle className="h-5 w-5 text-red-400" />
+              </div>
+              <h3 className="text-sm font-medium text-zinc-300">
+                {label} failed to load
+              </h3>
+              <p className="mt-1.5 text-xs text-zinc-500 max-w-xs">
+                An error occurred while rendering {label}. Other tabs remain functional.
+              </p>
+              {this.state.error && (
+                <p className="mt-3 w-full rounded-lg bg-white/[0.03] border border-white/[0.06] px-3 py-2 font-mono text-[10px] text-zinc-600 break-all">
+                  {this.state.error.message}
+                </p>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={this.handleReset}
+                className="mt-4 gap-1.5 border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      }
+
+      // Full-page fallback (legacy / top-level boundary)
       return (
         <div className="flex min-h-[60vh] items-center justify-center px-4">
           <Card className="border-red-500/10 bg-[#0f172a] max-w-md w-full">

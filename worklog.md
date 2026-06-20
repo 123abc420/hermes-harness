@@ -2373,3 +2373,30 @@ Stage Summary:
 - page.tsx: 189→222L (palette integration + shortcuts update)
 - DB wave #113, 2 decisions recorded, 4 metrics recorded
 - Global search accessible from any tab via Cmd+K
+
+---
+Task ID: 112
+Agent: Wave Engine
+Task: Per-tab error boundaries for crash isolation
+
+Work Log:
+- Assessed: 108 waves, 100% compliance, 0 errors, context flags error boundary improvements
+- Identified anti-pattern: single HarnessErrorBoundary wrapping all 6 TabsContent elements
+- Enhanced error-boundary.tsx (74→112L, +38L):
+  - Added `label` prop for tab-specific error messages
+  - Added `inline` prop for compact card-sized fallback (no min-h-[60vh])
+  - Inline mode: smaller icon (h-10), "X failed to load" message, "Other tabs remain functional" reassurance
+  - Full-page mode preserved as default (backward compatible)
+- Updated page.tsx (222→232L, +10L):
+  - Removed single outer HarnessErrorBoundary
+  - Wrapped each of 6 TabsContent in individual <HarnessErrorBoundary inline label="...">
+  - Motion.div stays outside boundaries (animation works normally)
+- Created skill #24 per-tab-error-boundaries.md (71L)
+- Cleared .next cache, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- error-boundary.tsx: 74→112L (label + inline props)
+- page.tsx: 222→232L (6 individual boundaries)
+- New skill: per-tab-error-boundaries.md (#24)
+- 24 skills total, 108 waves in DB

@@ -133,34 +133,44 @@ export default function Home() {
             </TabsList>
           </div>
 
-          {/* Tab content with animation */}
-          <HarnessErrorBoundary>
-            <motion.div
+          {/* Tab content with animation + per-tab error isolation */}
+          <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
             <TabsContent value="agent" className="mt-0">
-              <AgentLivePanel />
+              <HarnessErrorBoundary inline label="Agent Live">
+                <AgentLivePanel />
+              </HarnessErrorBoundary>
             </TabsContent>
             <TabsContent value="overview" className="mt-0">
-              <OverviewTab />
+              <HarnessErrorBoundary inline label="Overview">
+                <OverviewTab />
+              </HarnessErrorBoundary>
             </TabsContent>
             <TabsContent value="waves" className="mt-0">
-              <WavesTab />
+              <HarnessErrorBoundary inline label="Waves">
+                <WavesTab />
+              </HarnessErrorBoundary>
             </TabsContent>
             <TabsContent value="decisions" className="mt-0">
-              <DecisionsTab />
+              <HarnessErrorBoundary inline label="Decisions">
+                <DecisionsTab />
+              </HarnessErrorBoundary>
             </TabsContent>
             <TabsContent value="research" className="mt-0">
-              <ResearchTab />
+              <HarnessErrorBoundary inline label="Research & Memory">
+                <ResearchTab />
+              </HarnessErrorBoundary>
             </TabsContent>
             <TabsContent value="github" className="mt-0">
-              <GithubTab />
+              <HarnessErrorBoundary inline label="GitHub & Export">
+                <GithubTab />
+              </HarnessErrorBoundary>
             </TabsContent>
           </motion.div>
-          </HarnessErrorBoundary>
         </Tabs>
       </main>
 
