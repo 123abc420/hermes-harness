@@ -166,7 +166,7 @@ export default function Home() {
               </HarnessErrorBoundary>
             </TabsContent>
             <TabsContent value="research" className="mt-0">
-              <HarnessErrorBoundary inline label="Research & Memory">
+              <HarnessErrorBoundary inline label="Analytics">
                 <ResearchTab />
               </HarnessErrorBoundary>
             </TabsContent>

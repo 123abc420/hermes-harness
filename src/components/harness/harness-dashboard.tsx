@@ -141,33 +141,43 @@ export function HarnessDashboard() {
             </TabsList>
           </div>
 
-          <HarnessErrorBoundary>
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-            >
-              <TabsContent value="agent" className="mt-0">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
+            <TabsContent value="agent" className="mt-0">
+              <HarnessErrorBoundary inline label="Agent Live">
                 <AgentLivePanel />
-              </TabsContent>
-              <TabsContent value="overview" className="mt-0">
+              </HarnessErrorBoundary>
+            </TabsContent>
+            <TabsContent value="overview" className="mt-0">
+              <HarnessErrorBoundary inline label="Overview">
                 <OverviewTab />
-              </TabsContent>
-              <TabsContent value="waves" className="mt-0">
+              </HarnessErrorBoundary>
+            </TabsContent>
+            <TabsContent value="waves" className="mt-0">
+              <HarnessErrorBoundary inline label="Waves">
                 <WavesTab />
-              </TabsContent>
-              <TabsContent value="decisions" className="mt-0">
+              </HarnessErrorBoundary>
+            </TabsContent>
+            <TabsContent value="decisions" className="mt-0">
+              <HarnessErrorBoundary inline label="Decisions">
                 <DecisionsTab />
-              </TabsContent>
-              <TabsContent value="research" className="mt-0">
+              </HarnessErrorBoundary>
+            </TabsContent>
+            <TabsContent value="research" className="mt-0">
+              <HarnessErrorBoundary inline label="Analytics">
                 <ResearchTab />
-              </TabsContent>
-              <TabsContent value="github" className="mt-0">
+              </HarnessErrorBoundary>
+            </TabsContent>
+            <TabsContent value="github" className="mt-0">
+              <HarnessErrorBoundary inline label="GitHub & Export">
                 <GithubTab />
-              </TabsContent>
-            </motion.div>
-          </HarnessErrorBoundary>
+              </HarnessErrorBoundary>
+            </TabsContent>
+          </motion.div>
         </Tabs>
       </main>
 
