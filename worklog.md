@@ -2400,3 +2400,22 @@ Stage Summary:
 - page.tsx: 222→232L (6 individual boundaries)
 - New skill: per-tab-error-boundaries.md (#24)
 - 24 skills total, 108 waves in DB
+
+---
+Task ID: 113
+Agent: Wave Engine
+Task: Complete category color coverage (14→16 categories)
+
+Work Log:
+- Assessed: 109 waves, 100% compliance, 0 errors
+- DB groupBy showed 16 categories but color map only had 14
+- Missing: reliability (1 decision), code (1 decision)
+- These got inconsistent fallbacks: cyan (code_quality) in badges, gray (#71717a) in charts
+- Added reliability: rose (tw + hex #fb7185) and code: blue (tw + hex #3b82f6)
+- CATEGORY_TW, CATEGORY_HEX, VALID_CATEGORIES auto-derived — no other files needed changes
+- Lint clean, dev.log clean
+- Git push successful
+
+Stage Summary:
+- category-colors.ts: 14→16 explicit category color mappings
+- All 16 DB categories now render consistently in badges + charts

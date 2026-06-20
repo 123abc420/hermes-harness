@@ -24,6 +24,8 @@ export const DECISION_CATEGORIES: Record<string, CategoryColor> = {
   automation:   { tw: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20', hex: '#d946ef' },
   data:         { tw: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', hex: '#eab308' },
   maintenance:  { tw: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',       hex: '#a1a1aa' },
+  reliability:  { tw: 'bg-rose-500/10 text-rose-400 border-rose-500/20',       hex: '#fb7185' },
+  code:         { tw: 'bg-blue-500/10 text-blue-400 border-blue-500/20',       hex: '#3b82f6' },
 };
 
 /** Tailwind-only map (for badge className) */
