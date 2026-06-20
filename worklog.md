@@ -2200,3 +2200,24 @@ Stage Summary:
 - 2 new custom hooks with fine-grained Zustand selectors
 - subcomponents.tsx: 142→248 lines (absorbed ActivityFeedColumn)
 - 99 waves in DB, health ~92/100, spec compliance 100% (16/16)
+---
+Task ID: 105
+Agent: Wave Engine (Wave 105)
+Task: Category data hygiene — migrate duplicates, expand color map, new skill
+
+Work Log:
+- ASSESS: 99 waves, no errors. groupBy revealed 15 categories with duplicates: refactoring(15) vs refactor(21), bug_fix(3) vs fix(44), code(1) vs code_quality(29). 3 categories (automation, data, maintenance) missing from color map.
+- PLAN: Single improvement — category data hygiene: (1) DB migration, (2) color map cleanup, (3) new skill
+- EXECUTE:
+  - Migrated 19 decisions in DB: 15 refactoring→refactor, 3 bug_fix→fix, 1 code→code_quality
+  - Removed alias entries (bug_fix, refactoring) from DECISION_CATEGORIES
+  - Added 4 new category colors: ux, automation, data, maintenance
+  - Verified no code references removed aliases (grep clean)
+  - Created gh-sync/skills/category-hygiene.md (skill #22)
+- VERIFY: bun run lint — 0 errors. dev.log clean.
+- PERSIST: Wave #105 in DB, 3 decisions, 6 metrics, git push
+
+Stage Summary:
+- DB categories consolidated: 15→14 unique names
+- Color map: 11→14 entries, 2 aliases removed, 4 new colors added
+- 22 skills, 100 waves in DB, health ~92/100
