@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
-import { execSync } from 'child_process';
+import { execFile } from 'child_process';
 import { readdirSync } from 'fs';
+import { promisify } from 'util';
 import { join } from 'path';
 import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
+
+const execFileAsync = promisify(execFile);
 
 // ── Build health cache (module-level, survives between requests) ────
 let buildHealthCache: {
@@ -19,7 +22,7 @@ const BUILD_HEALTH_TTL = 5 * 60 * 1000; // 5 minutes
 let dashboardCache: { data: unknown; timestamp: number } | null = null;
 const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
 
-function getBuildHealth() {
+async function getBuildHealth() {
   const now = Date.now();
   if (buildHealthCache && now - buildHealthCheckedAt < BUILD_HEALTH_TTL) {
     return buildHealthCache;
@@ -27,14 +30,14 @@ function getBuildHealth() {
   let output = '';
   let exitCode = 0;
   try {
-    output = execSync('bun run lint 2>&1', {
+    const { stdout } = await execFileAsync('bun', ['run', 'lint'], {
       encoding: 'utf-8',
       timeout: 60_000,
-      cwd: process.cwd(),
     });
+    output = stdout;
   } catch (err: unknown) {
     // bun run lint exits with code 1 when lint errors are found
-    output = (err instanceof Error ? err.message : '') || String(err);
+    output = (err instanceof Error ? (err as { stdout?: string }).stdout || err.message : '') || String(err);
     exitCode = (err as { status?: number })?.status ?? 1;
   }
   const hasErrors = exitCode !== 0 && output.length > 0;
@@ -120,8 +123,8 @@ export async function GET() {
       configMap[c.key] = c.value;
     }
 
-    // Real git data from shared utility
-    const git = getGitData();
+    // Real git data from shared utility (async — no event loop blocking)
+    const git = await getGitData();
     const gitCommitCount = git.count;
     const recentCommits = git.commits;
     const lastSha = git.lastSha ?? githubSync?.lastCommitSha ?? '';
@@ -247,7 +250,7 @@ export async function GET() {
         errors: Math.round(errorScore * 20),
         github: Math.round(githubScore * 10),
       },
-      buildHealth: getBuildHealth(),
+      buildHealth: await getBuildHealth(),
     };
 
     // Cache the response

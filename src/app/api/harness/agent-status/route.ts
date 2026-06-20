@@ -74,25 +74,40 @@ export async function GET(req: NextRequest) {
   if (searchParams.get('stream') === 'true') {
     const encoder = new TextEncoder();
     let lastDataHash = '';
+    let closed = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let keepAlive: ReturnType<typeof setInterval> | null = null;
 
     const getHash = () => `${latestStatus.timestamp}_${activityTimestamp}`;
 
+    const cleanup = () => {
+      if (closed) return;
+      closed = true;
+      if (interval) { clearInterval(interval); interval = null; }
+      if (keepAlive) { clearInterval(keepAlive); keepAlive = null; }
+    };
+
     const stream = new ReadableStream({
-      async start(controller) {
+      start(controller) {
         const sendData = () => {
-          const payload = JSON.stringify({
-            status: 'ok',
-            clients: 0,
-            latestStatus,
-            activities: activityLog,
-            activityCount: activityLog.length,
-            activityTimestamp,
-            subAgents,
-          });
-          const hash = getHash();
-          if (hash !== lastDataHash) {
-            controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
-            lastDataHash = hash;
+          if (closed) return;
+          try {
+            const payload = JSON.stringify({
+              status: 'ok',
+              clients: 0,
+              latestStatus,
+              activities: activityLog,
+              activityCount: activityLog.length,
+              activityTimestamp,
+              subAgents,
+            });
+            const hash = getHash();
+            if (hash !== lastDataHash) {
+              controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+              lastDataHash = hash;
+            }
+          } catch {
+            cleanup();
           }
         };
 
@@ -100,18 +115,23 @@ export async function GET(req: NextRequest) {
         sendData();
 
         // Poll every 2 seconds for changes
-        const interval = setInterval(sendData, SSE_POLL_INTERVAL);
+        interval = setInterval(sendData, SSE_POLL_INTERVAL);
 
         // Keep alive every 30s
-        const keepAlive = setInterval(() => {
-          try { controller.enqueue(encoder.encode(`: keepalive\n\n`)); } catch { clearInterval(keepAlive); }
+        keepAlive = setInterval(() => {
+          if (closed) return;
+          try { controller.enqueue(encoder.encode(`: keepalive\n\n`)); }
+          catch { cleanup(); }
         }, SSE_KEEP_ALIVE);
 
         req.signal.addEventListener('abort', () => {
-          clearInterval(interval);
-          clearInterval(keepAlive);
-          controller.close();
+          cleanup();
+          try { controller.close(); } catch { /* already closed */ }
         });
+      },
+      cancel() {
+        // Stream consumer cancelled (e.g. browser navigated away) — clear timers
+        cleanup();
       },
     });
 

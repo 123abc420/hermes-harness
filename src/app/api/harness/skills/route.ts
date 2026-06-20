@@ -2,79 +2,70 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-interface SkillFile {
-  id: string;
+const SKILLS_DIR = join(process.cwd(), 'gh-sync', 'skills');
+
+interface SkillMeta {
   name: string;
-  title: string;
-  content: string;
-  version: string;
-  created: string;
-  category: string;
-  trigger: string;
+  version?: string;
+  category?: string;
+  trigger?: string;
+  created?: string;
 }
 
-function parseSkillFile(filename: string, filepath: string): SkillFile | null {
-  try {
-    const raw = readFileSync(filepath, 'utf-8');
-    // Extract YAML frontmatter (between --- delimiters)
-    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-    const frontmatter: Record<string, string> = {};
-    if (match) {
-      for (const line of match[1].split('\n')) {
-        const m = line.match(/^(\w+)\s*:\s*(.+)$/);
-        if (m) frontmatter[m[1]] = m[2].trim();
-      }
+function parseFrontmatter(content: string): { meta: SkillMeta; body: string } {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!match) return { meta: { name: 'unknown' }, body: content };
+
+  const meta: SkillMeta = { name: 'unknown' };
+  for (const line of match[1].split('\n')) {
+    const m = line.match(/^(\w+)\s*:\s*(.+)$/);
+    if (m) {
+      const key = m[1] as keyof SkillMeta;
+      (meta as Record<string, unknown>)[key] = m[2].trim().replace(/^['"]|['"]$/g, '');
     }
-    // Title: first H1 in body, or fall back to name from frontmatter
-    const body = match ? raw.slice(match[0].length).trim() : raw;
-    const h1Match = body.match(/^#\s+(.+)/m);
-    const title = h1Match ? h1Match[1].trim() : frontmatter.name ?? filename.replace('.md', '');
-
-    return {
-      id: filename.replace('.md', ''),
-      name: frontmatter.name ?? filename.replace('.md', ''),
-      title,
-      content: body,
-      version: frontmatter.version ?? '',
-      created: frontmatter.created ?? '',
-      category: frontmatter.category ?? '',
-      trigger: frontmatter.trigger ?? '',
-    };
-  } catch {
-    return null;
   }
+  return { meta, body: match[2] };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const search = (searchParams.get('search') ?? '').toLowerCase().trim();
-    const limit = Math.min(Number(searchParams.get('limit') ?? 50), 100);
+    const { searchParams } = new URL(req.url);
+    const search = (searchParams.get('search') || '').toLowerCase();
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-    const skillsDir = join(process.cwd(), 'gh-sync', 'skills');
     let files: string[];
     try {
-      files = readdirSync(skillsDir).filter(f => f.endsWith('.md') && f !== '_template.md');
+      files = readdirSync(SKILLS_DIR).filter(f => f.endsWith('.md') && !f.startsWith('_'));
     } catch {
-      return NextResponse.json({ skills: [] });
+      files = [];
     }
 
-    const skills: SkillFile[] = [];
-    for (const f of files) {
-      const skill = parseSkillFile(f, join(skillsDir, f));
-      if (!skill) continue;
-      if (search) {
-        const haystack = `${skill.name} ${skill.title} ${skill.category} ${skill.trigger}`.toLowerCase();
-        if (!haystack.includes(search)) continue;
-      }
-      skills.push(skill);
-    }
+    const skills = files.map(filename => {
+      const raw = readFileSync(join(SKILLS_DIR, filename), 'utf-8');
+      const { meta, body } = parseFrontmatter(raw);
+      const description = body.split('\n').find(l => l.trim().length > 0 && !l.startsWith('#'))?.trim() || '';
+      return {
+        name: meta.name || filename.replace('.md', ''),
+        version: meta.version || null,
+        category: meta.category || null,
+        trigger: meta.trigger || null,
+        created: meta.created || null,
+        description: description.slice(0, 200),
+        filename,
+      };
+    });
 
-    // Sort by name
-    skills.sort((a, b) => a.name.localeCompare(b.name));
-    return NextResponse.json({ skills: skills.slice(0, limit) });
+    const filtered = search
+      ? skills.filter(s =>
+          s.name.toLowerCase().includes(search) ||
+          s.category?.toLowerCase().includes(search) ||
+          s.description.toLowerCase().includes(search),
+        )
+      : skills;
+
+    return NextResponse.json({ skills: filtered.slice(0, limit) });
   } catch (error) {
-    console.error('[SKILLS API] Error:', error);
-    return NextResponse.json({ skills: [] }, { status: 500 });
+    console.error('[SKILLS] Error:', error);
+    return NextResponse.json({ error: 'Failed to read skills' }, { status: 500 });
   }
 }

@@ -1,4 +1,7 @@
-import { execSync } from 'child_process';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+
+const execFileAsync = promisify(execFile);
 
 export interface GitData {
   count: number;
@@ -6,15 +9,20 @@ export interface GitData {
   lastSha: string | null;
 }
 
-/** Run git commands to get commit count, last 5 commits, and latest SHA. */
-export function getGitData(): GitData {
+/** Run git commands asynchronously to avoid blocking the event loop. */
+export async function getGitData(): Promise<GitData> {
   try {
-    const count = parseInt(
-      execSync('git rev-list --count HEAD', { encoding: 'utf-8' }).trim(),
-      10,
-    );
-    const log = execSync('git log --oneline -5', { encoding: 'utf-8' }).trim();
-    const commits = log.split('\n').map((line) => {
+    const { stdout: countStr } = await execFileAsync('git', ['rev-list', '--count', 'HEAD'], {
+      encoding: 'utf-8',
+      timeout: 10_000,
+    });
+    const count = parseInt(countStr.trim(), 10);
+
+    const { stdout: log } = await execFileAsync('git', ['log', '--oneline', '-5'], {
+      encoding: 'utf-8',
+      timeout: 10_000,
+    });
+    const commits = log.trim().split('\n').map((line) => {
       const spaceIdx = line.indexOf(' ');
       const sha = line.slice(0, spaceIdx > 0 ? spaceIdx : 7);
       const message = line.slice(spaceIdx + 1);

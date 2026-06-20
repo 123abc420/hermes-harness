@@ -5,7 +5,7 @@ import { getGitData } from '@/lib/git';
 export async function GET() {
   try {
     const sync = await db.gitHubSync.findFirst();
-    const git = getGitData();
+    const git = await getGitData();
 
     if (!sync) {
       return NextResponse.json({
