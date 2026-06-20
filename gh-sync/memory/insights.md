@@ -49,6 +49,19 @@
 - ESM `export let` is not reassignable from importers — use mutable object pattern for shared state
 - When consolidating duplicated logic, verify semantic equivalence — some "copies" have distinct edge-case behavior
 
+## Component Extraction
+
+- Extract hooks for self-contained logic (replay, countdown) — keeps components focused on rendering
+- Dialog components are high-value extraction targets: self-contained UI, own state, reusable
+- Internal sub-components (<50 lines, single-use) can stay inline — don't over-fragment
+- Export shared constants (STATUS_COLORS) from the most natural file — avoids a constants file per component
+
+## Data Hygiene
+
+- Category enums drift over time (refactor vs refactoring) — aliases in code mask DB quality issues
+- Fix data FIRST (updateMany), then remove aliases from color maps
+- Use groupBy to audit category distribution before and after migration
+
 ## JSX Pitfalls
 
 - `className="... {expr()}"` — the {} is LITERAL TEXT inside a string. MUST use backticks for template literals

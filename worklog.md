@@ -2240,3 +2240,22 @@ Stage Summary:
 - waves-tab.tsx: 422→213 lines (-50%)
 - STATUS_COLORS shared via export from wave-detail-dialog.tsx
 - 101 waves in DB, 22 skills, health ~92/100
+---
+Task ID: 107
+Agent: Wave Engine (Wave 107)
+Task: Research-tab decomposition + insights update
+
+Work Log:
+- ASSESS: 101 waves, no errors. Codebase very clean — all components well-decomposed, types safe, no console.log pollution.
+- PLAN: (1) Extract distribution charts from research-tab, (2) Update insights.md with patterns from waves 104-106.
+- EXECUTE:
+  - Created distribution-charts.tsx (56 lines) — DecisionDistribution + OutcomeDistribution
+  - Rewrote research-tab.tsx as 67-line pure layout orchestrator (-57%)
+  - Added 2 new sections to insights.md: Component Extraction, Data Hygiene
+- VERIFY: bun run lint — 0 errors.
+- PERSIST: Wave #107 in DB, 2 decisions, 4 metrics, git push
+
+Stage Summary:
+- research-tab.tsx: 157→67 lines (-57%)
+- insights.md: 62→74 lines (added Component Extraction + Data Hygiene sections)
+- 102 waves in DB, 22 skills, health ~92/100
