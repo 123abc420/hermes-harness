@@ -67,3 +67,8 @@
 
 - A child component CANNOT access variables from its parent's function scope — each component needs its own hook calls
 - Shared utility functions (formatDuration, tooltip styles) belong in constants.ts, not duplicated inline
+
+## JSX Pitfalls
+
+- `className="... {expr()}"` — the {} is LITERAL TEXT inside a string. MUST use backticks for template literals: `` className={`... ${expr()}`} ``
+- SVG `<linearGradient id="...">` IDs must be unique per component instance — always use `useId()` from React

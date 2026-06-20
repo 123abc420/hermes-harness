@@ -1982,3 +1982,24 @@ Stage Summary:
 - Analytics tab now shows ErrorBlock on failure and Skeleton on loading (was silent empty)
 - formatDuration extracted to constants.ts — used in both waves table and dialog
 - 88 waves, 19 skills, health ~92/100
+
+---
+Task ID: 94
+Agent: Wave Engine (cron)
+Task: Wave 94 — Header template literal fix, bug_fix alias, SVG gradient IDs
+
+Work Log:
+- ASSESS: Clean dev.log, 88 waves, 19 skills, 162 commits. Read all components.
+- PLAN: (1) CRITICAL: harness-header.tsx line 98 uses regular string not template literal for HEALTH_COLOR(), (2) bug_fix category missing from color map (decisions rendered cyan), (3) Hardcoded SVG gradient IDs in charts
+- EXECUTE:
+  - harness-header.tsx: Changed `className="... {HEALTH_COLOR(healthScore)}"` to template literal with backticks. Badge now shows emerald/amber/red correctly.
+  - category-colors.ts: Added `bug_fix` alias (red) alongside `fix`. Previously fell through to code_quality (cyan).
+  - quick-metrics-chart.tsx + error-trend-chart.tsx: Replaced hardcoded SVG gradient IDs with `useId()` hook. React-correct, prevents future ID collisions.
+- VERIFY: `bun run lint` — 0 errors. dev.log clean.
+- PERSIST: Wave #95 in DB, 3 decisions (bug_fix/data/code_quality), git push
+
+Stage Summary:
+- Header health badge now correctly displays color based on score (was invisible since introduction)
+- bug_fix decisions now render red, not cyan
+- SVG gradient IDs are React-safe with useId()
+- 89 waves, 19 skills, health ~92/100
