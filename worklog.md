@@ -4146,3 +4146,35 @@ Stage Summary:
    - 实现波次回放的 3D 动画（角色在各站点间移动）
    - 添加 chart tooltips 和 grid lines（QA 发现的改进机会）
    - 考虑为 Decisions tab 添加时间线视图
+
+---
+Task ID: W224
+Agent: wave-engine
+Task: Fix 3D character T-pose + health score null + improve Chibi visuals
+
+Work Log:
+- **BUG FIX: Health Score NaN→null (REAL ROOT CAUSE FOUND)**
+  - Previous fix was a guard in the header — that was a symptom treatment
+  - REAL bug: dashboard API route uses `w.errors` on raw errorTrend DB rows, but the field is `errorsCount`
+  - `w.errors` is undefined → reduce accumulates NaN → Math.round(NaN) = NaN → serialized as null in JSON
+  - Fixed: Changed `w.errors` to `w.errorsCount ?? 0` in 3 places (error score + trend calculation)
+  - Verified: API now returns healthScore: 87 (was null before)
+- **BUG FIX: VRM T-pose persistence (deeper fix)**
+  - Previous fix (faster lerp) wasn't enough — VRM spring bone system resets bones every frame via vrm.update()
+  - Root cause: vrm.update() was called BEFORE manual bone poses, so spring bones overwrote them
+  - Fix 1: Moved vrm.update() AFTER manual bone poses in useFrame
+  - Fix 2: Added post-vrm.update arm re-application for idle state (hard override, not lerp)
+  - Fix 3: Set initial arm pose immediately in loadVRM() (no T-pose flash on load)
+  - VLM verification: "Character has natural arms (not T-pose)" ✅
+- **STYLE: Improved Chibi character**
+  - Larger eyes (0.06 radius, was 0.05) with eye highlight sparkles (emissive white dots)
+  - Arms slightly angled outward (0.15 rad) for natural resting appearance
+  - Updated pupil tracking positions to match new eye geometry
+  - VLM verification: "Face visible, character facing camera" ✅
+- Rebuilt production bundle, all fixes verified via agent-browser + VLM analysis
+
+Stage Summary:
+- 2 bug fixes (health score NaN root cause, VRM T-pose spring bone override)
+- 1 visual improvement (Chibi eyes + arms)
+- 0 lint errors, production build successful
+- All fixes verified with VLM image analysis

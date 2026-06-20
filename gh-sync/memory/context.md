@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 06:40 UTC+8
+2026-06-21 07:10 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 223)
-- **Waves in DB**: 223
+- **Phase**: Post-Compliance Evolution (Wave 224)
+- **Waves in DB**: 224
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,10 +18,10 @@
 | Skills | 9 (+ 1 template) |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~374 |
-| Waves in DB | 223 |
+| GitHub commits | ~375 |
+| Waves in DB | 224 |
 | Wave success rate (recent 5) | 100% |
-| Health score | ~93/100 (stable) |
+| Health score | 87/100 (verified) |
 | execSync calls | 0 |
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
@@ -40,8 +40,9 @@
 - Wave replay auto-stops, phase timeline labeled estimated
 - Shared zod schemas (src/lib/schemas.ts) with 8 input validators + validationError helper
 - ensure-server.md v2.0: correct sandbox process lifecycle docs
+- 3D character faces camera, natural arm pose (no T-pose), health score works
 
 ## What's next
 1. All known code quality issues resolved — system is in maintenance mode
-2. Consider zod for agent-status POST (low priority, already has manual validation)
+2. Consider zod for agent-status POST (low priority)
 3. Consider per-wave replay with real phase data (requires schema change)
