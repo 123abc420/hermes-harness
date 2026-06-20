@@ -3048,3 +3048,25 @@ Stage Summary:
 - Fixed: '/skills/' now only matches root-level skills/ directory
 - 6 skills now properly tracked in git (was 0)
 - 3 new hardening skills created for future wave reference
+
+---
+Task ID: W145
+Agent: HERMES Wave Engine
+Task: Add zod input validation to critical API routes
+
+Work Log:
+- ASSESSED: System at 100% spec compliance, no errors in dev.log, 6 skills, 16 routes, 28 components
+- PLANNED: Identified zod response type validation as highest-impact remaining work. Audited all 16 API routes — found 9 with unprotected body parsing.
+- EXECUTED 1: Created src/lib/schemas.ts — 7 shared zod schemas (createDecision, updateDecision, patchWave, createWave, createMetric, updateMemory, updateConfig) with validationError helper
+- EXECUTED 2: Integrated zod into POST /api/harness/decisions — replaced manual if(!field) with createDecisionSchema.safeParse; priority now enum-constrained
+- EXECUTED 3: Integrated zod into PATCH /api/harness/waves/[id] — replaced spread-body pattern with patchWaveSchema.safeParse; status enum, non-negative int counts, ISO datetime validation
+- INSTALLED: Added zod@4.4.3 to project dependencies
+- VERIFIED: `rm -rf .next && bun run lint` — 0 errors
+
+Stage Summary:
+- New file: src/lib/schemas.ts (shared validation infrastructure)
+- Modified: src/app/api/harness/decisions/route.ts (zod on POST)
+- Modified: src/app/api/harness/waves/[id]/route.ts (zod on PATCH)
+- Dependency added: zod@4.4.3
+- 7 schemas defined, 2 routes now zod-validated
+- Lint: 0 errors

@@ -103,6 +103,14 @@
 - ReadableStream `cancel()` is NOT optional for SSE — browser tab close doesn't always fire `abort` signal. Without `cancel()`, setInterval timers leak forever.
 - Closure scope matters: `cancel()` can't access variables declared inside `start()` — hoist interval refs to the outer scope.
 
+## Input Validation (Zod)
+
+- `req.json()` then `if (!field)` is fragile — a string `"false"` passes the truthy check. Use zod `safeParse` with typed schemas instead.
+- Enum values in code drift from DB reality — always query `DISTINCT` to discover actual values before writing schemas.
+- Freeform fields (category, action) should be validated as `z.string().min(1)`, not enums — the DB has 21+ categories and 60+ actions.
+- Centralize all schemas in `src/lib/schemas.ts` — one import per route, single source of truth for field constraints.
+- Always `await req.json().catch(() => null)` — malformed JSON throws and bypasses validation entirely.
+
 ## Git & Persistence
 
 - `.gitignore` patterns without a leading `/` match ANY directory in the tree. `skills/` matches `gh-sync/skills/`. Use `/skills/` for root-only.
