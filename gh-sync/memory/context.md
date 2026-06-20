@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 09:20 UTC+8
+2026-06-20 09:30 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 100)
-- **Waves in DB**: 94
+- **Phase**: Post-Compliance Evolution (Wave 101)
+- **Waves in DB**: 95
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,19 +17,18 @@
 | Dashboard tabs | 6 |
 | Skills | 20 |
 | Export modules | 1 |
-| GitHub commits | 169 |
-| Waves in DB | 94 |
+| GitHub commits | 172 |
+| Waves in DB | 95 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~92/100 (stable) |
 
 ## What exists
-- Agent live panel refactored (646→496 lines), sub-components in agent-live-subcomponents.tsx
-- Spec checklist with ARIA list semantics
-- 4 charts + filter buttons + retry button + checklist with a11y
+- 3D sandbox split into 4 modules: shared (39), world (202), chibi (342), sandbox (435)
+- Agent live panel refactored (496 lines), sub-components extracted
 - All shared utilities consolidated, PATCH whitelisted, types safe
 - 20 skills, dead code removed, SSE constants extracted
 
 ## What's next
-1. Agent-3d-sandbox refactoring (972 lines → 3d/ directory)
-2. Further agent-live-panel simplification (still 496 lines)
-3. Insights.md size monitoring (approaching cap)
+1. Further 3D simplification: extract VRMCharacter + bridge components from sandbox
+2. Insights.md size monitoring (approaching cap)
+3. Agent live panel further simplification (still 496 lines)
