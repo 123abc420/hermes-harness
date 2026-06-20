@@ -2766,3 +2766,22 @@ Stage Summary:
 - WaveDurationBars DRY: 15 lines of duplicated JSX → shared component
 - Label consistency: "Analytics" is now canonical across all 3 tab config locations
 - Lint: 0 errors. Git: 1 commit pushed.
+---
+Task ID: w131
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 131 — Decisions tab inline viz + per-tab error boundaries + label fix
+
+Work Log:
+- ASSESS: Read context.md (W130, 127 waves), dev.log (clean). Dashboard: 127 waves, 290 decisions, 0 errors.
+- PLAN: 3 improvements — (1) decisions tab lacks inline viz (only data tab without), (2) harness-dashboard.tsx single error boundary vs page.tsx per-tab, (3) stale label in error boundary
+- EXEC-1: Added DecisionsInlineViz component — category distribution stacked bar (top 6 cats with hex colors from single-source-of-truth) + action breakdown horizontal bars (executed/planned/skipped/failed)
+- EXEC-2: Replaced single <HarnessErrorBoundary> wrapper in harness-dashboard.tsx with 6 per-tab <HarnessErrorBoundary inline label="..."> matching page.tsx pattern
+- EXEC-3: Fixed "Research & Memory" → "Analytics" in page.tsx error boundary (missed during W130 TAB_CONFIG fix)
+- VERIFY: rm -rf .next && bun run lint — 0 errors
+- PERSIST: DB records (wave + 3 decisions + 3 metrics). Git push.
+
+Stage Summary:
+- Decisions tab now has inline category distribution + action breakdown visualizations
+- Exportable HarnessDashboard has per-tab error isolation (crash in one tab won't kill others)
+- All "Analytics" labels now consistent across TAB_CONFIG, command palette, and error boundaries
+- Lint: 0 errors. Git: 1 commit pushed.
