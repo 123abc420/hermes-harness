@@ -2324,3 +2324,24 @@ Stage Summary:
 - decisions-tab.tsx: 181→203L (+22 search UI)
 - 2 API routes updated, 2 hooks updated
 - Search is server-side + composable with existing filters
+
+---
+Task ID: 110
+Agent: Wave Engine
+Task: CSV/JSON data export for Waves and Decisions tabs
+
+Work Log:
+- 105 waves, 100% success, 0 errors, context flags export as next priority
+- Created lib/csv-export.ts (87L): fetchAllPages (paginated fetch), toCSV (proper escaping), toJSON, downloadBlob, exportData main function
+- Created export-menu.tsx (78L): shared ExportMenu component with CSV/JSON dropdown, loading state, click-outside dismiss
+- Raised decisions API limit from 50→200 (waves already at 200)
+- Added ExportMenu to waves-tab (248L) with columns: waveNumber, status, decisions, improvements, errors, summary, timestamps
+- Added ExportMenu to decisions-tab (215L) with columns: category, priority, action, description, reasoning, targetFile, createdAt
+- Both tabs use transform functions to flatten nested data for clean CSV
+- Cleared .next, lint — 0 errors, dev.log clean
+
+Stage Summary:
+- New files: csv-export.ts (87L), export-menu.tsx (78L)
+- Waves tab: 236→248L (+12 for export button)
+- Decisions tab: 203→215L (+12 for export button)
+- Decisions API limit: 50→200

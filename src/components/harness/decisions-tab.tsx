@@ -10,6 +10,7 @@ import { ChevronDown, Filter, Brain, Loader2, CheckCircle2, Search, X } from 'lu
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 import { DecisionCard } from './decision-card';
+import { ExportMenu } from './export-menu';
 import { CATEGORY_TW, VALID_CATEGORIES } from '@/lib/category-colors';
 
 // Derive filter buttons from the single source of truth (VALID_CATEGORIES)
@@ -102,6 +103,17 @@ export function DecisionsTab() {
               );
             })}
           </div>
+          <ExportMenu
+            baseUrl="/api/harness/decisions"
+            dataKey="decisions"
+            totalKey="total"
+            filename="harness-decisions"
+            columns={["category","priority","action","description","reasoning","targetFile","createdAt"]}
+            transform={(r) => ({
+              ...r,
+              waveNumber: r.wave?.waveNumber ?? null,
+            })}
+          />
         </div>
       </motion.div>
 

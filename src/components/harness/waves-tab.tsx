@@ -18,6 +18,7 @@ import { useHarnessStore } from '@/store/harness-store';
 import { Waves as WavesIcon, ChevronDown, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
+import { ExportMenu } from './export-menu';
 import { STATUS_COLORS } from './wave-detail-dialog';
 import { TriggerWaveDialog } from './trigger-wave-dialog';
 import { WaveDetailDialog } from './wave-detail-dialog';
@@ -113,6 +114,17 @@ export function WavesTab() {
           </div>
 
           <TriggerWaveDialog />
+          <ExportMenu
+            baseUrl="/api/harness/waves"
+            dataKey="waves"
+            totalKey="total"
+            filename="harness-waves"
+            columns={["waveNumber","status","decisionsCount","improvementsCount","errorsCount","summary","startedAt","completedAt"]}
+            transform={(r) => ({
+              ...r,
+              decisions: r._count?.decisions ?? r.decisionsCount ?? 0,
+            })}
+          />
         </div>
       </motion.div>
 
