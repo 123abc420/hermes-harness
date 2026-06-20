@@ -153,12 +153,12 @@ export function AgentLivePanel() {
 
             {/* Standby indicator */}
             {waveNumber === 0 && (
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <div className="relative flex items-center justify-center">
                   <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-amber-500/30 animate-ping" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500/50" />
                 </div>
-                <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">System Standby</span>
+                <span className="min-w-0 text-[10px] font-mono text-zinc-600 uppercase tracking-widest">System Standby</span>
                 <span className="text-[10px] font-mono text-zinc-700 ml-auto">
                   {countdownMin !== null ? `Next wave in ~${countdownMin}m` : 'Awaiting next wave'}
                 </span>
@@ -243,7 +243,7 @@ export function AgentLivePanel() {
               {latestWave.summary && (
                 <p className="text-xs text-zinc-300 leading-relaxed line-clamp-2">{latestWave.summary}</p>
               )}
-              <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-500 font-mono">
+              <div className="flex flex-wrap items-center gap-3 mt-2 text-[10px] text-zinc-500 font-mono">
                 <span>{latestWave.decisionsCount} decisions</span>
                 <span className="text-zinc-700">|</span>
                 <span>{latestWave.improvementsCount} improvements</span>
@@ -281,7 +281,7 @@ export function AgentLivePanel() {
                     }`}>
                       {d.category.replace('_', ' ')}
                     </span>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-1 flex-1">{d.description}</p>
+                    <p className="min-w-0 text-[11px] text-zinc-400 leading-relaxed line-clamp-1 flex-1">{d.description}</p>
                     {d.targetFile && (
                       <FileCode2 className="h-3 w-3 shrink-0 text-zinc-600 mt-0.5" />
                     )}

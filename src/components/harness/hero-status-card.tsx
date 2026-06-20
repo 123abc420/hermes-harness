@@ -146,7 +146,7 @@ export function HeroStatusCard({
                   )}
                 </div>
                 {healthBreakdown && (
-                  <div className="mt-2 flex items-center gap-3">
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
                     {([['S', healthBreakdown.spec, 40, 'bg-violet-400'], ['R', healthBreakdown.success, 30, 'bg-emerald-400'], ['E', healthBreakdown.errors, 20, 'bg-rose-400'], ['G', healthBreakdown.github, 10, 'bg-sky-400']] as const).map(([label, val, max, color]) => (
                       <div key={label} className="flex items-center gap-1">
                         <span className="text-[8px] font-mono text-zinc-600 w-2">{label}</span>

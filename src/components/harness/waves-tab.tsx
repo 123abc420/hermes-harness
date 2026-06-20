@@ -191,6 +191,7 @@ export function WavesTab() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
           <Card className="glass-card overflow-hidden">
             <ScrollArea className="max-h-[60vh]">
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/[0.06] hover:bg-transparent">
@@ -253,6 +254,7 @@ export function WavesTab() {
                   })}
                 </TableBody>
               </Table>
+              </div>
             </ScrollArea>
             <div className="flex items-center justify-between border-t border-white/[0.04] px-4 py-3">
               <span className="text-[10px] font-mono text-zinc-600">

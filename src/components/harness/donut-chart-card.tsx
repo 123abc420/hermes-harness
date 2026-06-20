@@ -67,7 +67,7 @@ export function DonutChartCard({
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-4">
-          <div className="h-[140px] w-[140px] shrink-0">
+          <div className="h-[100px] w-[100px] shrink-0 sm:h-[140px] sm:w-[140px]">
             <ResponsiveContainer width="100%" height="100%" role="img" aria-label="Decision action distribution donut chart">
               <PieChart>
                 <Pie
@@ -88,7 +88,7 @@ export function DonutChartCard({
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="min-w-0 flex flex-col gap-1.5">
             {data.map((item) => (
               <div key={item.name} className="flex items-center gap-2 text-xs">
                 <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }} />

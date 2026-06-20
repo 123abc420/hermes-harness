@@ -64,7 +64,7 @@ function DecisionItem({ d }: { d: { id: string; category: string; action: string
 
   return (
     <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className={`rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium ${
           CATEGORY_TW[d.category] ?? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
         }`}>
@@ -158,7 +158,7 @@ export function WaveDetailDialog({
               </div>
               {wave.summary && (
                 <div className="flex items-start gap-2">
-                  <p className="flex-1 text-sm text-zinc-400">{wave.summary}</p>
+                  <p className="min-w-0 flex-1 text-sm text-zinc-400">{wave.summary}</p>
                   <CopyButton text={wave.summary} />
                 </div>
               )}

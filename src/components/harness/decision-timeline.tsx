@@ -75,7 +75,7 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                 />
                 <div className="min-w-0 flex-1">
                   <div
-                    className="flex cursor-pointer items-center gap-2"
+                    className="flex flex-wrap cursor-pointer items-center gap-2"
                     onClick={() => toggle(d.id)}
                     role="button"
                     tabIndex={0}

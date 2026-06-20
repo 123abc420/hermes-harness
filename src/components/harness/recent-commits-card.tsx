@@ -46,7 +46,7 @@ export function RecentCommitsCard({ commits }: { commits?: { sha: string; messag
             <code className="mt-0.5 shrink-0 rounded bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-mono text-cyan-400/80">
               {c.sha}
             </code>
-            <span className="truncate text-xs text-zinc-400">{c.message}</span>
+            <span className="min-w-0 truncate text-xs text-zinc-400">{c.message}</span>
           </div>
         ))}
       </CardContent>
