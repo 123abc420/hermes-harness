@@ -2728,3 +2728,22 @@ Stage Summary:
 - Skills now show clean plain-text previews instead of raw markdown syntax
 - 2 components made mobile-safe (skills-section, memory-section)
 - Lint: 0 errors. Git: 2 commits pushed.
+---
+Task ID: w129
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 129 — Type safety + exportable parity + phase timeline
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dev.log (clean). Dashboard API confirmed working (125 waves). Ran thorough codebase exploration via subagent.
+- PLAN: Identified 3 improvements — (1) DecisionCategory type too narrow (6 vs 16), (2) exportable HarnessDashboard missing CommandPalette/footer/Cmd+K, (3) wave phase timeline visualization
+- EXEC-1: Extended DecisionCategory union type from 6 to 16 values matching DECISION_CATEGORIES canonical map
+- EXEC-2: Rewrote harness-dashboard.tsx — added CommandPalette, Cmd+K shortcut handler, onSearch prop, footer with wave status + keyboard shortcuts panel (AnimatePresence), full parity with page.tsx
+- EXEC-3: Added WavePhaseTimeline component to wave-detail-dialog.tsx — 6-phase protocol (ASSESS→PLAN→EXECUTE→VERIFY→PERSIST→REPORT) with per-phase icons, color coding, connector lines, and status-aware progression (completed=all lit, running=pulse on current, failed=interrupted mid-flow)
+- VERIFY: rm -rf .next && bun run lint — 0 errors. dev.log clean.
+- PERSIST: DB records (wave + 3 decisions + 3 metrics). Git push to GitHub.
+
+Stage Summary:
+- Type safety: DecisionCategory now covers all 16 categories in the color map
+- Exportable module: HarnessDashboard now has full feature parity with page.tsx (Cmd+K, footer, shortcuts)
+- Wave visualization: Phase timeline in detail dialog shows protocol progression with status-aware styling
+- Lint: 0 errors. Git: 1 commit pushed.
