@@ -59,7 +59,7 @@ export function useAgentLive() {
             .sort((a, b) => b.timestamp - a.timestamp)
             .slice(0, store.maxActivities),
         };
-        if (latest.state) stateUpdate.agentState = latest.state;
+        if (latest.agentState) stateUpdate.agentState = latest.agentState;
         if (latest.message) stateUpdate.message = latest.message;
         useAgentLiveStore.setState(stateUpdate);
       }

@@ -202,7 +202,7 @@ export async function GET() {
       else if (recentSuccessRate < waveSuccessRate - 5) healthScoreTrend = 'down';
     }
 
-    return NextResponse.json({
+    const data = {
       waves,
       totalStats: {
         totalWaves: totalStats[0],
@@ -248,10 +248,10 @@ export async function GET() {
         github: Math.round(githubScore * 10),
       },
       buildHealth: getBuildHealth(),
-    });
+    };
 
     // Cache the response
-    dashboardCache = { data: data, timestamp: Date.now() };
+    dashboardCache = { data, timestamp: Date.now() };
 
     return NextResponse.json(data);
   } catch (error) {
