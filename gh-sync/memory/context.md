@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 20:30 UTC+8
+2026-06-20 20:40 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 164)
-- **Waves in DB**: 164
+- **Phase**: Post-Compliance Evolution (Wave 165)
+- **Waves in DB**: 165
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -19,7 +19,7 @@
 | Components | 28 |
 | Exported components | 11 |
 | GitHub commits | ~304 |
-| Waves in DB | 164 |
+| Waves in DB | 165 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 | execSync calls | 0 |
