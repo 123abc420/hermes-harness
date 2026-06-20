@@ -92,9 +92,19 @@ export function AgentLivePanel() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* ─── Left Column: 3D Avatar + Stats ─── */}
       <div className="flex flex-col gap-5">
-        {/* 3D Sandbox Card */}
-        <Card className="border-white/[0.06] bg-white/[0.02] backdrop-blur-sm overflow-hidden">
-          <CardContent className="p-4">
+        {/* 3D Sandbox Card — with animated state-color glow border */}
+        <Card className={`relative border-0 bg-white/[0.02] backdrop-blur-sm overflow-hidden transition-all duration-700`}>
+          {/* Animated glow border — color matches agent state */}
+          <div
+            className="pointer-events-none absolute inset-0 rounded-xl transition-all duration-700"
+            style={{
+              boxShadow: `inset 0 0 0 1px ${STATE_COLORS[agentState]}15, 0 0 20px -5px ${STATE_COLORS[agentState]}20`,
+            }}
+          />
+          {/* Pulsing corner glow */}
+          <div className="pointer-events-none absolute -top-px -left-px h-16 w-16 rounded-tl-xl opacity-40" style={{ background: `radial-gradient(circle at 0% 0%, ${STATE_COLORS[agentState]}30, transparent 70%)` }} />
+          <div className="pointer-events-none absolute -bottom-px -right-px h-16 w-16 rounded-br-xl opacity-40" style={{ background: `radial-gradient(circle at 100% 100%, ${STATE_COLORS[agentState]}30, transparent 70%)` }} />
+          <CardContent className="p-4 relative">
             {/* Connection status */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">

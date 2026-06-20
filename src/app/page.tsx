@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
+import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
@@ -179,8 +179,8 @@ export default function Home() {
         </Tabs>
       </main>
 
-      <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906] relative">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6">
+      <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906]/90 backdrop-blur-sm relative">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-3.5 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-xs text-amber-800/50">
               <Zap className="h-3 w-3 text-amber-500/30" />
@@ -188,20 +188,37 @@ export default function Home() {
             </div>
             {dash?.waves?.[0] && (
               <span className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
-                <Activity className="h-2.5 w-2.5 text-emerald-500/40" />
-                <span className="text-zinc-500">#{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
-                <span className="text-zinc-700">{dash.waves[0].status === 'completed' ? 'completed' : dash.waves[0].status}</span>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400/50" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                </span>
+                <span className="text-zinc-500">W{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
+                <span className="text-zinc-700">{dash.waves[0].status}</span>
                 {dash.waves[0].completedAt && (
                   <span className="text-zinc-700">{formatDistanceToNow(new Date(dash.waves[0].completedAt), { addSuffix: true })}</span>
                 )}
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
-            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">
-              Spec-Driven Self-Evolution
-            </span>
+          <div className="flex items-center gap-4">
+            {/* Success rate mini-bar */}
+            {dash?.totalStats?.recentSuccessRate != null && (
+              <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-zinc-500">
+                <span className="text-zinc-600">Success</span>
+                <div className="h-1 w-16 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${
+                      dash.totalStats.recentSuccessRate >= 90 ? 'bg-emerald-500/60' :
+                      dash.totalStats.recentSuccessRate >= 70 ? 'bg-amber-500/60' :
+                      'bg-red-500/60'
+                    }`}
+                    style={{ width: `${dash.totalStats.recentSuccessRate}%` }}
+                  />
+                </div>
+                <span className="tabular-nums text-zinc-400 w-8 text-right">{dash.totalStats.recentSuccessRate}%</span>
+              </div>
+            )}
+            <span className="hidden md:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
             <button
               onClick={() => setShowShortcuts(v => !v)}
               className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-amber-900/40 hover:text-amber-400/70 bg-white/[0.03] border border-white/[0.06] hover:border-amber-500/20 transition-colors"

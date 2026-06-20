@@ -127,7 +127,7 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
               {totalWaves} waves
             </span>
           )}
-          {healthScore !== undefined && (
+          {healthScore != null && typeof healthScore === 'number' && (
             <div className="relative hidden md:block">
               <button
                 type="button"

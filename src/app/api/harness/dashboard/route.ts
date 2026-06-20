@@ -178,9 +178,9 @@ export async function GET() {
 
     let errorScore = 0;
     if (errorTrend.length >= 2) {
-      const recentErrors = errorTrend.slice(-5).reduce((s, w) => s + w.errors, 0);
+      const recentErrors = errorTrend.slice(-5).reduce((s, w) => s + (w.errorsCount ?? 0), 0);
       errorScore = recentErrors === 0 ? 1 : Math.max(0, 1 - recentErrors / 5);
-    } else if (errorTrend.length === 1 && errorTrend[0].errors === 0) {
+    } else if (errorTrend.length === 1 && (errorTrend[0].errorsCount ?? 0) === 0) {
       errorScore = 1;
     }
 
@@ -196,8 +196,8 @@ export async function GET() {
     // Health score trend: derive from error trend + success rate signals
     let healthScoreTrend: 'up' | 'down' | 'stable' = 'stable';
     if (errorTrend.length >= 6) {
-      const recent3Err = errorTrend.slice(-3).reduce((s, w) => s + w.errors, 0);
-      const prev3Err = errorTrend.slice(-6, -3).reduce((s, w) => s + w.errors, 0);
+      const recent3Err = errorTrend.slice(-3).reduce((s, w) => s + (w.errorsCount ?? 0), 0);
+      const prev3Err = errorTrend.slice(-6, -3).reduce((s, w) => s + (w.errorsCount ?? 0), 0);
       if (recent3Err < prev3Err) healthScoreTrend = 'up';
       else if (recent3Err > prev3Err) healthScoreTrend = 'down';
     }

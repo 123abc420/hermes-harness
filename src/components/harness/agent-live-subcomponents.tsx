@@ -132,15 +132,17 @@ export function StatCard({ icon: Icon, label, value, subtitle, iconColor }: {
   iconColor: string;
 }) {
   return (
-    <Card className="border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-colors min-h-[80px]">
+    <Card className="group border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.1] transition-all duration-300 min-h-[80px] hover:shadow-lg hover:shadow-black/20">
       <CardContent className="p-4 flex flex-col justify-between h-full">
         <div className="flex items-center gap-2">
-          <Icon className={`h-4 w-4 ${iconColor}`} />
+          <div className={`rounded-md p-1.5 bg-white/[0.03] group-hover:bg-white/[0.06] transition-colors`}>
+            <Icon className={`h-3.5 w-3.5 ${iconColor} transition-transform duration-300 group-hover:scale-110`} />
+          </div>
           <span className="text-[11px] font-mono text-zinc-400 tracking-wider">{label}</span>
         </div>
         <div className="mt-2">
           <span className="text-3xl font-bold text-white tabular-nums">{value}</span>
-          <p className="text-[10px] text-zinc-500 mt-0.5">{subtitle}</p>
+          <p className="text-[10px] text-zinc-500 mt-0.5 leading-relaxed">{subtitle}</p>
         </div>
       </CardContent>
     </Card>

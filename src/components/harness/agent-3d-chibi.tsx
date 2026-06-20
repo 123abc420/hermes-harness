@@ -70,13 +70,13 @@ export function ChibiCharacter() {
       const dir = new THREE.Vector3().subVectors(targetPos, g.position);
       if (dir.length() > 0.01) {
         const angle = Math.atan2(dir.x, dir.z);
-        prevRot.current = THREE.MathUtils.lerp(prevRot.current, angle + Math.PI, delta * 5);
+        prevRot.current = THREE.MathUtils.lerp(prevRot.current, angle, delta * 5);
         g.rotation.y = prevRot.current;
       }
     } else {
       // At station — face the target rotation
-      const stationAngle = targetRot.current + Math.PI;
-      prevRot.current = THREE.MathUtils.lerp(prevRot.current, stationAngle, delta * 2);
+      // Chibi face is at +Z, camera at +Z — no PI offset needed
+      prevRot.current = THREE.MathUtils.lerp(prevRot.current, targetRot.current, delta * 2);
       g.rotation.y = prevRot.current;
     }
 
@@ -161,15 +161,15 @@ export function ChibiCharacter() {
     }
 
     // Eye tracking
-    const mx = mousePosition.x * 0.02;
+    const mx = mousePosition.x * 0.025;
     const my = mousePosition.y * 0.015;
     if (leftPupilRef.current) {
-      leftPupilRef.current.position.x = -0.07 + mx;
-      leftPupilRef.current.position.y = 0.72 + my;
+      leftPupilRef.current.position.x = -0.08 + mx;
+      leftPupilRef.current.position.y = 0.73 + my;
     }
     if (rightPupilRef.current) {
-      rightPupilRef.current.position.x = 0.07 + mx;
-      rightPupilRef.current.position.y = 0.72 + my;
+      rightPupilRef.current.position.x = 0.08 + mx;
+      rightPupilRef.current.position.y = 0.73 + my;
     }
 
     // Blink (every 3-5s)
@@ -231,24 +231,33 @@ export function ChibiCharacter() {
             <meshStandardMaterial color="#4A3728" roughness={0.8} />
           </mesh>
           {/* Left Eye white */}
-          <mesh position={[-0.07, 0.73, 0.17]}>
-            <sphereGeometry args={[0.05, 8, 8]} />
+          <mesh position={[-0.08, 0.73, 0.17]}>
+            <sphereGeometry args={[0.06, 8, 8]} />
             <meshStandardMaterial color="#ffffff" />
           </mesh>
           {/* Right Eye white */}
-          <mesh position={[0.07, 0.73, 0.17]}>
-            <sphereGeometry args={[0.05, 8, 8]} />
+          <mesh position={[0.08, 0.73, 0.17]}>
+            <sphereGeometry args={[0.06, 8, 8]} />
             <meshStandardMaterial color="#ffffff" />
           </mesh>
           {/* Left Pupil */}
-          <mesh ref={leftPupilRef} position={[-0.07, 0.73, 0.21]}>
-            <sphereGeometry args={[0.025, 8, 8]} />
+          <mesh ref={leftPupilRef} position={[-0.08, 0.73, 0.22]}>
+            <sphereGeometry args={[0.032, 8, 8]} />
             <meshStandardMaterial color="#1a1a2e" />
           </mesh>
           {/* Right Pupil */}
-          <mesh ref={rightPupilRef} position={[0.07, 0.73, 0.21]}>
-            <sphereGeometry args={[0.025, 8, 8]} />
+          <mesh ref={rightPupilRef} position={[0.08, 0.73, 0.22]}>
+            <sphereGeometry args={[0.032, 8, 8]} />
             <meshStandardMaterial color="#1a1a2e" />
+          </mesh>
+          {/* Eye highlights (sparkle) */}
+          <mesh position={[-0.065, 0.75, 0.22]}>
+            <sphereGeometry args={[0.012, 6, 6]} />
+            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
+          </mesh>
+          <mesh position={[0.095, 0.75, 0.22]}>
+            <sphereGeometry args={[0.012, 6, 6]} />
+            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
           </mesh>
           {/* Blush */}
           <group ref={blushRef} visible={false}>
@@ -284,25 +293,25 @@ export function ChibiCharacter() {
           <meshStandardMaterial color={bodyColor} emissive={bodyColor} emissiveIntensity={0.3} roughness={0.5} />
         </mesh>
 
-        {/* Left Arm */}
-        <group ref={leftArmRef} position={[-0.2, 0.48, 0]}>
-          <mesh position={[0, -0.12, 0]} castShadow>
+        {/* Left Arm — slightly angled outward for natural look */}
+        <group ref={leftArmRef} position={[-0.2, 0.48, 0]} rotation={[0, 0, 0.15]}>
+          <mesh position={[0, -0.12, 0.02]} castShadow>
             <cylinderGeometry args={[0.035, 0.03, 0.24, 6]} />
             <meshStandardMaterial color="#FFD5B8" roughness={0.7} />
           </mesh>
-          <mesh position={[0, -0.25, 0]}>
+          <mesh position={[0, -0.25, 0.03]}>
             <sphereGeometry args={[0.035, 6, 6]} />
             <meshStandardMaterial color="#FFD5B8" roughness={0.7} />
           </mesh>
         </group>
 
-        {/* Right Arm */}
-        <group ref={rightArmRef} position={[0.2, 0.48, 0]}>
-          <mesh position={[0, -0.12, 0]} castShadow>
+        {/* Right Arm — slightly angled outward for natural look */}
+        <group ref={rightArmRef} position={[0.2, 0.48, 0]} rotation={[0, 0, -0.15]}>
+          <mesh position={[0, -0.12, 0.02]} castShadow>
             <cylinderGeometry args={[0.035, 0.03, 0.24, 6]} />
             <meshStandardMaterial color="#FFD5B8" roughness={0.7} />
           </mesh>
-          <mesh position={[0, -0.25, 0]}>
+          <mesh position={[0, -0.25, 0.03]}>
             <sphereGeometry args={[0.035, 6, 6]} />
             <meshStandardMaterial color="#FFD5B8" roughness={0.7} />
           </mesh>
