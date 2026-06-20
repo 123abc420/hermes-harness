@@ -81,7 +81,7 @@ export function WavesTab() {
         </h2>
         <div className="flex items-center gap-2 min-w-0">
           {/* Search input */}
-          <div className="relative">
+          <div className="relative min-w-0">
             <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-600 pointer-events-none" />
             <input
               type="text"
@@ -89,7 +89,7 @@ export function WavesTab() {
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search summaries..."
               aria-label="Search waves"
-              className="h-7 w-[140px] rounded-md border border-white/[0.06] bg-white/[0.02] pl-7 pr-2 text-[11px] text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/30 transition-colors"
+              className="h-7 w-full min-w-[100px] max-w-[140px] rounded-md border border-white/[0.06] bg-white/[0.02] pl-7 pr-2 text-[11px] text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/30 transition-colors"
             />
             {search && (
               <button onClick={() => handleSearchChange('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300" aria-label="Clear search">

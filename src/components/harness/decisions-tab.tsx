@@ -62,7 +62,7 @@ export function DecisionsTab() {
           Decisions Log
         </h2>
         <div className="flex items-center gap-2 min-w-0">
-          <div className="relative">
+          <div className="relative min-w-0">
             <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-600 pointer-events-none" />
             <input
               type="text"
@@ -70,7 +70,7 @@ export function DecisionsTab() {
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search decisions..."
               aria-label="Search decisions"
-              className="h-7 w-[140px] rounded-md border border-white/[0.06] bg-white/[0.02] pl-7 pr-2 text-[11px] text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/30 transition-colors"
+              className="h-7 w-full min-w-[100px] max-w-[140px] rounded-md border border-white/[0.06] bg-white/[0.02] pl-7 pr-2 text-[11px] text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/30 transition-colors"
             />
             {search && (
               <button onClick={() => handleSearchChange('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300" aria-label="Clear search">
@@ -79,7 +79,7 @@ export function DecisionsTab() {
             )}
           </div>
           <Filter className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
-          <div className="flex gap-1 overflow-x-auto max-w-[260px] sm:max-w-none pb-1 scrollbar-dark">
+          <div className="flex gap-1 overflow-x-auto max-w-[180px] sm:max-w-none pb-1 scrollbar-dark">
             {FILTER_BUTTONS.map((btn) => {
               const count = btn.value === '' ? totalDecisions : (categoryCounts[btn.value] ?? 0);
               return (

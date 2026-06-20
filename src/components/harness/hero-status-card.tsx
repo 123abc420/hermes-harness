@@ -18,6 +18,7 @@ export function HeroStatusCard({
   npmDeps,
   healthScore,
   healthScoreTrend,
+  healthBreakdown,
   isLoading,
 }: {
   stats?: TotalStats;
@@ -117,13 +118,15 @@ export function HeroStatusCard({
                     {stateLabel}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-zinc-500">
-                  {stats?.totalWaves ?? 0} waves executed &middot;{' '}
-                  {stats?.totalDecisions ?? 0} decisions &middot;{' '}
-                  {stats?.totalImprovements ?? 0} improvements
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-zinc-500">
+                  <span>{stats?.totalWaves ?? 0} waves</span>
+                  <span className="text-zinc-700">·</span>
+                  <span>{stats?.totalDecisions ?? 0} decisions</span>
+                  <span className="text-zinc-700">·</span>
+                  <span>{stats?.totalImprovements ?? 0} improvements</span>
                   {firstWaveStart && (
                     <>
-                      {' '}&middot;{' '}
+                      <span className="text-zinc-700">·</span>
                       <span className="text-zinc-600">
                         running for {formatDistanceToNow(new Date(firstWaveStart), { addSuffix: false })}
                       </span>
@@ -131,17 +134,17 @@ export function HeroStatusCard({
                   )}
                   {waveVelocity && (
                     <>
-                      {' '}&middot;{' '}
+                      <span className="text-zinc-700">·</span>
                       <span className="text-zinc-600">{waveVelocity} waves/hr</span>
                     </>
                   )}
                   {npmDeps !== undefined && (
                     <>
-                      {' '}&middot;{' '}
+                      <span className="text-zinc-700">·</span>
                       <span className="text-zinc-600">{npmDeps} deps</span>
                     </>
                   )}
-                </p>
+                </div>
                 {healthBreakdown && (
                   <div className="mt-2 flex items-center gap-3">
                     {([['S', healthBreakdown.spec, 40, 'bg-violet-400'], ['R', healthBreakdown.success, 30, 'bg-emerald-400'], ['E', healthBreakdown.errors, 20, 'bg-rose-400'], ['G', healthBreakdown.github, 10, 'bg-sky-400']] as const).map(([label, val, max, color]) => (

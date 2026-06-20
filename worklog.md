@@ -2590,3 +2590,23 @@ Stage Summary:
 - tsconfig.tsbuildinfo removed from git tracking
 - New skill: jsx-parser-edge-case.md (#27)
 - 27 skills, 117 waves in DB
+
+---
+Task ID: 123
+Agent: Wave Engine
+Task: Bug fix — healthBreakdown not destructured + mobile responsiveness polish
+
+Work Log:
+- Assessed: 117 waves, 100% compliance, 0 errors
+- BUG FIX: healthBreakdown prop was declared in HeroStatusCard type but NOT in destructured parameters — inline health bars from W120 never rendered
+- Converted hero stats paragraph to flex-wrap div with individual span items for clean mobile wrapping
+- Added min-w-0 + w-full + min-w-[100px] to search inputs in waves-tab and decisions-tab for proper flex shrinking
+- Reduced decisions tab category filter max-width from 260px to 180px on mobile
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- hero-status-card.tsx: bug fix (healthBreakdown now destructured) + stats line → flex-wrap
+- waves-tab.tsx: search input mobile flex fix
+- decisions-tab.tsx: search input + category filter mobile flex fix
+- 27 skills, 118 waves in DB
