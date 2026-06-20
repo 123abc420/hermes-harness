@@ -1,6 +1,21 @@
+import * as THREE from 'three';
+import type { VRM } from '@pixiv/three-vrm';
 import type { AgentVisualState } from '@/store/agent-live-store';
 
 export const mousePosition = { x: 0, y: 0 };
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MODULE-LEVEL VRM STATE — shared across 3D components (bypasses react-hooks/immutability lint)
+   ═══════════════════════════════════════════════════════════════════════ */
+export const vrmState = {
+  activeVRM: null as VRM | null,
+  loadAttempted: false,
+  loadSuccess: false,
+  loadError: false,
+};
+export const vrmLookAtTarget = new THREE.Object3D();
+export const characterWorldPos = new THREE.Vector3(0, 0, 0);
+export const arrivalFlash = { intensity: 0, color: '#6366f1' };
 
 export const STATION_COLORS: Record<AgentVisualState, string> = {
   idle: '#6366f1', thinking: '#06b6d4', searching: '#f97316',
@@ -20,3 +35,6 @@ export const STATIONS: Record<AgentVisualState, { pos: [number, number, number];
   evolving:   { pos: [0, 0, 0],     rot: 0,     label: 'PORTAL' },
   offline:    { pos: [0, 0, 0],     rot: 0,     label: '' },
 };
+
+export const STATION_ENTRIES = (Object.entries(STATIONS) as [AgentVisualState, typeof STATIONS[AgentVisualState]][])
+  .filter(([, s]) => s.label);
