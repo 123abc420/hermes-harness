@@ -3162,3 +3162,19 @@ Stage Summary:
 - Updated: context.md metric fix
 - Spec compliance: still 100% (template restored)
 - Lint: 0 errors
+
+---
+Task ID: W151
+Agent: HERMES Wave Engine
+Task: Memory hygiene — compact insights.md, fix stale metrics
+
+Work Log:
+- ASSESSED: insights.md at 7031 chars (96% of 8K cap). Commit count stale (~281 vs 296 actual).
+- EXECUTED 1: Compacted insights.md — merged related sections, removed verbose explanations, preserved all unique insights. 7031→5319 chars (67% of cap).
+- EXECUTED 2: Fixed GitHub commits metric in context.md (~281→~296), updated wave count to 151.
+- VERIFIED: rm -rf .next && bun run lint — 0 errors
+
+Stage Summary:
+- Compacted: insights.md (24% reduction, all insights preserved)
+- Updated: context.md (commit count, wave number)
+- Lint: 0 errors
