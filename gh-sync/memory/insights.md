@@ -113,3 +113,11 @@
 - `nohup`, `setsid`, `disown`, `detached: true` — NONE survive the cgroup cleanup.
 - The ONLY strategy: start the server fresh in EVERY wave/response, keep it alive with `sleep` during the tool call.
 - Production build (`next start` from `.next/standalone/`) starts in ~1s — fast enough for per-wave startup.
+
+## 3D Library Weight
+
+- `@pixiv/three-vrm` (5.9MB) pulls WASM/GLSL shaders that cause Turbopack to hang in sandbox.
+- `@react-three/postprocessing` (3.9MB) adds significant compile overhead for marginal visual gain.
+- 10MB VRM model files in `public/` bloat the asset pipeline.
+- ChibiCharacter (pure Three.js geometry, ~400 lines) renders instantly and looks great — prefer procedural geometry over model loading.
+- If a library causes Turbopack to hang, remove it. The sandbox has CPU/memory constraints that make heavy WASM compilation infeasible.

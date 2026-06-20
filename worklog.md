@@ -4207,3 +4207,25 @@ Stage Summary:
 - 2 styling improvements (chart gridlines, 3D floating orb)
 - 0 lint errors, production build successful
 - Health score: 71 → 82
+
+---
+Task ID: W226
+Agent: Wave Engine
+Task: Fix critical compilation hang — remove VRM and heavy 3D dependencies
+
+Work Log:
+- Diagnosed: @pixiv/three-vrm + @react-three/postprocessing + 10MB avatar.vrm caused Turbopack to hang indefinitely
+- Gutted agent-3d-vrm.tsx to no-op stub (loadVRM and VRMCharacter return nothing)
+- Rewrote agent-3d-scene.tsx: removed all VRM references, CharacterGroup renders ChibiCharacter directly
+- Simplified agent-3d-sandbox.tsx: removed EffectComposer/Bloom import
+- Cleaned agent-3d-shared.ts: removed vrmState, vrmLookAtTarget, VRM type import
+- Deleted public/models/avatar.vrm (10MB)
+- Uninstalled @pixiv/three-vrm and @react-three/postprocessing
+- Cleared .next cache, verified clean compilation
+
+Stage Summary:
+- Page compiles in <1s (was infinite hang)
+- ChibiCharacter is now the sole 3D avatar
+- Lint: 0 errors
+- Git push: 2180696
+- 8 files changed, 14 insertions, 394 deletions
