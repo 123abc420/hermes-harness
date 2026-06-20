@@ -2709,3 +2709,22 @@ Stage Summary:
 - 3 new insights codified from W125-126 learnings
 - Last min-w-0 fix (overview error card) applied and verified via full grep
 - Lint: 0 errors. Git: 2 commits pushed.
+
+---
+Task ID: w128
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 128 — Research tab polish (skill preview, mobile safety)
+
+Work Log:
+- ASSESS: Read context.md, guardrails.md, dev.log (clean). Explored research tab, skills section, memory section.
+- PLAN: Found 3 improvements — broken skill content preview (raw markdown), skill title overflow, memory header overflow
+- EXEC-1: Replaced `(skill.content ?? '').slice(0, 200)` with `skillPreview()` function that strips YAML frontmatter, markdown headers, bold/italic, links, code blocks, and extracts first 150 chars of plain text
+- EXEC-2: Added `min-w-0 truncate` to skill title `<h4>` to prevent overflow alongside shrink-0 badges
+- EXEC-3: Added `flex-wrap` to all 3 memory-section header rows (Context, Insights, UserProfile label + HealthBar)
+- VERIFY: `rm -rf .next && bun run lint` — 0 errors
+- PERSIST: DB records (wave + 3 decisions + 2 metrics). Git push. context.md updated.
+
+Stage Summary:
+- Skills now show clean plain-text previews instead of raw markdown syntax
+- 2 components made mobile-safe (skills-section, memory-section)
+- Lint: 0 errors. Git: 2 commits pushed.
