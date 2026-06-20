@@ -79,3 +79,10 @@
 - Define color/config maps once as a canonical object (e.g. DECISION_CATEGORIES), derive all consumers (TW classes, hex, valid list) from it
 - When DB adds a new enum value, only one file needs updating — all 8+ consumers auto-sync
 - Fallback defaults in consumers mask missing entries — audit with groupBy to find gaps
+
+## Composite Score Transparency
+
+- Never show an aggregate score without a breakdown — users will ask "why is it X?"
+- Expose sub-scores from the API (e.g. healthBreakdown: {spec, success, errors, github})
+- Show breakdown in TWO places: always-visible inline bars (hero card) + hover tooltip (header)
+- Summary bars in data tabs (waves, decisions) provide at-a-glance context before the table

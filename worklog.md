@@ -2553,3 +2553,22 @@ Stage Summary:
 - hero-status-card.tsx: 186→201L (inline health breakdown, always visible)
 - Health transparency now complete: header tooltip + hero card inline bars
 - 26 skills, 115 waves in DB
+
+---
+Task ID: 121
+Agent: Wave Engine
+Task: Waves tab summary bar + composite score transparency insight
+
+Work Log:
+- Assessed: 115 waves, 100% compliance, 0 errors
+- Added summary stats bar to waves-tab.tsx (248→270L): total waves, completion %, avg duration
+- Consistent with decisions tab summary bar style
+- Discovered ESLint/TS parser edge case: motion.div inside {condition && () JSX can cause parsing errors in some contexts. Used plain div instead.
+- Updated insights.md with "Composite Score Transparency" section
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- waves-tab.tsx: 248→270L (summary bar)
+- insights.md: +4 lines (new section)
+- 26 skills, 116 waves in DB

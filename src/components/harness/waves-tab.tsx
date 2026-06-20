@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWaves } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
-import { Waves as WavesIcon, ChevronDown, Search, X } from 'lucide-react';
+import { Waves as WavesIcon, ChevronDown, Search, X, CheckCircle2, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 import { ExportMenu } from './export-menu';
@@ -48,6 +48,15 @@ export function WavesTab() {
   const statusCounts = data?.countsByStatus ?? {};
   const hasMore = waves.length < totalWaves;
   const showingCount = Math.min(page * limit, totalWaves);
+  const completionPct = totalWaves > 0 ? Math.round(((statusCounts['completed'] ?? 0) / totalWaves) * 100) : 0;
+
+  // Average duration from current page waves
+  let avgDurationSec: number | null = null;
+  const doneWaves = waves.filter(w => w.completedAt && w.startedAt);
+  if (doneWaves.length > 0) {
+    const totalSec = doneWaves.reduce((s, w) => s + (new Date(w.completedAt!).getTime() - new Date(w.startedAt!).getTime()) / 1000, 0);
+    avgDurationSec = Math.round(totalSec / doneWaves.length);
+  }
 
   const handleFilterChange = (val: string) => {
     setWaveFilter(val);
@@ -127,6 +136,29 @@ export function WavesTab() {
           />
         </div>
       </motion.div>
+
+      {/* Summary bar */}
+      {!isError && !isLoading && totalWaves > 0 && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2.5">
+          <div className="flex items-center gap-1.5">
+            <WavesIcon className="h-3 w-3 text-emerald-400" />
+            <span className="text-xs font-mono text-zinc-300 tabular-nums">{totalWaves}</span>
+            <span className="text-[10px] text-zinc-600">total</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+            <span className="text-xs font-mono text-zinc-300 tabular-nums">{completionPct}%</span>
+            <span className="text-[10px] text-zinc-600">completed</span>
+          </div>
+          {avgDurationSec !== null && (
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3 text-zinc-500" />
+              <span className="text-xs font-mono text-zinc-300 tabular-nums">{formatDuration(avgDurationSec)}</span>
+              <span className="text-[10px] text-zinc-600">avg</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Error / Loading / Empty */}
       {isError ? (
