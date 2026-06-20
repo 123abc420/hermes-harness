@@ -2179,3 +2179,24 @@ Stage Summary:
 - DecisionCard memoized — prevents O(n) re-renders in decision list on store ticks
 - 21 skills created
 - 97 waves in DB, health ~92/100
+---
+Task ID: 104
+Agent: Wave Engine (Wave 104)
+Task: Agent live panel decomposition — extract 2 hooks + ActivityFeedColumn
+
+Work Log:
+- ASSESS: 98 waves in DB, 100% spec compliance, health ~92/100, no errors. Patched 1 stale running wave. context.md priority #1: agent-live-panel further simplification (496 lines).
+- PLAN: Single improvement — decompose agent-live-panel.tsx via 3 extractions: (1) useWaveReplay hook, (2) useNextWaveCountdown hook, (3) ActivityFeedColumn component
+- EXECUTE:
+  - Created src/hooks/use-wave-replay.ts (71 lines) — encapsulates wave-tracking, replay toggle, cleanup
+  - Created src/hooks/use-next-wave-countdown.ts (38 lines) — encapsulates 10-min cron countdown interval
+  - Added ActivityFeedColumn to agent-live-subcomponents.tsx — right column with feed, scroll, replay controls
+  - Rewrote agent-live-panel.tsx to use extracted hooks + component
+- VERIFY: bun run lint — 0 errors. dev.log clean.
+- PERSIST: Wave #104 in DB, 3 decisions, 7 metrics, git push
+
+Stage Summary:
+- agent-live-panel.tsx: 496→320 lines (-35%, -176 lines)
+- 2 new custom hooks with fine-grained Zustand selectors
+- subcomponents.tsx: 142→248 lines (absorbed ActivityFeedColumn)
+- 99 waves in DB, health ~92/100, spec compliance 100% (16/16)

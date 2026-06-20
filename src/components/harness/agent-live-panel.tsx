@@ -1,21 +1,23 @@
 'use client';
 
-import { useRef, useEffect, useState, useCallback, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import { useWaves, useDecisions } from '@/hooks/use-harness-data';
+import { useWaveReplay } from '@/hooks/use-wave-replay';
+import { useNextWaveCountdown } from '@/hooks/use-next-wave-countdown';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import {
-  Activity, WifiOff, Zap, Brain, TrendingUp, Waves, Shield, Sparkles, Circle, Users, Play, Pause, MonitorDot, CheckCircle2, FileCode2,
+  WifiOff, Zap, Brain, TrendingUp, Waves, Shield, Sparkles, MonitorDot, CheckCircle2, FileCode2, Users,
 } from 'lucide-react';
-import { HERMES_VERSION, getLevelName } from '@/lib/constants';
+import { getLevelName } from '@/lib/constants';
 import { CATEGORY_TW } from '@/lib/category-colors';
-import { ActivityEntry, PhaseTracker, SubAgentBadge, StatCard, STATE_COLORS, STATE_ICONS } from './agent-live-subcomponents';
+import {
+  ActivityFeedColumn, StatCard, PhaseTracker, SubAgentBadge, STATE_COLORS, STATE_ICONS,
+} from './agent-live-subcomponents';
 
 // Dynamic import for 3D components (avoid SSR issues with Three.js)
 const Agent3DSandbox = dynamic(
@@ -40,113 +42,29 @@ export function AgentLivePanel() {
   const {
     agentState, message, phase, waveNumber, progress, isConnected,
     waveCount, totalImprovements, totalDecisions, recentSuccessRate, healthScore, healthScoreTrend,
-    level, levelName, xp, xpToNext,
-    activities, subAgents, lastTurnActivities, isReplaying,
-    setIsReplaying, setLastTurn, addActivity,
+    level, levelName, xp, xpToNext, activities, subAgents,
   } = useAgentLiveStore();
 
-  // Fetch latest completed wave for summary display
+  // Extracted hooks
+  const { isReplaying, lastTurnActivities, toggleReplay } = useWaveReplay();
+
+  // Data fetching
   const { data: latestWavesData, isError: wavesError } = useWaves(1, 1);
   const latestWave = latestWavesData?.waves?.[0] ?? null;
-
-  // Fetch recent decisions for compact feed
   const { data: recentDecisionsData, isError: decisionsError } = useDecisions(1, 3);
   const recentDecisions = recentDecisionsData?.decisions ?? [];
 
+  // Countdown
+  const countdownMin = useNextWaveCountdown(waveNumber, latestWave);
+
   // Brief skeleton on initial mount while SSE connects
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [countdownMin, setCountdownMin] = useState<number | null>(null);
   useEffect(() => {
     const t = setTimeout(() => setIsInitialLoad(false), 600);
     return () => clearTimeout(t);
   }, []);
 
-  // Next-wave countdown: 10min cron cycle from latest wave end
-  useEffect(() => {
-    const compute = () => {
-      if (waveNumber > 0 || (!latestWave?.completedAt && !latestWave?.startedAt)) {
-        setCountdownMin(null);
-        return;
-      }
-      const base = latestWave.completedAt
-        ? new Date(latestWave.completedAt).getTime()
-        : new Date(latestWave.startedAt).getTime();
-      const elapsed = (Date.now() - base) / 60_000;
-      const remaining = Math.max(0, Math.ceil(10 - elapsed));
-      setCountdownMin(remaining <= 10 ? remaining : null);
-    };
-    compute();
-    const id = setInterval(compute, 15_000); // update every 15s
-    return () => clearInterval(id);
-  }, [waveNumber, latestWave?.completedAt, latestWave?.startedAt]);
-
-  const feedRef = useRef<HTMLDivElement>(null);
-  const prevActivityCount = useRef(0);
-  const replayIndexRef = useRef(0);
-  const replayTimerRef = useRef<ReturnType<typeof setInterval>>();
-
-  // Auto-scroll feed
-  useEffect(() => {
-    if (activities.length > prevActivityCount.current && feedRef.current) {
-      feedRef.current.scrollTop = 0;
-    }
-    prevActivityCount.current = activities.length;
-  }, [activities.length]);
-
-  // Track wave completion for "last turn" replay
-  const prevWaveRef = useRef(waveNumber);
-  useEffect(() => {
-    if (waveNumber > prevWaveRef.current && waveNumber > 0) {
-      const waveActivities = activities.filter(
-        a => a.phase || a.state !== 'idle'
-      ).slice(0, 20);
-      if (waveActivities.length > 0) {
-        setLastTurn(waveActivities);
-      }
-    }
-    prevWaveRef.current = waveNumber;
-  }, [waveNumber, activities, setLastTurn]);
-
-  // Loop replay of last turn
-  const toggleReplay = useCallback(() => {
-    if (isReplaying) {
-      setIsReplaying(false);
-      if (replayTimerRef.current) {
-        clearInterval(replayTimerRef.current);
-        replayTimerRef.current = undefined;
-      }
-    } else if (lastTurnActivities.length > 0) {
-      setIsReplaying(true);
-      replayIndexRef.current = 0;
-      replayTimerRef.current = setInterval(() => {
-        const idx = replayIndexRef.current % lastTurnActivities.length;
-        const entry = lastTurnActivities[lastTurnActivities.length - 1 - idx];
-        if (entry) {
-          addActivity({
-            state: entry.state,
-            message: `⟳ ${entry.message}`,
-            phase: entry.phase,
-          });
-        }
-        replayIndexRef.current++;
-        if (replayIndexRef.current >= lastTurnActivities.length) {
-          replayIndexRef.current = 0;
-        }
-      }, 2000);
-    }
-  }, [isReplaying, lastTurnActivities, setIsReplaying, addActivity]);
-
-  // Clean up replay on unmount
-  useEffect(() => {
-    return () => {
-      if (replayTimerRef.current) clearInterval(replayTimerRef.current);
-    };
-  }, []);
-
   const xpPercent = Math.min((xp / xpToNext) * 100, 100);
-  const displayActivities = isReplaying
-    ? activities.slice(0, 30)
-    : activities;
 
   if (isInitialLoad) {
     return (
@@ -205,7 +123,7 @@ export function AgentLivePanel() {
               <Agent3DSandbox />
             </Suspense>
 
-            {/* Current message — more visible */}
+            {/* Current message */}
             <div className="mt-4 text-center min-h-[2.5rem] flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <motion.p
@@ -233,7 +151,7 @@ export function AgentLivePanel() {
               </div>
             )}
 
-            {/* Standby indicator — no active wave */}
+            {/* Standby indicator */}
             {waveNumber === 0 && (
               <div className="mt-4 flex items-center gap-3">
                 <div className="relative flex items-center justify-center">
@@ -257,12 +175,7 @@ export function AgentLivePanel() {
                 <div className="flex flex-wrap gap-2">
                   <AnimatePresence>
                     {subAgents.map(sa => (
-                      <SubAgentBadge
-                        key={sa.id}
-                        name={sa.name}
-                        color={sa.color}
-                        state={sa.state}
-                      />
+                      <SubAgentBadge key={sa.id} name={sa.name} color={sa.color} state={sa.state} />
                     ))}
                   </AnimatePresence>
                 </div>
@@ -301,36 +214,12 @@ export function AgentLivePanel() {
           </div>
         )}
 
-        {/* Stats Grid — guaranteed height */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <StatCard
-            icon={Sparkles}
-            label="LEVEL"
-            value={level}
-            subtitle={levelName}
-            iconColor="text-amber-400"
-          />
-          <StatCard
-            icon={Waves}
-            label="WAVES"
-            value={waveCount}
-            subtitle={recentSuccessRate > 0 ? `${recentSuccessRate}% success rate` : 'Cycles completed'}
-            iconColor="text-cyan-400"
-          />
-          <StatCard
-            icon={TrendingUp}
-            label="IMPROVEMENTS"
-            value={totalImprovements}
-            subtitle="Improvements applied"
-            iconColor="text-emerald-400"
-          />
-          <StatCard
-            icon={Brain}
-            label="DECISIONS"
-            value={totalDecisions}
-            subtitle="Decisions made"
-            iconColor="text-violet-400"
-          />
+          <StatCard icon={Sparkles} label="LEVEL" value={level} subtitle={levelName} iconColor="text-amber-400" />
+          <StatCard icon={Waves} label="WAVES" value={waveCount} subtitle={recentSuccessRate > 0 ? `${recentSuccessRate}% success rate` : 'Cycles completed'} iconColor="text-cyan-400" />
+          <StatCard icon={TrendingUp} label="IMPROVEMENTS" value={totalImprovements} subtitle="Improvements applied" iconColor="text-emerald-400" />
+          <StatCard icon={Brain} label="DECISIONS" value={totalDecisions} subtitle="Decisions made" iconColor="text-violet-400" />
         </div>
 
         {/* Last Wave Summary */}
@@ -419,79 +308,14 @@ export function AgentLivePanel() {
         </Card>
       </div>
 
-      {/* ─── Right Column: Live Activity Feed ─── */}
-      <Card className="border-white/[0.06] bg-white/[0.02] backdrop-blur-sm flex flex-col">
-        <div className="px-5 py-3.5 border-b border-white/[0.06] flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5">
-            <Activity className="h-4 w-4 text-amber-400" />
-            <span className="text-sm font-medium text-zinc-200">LIVE ACTIVITY</span>
-          </div>
-          <div className="flex items-center gap-3">
-            {isConnected && (
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
-              </span>
-            )}
-            <span className="text-xs text-zinc-500 font-mono">{activities.length} events</span>
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1 h-[420px] lg:h-[540px]" ref={feedRef}>
-          <div className="p-2 space-y-1" aria-live="polite" aria-label="Agent activity feed">
-            <AnimatePresence initial={false}>
-              {displayActivities.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Circle className="h-10 w-10 text-zinc-800 mb-4" />
-                  <p className="text-sm text-zinc-500">Waiting for agent activity...</p>
-                  <p className="text-xs text-zinc-600 mt-2 max-w-[260px]">
-                    Updates will appear here when the cron executes an evolution wave
-                  </p>
-                </div>
-              ) : (
-                displayActivities.map((entry, i) => (
-                  <ActivityEntry key={entry.id} entry={entry} isNew={i === 0} />
-                ))
-              )}
-            </AnimatePresence>
-          </div>
-        </ScrollArea>
-
-        {/* Bottom bar with replay controls */}
-        <div className="px-5 py-3 border-t border-white/[0.06] shrink-0">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5 text-amber-500/40" />
-                <span className="text-[10px] text-zinc-500 font-mono tracking-wider">SPEC-DRIVEN</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-amber-500/40" />
-                <span className="text-[10px] text-zinc-500 font-mono tracking-wider">AUTO-EVOLUTION</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {lastTurnActivities.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleReplay}
-                  aria-label={isReplaying ? 'Pause replay' : 'Replay last wave'}
-                  className={`h-7 px-3 text-xs gap-1.5 ${
-                    isReplaying
-                      ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
-                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]'
-                  }`}
-                >
-                  {isReplaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                  <span className="hidden sm:inline font-mono">⟳ REPLAY</span>
-                </Button>
-              )}
-              <span className="hidden sm:inline text-[10px] text-zinc-700 font-mono">HERMES {HERMES_VERSION}</span>
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* ─── Right Column: Live Activity Feed (extracted component) ─── */}
+      <ActivityFeedColumn
+        activities={isReplaying ? activities.slice(0, 30) : activities}
+        isConnected={isConnected}
+        isReplaying={isReplaying}
+        lastTurnLength={lastTurnActivities.length}
+        onToggleReplay={toggleReplay}
+      />
     </div>
   );
 }

@@ -1,7 +1,12 @@
 'use client';
 
+import { useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, Shield, Zap, Circle, Play, Pause } from 'lucide-react';
+import { HERMES_VERSION } from '@/lib/constants';
 import type { AgentVisualState, LiveActivityEntry } from '@/store/agent-live-store';
 
 // ─── State Configuration (shared across sub-components) ──────────
@@ -138,6 +143,107 @@ export function StatCard({ icon: Icon, label, value, subtitle, iconColor }: {
           <p className="text-[10px] text-zinc-500 mt-0.5">{subtitle}</p>
         </div>
       </CardContent>
+    </Card>
+  );
+}
+
+// ─── Activity Feed Column ───────────────────────────────────────────
+export function ActivityFeedColumn({
+  activities,
+  isConnected,
+  isReplaying,
+  lastTurnLength,
+  onToggleReplay,
+}: {
+  activities: LiveActivityEntry[];
+  isConnected: boolean;
+  isReplaying: boolean;
+  lastTurnLength: number;
+  onToggleReplay: () => void;
+}) {
+  const feedRef = useRef<HTMLDivElement>(null);
+  const prevCount = useRef(0);
+
+  // Auto-scroll to top on new activity
+  useEffect(() => {
+    if (activities.length > prevCount.current && feedRef.current) {
+      feedRef.current.scrollTop = 0;
+    }
+    prevCount.current = activities.length;
+  }, [activities.length]);
+
+  return (
+    <Card className="border-white/[0.06] bg-white/[0.02] backdrop-blur-sm flex flex-col">
+      <div className="px-5 py-3.5 border-b border-white/[0.06] flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5">
+          <Activity className="h-4 w-4 text-amber-400" />
+          <span className="text-sm font-medium text-zinc-200">LIVE ACTIVITY</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {isConnected && (
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+            </span>
+          )}
+          <span className="text-xs text-zinc-500 font-mono">{activities.length} events</span>
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1 h-[420px] lg:h-[540px]" ref={feedRef}>
+        <div className="p-2 space-y-1" aria-live="polite" aria-label="Agent activity feed">
+          <AnimatePresence initial={false}>
+            {activities.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <Circle className="h-10 w-10 text-zinc-800 mb-4" />
+                <p className="text-sm text-zinc-500">Waiting for agent activity...</p>
+                <p className="text-xs text-zinc-600 mt-2 max-w-[260px]">
+                  Updates will appear here when the cron executes an evolution wave
+                </p>
+              </div>
+            ) : (
+              activities.map((entry, i) => (
+                <ActivityEntry key={entry.id} entry={entry} isNew={i === 0} />
+              ))
+            )}
+          </AnimatePresence>
+        </div>
+      </ScrollArea>
+
+      {/* Bottom bar with replay controls */}
+      <div className="px-5 py-3 border-t border-white/[0.06] shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5">
+              <Shield className="h-3.5 w-3.5 text-amber-500/40" />
+              <span className="text-[10px] text-zinc-500 font-mono tracking-wider">SPEC-DRIVEN</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <Zap className="h-3.5 w-3.5 text-amber-500/40" />
+              <span className="text-[10px] text-zinc-500 font-mono tracking-wider">AUTO-EVOLUTION</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {lastTurnLength > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleReplay}
+                aria-label={isReplaying ? 'Pause replay' : 'Replay last wave'}
+                className={`h-7 px-3 text-xs gap-1.5 ${
+                  isReplaying
+                    ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
+                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]'
+                }`}
+              >
+                {isReplaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+                <span className="hidden sm:inline font-mono">{'\u27F3'} REPLAY</span>
+              </Button>
+            )}
+            <span className="hidden sm:inline text-[10px] text-zinc-700 font-mono">HERMES {HERMES_VERSION}</span>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }
