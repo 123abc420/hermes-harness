@@ -2822,3 +2822,23 @@ Stage Summary:
 - XP bar now correctly shows progress within current level (was always 100% at higher levels)
 - Category colors are now single-source-of-truth from category-colors.ts (20 categories total)
 - Export failures now show user-visible toast error instead of disappearing silently
+---
+Task ID: w133
+Agent: Wave Engine (W133)
+Task: Fix dashboard crash, add metric query resilience, SSE reconnection
+
+Work Log:
+- ASSESS: Dashboard API returning 500 — Prisma P2023 error on HarnessMetric.findMany()
+- Root cause: W132 inserted string values ("fixed", "toast", "added") into metricValue (Float) via raw SQL
+- EXECUTE (1/3): Deleted all non-numeric metric rows from DB via raw SQL
+- EXECUTE (2/3): Wrapped metric query in dashboard route with .catch(() => []) for fault isolation
+- EXECUTE (3/3): Added SSE reconnection logic to use-agent-live.ts — 30s retry interval with inline EventSource to avoid circular callback ref
+- Added "Data Type Safety" section to insights.md
+- VERIFY: Lint 0 errors, dashboard returns 200, no new errors in dev.log
+- PERSIST: Git commit, DB records (wave + 3 decisions + 3 metrics)
+
+Stage Summary:
+- Dashboard crash fixed — was returning 500 due to bad metric data from W132
+- Metric queries now resilient to bad data (won't crash entire dashboard)
+- SSE reconnection: client will retry SSE every 30s after falling back to polling
+- Lesson: raw SQL inserts bypass Prisma type validation — always use numeric values for Float columns
