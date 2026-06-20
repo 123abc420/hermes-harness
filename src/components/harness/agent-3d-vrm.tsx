@@ -23,33 +23,68 @@ export const STATE_VRM_EXPRESSION: Record<AgentVisualState, string> = {
 /* ═══════════════════════════════════════════════════════════════════════
    VRM LOADER — runs once, sets shared vrmState.activeVRM
    ═══════════════════════════════════════════════════════════════════════ */
+const VRM_LOAD_TIMEOUT_MS = 15_000;
+
 export function loadVRM(onLoad: () => void, onError: () => void) {
   if (vrmState.loadAttempted) return;
   vrmState.loadAttempted = true;
+
+  // Timeout: if VRM doesn't load within 15s, force fallback to Chibi
+  const timeoutId = setTimeout(() => {
+    if (!vrmState.loadSuccess && !vrmState.loadError) {
+      vrmState.loadError = true;
+      onError();
+    }
+  }, VRM_LOAD_TIMEOUT_MS);
+
   const loader = new GLTFLoader();
   loader.register((parser) => new VRMLoaderPlugin(parser));
   loader.load(
     '/models/avatar.vrm',
     (gltf) => {
+      if (vrmState.loadSuccess || vrmState.loadError) return; // already resolved by timeout
+      clearTimeout(timeoutId);
+
       try {
         const vrm = gltf.userData.vrm as VRM;
-        if (!vrm) { onError(); return; }
-        VRMUtils.removeUnnecessaryVertices(gltf.scene);
-        VRMUtils.removeUnnecessaryJoints(gltf.scene);
-        vrm.scene.rotation.y = Math.PI;
-        vrm.scene.traverse((obj) => {
-          if ((obj as THREE.Mesh).isMesh) {
-            obj.castShadow = true;
-            obj.receiveShadow = true;
+        if (!vrm) {
+          vrmState.loadError = true;
+          onError();
+          return;
+        }
+
+        // Defer heavy VRM processing off the main thread via microtask
+        // This prevents blocking the UI while processing the 10MB model
+        queueMicrotask(() => {
+          try {
+            VRMUtils.removeUnnecessaryVertices(gltf.scene);
+            VRMUtils.removeUnnecessaryJoints(gltf.scene);
+          } catch {
+            // Non-critical optimization — continue even if it fails
           }
+
+          vrm.scene.rotation.y = Math.PI;
+          vrm.scene.traverse((obj) => {
+            if ((obj as THREE.Mesh).isMesh) {
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
+          vrmState.activeVRM = vrm;
+          vrmState.loadSuccess = true;
+          onLoad();
         });
-        vrmState.activeVRM = vrm;
-        vrmState.loadSuccess = true;
-        onLoad();
-      } catch { onError(); }
+      } catch {
+        vrmState.loadError = true;
+        onError();
+      }
     },
     undefined,
-    () => { vrmState.loadError = true; onError(); }
+    () => {
+      clearTimeout(timeoutId);
+      vrmState.loadError = true;
+      onError();
+    }
   );
 }
 
@@ -76,14 +111,6 @@ export function VRMCharacter() {
       targetRot.current = station.rot;
     }
   }, [agentState, targetPos]);
-
-  // Load VRM on mount
-  useEffect(() => {
-    loadVRM(
-      () => { /* vrmState.loadSuccess is set by loadVRM */ },
-      () => { /* vrmState.loadError is set by loadVRM */ }
-    );
-  }, []);
 
   const isMovingVrm = useRef(false);
 

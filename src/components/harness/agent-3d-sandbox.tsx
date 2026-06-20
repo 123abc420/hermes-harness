@@ -6,7 +6,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import { mousePosition } from './agent-3d-shared';
 import { World } from './agent-3d-world';
-import { CharacterBridge, StateLight, FloatingParticles, CameraController, LoadingIndicator } from './agent-3d-scene';
+import { CharacterBridge, StateLight, FloatingParticles, CameraController } from './agent-3d-scene';
 
 /* ═══════════════════════════════════════════════════════════════════════
    MAIN EXPORT — Agent3DSandbox
@@ -37,7 +37,6 @@ export function Agent3DSandbox() {
           <StateLight />
           <FloatingParticles />
           <CameraController />
-          <LoadingIndicator />
           <EffectComposer>
             <Bloom
               luminanceThreshold={0.6}
@@ -48,8 +47,6 @@ export function Agent3DSandbox() {
           </EffectComposer>
         </Suspense>
       </Canvas>
-      {/* Spin keyframe for loading indicator */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   );
 }

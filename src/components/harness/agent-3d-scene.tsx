@@ -10,7 +10,7 @@ import {
   characterWorldPos, arrivalFlash,
 } from './agent-3d-shared';
 import { ChibiCharacter } from './agent-3d-chibi';
-import { VRMCharacter } from './agent-3d-vrm';
+import { VRMCharacter, loadVRM } from './agent-3d-vrm';
 
 /* ═══════════════════════════════════════════════════════════════════════
    ARRIVAL FLASH — brief glow when character arrives at station
@@ -38,6 +38,21 @@ export function CharacterGroup() {
   const agentState = useAgentLiveStore(s => s.agentState);
   const stateColor = STATE_COLORS[agentState];
 
+  // Start VRM loading in background (non-blocking: Chibi shows immediately)
+  useEffect(() => {
+    // Use setTimeout(0) to ensure loadVRM starts AFTER the first render
+    // so the Chibi character is visible immediately
+    const startTimer = setTimeout(() => {
+      loadVRM(
+        () => { /* vrmState.loadSuccess is set by loadVRM */ },
+        () => { /* vrmState.loadError is set by loadVRM */ }
+      );
+    }, 100);
+
+    return () => clearTimeout(startTimer);
+  }, []);
+
+  // Poll for VRM load completion (switch from Chibi to VRM when ready)
   useEffect(() => {
     const interval = setInterval(() => {
       if (vrmState.loadSuccess && !vrmState.loadError) {
@@ -200,7 +215,30 @@ export const FloatingParticles = memo(function FloatingParticles() {
    LOADING INDICATOR — shown while VRM loads
    ═══════════════════════════════════════════════════════════════════════ */
 export function LoadingIndicator() {
-  if (vrmState.loadSuccess || vrmState.loadError) return null;
+  const [elapsed, setElapsed] = useState(0);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    const start = Date.now();
+    const tick = setInterval(() => {
+      const e = Math.floor((Date.now() - start) / 1000);
+      setElapsed(e);
+      if (vrmState.loadSuccess || vrmState.loadError) {
+        clearInterval(tick);
+        setDone(true);
+      }
+    }, 500);
+    return () => clearInterval(tick);
+  }, []);
+
+  if (done || vrmState.loadSuccess || vrmState.loadError) return null;
+
+  const hint = elapsed > 15
+    ? 'VRM is taking long, falling back soon...'
+    : elapsed > 5
+      ? 'Loading character model...'
+      : 'Loading VRM character...';
+
   return (
     <Html center position={[0, 0.1, 0]} style={{ pointerEvents: 'none' }}>
       <div style={{ color: '#6ee7b7', fontSize: '10px', fontFamily: 'monospace', textAlign: 'center' }}>
@@ -208,7 +246,8 @@ export function LoadingIndicator() {
           width: 24, height: 24, margin: '0 auto 6px', borderRadius: '50%',
           border: '2px solid #065f4644', borderTopColor: '#6ee7b7', animation: 'spin 1s linear infinite',
         }} />
-        Loading VRM character...
+        {hint}
+        <div style={{ color: '#4a5568', fontSize: '8px', marginTop: '2px' }}>{elapsed}s</div>
       </div>
     </Html>
   );
