@@ -2804,3 +2804,21 @@ Stage Summary:
 - InfoGrid shows complementary data (repo name, SHA) instead of repeating summary
 - 2 hardcoded localhost URLs eliminated; configurable via env vars
 - Lint: 0 errors. Git: 1 commit pushed.
+---
+Task ID: w132
+Agent: Wave Engine (W132)
+Task: Self-improvement wave — fix XP math, unify colors, export toast
+
+Work Log:
+- ASSESS: Read all state files, dashboard API (129 waves, 100% spec compliance, no errors)
+- PLAN: Used Explore agent to audit entire component set. Found 24 potential improvements. Selected top 3 by impact.
+- EXECUTE (1/3): Fixed XP level calculation in agent-live-store.ts — added getXpForLevel() to compute XP within current level instead of total cumulative XP
+- EXECUTE (2/3): Unified category colors — added research/analysis/strategy/template to DECISION_CATEGORIES in category-colors.ts, removed SKILL_CATEGORY_TW duplicate map from skills-section.tsx
+- EXECUTE (3/3): Added toast.error() feedback to export-menu.tsx catch block (was silent failure)
+- VERIFY: bun run lint → 0 errors. dev.log clean (no new errors from changes)
+- PERSIST: Git commit, DB records (wave + 3 decisions + 3 metrics), context.md update
+
+Stage Summary:
+- XP bar now correctly shows progress within current level (was always 100% at higher levels)
+- Category colors are now single-source-of-truth from category-colors.ts (20 categories total)
+- Export failures now show user-visible toast error instead of disappearing silently
