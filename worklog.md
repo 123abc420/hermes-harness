@@ -4055,3 +4055,21 @@ Stage Summary:
 - Fixed critical rendering bug. The VRM loading system had a fundamental architectural flaw (dead code path) plus a main-thread blocking issue with the 10.7MB model.
 - Chibi character is now the immediate default; VRM loads as a background progressive enhancement.
 - App fully functional and verified via agent-browser.
+
+---
+Task ID: W223
+Agent: wave-engine
+Task: Rewrite ensure-server.md skill with correct sandbox behavior
+
+Work Log:
+- ASSESSED: 0 lint errors, 100% spec compliance, server running on 3000+3004 (HTTP 200)
+- REWROTE ensure-server.md v2.0: documented that sandbox cgroup cleanup kills ALL child processes when bash tool ends
+- Removed false claim that setsid makes server survive across tool calls
+- Added correct startup procedure: start fresh every wave, use `&` + `sleep` to keep alive during call
+- Added "Sandbox Process Lifecycle" section to insights.md
+- Updated context.md: Wave 223, Skills 9, commits ~374
+- Recorded wave, decision, 3 metrics via API
+
+Stage Summary:
+- 1 improvement: ensure-server.md skill rewritten with accurate sandbox behavior documentation
+- No code changes. Maintenance mode continues.

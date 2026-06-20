@@ -106,3 +106,10 @@
 
 - `console.warn` in client hooks pollutes production — gate behind `process.env.NODE_ENV !== 'production'`.
 - Server-side `logError`/`logDebug` are server-only. Client code needs its own dev-gate pattern.
+
+## Sandbox Process Lifecycle
+
+- chat.z.ai sandbox kills ALL child processes when a `bash` tool call ends (cgroup-level cleanup).
+- `nohup`, `setsid`, `disown`, `detached: true` — NONE survive the cgroup cleanup.
+- The ONLY strategy: start the server fresh in EVERY wave/response, keep it alive with `sleep` during the tool call.
+- Production build (`next start` from `.next/standalone/`) starts in ~1s — fast enough for per-wave startup.
