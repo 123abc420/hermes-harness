@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { logError } from '@/lib/logger';
 
 async function readFileSafe(filePath: string): Promise<string> {
   try {
@@ -32,7 +33,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[MEMORY] Error:', error);
+    logError('MEMORY', error);
     return NextResponse.json({ error: 'Failed to fetch memory' }, { status: 500 });
   }
 }
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[MEMORY] Error:', error);
+    logError('MEMORY', error, { method: 'POST' });
     return NextResponse.json({ error: 'Failed to save memory' }, { status: 500 });
   }
 }

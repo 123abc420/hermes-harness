@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError } from '@/lib/logger';
 import { Prisma } from '@prisma/client';
 
 export async function GET() {
@@ -39,7 +40,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[DECISIONS/TRENDS] Error:', error);
+    logError('DECISIONS/TRENDS', error);
     return NextResponse.json({ error: 'Failed to fetch decision trends' }, { status: 500 });
   }
 }

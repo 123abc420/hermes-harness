@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError, logDebug } from '@/lib/logger';
 
 export async function GET(
   _req: NextRequest,
@@ -18,7 +19,7 @@ export async function GET(
 
     return NextResponse.json(wave);
   } catch (error) {
-    console.error('[WAVE] Error:', error);
+    logError('WAVE', error);
     return NextResponse.json({ error: 'Failed to fetch wave' }, { status: 500 });
   }
 }
@@ -56,12 +57,12 @@ export async function PATCH(
             body.status === 'failed' || body.status === 'error' ? 'failed_wave' :
             'interrupted',
         },
-      }).catch(() => { /* non-critical */ });
+      }).catch((e) => { logDebug('WAVE', 'Decision outcome backfill failed', { waveId: id, error: String(e) }); });
     }
 
     return NextResponse.json(wave);
   } catch (error) {
-    console.error('[WAVE PATCH] Error:', error);
+    logError('WAVE', error, { method: 'PATCH' });
     return NextResponse.json({ error: 'Failed to update wave' }, { status: 500 });
   }
 }

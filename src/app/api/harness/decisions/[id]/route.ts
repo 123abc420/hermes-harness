@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError } from '@/lib/logger';
 
 // Allowed fields for decision PATCH — prevents unrestricted body spread
 const ALLOWED_FIELDS = new Set([
@@ -34,7 +35,7 @@ export async function PATCH(
 
     return NextResponse.json(decision);
   } catch (error) {
-    console.error('[DECISION] Error:', error);
+    logError('DECISION', error, { method: 'PATCH', decisionId: id });
     return NextResponse.json({ error: 'Failed to update decision' }, { status: 500 });
   }
 }

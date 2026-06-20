@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ waves, total, page, limit, countsByStatus });
   } catch (error) {
-    console.error('[WAVES] Error:', error);
+    logError('WAVES', error);
     return NextResponse.json({ error: 'Failed to fetch waves' }, { status: 500 });
   }
 }
@@ -73,7 +74,7 @@ export async function PATCH(req: NextRequest) {
       totalFixed,
     });
   } catch (error) {
-    console.error('[WAVES] Cleanup error:', error);
+    logError('WAVES', error, { method: 'PATCH' });
     return NextResponse.json({ error: 'Failed to cleanup waves' }, { status: 500 });
   }
 }
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(wave, { status: 201 });
   } catch (error) {
-    console.error('[WAVES] Error:', error);
+    logError('WAVES', error, { method: 'POST' });
     return NextResponse.json({ error: 'Failed to create wave' }, { status: 500 });
   }
 }

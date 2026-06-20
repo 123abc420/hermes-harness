@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logError, logDebug } from '@/lib/logger';
 import { formatArgentinaTime, AGENT_LIVE_SERVICE_URL } from '@/lib/constants';
 
 const VALID_AGENT_STATES = new Set([
@@ -62,7 +63,7 @@ async function forwardToService(data: { type: string; payload: Record<string, un
       body: JSON.stringify(data),
     });
   } catch {
-    // Service might not be running, that's OK
+    logDebug('AGENT_STATUS', 'forwardToService failed', { type: data.type });
   }
 }
 
@@ -200,7 +201,7 @@ export async function POST(req: NextRequest) {
       latestStatus = { ...latestStatus, agentState: entry.agentState, message: entry.message, phase: entry.phase, timestamp: now };
 
       // Best-effort forward to service
-      forwardToService({ type: 'activity', payload: entry }).catch(() => {});
+      forwardToService({ type: 'activity', payload: entry }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
 
       return NextResponse.json({ ok: true, activities: activityLog.length });
     }
@@ -230,7 +231,7 @@ export async function POST(req: NextRequest) {
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = Date.now();
 
-      forwardToService({ type: 'activity', payload: entry }).catch(() => {});
+      forwardToService({ type: 'activity', payload: entry }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
       return NextResponse.json({ ok: true, subAgents: subAgents.length });
     }
 
@@ -266,7 +267,7 @@ export async function POST(req: NextRequest) {
       if (body.subAgents) {
         subAgents = body.subAgents as Array<Record<string, unknown>>;
       }
-      forwardToService({ type: 'full-update', payload: body }).catch(() => {});
+      forwardToService({ type: 'full-update', payload: body }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
       return NextResponse.json({ ok: true });
     }
 
@@ -287,11 +288,11 @@ export async function POST(req: NextRequest) {
     forwardToService({
       type: 'status',
       payload: latestStatus,
-    }).catch(() => {});
+    }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error('[AgentStatus] Error:', error);
+    logError('AGENT_STATUS', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

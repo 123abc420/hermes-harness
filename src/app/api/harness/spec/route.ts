@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logError } from '@/lib/logger';
 
 const SPEC_CONTENT = `# HERMES HARNESS — System Specification
 
@@ -86,7 +87,7 @@ export async function GET() {
       sectionsCount: 6,
     });
   } catch (error) {
-    console.error('[SPEC] Error:', error);
+    logError('SPEC', error);
     return NextResponse.json({ error: 'Failed to fetch spec' }, { status: 500 });
   }
 }

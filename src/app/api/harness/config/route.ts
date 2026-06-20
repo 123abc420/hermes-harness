@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -10,7 +11,7 @@ export async function GET() {
     }
     return NextResponse.json({ config: configMap });
   } catch (error) {
-    console.error('[CONFIG] Error:', error);
+    logError('CONFIG', error);
     return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 });
   }
 }
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(config);
   } catch (error) {
-    console.error('[CONFIG] Error:', error);
+    logError('CONFIG', error, { method: 'POST' });
     return NextResponse.json({ error: 'Failed to upsert config' }, { status: 500 });
   }
 }

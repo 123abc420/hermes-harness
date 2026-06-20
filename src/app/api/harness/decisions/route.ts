@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError } from '@/lib/logger';
 
 /** Derive a decision outcome from its action + wave status */
 function deriveOutcome(action: string, waveStatus: string): string | null {
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ decisions, total, page, limit, countsByCategory, countsByAction });
   } catch (error) {
-    console.error('[DECISIONS] Error:', error);
+    logError('DECISIONS', error);
     return NextResponse.json({ error: 'Failed to fetch decisions' }, { status: 500 });
   }
 }
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(decision, { status: 201 });
   } catch (error) {
-    console.error('[DECISIONS] Error:', error);
+    logError('DECISIONS', error, { method: 'POST' });
     return NextResponse.json({ error: 'Failed to create decision' }, { status: 500 });
   }
 }

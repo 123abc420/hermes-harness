@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { logError } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ metrics });
   } catch (error) {
-    console.error('[METRICS] Error:', error);
+    logError('METRICS', error);
     return NextResponse.json({ error: 'Failed to fetch metrics' }, { status: 500 });
   }
 }
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(metric, { status: 201 });
   } catch (error) {
-    console.error('[METRICS] Error:', error);
+    logError('METRICS', error, { method: 'POST' });
     return NextResponse.json({ error: 'Failed to record metric' }, { status: 500 });
   }
 }

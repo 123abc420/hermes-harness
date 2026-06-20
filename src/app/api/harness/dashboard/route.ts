@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import { join } from 'path';
 import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
+import { logError, logDebug } from '@/lib/logger';
 
 const execFileAsync = promisify(execFile);
 
@@ -63,7 +64,7 @@ export async function GET() {
     db.harnessWave.updateMany({
       where: { status: 'running', startedAt: { lt: new Date(Date.now() - 15 * 60 * 1000) } },
       data: { status: 'interrupted', completedAt: new Date(Date.now() - 15 * 60 * 1000) },
-    }).catch(() => {});
+    }).catch((e) => { logDebug('DASHBOARD', 'Stale wave cleanup failed', { error: String(e) }); });
 
     const [
       recentWaves,
@@ -258,7 +259,7 @@ export async function GET() {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[DASHBOARD] Error:', error);
+    logError('DASHBOARD', error);
     return NextResponse.json({ error: 'Failed to fetch dashboard' }, { status: 500 });
   }
 }

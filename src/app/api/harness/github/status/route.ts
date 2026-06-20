@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
+import { logError } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -26,7 +27,7 @@ export async function GET() {
       recentCommits: git.commits,
     });
   } catch (error) {
-    console.error('[GITHUB STATUS] Error:', error);
+    logError('GITHUB_STATUS', error);
     return NextResponse.json({ error: 'Failed to fetch GitHub status' }, { status: 500 });
   }
 }

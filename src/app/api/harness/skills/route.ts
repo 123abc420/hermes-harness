@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logError } from '@/lib/logger';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ skills: filtered.slice(0, limit) });
   } catch (error) {
-    console.error('[SKILLS] Error:', error);
+    logError('SKILLS', error);
     return NextResponse.json({ error: 'Failed to read skills' }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { logError, logDebug } from '@/lib/logger';
 import { db } from '@/lib/db';
 
 const execFileAsync = promisify(execFile);
@@ -50,7 +51,7 @@ export async function POST() {
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error('[GITHUB SYNC] Error:', error);
+    logError('GITHUB_SYNC', error);
     return NextResponse.json({ error: 'Failed to sync' }, { status: 500 });
   }
 }
