@@ -5,8 +5,8 @@ import {
   useHarnessDashboard,
 } from '@/hooks/use-harness-data';
 import type { ExportModule } from '@/store/harness-store';
-import { motion } from 'framer-motion';
 import { ConnectionStatus, InfoGrid, CommitHistory, ExportModules } from './github-subcomponents';
+import { AnimatedSection } from './animated-section';
 
 /* ── GitHub Tab ──────────────────────────────────────── */
 export function GithubTab() {
@@ -17,10 +17,7 @@ export function GithubTab() {
 
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <AnimatedSection variant="header">
         <ConnectionStatus
           githubStatus={githubStatus}
           isLoading={isLoading}
@@ -28,32 +25,20 @@ export function GithubTab() {
           error={error}
           refetch={refetch}
         />
-      </motion.div>
+      </AnimatedSection>
 
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
+      <AnimatedSection delay={0.05}>
         <InfoGrid githubStatus={githubStatus} />
-      </motion.div>
+      </AnimatedSection>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <AnimatedSection delay={0.1}>
           <CommitHistory githubStatus={githubStatus} />
-        </motion.div>
+        </AnimatedSection>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
+        <AnimatedSection delay={0.15}>
           <ExportModules modules={modules} />
-        </motion.div>
+        </AnimatedSection>
       </div>
     </div>
   );

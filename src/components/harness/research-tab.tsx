@@ -1,7 +1,6 @@
 'use client';
 
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
-import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { MemorySection } from './memory-section';
@@ -10,6 +9,7 @@ import { DecisionDistribution, OutcomeDistribution } from './distribution-charts
 import { WaveCategoryBreakdown } from './wave-category-breakdown';
 import { DecisionTimeline } from './decision-timeline';
 import { ErrorBlock } from './error-block';
+import { AnimatedSection } from './animated-section';
 
 /* ── Analytics Tab ─────────────────────────────────────── */
 export function ResearchTab() {
@@ -39,30 +39,30 @@ export function ResearchTab() {
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.05 }}>
+      <AnimatedSection delay={0.05}>
         <MemorySection />
-      </motion.div>
+      </AnimatedSection>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.1 }}>
+        <AnimatedSection delay={0.1}>
           <SkillsSection />
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.15 }}>
+        </AnimatedSection>
+        <AnimatedSection delay={0.15}>
           <DecisionDistribution recentDecisions={dash?.recentDecisions} />
-        </motion.div>
+        </AnimatedSection>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.2 }}>
+      <AnimatedSection delay={0.2}>
         <OutcomeDistribution recentDecisions={dash?.recentDecisions} />
-      </motion.div>
+      </AnimatedSection>
 
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.25 }}>
+      <AnimatedSection delay={0.25}>
         <WaveCategoryBreakdown waves={dash?.waves} decisions={dash?.recentDecisions} />
-      </motion.div>
+      </AnimatedSection>
 
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.3 }}>
+      <AnimatedSection delay={0.3}>
         <DecisionTimeline decisions={dash?.recentDecisions} />
-      </motion.div>
+      </AnimatedSection>
     </div>
   );
 }

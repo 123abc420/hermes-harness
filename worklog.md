@@ -2491,3 +2491,24 @@ Stage Summary:
 - New component: animated-section.tsx (28L, reusable across tabs)
 - overview-tab.tsx: 218→197L (DRY + collapsible section)
 - 26 skills, 28 components, 112 waves in DB
+
+---
+Task ID: 118
+Agent: Wave Engine
+Task: Apply AnimatedSection to research-tab + github-tab, add variant prop
+
+Work Log:
+- Assessed: 112 waves, 100% compliance, 0 errors
+- Enhanced animated-section.tsx (28→48L): added variant prop ('default' fade-up, 'header' fade-down) with VARIANTS config map
+- Refactored research-tab.tsx (68→60L): replaced 6 motion.div blocks with AnimatedSection, removed framer-motion import
+- Refactored github-tab.tsx (59→49L): replaced 4 motion.div blocks (3 default + 1 header variant), removed framer-motion import
+- waves-tab and decisions-tab kept their custom animations (y:-6, scale:0.98, opacity-only) — intentionally different
+- Tab motion.div count: 34→14 (59% reduction)
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- animated-section.tsx: 28→48L (variant prop)
+- research-tab.tsx: 68→60L, github-tab.tsx: 59→49L
+- Tab motion.div count: 34→14
+- 26 skills, 113 waves in DB
