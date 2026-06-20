@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 16:03 UTC+8
+2026-06-20 16:11 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 139)
-- **Waves in DB**: 136
+- **Phase**: Post-Compliance Evolution (Wave 140)
+- **Waves in DB**: 137
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 28 |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~262 |
-| Waves in DB | 136 |
+| GitHub commits | ~263 |
+| Waves in DB | 137 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 | Dashboard cache TTL | 12s (functional) |
@@ -40,9 +40,10 @@
 - Skills API at /api/harness/skills with search param
 - aria-live split: assertive for state changes, polite for latest entry only
 - All data visualizations have accessible text alternatives (sparklines, bar charts)
+- All buttons and collapsible controls have descriptive ARIA attributes
+- All collapsible sections linked via aria-controls/aria-expanded
 - 28 skills including wave-data-hygiene
 
 ## What's next
 1. Consider per-wave replay with real phase data
-2. Consider decision card collapsible aria-label improvement
-3. All known issues resolved
+2. All known accessibility issues resolved
