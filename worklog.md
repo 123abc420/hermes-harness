@@ -3012,3 +3012,20 @@ Stage Summary:
 - Created src/lib/logger.ts (logError + logDebug) — all API routes now use structured logging
 - 22 console.error calls eliminated from API routes (0 remaining)
 - 6 silent error swallows now visible via logDebug in development
+---
+Task ID: w144
+Agent: Wave Engine (W144)
+Task: Add .ok checks to all client-side fetch calls
+
+Work Log:
+- ASSESS: 143 waves, 100% compliance, 0 errors. Context item 2: command palette .ok checks.
+- Found 6 unprotected .then(r => r.json()) across 3 files.
+- EXECUTE (1/3): command-palette.tsx — 3 fetches now check r.ok before .json()
+- EXECUTE (2/3): csv-export.ts — first page + pagination fetches check r.ok with descriptive error messages
+- EXECUTE (3/3): category-trends-chart.tsx — trends fetch checks r.ok
+- VERIFY: lint 0 errors. Grep confirmed 0 unprotected .then(r => r.json()) in src/
+- PERSIST: Git commit, DB records
+
+Stage Summary:
+- Zero unprotected fetch→json chains remaining in src/
+- Non-200 responses now throw descriptive errors instead of causing JSON parse crashes
