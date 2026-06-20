@@ -2961,3 +2961,20 @@ Stage Summary:
 - Replay no longer runs infinitely (auto-stops after 3 cycles)
 - 3D avatar failures are isolated — Agent Live tab stays functional
 - Phase timeline clearly labeled as estimated
+---
+Task ID: w141
+Agent: Wave Engine (W141)
+Task: Security hardening — agent-status input validation, demo auth gate, console.log fix
+
+Work Log:
+- ASSESS: 138 waves, healthy, 0 errors. Context "What's next" items 2+3 (input validation, demo auth).
+- EXECUTE (1/3): Added input validation to agent-status POST — whitelist agentState (10 valid values), validate progress 0-1, validate waveNumber as non-negative integer, validate phase against 6 known phases. Also validates full-update type body.
+- EXECUTE (2/3): Added Bearer token auth gate to agent-demo route — checks DEMO_SECRET env var. If not set (dev mode), open access. If set, requires Authorization: Bearer <secret>. Both GET and POST gated.
+- EXECUTE (3/3): Changed console.log to console.warn for SSE reconnection attempt in use-agent-live.ts.
+- VERIFY: bun run lint → 0 errors
+- PERSIST: Git commit, DB records, context.md update
+
+Stage Summary:
+- agent-status POST no longer accepts arbitrary state injection — validates all fields
+- agent-demo route protected by optional Bearer token auth (open in dev, gated in prod)
+- Log severity corrected for recovery events

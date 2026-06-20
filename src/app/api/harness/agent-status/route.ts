@@ -1,6 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { formatArgentinaTime, AGENT_LIVE_SERVICE_URL } from '@/lib/constants';
 
+const VALID_AGENT_STATES = new Set([
+  'idle', 'thinking', 'searching', 'planning', 'executing',
+  'verifying', 'celebrating', 'error', 'evolving', 'offline',
+]);
+
+const VALID_PHASES = new Set([
+  'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
+]);
+
+function validateAgentState(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  const s = String(value);
+  if (!VALID_AGENT_STATES.has(s)) return `Invalid agentState: "${s}"`;
+  return null;
+}
+
+function validateProgress(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0 || n > 1) return 'progress must be between 0 and 1';
+  return null;
+}
+
+function validateWaveNumber(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 0) return 'waveNumber must be a non-negative integer';
+  return null;
+}
+
 // ─── In-memory state (always available, no external service needed) ─
 let latestStatus: Record<string, unknown> = {
   agentState: 'idle',
@@ -116,6 +146,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing agentState or message' }, { status: 400 });
     }
 
+    // Validate agentState if provided
+    const stateErr = validateAgentState(agentState);
+    if (stateErr) return NextResponse.json({ error: stateErr }, { status: 400 });
+
+    // Validate progress if provided
+    const progressErr = validateProgress(progress);
+    if (progressErr) return NextResponse.json({ error: progressErr }, { status: 400 });
+
+    // Validate waveNumber if provided
+    const waveErr = validateWaveNumber(waveNumber);
+    if (waveErr) return NextResponse.json({ error: waveErr }, { status: 400 });
+
+    // Validate phase if provided
+    if (phase !== undefined && phase !== null && !VALID_PHASES.has(String(phase))) {
+      return NextResponse.json({ error: `Invalid phase: "${phase}"` }, { status: 400 });
+    }
+
     if (type === 'activity') {
       const now = Date.now();
       const entry = {
@@ -179,6 +226,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (type === 'full-update') {
+      // Validate agentState in full-update body too
+      if (body.agentState) {
+        const fullErr = validateAgentState(body.agentState);
+        if (fullErr) return NextResponse.json({ error: fullErr }, { status: 400 });
+      }
+      if (body.progress !== undefined) {
+        const fullProg = validateProgress(body.progress);
+        if (fullProg) return NextResponse.json({ error: fullProg }, { status: 400 });
+      }
       latestStatus = { ...latestStatus, ...body, timestamp: Date.now() };
       if (body.activities) {
         // Ensure all activities have Argentina timestamps

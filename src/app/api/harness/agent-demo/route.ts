@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { APP_INTERNAL_URL } from '@/lib/constants';
+
+const DEMO_SECRET = process.env.DEMO_SECRET;
 
 const DEMO_SEQUENCE = [
   { agentState: 'thinking', message: 'ASSESS: Reading context.md...', phase: 'assess', progress: 0.08 },
@@ -20,6 +22,12 @@ const DEMO_SEQUENCE = [
   { agentState: 'idle', message: 'Turn finished. Activity logged.', phase: '', progress: 0 },
 ];
 
+function checkAuth(req: NextRequest): boolean {
+  if (!DEMO_SECRET) return true; // No secret configured = open (dev mode)
+  const auth = req.headers.get('authorization');
+  return auth === `Bearer ${DEMO_SECRET}`;
+}
+
 async function postToStatus(data: Record<string, unknown>) {
   try {
     await fetch(`${APP_INTERNAL_URL}/api/harness/agent-status`, {
@@ -33,7 +41,11 @@ async function postToStatus(data: Record<string, unknown>) {
 }
 
 // GET: Run demo sequence
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!checkAuth(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   for (const step of DEMO_SEQUENCE) {
     await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 500));
 
@@ -70,7 +82,11 @@ export async function GET() {
 }
 
 // POST: Single status update
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  if (!checkAuth(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     await postToStatus(body);

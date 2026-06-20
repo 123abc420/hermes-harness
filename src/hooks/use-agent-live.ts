@@ -116,7 +116,7 @@ export function useAgentLive() {
         if (!sseRetryRef.current) {
           sseRetryRef.current = setInterval(() => {
             if (eventSourceRef.current) return; // already connected via SSE
-            console.log('[AgentLive] Attempting SSE reconnection...');
+            console.warn('[AgentLive] Attempting SSE reconnection...');
             if (pollRef.current) {
               clearInterval(pollRef.current);
               pollRef.current = undefined;
