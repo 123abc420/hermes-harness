@@ -69,6 +69,7 @@ export function SkillsSection() {
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
+                  aria-pressed={isActive}
                   className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-all ${
                     isActive
                       ? 'bg-amber-500/15 text-amber-300 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.25)]'

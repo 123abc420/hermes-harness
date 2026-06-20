@@ -16,6 +16,8 @@ let latestStatus: Record<string, unknown> = {
 
 let activityLog: Array<Record<string, unknown>> = [];
 const MAX_LOG = 80;
+const SSE_POLL_INTERVAL = 2000;
+const SSE_KEEP_ALIVE = 30_000;
 
 // Sub-agents state
 let subAgents: Array<Record<string, unknown>> = [];
@@ -68,12 +70,12 @@ export async function GET(req: NextRequest) {
         sendData();
 
         // Poll every 2 seconds for changes
-        const interval = setInterval(sendData, 2000);
+        const interval = setInterval(sendData, SSE_POLL_INTERVAL);
 
         // Keep alive every 30s
         const keepAlive = setInterval(() => {
           try { controller.enqueue(encoder.encode(`: keepalive\n\n`)); } catch { clearInterval(keepAlive); }
-        }, 30000);
+        }, SSE_KEEP_ALIVE);
 
         req.signal.addEventListener('abort', () => {
           clearInterval(interval);

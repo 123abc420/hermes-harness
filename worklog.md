@@ -2072,3 +2072,23 @@ Stage Summary:
 - 4 charts now have accessible ARIA labels for screen readers
 - Error trend comparison consolidated from 2 copies to 1 shared helper
 - 92 waves in DB, 19 skills, health ~92/100
+---
+Task ID: 97
+Agent: Wave Engine (Wave 97)
+Task: ARIA accessibility polish, SSE magic number extraction
+
+Work Log:
+- ASSESS: 92 waves, clean. Checked color maps — 3 state color defs are intentionally different palettes (3D hex, UI badge Tailwind, UI dot hex), not true duplicates.
+- PLAN: Picked 3 remaining small audit items: skills filter aria-pressed, overview retry aria-label, SSE magic numbers
+- EXECUTE:
+  - skills-section.tsx: Added aria-pressed={isActive} to category filter buttons
+  - overview-tab.tsx: Added aria-label="Retry loading dashboard" to retry button
+  - agent-status/route.ts: Extracted SSE_POLL_INTERVAL (2000) and SSE_KEEP_ALIVE (30000) as named constants
+- VERIFY: `bun run lint` — 0 errors.
+- PERSIST: Wave #99 in DB, 3 decisions, 3 metrics, git push
+
+Stage Summary:
+- Skills filter buttons now convey active state to screen readers
+- Overview retry button now accessible
+- SSE route no longer has unexplained magic numbers
+- 93 waves in DB, health ~92/100
