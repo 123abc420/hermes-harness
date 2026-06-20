@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 16:21 UTC+8
+2026-06-20 16:31 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 141)
-- **Waves in DB**: 138
+- **Phase**: Post-Compliance Evolution (Wave 142)
+- **Waves in DB**: 139
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 28 |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~264 |
-| Waves in DB | 138 |
+| GitHub commits | ~265 |
+| Waves in DB | 139 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 | Dashboard cache TTL | 12s (functional) |
@@ -44,9 +44,11 @@
 - All collapsible sections linked via aria-controls/aria-expanded
 - Wave replay auto-stops after 3 cycles (was infinite loop)
 - Phase timeline clearly labeled as estimated
+- agent-status POST validates input (agentState whitelist, progress 0-1, phase enum)
+- agent-demo route gated by optional DEMO_SECRET env var
 - 28 skills including wave-data-hygiene
 
 ## What's next
 1. Consider per-wave replay with real phase data (requires schema change)
-2. Consider agent-status POST input validation (security hardening)
-3. Consider agent-demo route auth gate
+2. Consider logError helper to sanitize console.error in API routes
+3. All known security and accessibility issues resolved
