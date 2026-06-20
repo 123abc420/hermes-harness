@@ -2,7 +2,6 @@
 
 import React, { useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import { mousePosition } from './agent-3d-shared';
 import { World } from './agent-3d-world';
@@ -10,7 +9,8 @@ import { CharacterBridge, StateLight, FloatingParticles, CameraController } from
 
 /* ═══════════════════════════════════════════════════════════════════════
    MAIN EXPORT — Agent3DSandbox
-   Thin orchestrator: composes scene modules inside a Canvas.
+   Lightweight 3D scene with Chibi character (VRM + Bloom removed W226
+   to fix Turbopack compilation hang).
    ═══════════════════════════════════════════════════════════════════════ */
 export function Agent3DSandbox() {
   const agentState = useAgentLiveStore(s => s.agentState);
@@ -37,14 +37,6 @@ export function Agent3DSandbox() {
           <StateLight />
           <FloatingParticles />
           <CameraController />
-          <EffectComposer>
-            <Bloom
-              luminanceThreshold={0.6}
-              luminanceSmoothing={0.9}
-              intensity={0.8}
-              mipmapBlur
-            />
-          </EffectComposer>
         </Suspense>
       </Canvas>
     </div>
