@@ -102,3 +102,8 @@
 - `execSync` in API routes blocks the ENTIRE server — even a cached dashboard can't respond while lint runs (up to 60s). ALWAYS use `execFile` (async).
 - ReadableStream `cancel()` is NOT optional for SSE — browser tab close doesn't always fire `abort` signal. Without `cancel()`, setInterval timers leak forever.
 - Closure scope matters: `cancel()` can't access variables declared inside `start()` — hoist interval refs to the outer scope.
+
+## Git & Persistence
+
+- `.gitignore` patterns without a leading `/` match ANY directory in the tree. `skills/` matches `gh-sync/skills/`. Use `/skills/` for root-only.
+- If a file keeps "disappearing" across sessions, check `.gitignore` FIRST — it may never have been tracked.

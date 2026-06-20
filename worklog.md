@@ -3029,3 +3029,22 @@ Work Log:
 Stage Summary:
 - Zero unprotected fetch→json chains remaining in src/
 - Non-200 responses now throw descriptive errors instead of causing JSON parse crashes
+---
+Task ID: w145
+Agent: Wave Engine (W145)
+Task: Fix skills gitignore root cause, create 3 hardening skills
+
+Work Log:
+- ASSESS: 144 waves, clean. Planned 3 skills for knowledge capture.
+- Discovered CRITICAL BUG: .gitignore line 12 had 'skills/' which matched 'gh-sync/skills/' — skills markdown files were NEVER committed to git. This is why the /api/harness/skills route kept "disappearing" across sessions (5+ times).
+- EXECUTE (1/3): Fixed .gitignore: 'skills/' → '/skills/' (root-only match). All 6 skills now tracked.
+- EXECUTE (2/3): Created defensive-fetch.md, api-route-hardening.md, event-loop-safety.md skills.
+- EXECUTE (3/3): wave-data-hygiene.md also now tracked (was previously ignored).
+- VERIFY: lint 0 errors. git ls-files confirms all 6 skills tracked.
+- PERSIST: Git commit, DB records
+
+Stage Summary:
+- ROOT CAUSE FOUND: .gitignore 'skills/' pattern matched gh-sync/skills/ — skills were never persisted to git
+- Fixed: '/skills/' now only matches root-level skills/ directory
+- 6 skills now properly tracked in git (was 0)
+- 3 new hardening skills created for future wave reference
