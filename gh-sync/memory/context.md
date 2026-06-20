@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 13:20 UTC+8
+2026-06-20 13:30 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 124)
-- **Waves in DB**: 119
+- **Phase**: Post-Compliance Evolution (Wave 125)
+- **Waves in DB**: 120
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 27 |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~203 |
-| Waves in DB | 119 |
+| GitHub commits | ~204 |
+| Waves in DB | 120 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 
@@ -28,8 +28,9 @@
 - All data tabs have summary stats bars
 - Health transparency: header tooltip + hero card inline bars (bug-fixed)
 - Footer: last wave indicator
-- Mobile: flex-wrap stats, min-w-0 search inputs, responsive filter pills
+- Mobile: flex-wrap stats, min-w-0 search inputs, responsive filter pills, PhaseTracker responsive
 - Wave detail dialog: reasoning, outcome, copy-summary, DecisionItem extraction
+- Command palette: tab quick-nav, group-hover fix, search with Results header
 - Features: WaveComparison, CategoryTrends, text search, CSV/JSON export, Cmd+K, collapsible sections
 - .gitignore covers all build artifacts
 - 3D sandbox: 6 modules, 27 skills
