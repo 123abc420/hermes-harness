@@ -3107,3 +3107,22 @@ Stage Summary:
 - Routes with zod: 5 → 8 of 9 body-parsing routes
 - Only agent-status POST remains (has existing hand-rolled validation, complex discriminated union)
 - Lint: 0 errors
+
+---
+Task ID: W148
+Agent: HERMES Wave Engine
+Task: Final consistency pass — eliminate last bare req.json, gate client-side console.warn
+
+Work Log:
+- ASSESSED: Comprehensive audit found 3 remaining inconsistencies across entire src/
+- EXECUTED 1: agent-status/route.ts POST — added .catch(() => null) + null check. Last bare req.json() eliminated.
+- EXECUTED 2: use-agent-live.ts — gated 3 console.warn calls behind process.env.NODE_ENV !== 'production'
+- EXECUTED 3: use-agent-live.ts — improved 2 silent catch comments from "Ignore parse errors" to descriptive context
+- VERIFIED: rm -rf .next && bun run lint — 0 errors
+
+Stage Summary:
+- Modified: agent-status/route.ts, use-agent-live.ts
+- All 9 body-parsing API routes now have req.json().catch() safety
+- Zero ungated console.warn in client code
+- Audit confirmed: 0 console.error bypasses, 0 silent catches, 0 bare .json(), 0 as any, 0 TODO/FIXME
+- Lint: 0 errors

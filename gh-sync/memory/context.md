@@ -6,8 +6,8 @@
 2026-06-20 17:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 147)
-- **Waves in DB**: 147
+- **Phase**: Post-Compliance Evolution (Wave 148)
+- **Waves in DB**: 148
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -26,7 +26,9 @@
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
 | unprotected fetch→json | 0 |
-| Routes with zod validation | 8 of 9 (all body-parsing routes except agent-status POST) |
+| Routes with zod validation | 8 of 9 (agent-status has manual validation + req.json safety) |
+| Bare req.json() calls | 0 |
+| Ungated client console.warn | 0 |
 | Shared zod schemas | 8 |
 | Skills tracked in git | 6 |
 
@@ -39,6 +41,6 @@
 - Shared zod schemas (src/lib/schemas.ts) with 8 input validators + validationError helper
 
 ## What's next
-1. Consider zod for agent-status POST (complex discriminated union — low priority, already has manual validation)
-2. Consider per-wave replay with real phase data (requires schema change)
-3. All known issues resolved — zod coverage nearly complete
+1. All known code quality issues resolved — system is in maintenance mode
+2. Consider zod for agent-status POST (low priority, already has manual validation)
+3. Consider per-wave replay with real phase data (requires schema change)
