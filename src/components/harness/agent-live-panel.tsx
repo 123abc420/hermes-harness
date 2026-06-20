@@ -338,9 +338,9 @@ export function AgentLivePanel() {
                     <span className="text-xs font-mono text-amber-300 font-medium">LIVE</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/15">
                     <WifiOff className="h-3.5 w-3.5 text-zinc-600" />
-                    <span className="text-xs font-mono text-zinc-600">OFFLINE</span>
+                    <span className="text-xs font-mono text-zinc-600 font-medium">OFFLINE</span>
                   </div>
                 )}
               </div>

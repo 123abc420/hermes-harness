@@ -21,7 +21,7 @@ const TAB_CONFIG = [
   { value: 'overview', label: 'Overview', icon: Zap },
   { value: 'waves', label: 'Waves', icon: Waves },
   { value: 'decisions', label: 'Decisions', icon: Brain },
-  { value: 'research', label: 'Research & Memory', icon: BookOpen },
+  { value: 'research', label: 'Analytics', icon: BookOpen },
   { value: 'github', label: 'GitHub & Export', icon: Github },
 ] as const;
 

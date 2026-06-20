@@ -197,6 +197,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
       phase: '',
       waveNumber: 0,
       progress: 0,
+      isConnected: false,
       activities: [],
       subAgents: [],
       lastTurnActivities: [],

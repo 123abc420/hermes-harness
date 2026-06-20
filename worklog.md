@@ -1924,3 +1924,21 @@ Stage Summary:
 - Stats skeleton no longer causes layout jump on data load
 - All Recharts tooltips use consistent property formats and shared label style
 - 85 waves, 19 skills, 100% spec compliance, health ~92/100
+
+---
+Task ID: 92
+Agent: Wave Engine
+Task: Wave 92 — Tab rename, agent live UX, waves tab polish
+
+Work Log:
+- ASSESS: 85 waves, 0 errors, 100% compliance, explored codebase via subagent
+- PLAN: 3 improvements — tab rename, agent live connection fixes, waves tab gaps
+- EXECUTE: (1) Renamed "Research & Memory" → "Analytics" in TAB_CONFIG, (2) Fixed reset() to clear isConnected, added OFFLINE indicator rounded-full container matching LIVE styling, set agentState='offline' on SSE failure in use-agent-live.ts, (3) Added 'pending' to FILTER_OPTIONS, replaced raw-seconds duration in detail dialog with human-friendly Xm Ys formatter
+- VERIFY: bun run lint passed (0 errors), dev.log clean
+- PERSIST: Wave #92, 3 decisions, git push
+
+Stage Summary:
+- Tab label now matches actual content (analytics/charts, not research)
+- Agent Live: no more stale connection state on reset, OFFLINE has visual parity with LIVE badge, offline state is actually used
+- Waves tab: pending waves are now filterable, detail dialog duration matches table format
+- 86 waves, 19 skills, health ~92/100

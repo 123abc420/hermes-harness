@@ -39,6 +39,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const FILTER_OPTIONS = [
   { value: '', label: 'All' },
+  { value: 'pending', label: 'Pending' },
   { value: 'running', label: 'Running' },
   { value: 'completed', label: 'Completed' },
   { value: 'interrupted', label: 'Interrupted' },
@@ -334,7 +335,10 @@ export function WavesTab() {
                   </span>
                   {waveDetail.completedAt && (
                     <span className="text-[10px] font-mono text-zinc-600">
-                      Duration: {Math.round((new Date(waveDetail.completedAt).getTime() - new Date(waveDetail.startedAt).getTime()) / 1000)}s
+                      Duration: {(() => {
+                        const secs = Math.round((new Date(waveDetail.completedAt).getTime() - new Date(waveDetail.startedAt).getTime()) / 1000);
+                        return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m${secs % 60 > 0 ? ` ${secs % 60}s` : ''}`;
+                      })()}
                     </span>
                   )}
                 </div>

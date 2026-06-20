@@ -128,10 +128,12 @@ export function useAgentLive() {
         es.close();
         eventSourceRef.current = null;
         setConnected(false);
+        useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
         startPolling();
       };
     } catch {
       console.warn('[AgentLive] SSE not supported, using polling');
+      useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
       startPolling();
     }
   }, [processData, setConnected, startPolling]);
