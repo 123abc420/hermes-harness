@@ -9,6 +9,32 @@ import { useSkills } from '@/hooks/use-harness-data';
 import { ErrorBlock } from './error-block';
 import { DECISION_CATEGORIES } from '@/lib/category-colors';
 
+/* ── Helpers ─────────────────────────────────────────── */
+
+// Strip markdown syntax and extract the first meaningful paragraph for preview
+function skillPreview(content: string | null | undefined, maxLen = 150): string {
+  if (!content) return 'No content available';
+  // Strip YAML frontmatter
+  const withoutFrontmatter = content.replace(/^---[\s\S]*?---\n?/, '');
+  // Strip markdown headers, bold, italic, links, code blocks, horizontal rules
+  const plain = withoutFrontmatter
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*{1,3}(.*?)\*{1,3}/g, '$1')
+    .replace(/_{1,3}(.*?)_{1,3}/g, '$1')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .replace(/`{1,3}[^`]*`{1,3}/g, '')
+    .replace(/^---+$/gm, '')
+    .replace(/^```[\s\S]*?```/gm, '')
+    .replace(/^[>\-] /gm, '')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0)
+    .join(' ')
+    .trim();
+  if (!plain) return 'No content available';
+  return plain.length > maxLen ? plain.slice(0, maxLen).replace(/\s+\S*$/, '') + '...' : plain;
+}
+
 /* ── Skill category colors (extends decision categories with skill-specific ones) ── */
 const SKILL_CATEGORY_TW: Record<string, string> = {
   // Reuse from decision categories where they overlap
@@ -124,7 +150,7 @@ export function SkillsSection() {
                     className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 transition-colors hover:border-white/10"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <h4 className="text-sm font-medium text-white">
+                      <h4 className="min-w-0 truncate text-sm font-medium text-white">
                         {skill.title}
                       </h4>
                       <div className="flex shrink-0 items-center gap-1.5">
@@ -146,7 +172,7 @@ export function SkillsSection() {
                       </p>
                     )}
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
-                      {(skill.content ?? '').slice(0, 200) || 'No content available'}
+                      {skillPreview(skill.content)}
                     </p>
                   </motion.div>
                 );

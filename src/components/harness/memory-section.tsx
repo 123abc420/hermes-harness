@@ -64,7 +64,7 @@ export function MemorySection() {
           <>
             {/* Context */}
             <div>
-              <div className="mb-1.5 flex items-center justify-between gap-2">
+              <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Database className="h-3 w-3 text-cyan-400" />
                   <h3 className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
@@ -90,7 +90,7 @@ export function MemorySection() {
 
             {/* Insights */}
             <div>
-              <div className="mb-1.5 flex items-center justify-between gap-2">
+              <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Lightbulb className="h-3 w-3 text-amber-400" />
                   <h3 className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
@@ -116,7 +116,7 @@ export function MemorySection() {
 
             {/* User Profile */}
             <div>
-              <div className="mb-1.5 flex items-center justify-between gap-2">
+              <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <User className="h-3 w-3 text-sky-400" />
                   <h3 className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
