@@ -48,7 +48,8 @@ const FILTER_OPTIONS = [
 ];
 
 export function WavesTab() {
-  const { waveFilter, setWaveFilter } = useHarnessStore();
+  const waveFilter = useHarnessStore(s => s.waveFilter);
+  const setWaveFilter = useHarnessStore(s => s.setWaveFilter);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [triggerOpen, setTriggerOpen] = useState(false);
   const [summary, setSummary] = useState('');

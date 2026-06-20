@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -58,8 +58,8 @@ function OutcomeBadge({ outcome }: { outcome: string | null }) {
   );
 }
 
-function DecisionCard({ decision }: { decision: Decision }) {
-  const { setActiveTab } = useHarnessStore();
+const DecisionCard = memo(function DecisionCard({ decision }: { decision: Decision }) {
+  const setActiveTab = useHarnessStore(s => s.setActiveTab);
   const [open, setOpen] = useState(false);
 
   return (
@@ -166,10 +166,12 @@ function DecisionCard({ decision }: { decision: Decision }) {
       </Card>
     </Collapsible>
   );
-}
+});
 
 export function DecisionsTab() {
-  const { decisionCategoryFilter, setDecisionCategoryFilter, setActiveTab } = useHarnessStore();
+  const decisionCategoryFilter = useHarnessStore(s => s.decisionCategoryFilter);
+  const setDecisionCategoryFilter = useHarnessStore(s => s.setDecisionCategoryFilter);
+  const setActiveTab = useHarnessStore(s => s.setActiveTab);
   const [page, setPage] = useState(1);
   const limit = 30;
 

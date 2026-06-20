@@ -35,7 +35,8 @@ const TAB_CONFIG = [
  *   <HarnessDashboard />
  */
 export function HarnessDashboard() {
-  const { activeTab, setActiveTab } = useHarnessStore();
+  const activeTab = useHarnessStore(s => s.activeTab);
+  const setActiveTab = useHarnessStore(s => s.setActiveTab);
   const { data: dash } = useHarnessDashboard();
 
   // Connect to the real-time agent live service
