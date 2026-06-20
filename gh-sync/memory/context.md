@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-20 13:30 UTC+8
+2026-06-20 13:40 UTC+8
 
 ## System Status
 - **Phase**: Post-Compliance Evolution (Wave 125)
-- **Waves in DB**: 120
+- **Waves in DB**: 121
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,18 +18,18 @@
 | Skills | 27 |
 | Components | 28 |
 | Exported components | 11 |
-| GitHub commits | ~204 |
-| Waves in DB | 120 |
+| GitHub commits | ~206 |
+| Waves in DB | 121 |
 | Wave success rate (recent 5) | 100% |
 | Health score | ~93/100 (stable) |
 
 ## What exists
-- Tab orchestrators: agent-live(320), waves(270), github(49), decisions(215), overview(201), research(60)
+- Tab orchestrators: agent-live(320), waves(280), github(49), decisions(215), overview(201), research(60)
 - All data tabs have summary stats bars
 - Health transparency: header tooltip + hero card inline bars (bug-fixed)
 - Footer: last wave indicator
-- Mobile: flex-wrap stats, min-w-0 search inputs, responsive filter pills, PhaseTracker responsive
-- Wave detail dialog: reasoning, outcome, copy-summary, DecisionItem extraction
+- Mobile: flex-wrap stats, min-w-0 search inputs, responsive filter pills, PhaseTracker responsive, flex-wrap health bars, responsive donut chart, overflow-x table wrapper, min-w-0 on all flex-1 text children, flex-wrap badge/metadata rows
+- Wave detail dialog: reasoning, outcome, copy-summary, DecisionItem extraction, flex-wrap badges
 - Command palette: tab quick-nav, group-hover fix, search with Results header
 - Features: WaveComparison, CategoryTrends, text search, CSV/JSON export, Cmd+K, collapsible sections
 - .gitignore covers all build artifacts
@@ -37,4 +37,4 @@
 
 ## What's next
 1. Consider wave replay/visualization feature
-2. Further mobile polish (tab content areas)
+2. Consider responsive heights for agent-live activity feed on small viewports
