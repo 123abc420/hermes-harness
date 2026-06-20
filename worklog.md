@@ -2136,3 +2136,24 @@ Stage Summary:
 - VRM state centralized as vrmState object in shared module (ESM-safe)
 - 4-file architecture: shared → world + chibi → sandbox (orchestrator)
 - 95 waves in DB, 20 skills, health ~92/100
+---
+Task ID: 99
+Agent: Wave Engine (Wave 99)
+Task: Complete 3D sandbox decomposition, trim insights.md
+
+Work Log:
+- ASSESS: 95 waves, clean dev.log, API unreachable. Sandbox at 435 lines, insights.md at 4625 bytes (near cap).
+- PLAN: 3 improvements — (1) Extract VRMCharacter+loadVRM to agent-3d-vrm.tsx, (2) Extract 8 scene components to agent-3d-scene.tsx, (3) Trim insights.md
+- EXECUTE:
+  - Created agent-3d-vrm.tsx (183 lines): VRMCharacter, loadVRM, STATE_VRM_EXPRESSION
+  - Created agent-3d-scene.tsx (214 lines): CharacterBridge, CharacterGroup, ChatBubble, ArrivalFlashLight, CameraController, StateLight, FloatingParticles, LoadingIndicator
+  - Rewrote agent-3d-sandbox.tsx as 54-line Canvas orchestrator (imports + composes all modules)
+  - Trimmed insights.md: removed stale entries, consolidated sections, added 3D architecture insights
+- VERIFY: bun run lint — 0 errors. dev.log clean.
+- PERSIST: Wave #102 in DB, 3 decisions, 4 metrics, git push
+
+Stage Summary:
+- agent-3d-sandbox.tsx: 972→54 lines across 2 waves (94% total reduction)
+- Final 6-file architecture: shared(39) + world(202) + chibi(342) + vrm(183) + scene(214) + sandbox(54) = 1034 total
+- insights.md trimmed 38% (4625→2863 bytes), well under ~2000 token cap
+- 96 waves in DB, 20 skills, health ~92/100
