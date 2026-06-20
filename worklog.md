@@ -2670,3 +2670,22 @@ Stage Summary:
 - Lint: 0 errors
 - Git: 2 commits pushed to main
 - DB: Wave 125 (completed), 3 decisions, 3 metrics recorded
+
+---
+Task ID: w126
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 126 — Mobile polish part 2 (remaining medium-severity issues)
+
+Work Log:
+- ASSESS: Read context.md, insights.md, guardrails.md, dev.log (clean). Dashboard API unreachable.
+- PLAN: Identified 3 remaining medium-severity mobile issues from W125 audit to address
+- EXEC-1: Activity feed responsive height — changed `h-[420px] lg:h-[540px]` to `h-[280px] sm:h-[420px] lg:h-[540px]` in agent-live-subcomponents.tsx
+- EXEC-2: Command palette footer flex-wrap — added `flex-wrap` to keyboard hints row in command-palette.tsx
+- EXEC-3: Export menu mobile alignment — changed `right-0` to `left-0 sm:left-auto sm:right-0` in export-menu.tsx
+- VERIFY: `rm -rf .next && bun run lint` — 0 errors
+- PERSIST: DB records (wave + 3 decisions + 3 metrics). Git push. context.md updated.
+
+Stage Summary:
+- 3 files changed, 3 remaining medium mobile issues fixed
+- All mobile issues from W125 audit now resolved
+- Lint: 0 errors. Git: 2 commits pushed.
