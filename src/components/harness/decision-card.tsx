@@ -120,7 +120,7 @@ export const DecisionCard = memo(function DecisionCard({ decision }: { decision:
           {/* Expandable reasoning + outcome */}
           {(decision.reasoning || decision.outcome) && (
             <>
-              <CollapsibleTrigger className="mt-2 flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors">
+              <CollapsibleTrigger className="mt-2 flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors" aria-label={`${open ? 'Hide' : 'Show'} reasoning and outcome for: ${decision.description}`}>
                 <ChevronDown
                   className={cn(
                     'h-3 w-3 transition-transform',

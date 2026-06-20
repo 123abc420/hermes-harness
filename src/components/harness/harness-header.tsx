@@ -85,6 +85,7 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
         {onSearch && (
           <button
             onClick={onSearch}
+            aria-label="Open command palette (Cmd+K)"
             className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-1 text-[10px] font-mono text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] hover:border-white/[0.1] transition-all"
           >
             <Search className="h-3 w-3" />

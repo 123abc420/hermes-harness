@@ -2928,3 +2928,19 @@ Stage Summary:
 - ExportMenu fully keyboard-navigable (Escape closes, arrows navigate, Tab exits)
 - Screen readers now get focused announcements instead of re-reading the full activity list
 - All data visualizations have accessible text alternatives
+---
+Task ID: w139
+Agent: Wave Engine (W139)
+Task: Remaining ARIA gaps — search button, decision card, section header
+
+Work Log:
+- ASSESS: System healthy, 136 waves, 0 errors. Context "What's next" item 2 (decision card aria-label) plus exploration findings.
+- EXECUTE (1/3): Added aria-label="Open command palette (Cmd+K)" to header search button — mobile shows only icon, was unnamed.
+- EXECUTE (2/3): Added descriptive aria-label to DecisionCard CollapsibleTrigger — now includes the decision description so screen readers know what "Show/Hide details" refers to.
+- EXECUTE (3/3): Added aria-controls to OverviewTab SectionHeader — button had aria-expanded but no aria-controls. Added sectionId prop, id on collapsible content div.
+- VERIFY: bun run lint → 0 errors
+- PERSIST: Git commit, DB records, context.md update
+
+Stage Summary:
+- All buttons now have accessible names (search, collapsible triggers, section headers)
+- Screen readers can associate collapsible controls with their content panels

@@ -26,17 +26,20 @@ function SectionHeader({
   icon: Icon,
   collapsed,
   onToggle,
+  sectionId,
 }: {
   title: string;
   icon: React.ElementType;
   collapsed: boolean;
   onToggle: () => void;
+  sectionId: string;
 }) {
   return (
     <button
       onClick={onToggle}
       className="flex items-center gap-2 group w-full text-left mb-3"
       aria-expanded={!collapsed}
+      aria-controls={sectionId}
     >
       <Icon className="h-3.5 w-3.5 text-zinc-500 group-hover:text-amber-400/70 transition-colors" />
       <span className="text-[11px] font-medium uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">
@@ -167,9 +170,10 @@ export function OverviewTab() {
           icon={Activity}
           collapsed={activityCollapsed}
           onToggle={() => setActivityCollapsed(v => !v)}
+          sectionId="overview-activity-health"
         />
         {!activityCollapsed && (
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+          <div id="overview-activity-health" className="grid gap-4 sm:gap-6 lg:grid-cols-3">
             {isLoading ? (
               <Card className="glass-card">
                 <div className="p-4 space-y-3">
