@@ -2345,3 +2345,31 @@ Stage Summary:
 - Waves tab: 236→248L (+12 for export button)
 - Decisions tab: 203→215L (+12 for export button)
 - Decisions API limit: 50→200
+
+---
+Task ID: 111
+Agent: Wave Engine
+Task: Add Cmd+K global search command palette
+
+Work Log:
+- Assessed: 106 waves, 100% compliance, 0 errors, context lists Cmd+K as priority #2
+- Created command-palette.tsx (194L): floating search overlay
+  - Opens on Cmd/Ctrl+K, closes on ESC or backdrop click
+  - Debounced search (250ms) queries waves + decisions APIs in parallel
+  - Keyboard navigation: arrow keys, Enter to select, ESC to close
+  - Clicking result navigates to appropriate tab via onNavigate callback
+  - Animated with Framer Motion (fade/scale in/out), dark theme with amber accents
+  - Footer shows navigation hints (↑↓ navigate, ↵ open, esc close)
+- Integrated into page.tsx (189→222L, +33L):
+  - Added showPalette state, Cmd+K handler in existing keydown listener
+  - CommandPalette rendered in fragment wrapper before main div
+  - Updated shortcuts popover: added ⌘K entry highlighted in amber at top
+- Fixed lint error: wrapped effect setState calls in requestAnimationFrame
+- Cleared .next cache, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- New component: command-palette.tsx (194L)
+- page.tsx: 189→222L (palette integration + shortcuts update)
+- DB wave #113, 2 decisions recorded, 4 metrics recorded
+- Global search accessible from any tab via Cmd+K
