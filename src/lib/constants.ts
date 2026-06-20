@@ -52,3 +52,15 @@ export function formatDuration(totalSeconds: number): string {
   const secs = totalSeconds % 60;
   return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
 }
+
+// Format a timestamp in Argentina timezone (America/Argentina/Buenos_Aires)
+export function formatArgentinaTime(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleString('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { formatArgentinaTime } from '@/lib/constants';
 
 // ─── In-memory state (always available, no external service needed) ─
 let latestStatus: Record<string, unknown> = {
@@ -19,18 +20,6 @@ const MAX_LOG = 80;
 // Sub-agents state
 let subAgents: Array<Record<string, unknown>> = [];
 let activityTimestamp = 0;
-
-// Format Argentina timestamp
-function argentinaTime(ts: number): string {
-  const d = new Date(ts);
-  return d.toLocaleString('es-AR', {
-    timeZone: 'America/Argentina/Buenos_Aires',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  });
-}
 
 // Also try to forward to the agent-live service (best-effort)
 async function forwardToService(data: { type: string; payload: Record<string, unknown> }) {
@@ -133,7 +122,7 @@ export async function POST(req: NextRequest) {
         phase: phase || '',
         id: `act_${now}_${Math.random().toString(36).slice(2, 6)}`,
         timestamp: now,
-        timestampAR: argentinaTime(now),
+        timestampAR: formatArgentinaTime(now),
       };
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = now;
@@ -156,7 +145,7 @@ export async function POST(req: NextRequest) {
         message: body.message || 'Working...',
         color: body.color || '#8b5cf6',
         spawnTime: Date.now(),
-        timestampAR: argentinaTime(Date.now()),
+        timestampAR: formatArgentinaTime(Date.now()),
       };
       subAgents = [...subAgents, subAgent];
 
@@ -167,7 +156,7 @@ export async function POST(req: NextRequest) {
         phase: phase || '',
         id: `act_${Date.now()}_sub`,
         timestamp: Date.now(),
-        timestampAR: argentinaTime(Date.now()),
+        timestampAR: formatArgentinaTime(Date.now()),
       };
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = Date.now();
@@ -193,7 +182,7 @@ export async function POST(req: NextRequest) {
         // Ensure all activities have Argentina timestamps
         activityLog = (body.activities as Array<Record<string, unknown>>).map(a => ({
           ...a,
-          timestampAR: a.timestampAR || argentinaTime(a.timestamp as number),
+          timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp as number),
         }));
       }
       if (body.subAgents) {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getLevelName } from '@/lib/constants';
+import { getLevelName, formatArgentinaTime } from '@/lib/constants';
 
 export type AgentVisualState =
   | 'idle'
@@ -67,13 +67,8 @@ export interface AgentLiveState {
   setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions' | 'recentSuccessRate' | 'healthScore' | 'healthScoreTrend'>>) => void;
   addActivity: (entry: Omit<LiveActivityEntry, 'id' | 'timestamp' | 'timestampAR'>) => void;
   setConnected: (connected: boolean) => void;
-  addSubAgent: (agent: Omit<SubAgent, 'id' | 'spawnTime'>) => void;
-  updateSubAgent: (id: string, update: Partial<SubAgent>) => void;
-  removeSubAgent: (id: string) => void;
-  clearSubAgents: () => void;
   setLastTurn: (activities: LiveActivityEntry[]) => void;
   setIsReplaying: (replaying: boolean) => void;
-  reset: () => void;
 }
 
 function getLevel(waves: number, improvements: number) {
@@ -82,18 +77,6 @@ function getLevel(waves: number, improvements: number) {
 
 function getXpToNext(level: number): number {
   return level * 10 + 5;
-}
-
-// Format timestamp in Argentina timezone (America/Argentina/Buenos_Aires)
-function formatArgentinaTime(ts: number): string {
-  const d = new Date(ts);
-  return d.toLocaleString('es-AR', {
-    timeZone: 'America/Argentina/Buenos_Aires',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  });
 }
 
 export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
@@ -161,46 +144,6 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
 
   setConnected: (connected) => set({ isConnected: connected }),
 
-  addSubAgent: (agent) => {
-    const state = get();
-    const newAgent: SubAgent = {
-      ...agent,
-      id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 4)}`,
-      spawnTime: Date.now(),
-    };
-    set({ subAgents: [...state.subAgents, newAgent] });
-  },
-
-  updateSubAgent: (id, update) => {
-    const state = get();
-    set({
-      subAgents: state.subAgents.map(a =>
-        a.id === id ? { ...a, ...update } : a
-      ),
-    });
-  },
-
-  removeSubAgent: (id) => {
-    const state = get();
-    set({ subAgents: state.subAgents.filter(a => a.id !== id) });
-  },
-
-  clearSubAgents: () => set({ subAgents: [] }),
-
   setLastTurn: (activities) => set({ lastTurnActivities: activities }),
   setIsReplaying: (replaying) => set({ isReplaying: replaying }),
-
-  reset: () =>
-    set({
-      agentState: 'idle',
-      message: 'Waiting for activity...',
-      phase: '',
-      waveNumber: 0,
-      progress: 0,
-      isConnected: false,
-      activities: [],
-      subAgents: [],
-      lastTurnActivities: [],
-      isReplaying: false,
-    }),
 }));

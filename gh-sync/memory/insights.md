@@ -72,3 +72,8 @@
 
 - `className="... {expr()}"` — the {} is LITERAL TEXT inside a string. MUST use backticks for template literals: `` className={`... ${expr()}`} ``
 - SVG `<linearGradient id="...">` IDs must be unique per component instance — always use `useId()` from React
+
+## Type Safety
+
+- Union types can silently fall out of sync with actual data — grep DB/API for all status values after schema changes
+- Store actions that mirror server-side logic (e.g., subAgent CRUD) become dead code when server handles state

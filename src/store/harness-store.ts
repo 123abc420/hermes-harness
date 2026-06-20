@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type WaveStatus = 'pending' | 'running' | 'completed' | 'failed';
+export type WaveStatus = 'pending' | 'running' | 'completed' | 'failed' | 'interrupted';
 export type DecisionCategory = 'code_quality' | 'feature' | 'fix' | 'refactor' | 'performance' | 'architecture';
 export type DecisionPriority = 'low' | 'medium' | 'high' | 'critical';
 export type DecisionAction = 'planned' | 'executed' | 'skipped' | 'failed';

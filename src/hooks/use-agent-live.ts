@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry } from '@/store/agent-live-store';
+import { formatArgentinaTime } from '@/lib/constants';
 
 interface HealthData {
   status: string;
@@ -12,27 +13,10 @@ interface HealthData {
   activityTimestamp: number;
 }
 
-// Format timestamp in Argentina timezone
-function formatArgentinaTime(ts: number): string {
-  try {
-    const d = new Date(ts);
-    return d.toLocaleString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-  } catch {
-    const d = new Date(ts);
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
-  }
-}
-
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval>>();
-  const { setStatus, setConnected, addActivity } = useAgentLiveStore();
+  const { setStatus, setConnected } = useAgentLiveStore();
 
   const processData = useCallback((data: HealthData) => {
     const s = data.latestStatus;

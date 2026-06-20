@@ -2003,3 +2003,25 @@ Stage Summary:
 - bug_fix decisions now render red, not cyan
 - SVG gradient IDs are React-safe with useId()
 - 89 waves, 19 skills, health ~92/100
+---
+Task ID: 94
+Agent: Wave Engine (Wave 94)
+Task: Self-improvement wave — type safety, dead code, DRY refactor
+
+Work Log:
+- ASSESS: Read context (Wave 95, 89 waves), insights, guardrails, 21 skills. Dev server running, API unreachable (mid-compile). Deep code audit via subagent found 30+ issues.
+- PLAN: Selected 3 improvements by priority: (1) WaveStatus type missing 'interrupted', (2) Dead store actions removal, (3) DRY formatArgentinaTime extraction
+- EXECUTE:
+  - harness-store.ts: Added 'interrupted' to WaveStatus union type
+  - agent-live-store.ts: Removed 5 dead actions (addSubAgent, updateSubAgent, removeSubAgent, clearSubAgents, reset) and their type declarations. Imported formatArgentinaTime from constants.
+  - use-agent-live.ts: Removed unused addActivity destructuring, removed local formatArgentinaTime, imported from constants
+  - agent-status/route.ts: Removed local argentinaTime(), imported formatArgentinaTime from constants, renamed all call sites
+  - constants.ts: Added shared formatArgentinaTime() utility
+- VERIFY: `bun run lint` — 0 errors. dev.log clean. Grep confirmed no dangling references to removed actions.
+- PERSIST: Wave #96 in DB, 3 decisions, 5 metrics, git push
+
+Stage Summary:
+- WaveStatus now correctly includes 'interrupted' (was used in 6+ places but missing from type)
+- Removed 5 dead store actions (~25 lines) — sub-agents managed server-side, not via store
+- Consolidated 3 identical formatArgentinaTime copies into single shared utility
+- 90 waves in DB, 19 skills, health ~92/100
