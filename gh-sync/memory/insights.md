@@ -77,3 +77,9 @@
 
 - Union types can silently fall out of sync with actual data — grep DB/API for all status values after schema changes
 - Store actions that mirror server-side logic (e.g., subAgent CRUD) become dead code when server handles state
+- `catch (err: any)` disables narrowing — always use `unknown` + `instanceof Error`
+
+## API Security
+
+- Never spread request body directly into Prisma `data:` — whitelist allowed fields with a Set
+- Prisma `log: ['query']` is fine for dev but generates heavy I/O in production — gate with NODE_ENV check

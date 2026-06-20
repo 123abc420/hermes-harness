@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Allowed fields for decision PATCH — prevents unrestricted body spread
+const ALLOWED_FIELDS = new Set([
+  'action', 'category', 'priority', 'description',
+  'reasoning', 'targetFile', 'targetModule', 'outcome',
+]);
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -9,12 +15,21 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
 
+    // Build safe update object with only whitelisted fields
+    const data: Record<string, unknown> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (body[key] !== undefined) {
+        data[key] = body[key];
+      }
+    }
+    // Special field: auto-set executedAt when action is 'executed'
+    if (body.action === 'executed') {
+      data.executedAt = new Date();
+    }
+
     const decision = await db.harnessDecision.update({
       where: { id },
-      data: {
-        ...body,
-        executedAt: body.action === 'executed' ? new Date() : undefined,
-      },
+      data,
     });
 
     return NextResponse.json(decision);

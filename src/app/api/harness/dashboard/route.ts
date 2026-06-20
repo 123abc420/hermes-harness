@@ -27,10 +27,10 @@ function getBuildHealth() {
       timeout: 60_000,
       cwd: process.cwd(),
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // bun run lint exits with code 1 when lint errors are found
-    output = err?.stdout ?? err?.message ?? '';
-    exitCode = err?.status ?? 1;
+    output = (err instanceof Error ? err.message : '') || String(err);
+    exitCode = (err as { status?: number })?.status ?? 1;
   }
   const hasErrors = exitCode !== 0 && output.length > 0;
   buildHealthCache = {

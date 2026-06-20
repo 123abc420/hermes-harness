@@ -2025,3 +2025,23 @@ Stage Summary:
 - Removed 5 dead store actions (~25 lines) — sub-agents managed server-side, not via store
 - Consolidated 3 identical formatArgentinaTime copies into single shared utility
 - 90 waves in DB, 19 skills, health ~92/100
+---
+Task ID: 95
+Agent: Wave Engine (Wave 95)
+Task: API security hardening, Prisma logging gate, type safety
+
+Work Log:
+- ASSESS: 90 waves in DB, 100% compliance, dev.log clean, API unreachable (Turbopack). Reviewed previous wave audit findings.
+- PLAN: Selected 3 remaining high-value items from Wave 94 audit: (1) Decision PATCH body spread security, (2) Prisma query logging in prod, (3) err: any type.
+- EXECUTE:
+  - decisions/[id]/route.ts: Replaced `...body` spread with explicit ALLOWED_FIELDS Set (8 fields). Only whitelisted keys are passed to Prisma update.
+  - db.ts: Changed `log: ['query']` to `log: process.env.NODE_ENV === 'development' ? ['query'] : []`. Production no longer logs every query.
+  - dashboard/route.ts: Changed `catch (err: any)` to `catch (err: unknown)` with `instanceof Error` narrowing and typed status access.
+- VERIFY: `bun run lint` — 0 errors. dev.log clean.
+- PERSIST: Wave #97 in DB, 3 decisions, 4 metrics, git push
+
+Stage Summary:
+- Decision PATCH route now uses field whitelist (security hardening)
+- Prisma query logging disabled in production (performance)
+- Dashboard lint-catch uses proper unknown type (type safety)
+- 91 waves in DB, 19 skills, health ~92/100
