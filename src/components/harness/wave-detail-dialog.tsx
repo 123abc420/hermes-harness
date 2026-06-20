@@ -144,6 +144,7 @@ function WavePhaseTimeline({ status }: { status: string }) {
   return (
     <div>
       <h3 className="mb-3 text-[10px] font-medium uppercase tracking-wider text-zinc-500">Wave Protocol Phases</h3>
+      <p className="mb-3 text-[9px] text-zinc-600 italic">Phase progress estimated from final wave status</p>
       <div className="relative flex items-start gap-0">
         {WAVE_PHASES.map((phase, idx) => {
           const PhaseIcon = phase.icon;

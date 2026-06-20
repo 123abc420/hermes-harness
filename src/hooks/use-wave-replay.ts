@@ -43,6 +43,9 @@ export function useWaveReplay() {
     } else if (lastTurnActivities.length > 0) {
       setIsReplaying(true);
       replayIndexRef.current = 0;
+      const MAX_CYCLES = 3;
+      let ticks = 0;
+      const totalTicks = MAX_CYCLES * lastTurnActivities.length;
       replayTimerRef.current = setInterval(() => {
         const idx = replayIndexRef.current % lastTurnActivities.length;
         const entry = lastTurnActivities[lastTurnActivities.length - 1 - idx];
@@ -54,8 +57,14 @@ export function useWaveReplay() {
           });
         }
         replayIndexRef.current++;
+        ticks++;
         if (replayIndexRef.current >= lastTurnActivities.length) {
           replayIndexRef.current = 0;
+        }
+        if (ticks >= totalTicks) {
+          if (replayTimerRef.current) clearInterval(replayTimerRef.current);
+          replayTimerRef.current = undefined;
+          setIsReplaying(false);
         }
       }, 2000);
     }

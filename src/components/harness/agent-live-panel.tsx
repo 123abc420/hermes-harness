@@ -8,6 +8,7 @@ import { useWaves, useDecisions } from '@/hooks/use-harness-data';
 import { useWaveReplay } from '@/hooks/use-wave-replay';
 import { useNextWaveCountdown } from '@/hooks/use-next-wave-countdown';
 import { Card, CardContent } from '@/components/ui/card';
+import { HarnessErrorBoundary } from './error-boundary';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -116,7 +117,17 @@ export function AgentLivePanel() {
 
             {/* 3D Sandbox */}
             <Suspense fallback={null}>
-              <Agent3DSandbox />
+              <HarnessErrorBoundary
+                label="3D Avatar"
+                fallback={
+                  <div className="w-full aspect-square max-w-[560px] mx-auto rounded-2xl bg-[#050a08] flex flex-col items-center justify-center gap-2">
+                    <span className="text-2xl">🤖</span>
+                    <span className="text-[10px] text-zinc-600">3D avatar unavailable</span>
+                  </div>
+                }
+              >
+                <Agent3DSandbox />
+              </HarnessErrorBoundary>
             </Suspense>
 
             {/* Current message */}

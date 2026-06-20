@@ -2944,3 +2944,20 @@ Work Log:
 Stage Summary:
 - All buttons now have accessible names (search, collapsible triggers, section headers)
 - Screen readers can associate collapsible controls with their content panels
+---
+Task ID: w140
+Agent: Wave Engine (W140)
+Task: Replay auto-stop, 3D error boundary, phase timeline disclaimer
+
+Work Log:
+- ASSESS: 137 waves, healthy, 0 errors. Deep exploration found: infinite replay loop, unguarded 3D sandbox, misleading phase timeline.
+- EXECUTE (1/3): Added MAX_CYCLES=3 auto-stop to use-wave-replay.ts — replay now stops after 3 full cycles instead of running infinitely and leaking memory via unbounded addActivity() calls.
+- EXECUTE (2/3): Wrapped Agent3DSandbox in HarnessErrorBoundary inside agent-live-panel.tsx — WebGL/Three.js crash now shows "3D avatar unavailable" fallback instead of killing the entire Agent Live tab.
+- EXECUTE (3/3): Added "Phase progress estimated from final wave status" disclaimer to WavePhaseTimeline in wave-detail-dialog.tsx — the status-based guessing was misleading users into thinking it was real phase data.
+- VERIFY: bun run lint → 0 errors
+- PERSIST: Git commit, DB records, context.md update
+
+Stage Summary:
+- Replay no longer runs infinitely (auto-stops after 3 cycles)
+- 3D avatar failures are isolated — Agent Live tab stays functional
+- Phase timeline clearly labeled as estimated
