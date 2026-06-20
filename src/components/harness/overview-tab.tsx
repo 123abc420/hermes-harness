@@ -1,10 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
-import { AlertTriangle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { AlertTriangle, ChevronDown, Activity } from 'lucide-react';
 import { HeroStatusCard } from './hero-status-card';
 import { QuickMetricsChart } from './quick-metrics-chart';
 import { WaveDurationBars } from './wave-duration-bars';
@@ -17,11 +17,42 @@ import { RecentCommitsCard } from './recent-commits-card';
 import { BuildHealthCard } from './build-health-card';
 import { WaveComparisonCard } from './wave-comparison-card';
 import { CategoryTrendsChart } from './category-trends-chart';
+import { AnimatedSection } from './animated-section';
 import { isErrorsTrendingDown } from '@/lib/constants';
+
+/* ── Collapsible section header ────────────────────────── */
+function SectionHeader({
+  title,
+  icon: Icon,
+  collapsed,
+  onToggle,
+}: {
+  title: string;
+  icon: React.ElementType;
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      onClick={onToggle}
+      className="flex items-center gap-2 group w-full text-left mb-3"
+      aria-expanded={!collapsed}
+    >
+      <Icon className="h-3.5 w-3.5 text-zinc-500 group-hover:text-amber-400/70 transition-colors" />
+      <span className="text-[11px] font-medium uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        {title}
+      </span>
+      <ChevronDown
+        className={`h-3 w-3 text-zinc-600 ml-auto transition-transform duration-200 ${collapsed ? '' : 'rotate-180'}`}
+      />
+    </button>
+  );
+}
 
 /* ── Overview Tab ─────────────────────────────────────── */
 export function OverviewTab() {
   const { data: dash, isLoading, isError, refetch } = useHarnessDashboard();
+  const [activityCollapsed, setActivityCollapsed] = useState(false);
 
   const stats = dash?.totalStats;
   const waves = dash?.waves ?? [];
@@ -61,49 +92,29 @@ export function OverviewTab() {
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />
 
       {/* Wave Comparison — auto-compares 2 most recent completed waves */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.18 }}
-      >
+      <AnimatedSection delay={0.18}>
         {!isLoading && waves.length >= 2 ? (
           <WaveComparisonCard waves={waves} />
         ) : !isLoading ? null : (
           <Card className="glass-card"><CardContent className="p-6"><div className="flex items-center gap-4"><div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.04]" /><div className="space-y-2"><div className="h-4 w-40 animate-pulse rounded bg-white/[0.04]" /><div className="h-3 w-60 animate-pulse rounded bg-white/[0.03]" /></div></div></CardContent></Card>
         )}
-      </motion.div>
+      </AnimatedSection>
 
       {/* Four-column: Spec Compliance + Quick Metrics + Error Trend + Recent Commits */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-4">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
+        <AnimatedSection delay={0.2}>
           <SpecComplianceCard skillsCount={dash?.skillsCount} errorTrendDecreasing={isErrorsDecreasing} />
-        </motion.div>
+        </AnimatedSection>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25 }}
-        >
+        <AnimatedSection delay={0.25}>
           <QuickMetricsChart metrics={dash?.metrics} isLoading={isLoading} />
-        </motion.div>
+        </AnimatedSection>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-        >
+        <AnimatedSection delay={0.3}>
           <ErrorTrendChart errorTrend={dash?.errorTrend} />
-        </motion.div>
+        </AnimatedSection>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.35 }}
-        >
+        <AnimatedSection delay={0.35}>
           {isLoading ? (
             <Card className="glass-card">
               <div className="p-4">
@@ -119,15 +130,11 @@ export function OverviewTab() {
           ) : (
             <RecentCommitsCard commits={recentCommits} />
           )}
-        </motion.div>
+        </AnimatedSection>
       </div>
 
       {/* Evolution Milestones */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.35 }}
-      >
+      <AnimatedSection delay={0.35}>
         {isLoading ? (
           <Card className="glass-card">
             <div className="p-4 space-y-3">
@@ -146,75 +153,63 @@ export function OverviewTab() {
         ) : (
           <MilestonesTimeline waves={waves} totalWaves={stats?.totalWaves ?? 0} skillsCount={dash?.skillsCount} />
         )}
-      </motion.div>
+      </AnimatedSection>
 
       {/* Category Trends */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.38 }}
-      >
+      <AnimatedSection delay={0.38}>
         <CategoryTrendsChart />
-      </motion.div>
+      </AnimatedSection>
 
-      {/* Wave Duration + Recent Activity + Build Health */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.42 }}
-        >
-          {isLoading ? (
-            <Card className="glass-card">
-              <div className="p-4 space-y-3">
-                <Skeleton className="h-4 w-28" />
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Skeleton className="h-3 w-8 rounded" />
-                    <Skeleton className="h-3 flex-1 rounded-full" />
-                    <Skeleton className="h-3 w-10 rounded" />
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ) : (
-            <WaveDurationBars waves={waves} />
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.46 }}
-        >
-          {isLoading ? (
-            <Card className="glass-card">
-              <div className="p-4 space-y-4">
-                <Skeleton className="h-4 w-28" />
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex gap-3">
-                    <Skeleton className="h-4 w-4 rounded-full" />
-                    <div className="flex-1 space-y-1">
-                      <Skeleton className="h-3 w-24" />
-                      <Skeleton className="h-3 w-48" />
+      {/* Activity & Health — collapsible section */}
+      <AnimatedSection delay={0.42}>
+        <SectionHeader
+          title="Activity & Health"
+          icon={Activity}
+          collapsed={activityCollapsed}
+          onToggle={() => setActivityCollapsed(v => !v)}
+        />
+        {!activityCollapsed && (
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+            {isLoading ? (
+              <Card className="glass-card">
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-4 w-28" />
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Skeleton className="h-3 w-8 rounded" />
+                      <Skeleton className="h-3 flex-1 rounded-full" />
+                      <Skeleton className="h-3 w-10 rounded" />
                     </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ) : (
-            <MiniWaveTimeline waves={waves} />
-          )}
-        </motion.div>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <WaveDurationBars waves={waves} />
+            )}
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.50 }}
-        >
-          <BuildHealthCard health={dash?.buildHealth} isLoading={isLoading} />
-        </motion.div>
-      </div>
+            {isLoading ? (
+              <Card className="glass-card">
+                <div className="p-4 space-y-4">
+                  <Skeleton className="h-4 w-28" />
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex gap-3">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <div className="flex-1 space-y-1">
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <MiniWaveTimeline waves={waves} />
+            )}
+
+            <BuildHealthCard health={dash?.buildHealth} isLoading={isLoading} />
+          </div>
+        )}
+      </AnimatedSection>
     </div>
   );
 }

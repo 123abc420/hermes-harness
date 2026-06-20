@@ -2472,3 +2472,22 @@ Stage Summary:
 - overview-tab.tsx: +8 lines (import + insertion)
 - New skill: category-trends.md (#25)
 - 25 skills total, 15 API routes, 111 waves in DB
+
+---
+Task ID: 117
+Agent: Wave Engine
+Task: Overview tab layout optimization — AnimatedSection + collapsible sections
+
+Work Log:
+- Assessed: 111 waves, 100% compliance, 0 errors, no dev.log issues
+- Created animated-section.tsx (28L): reusable motion.div wrapper with delay prop
+- Refactored overview-tab.tsx (218→197L): replaced 8 motion.div blocks with AnimatedSection, removed direct framer-motion import
+- Added collapsible "Activity & Health" section with SectionHeader component (icon + title + chevron toggle)
+- Lower-priority cards (WaveDuration, MiniTimeline, BuildHealth) now grouped under collapsible section
+- Created skill #26 animated-section-extraction.md
+- Cleared .next, lint — 0 errors, dev.log clean
+
+Stage Summary:
+- New component: animated-section.tsx (28L, reusable across tabs)
+- overview-tab.tsx: 218→197L (DRY + collapsible section)
+- 26 skills, 28 components, 112 waves in DB
