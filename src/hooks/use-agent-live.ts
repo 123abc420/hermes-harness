@@ -16,6 +16,7 @@ interface HealthData {
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval>>();
+  const sseRetryRef = useRef<ReturnType<typeof setInterval>>();
   const { setStatus, setConnected } = useAgentLiveStore();
 
   const processData = useCallback((data: HealthData) => {
@@ -114,6 +115,49 @@ export function useAgentLive() {
         setConnected(false);
         useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
         startPolling();
+        // Schedule periodic SSE reconnection attempts (every 30s)
+        if (!sseRetryRef.current) {
+          sseRetryRef.current = setInterval(() => {
+            if (eventSourceRef.current) return; // already connected via SSE
+            console.log('[AgentLive] Attempting SSE reconnection...');
+            if (pollRef.current) {
+              clearInterval(pollRef.current);
+              pollRef.current = undefined;
+            }
+            if (sseRetryRef.current) {
+              clearInterval(sseRetryRef.current);
+              sseRetryRef.current = undefined;
+            }
+            // Inline SSE reconnect to avoid circular callback reference
+            try {
+              const retryEs = new EventSource('/api/harness/agent-status?stream=true');
+              eventSourceRef.current = retryEs;
+              retryEs.onopen = () => {
+                setConnected(true);
+                if (sseRetryRef.current) {
+                  clearInterval(sseRetryRef.current);
+                  sseRetryRef.current = undefined;
+                }
+              };
+              retryEs.onmessage = (event) => {
+                try {
+                  const data: HealthData = JSON.parse(event.data);
+                  processData(data);
+                } catch {
+                  // Ignore parse errors
+                }
+              };
+              retryEs.onerror = () => {
+                retryEs.close();
+                eventSourceRef.current = null;
+                setConnected(false);
+                startPolling();
+              };
+            } catch {
+              startPolling();
+            }
+          }, 30_000);
+        }
       };
     } catch {
       console.warn('[AgentLive] SSE not supported, using polling');
@@ -132,6 +176,10 @@ export function useAgentLive() {
       if (pollRef.current) {
         clearInterval(pollRef.current);
         pollRef.current = undefined;
+      }
+      if (sseRetryRef.current) {
+        clearInterval(sseRetryRef.current);
+        sseRetryRef.current = undefined;
       }
       setConnected(false);
     };

@@ -74,10 +74,11 @@ export async function GET() {
         db.harnessDecision.count({ where: { action: 'executed' } }),
         db.harnessDecision.count({ where: { action: 'failed' } }),
       ]),
+      // Metrics: wrap in try/catch so bad rows can't crash the entire dashboard
       db.harnessMetric.findMany({
         orderBy: { recordedAt: 'desc' },
         take: 100,
-      }),
+      }).catch(() => [] as unknown[]),
       db.gitHubSync.findFirst(),
       db.harnessConfig.findMany(),
       db.harnessExport.findMany({ orderBy: { createdAt: 'desc' } }),

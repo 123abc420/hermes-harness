@@ -90,3 +90,9 @@
 - Expose sub-scores from the API (e.g. healthBreakdown: {spec, success, errors, github})
 - Show breakdown in TWO places: always-visible inline bars (hero card) + hover tooltip (header)
 - Summary bars in data tabs (waves, decisions) provide at-a-glance context before the table
+
+## Data Type Safety
+
+- Prisma Float columns reject non-numeric values at query time — a single bad row crashes the entire `findMany()`. Always validate data before insert.
+- Wrap non-critical queries (e.g. metrics) in `.catch()` so one bad row can't bring down the whole composite API.
+- Raw SQL inserts bypass Prisma validation — type mismatches silently persist until Prisma reads them back.
