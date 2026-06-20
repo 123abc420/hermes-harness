@@ -43,7 +43,9 @@ export async function fetchAllPages(
   totalKey: string,
   pageSize = 100
 ): Promise<Record<string, unknown>[]> {
-  const first = await fetch(`${baseUrl}?page=1&limit=${pageSize}`).then(r => r.json());
+  const firstRes = await fetch(`${baseUrl}?page=1&limit=${pageSize}`);
+  if (!firstRes.ok) throw new Error(`Fetch failed: ${firstRes.status} ${firstRes.statusText}`);
+  const first = await firstRes.json();
   const total = first[totalKey] as number;
   const results: Record<string, unknown>[] = first[dataKey] as Record<string, unknown>[];
   const remaining = total - results.length;
@@ -53,7 +55,10 @@ export async function fetchAllPages(
   const pages = Math.ceil(remaining / pageSize);
   const extra = await Promise.all(
     Array.from({ length: pages }, (_, i) =>
-      fetch(`${baseUrl}?page=${i + 2}&limit=${pageSize}`).then(r => r.json())
+      fetch(`${baseUrl}?page=${i + 2}&limit=${pageSize}`).then(r => {
+        if (!r.ok) throw new Error(`Fetch failed: ${r.status} ${r.statusText}`);
+        return r.json();
+      })
     )
   );
 

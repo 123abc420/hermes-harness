@@ -84,15 +84,15 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
     setLoading(true);
     try {
       const [wRes, dRes, sRes] = await Promise.all([
-        fetch(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`).then(r => r.json()),
-        fetch(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`).then(r => r.json()),
-        fetch(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`).then(r => r.json()).catch(() => ({ skills: [] })),
+        fetch(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
+        fetch(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
+        fetch(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }).catch(() => ({ skills: [] })),
       ]);
       setWaves(wRes.waves ?? []);
       setDecisions(dRes.decisions ?? []);
       setSkills(sRes.skills ?? []);
       setActiveIdx(0);
-    } catch { /* silent */ }
+    } catch { /* search errors are non-critical — results stay empty */ }
     setLoading(false);
   }, []);
 

@@ -20,7 +20,10 @@ interface TrendsData {
 
 /* ── Helpers ───────────────────────────────────────────── */
 function fetchTrends(): Promise<TrendsData> {
-  return fetch('/api/harness/decisions/trends').then(r => r.json());
+  return fetch('/api/harness/decisions/trends').then(r => {
+    if (!r.ok) throw new Error(`Trends fetch failed: ${r.status}`);
+    return r.json();
+  });
 }
 
 /* ── Component ─────────────────────────────────────────── */
