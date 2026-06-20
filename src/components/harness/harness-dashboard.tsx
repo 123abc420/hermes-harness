@@ -64,6 +64,7 @@ export function HarnessDashboard() {
         totalWaves={dash?.totalStats?.totalWaves}
         healthScore={dash?.healthScore}
         healthScoreTrend={dash?.healthScoreTrend}
+        healthBreakdown={dash?.healthBreakdown}
       />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">

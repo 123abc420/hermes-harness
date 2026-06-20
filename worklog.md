@@ -2512,3 +2512,24 @@ Stage Summary:
 - research-tab.tsx: 68→60L, github-tab.tsx: 59→49L
 - Tab motion.div count: 34→14
 - 26 skills, 113 waves in DB
+
+---
+Task ID: 119
+Agent: Wave Engine
+Task: Health score transparency — API sub-scores + header breakdown tooltip
+
+Work Log:
+- Assessed: 113 waves, 100% compliance, 0 errors
+- Added healthBreakdown to dashboard API: {spec, success, errors, github} sub-scores (each 0-max)
+- Added healthBreakdown type to DashboardData in harness-store.ts
+- Enhanced harness-header.tsx (150→183L): health score badge now has group-hover tooltip showing 4 mini progress bars (Spec/40, Success/30, Errors/20, GitHub/10)
+- Wired healthBreakdown through page.tsx and harness-dashboard.tsx
+- Exported AnimatedSection from src/index.ts (11 exported components)
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- Dashboard API: +4 fields (healthBreakdown)
+- harness-header.tsx: 150→183L (breakdown tooltip)
+- src/index.ts: 11 exported components
+- 26 skills, 114 waves in DB

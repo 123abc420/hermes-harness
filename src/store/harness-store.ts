@@ -106,6 +106,7 @@ export interface DashboardData {
   skillsCount: number;
   healthScore: number;
   healthScoreTrend: 'up' | 'down' | 'stable';
+  healthBreakdown?: { spec: number; success: number; errors: number; github: number };
   buildHealth: {
     lintPassed: boolean;
     lintErrors: number;

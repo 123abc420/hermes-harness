@@ -5,11 +5,19 @@ import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 
+interface HealthBreakdown {
+  spec: number;
+  success: number;
+  errors: number;
+  github: number;
+}
+
 interface HarnessHeaderProps {
   githubStatus?: { status: string; username: string | null; repoName: string | null; lastSyncAt: string | null };
   totalWaves?: number;
   healthScore?: number;
   healthScoreTrend?: 'up' | 'down' | 'stable';
+  healthBreakdown?: HealthBreakdown;
   onSearch?: () => void;
 }
 
@@ -25,7 +33,14 @@ const HEALTH_COLOR = (score: number) => {
   return 'text-red-400 border-red-500/20 bg-red-500/10';
 };
 
-export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthScoreTrend, onSearch }: HarnessHeaderProps) {
+const BREAKDOWN_ITEMS: { key: keyof HealthBreakdown; label: string; max: number; color: string }[] = [
+  { key: 'spec', label: 'Spec', max: 40, color: 'bg-violet-400' },
+  { key: 'success', label: 'Success', max: 30, color: 'bg-emerald-400' },
+  { key: 'errors', label: 'Errors', max: 20, color: 'bg-rose-400' },
+  { key: 'github', label: 'GitHub', max: 10, color: 'bg-sky-400' },
+];
+
+export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthScoreTrend, healthBreakdown, onSearch }: HarnessHeaderProps) {
   const isConnected = githubStatus?.status === 'connected';
   const agentState = useAgentLiveStore(s => s.agentState);
   const isLiveConnected = useAgentLiveStore(s => s.isConnected);
@@ -110,11 +125,36 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
             </span>
           )}
           {healthScore !== undefined && (
-            <div className={`hidden md:flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums ${HEALTH_COLOR(healthScore)}`}>
-              <span>{healthScore}</span>
-              <span className="text-[8px] opacity-50">/100</span>
-              {healthScoreTrend === 'up' && <span className="text-[8px]">↑</span>}
-              {healthScoreTrend === 'down' && <span className="text-[8px]">↓</span>}
+            <div className="relative group hidden md:block">
+              <div className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums cursor-default ${HEALTH_COLOR(healthScore)}`}>
+                <span>{healthScore}</span>
+                <span className="text-[8px] opacity-50">/100</span>
+                {healthScoreTrend === 'up' && <span className="text-[8px]">↑</span>}
+                {healthScoreTrend === 'down' && <span className="text-[8px]">↓</span>}
+              </div>
+              {/* Health breakdown tooltip */}
+              {healthBreakdown && (
+                <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/[0.08] bg-[#1a1510] p-3 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                  <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest mb-2.5">Health Breakdown</p>
+                  <div className="space-y-2">
+                    {BREAKDOWN_ITEMS.map(({ key, label, max, color }) => {
+                      const val = healthBreakdown[key];
+                      const pct = Math.round((val / max) * 100);
+                      return (
+                        <div key={key} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-zinc-400">{label}</span>
+                            <span className="text-[10px] font-mono tabular-nums text-zinc-300">{val}<span className="text-zinc-600">/{max}</span></span>
+                          </div>
+                          <div className="h-1 w-full rounded-full bg-white/[0.06] overflow-hidden">
+                            <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {githubStatus && (

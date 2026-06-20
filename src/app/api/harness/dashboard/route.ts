@@ -169,10 +169,11 @@ export async function GET() {
       errorScore = 1;
     }
 
+    const successScore = recentSuccessRate / 100;
     const githubScore = githubSync?.status === 'connected' ? 1 : 0;
     const healthScore = Math.round(
       (specScore * 40) +
-      ((recentSuccessRate / 100) * 30) +
+      (successScore * 30) +
       (errorScore * 20) +
       (githubScore * 10)
     );
@@ -229,6 +230,12 @@ export async function GET() {
       skillsCount,
       healthScore,
       healthScoreTrend,
+      healthBreakdown: {
+        spec: Math.round(specScore * 40),
+        success: Math.round(successScore * 30),
+        errors: Math.round(errorScore * 20),
+        github: Math.round(githubScore * 10),
+      },
       buildHealth: getBuildHealth(),
     });
   } catch (error) {

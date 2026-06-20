@@ -21,6 +21,7 @@ export { AgentLivePanel } from './components/harness/agent-live-panel';
 export { Agent3DSandbox } from './components/harness/agent-3d-sandbox';
 export { HarnessHeader } from './components/harness/harness-header';
 export { HarnessErrorBoundary } from './components/harness/error-boundary';
+export { AnimatedSection } from './components/harness/animated-section';
 
 // ─── Hooks ────────────────────────────────────────────────────────────────
 export {

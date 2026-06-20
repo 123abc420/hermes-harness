@@ -86,6 +86,9 @@ export default function Home() {
       <HarnessHeader
         githubStatus={dash?.githubStatus}
         totalWaves={dash?.totalStats?.totalWaves}
+        healthScore={dash?.healthScore}
+        healthScoreTrend={dash?.healthScoreTrend}
+        healthBreakdown={dash?.healthBreakdown}
         onSearch={() => setShowPalette(true)}
       />
 
