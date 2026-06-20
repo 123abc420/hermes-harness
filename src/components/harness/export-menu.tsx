@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Download, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { ExportFormat } from '@/lib/csv-export';
 import { exportData } from '@/lib/csv-export';
 
@@ -38,8 +39,9 @@ export function ExportMenu({
     setOpen(false);
     try {
       await exportData({ baseUrl, dataKey, totalKey, filename, format, columns, transform });
-    } catch {
-      // Silently fail — network error or CORS
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Export failed';
+      toast.error(msg, { duration: 3000 });
     } finally {
       setLoading(false);
     }

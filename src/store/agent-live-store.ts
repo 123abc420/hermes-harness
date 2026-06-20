@@ -79,6 +79,13 @@ function getXpToNext(level: number): number {
   return level * 10 + 5;
 }
 
+/** Total XP required to reach a given level (sum of all previous xpToNext values). */
+function getXpForLevel(level: number): number {
+  // Level n requires sum(i=1..n-1) of (10*i + 5) = 5*(n-1)*(n+1)
+  if (level <= 1) return 0;
+  return 5 * (level - 1) * (level + 1);
+}
+
 export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   agentState: 'idle',
   message: 'Waiting for activity...',
@@ -112,6 +119,9 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
     const newDecisions = update.totalDecisions ?? state.totalDecisions;
     const newLevel = getLevel(newWaves, newImprovements);
 
+    const totalXp = newImprovements * 10 + newDecisions * 5;
+    const xpInCurrentLevel = totalXp - getXpForLevel(newLevel);
+
     set({
       ...update,
       waveCount: newWaves,
@@ -120,7 +130,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
       level: newLevel,
       levelName: getLevelName(newLevel),
       xpToNext: getXpToNext(newLevel),
-      xp: newImprovements * 10 + newDecisions * 5,
+      xp: xpInCurrentLevel,
     });
   },
 

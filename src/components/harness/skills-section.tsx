@@ -7,7 +7,7 @@ import { Sparkles, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSkills } from '@/hooks/use-harness-data';
 import { ErrorBlock } from './error-block';
-import { DECISION_CATEGORIES } from '@/lib/category-colors';
+import { CATEGORY_TW } from '@/lib/category-colors';
 
 /* ── Helpers ─────────────────────────────────────────── */
 
@@ -34,20 +34,6 @@ function skillPreview(content: string | null | undefined, maxLen = 150): string 
   if (!plain) return 'No content available';
   return plain.length > maxLen ? plain.slice(0, maxLen).replace(/\s+\S*$/, '') + '...' : plain;
 }
-
-/* ── Skill category colors (extends decision categories with skill-specific ones) ── */
-const SKILL_CATEGORY_TW: Record<string, string> = {
-  // Reuse from decision categories where they overlap
-  code_quality: DECISION_CATEGORIES.code_quality?.tw ?? 'bg-cyan-500/10 text-cyan-400',
-  performance: DECISION_CATEGORIES.performance?.tw ?? 'bg-orange-500/10 text-orange-400',
-  // Skill-specific categories
-  automation: 'bg-emerald-500/10 text-emerald-400',
-  code:       'bg-violet-500/10 text-violet-400',
-  research:   'bg-sky-500/10 text-sky-400',
-  analysis:   'bg-amber-500/10 text-amber-400',
-  strategy:   'bg-pink-500/10 text-pink-400',
-  template:   'bg-zinc-500/10 text-zinc-400',
-};
 
 /* ── Skills Section ───────────────────────────────────── */
 export function SkillsSection() {
@@ -137,7 +123,7 @@ export function SkillsSection() {
             <div className="space-y-2">
               {filtered.map((skill) => {
                 const catColor = skill.category
-                  ? SKILL_CATEGORY_TW[skill.category] ?? 'bg-white/[0.06] text-zinc-400'
+                  ? CATEGORY_TW[skill.category] ?? 'bg-white/[0.06] text-zinc-400'
                   : '';
                 return (
                   <motion.div

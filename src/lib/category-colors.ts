@@ -26,6 +26,11 @@ export const DECISION_CATEGORIES: Record<string, CategoryColor> = {
   maintenance:  { tw: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',       hex: '#a1a1aa' },
   reliability:  { tw: 'bg-rose-500/10 text-rose-400 border-rose-500/20',       hex: '#fb7185' },
   code:         { tw: 'bg-blue-500/10 text-blue-400 border-blue-500/20',       hex: '#3b82f6' },
+  // Skill-specific categories (also used by skills-section)
+  research:     { tw: 'bg-sky-500/10 text-sky-400 border-sky-500/20',          hex: '#0ea5e9' },
+  analysis:     { tw: 'bg-amber-500/10 text-amber-400 border-amber-500/20',    hex: '#f59e0b' },
+  strategy:     { tw: 'bg-pink-500/10 text-pink-400 border-pink-500/20',       hex: '#ec4899' },
+  template:     { tw: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',       hex: '#a1a1aa' },
 };
 
 /** Tailwind-only map (for badge className) */
