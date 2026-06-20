@@ -2859,3 +2859,20 @@ Stage Summary:
 - Dashboard API now caches responses for 12s (module-level, no external deps)
 - Health tooltip is now keyboard-accessible (Tab to focus, breakdown visible)
 - Wave dialog shows proper skeleton instead of "Loading..." text
+---
+Task ID: w135
+Agent: Wave Engine (W135)
+Task: Decision wave-link, tab aria-labels, data-hygiene skill
+
+Work Log:
+- ASSESS: System healthy, dashboard 200, no errors
+- EXECUTE (1/3): Added pendingWaveDetailId to harness store. Decision card now sets it on wave-link click. Waves tab reads it as fallback waveId for the detail dialog. Store-based bridge avoids React 19 lint issues with setState-in-effect.
+- EXECUTE (2/3): Added aria-label={tab.label} to all TabsTrigger components in harness-dashboard.tsx
+- EXECUTE (3/3): Created wave-data-hygiene skill documenting raw SQL type safety (learned from W133 dashboard crash)
+- VERIFY: Lint 0 errors
+- PERSIST: Git commit, DB records
+
+Stage Summary:
+- Cross-tab wave navigation: clicking a wave link in decisions tab now opens the detail dialog
+- Tab triggers are screen-reader accessible
+- 28 skills total (new: wave-data-hygiene)
