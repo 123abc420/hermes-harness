@@ -95,7 +95,7 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
             </span>
           )}
           {healthScore !== undefined && (
-            <div className="hidden md:flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums {HEALTH_COLOR(healthScore)}">
+            <div className={`hidden md:flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums ${HEALTH_COLOR(healthScore)}`}>
               <span>{healthScore}</span>
               <span className="text-[8px] opacity-50">/100</span>
               {healthScoreTrend === 'up' && <span className="text-[8px]">↑</span>}

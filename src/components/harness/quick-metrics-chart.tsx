@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Activity } from 'lucide-react';
+import { useId } from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
@@ -11,6 +12,7 @@ import type { DashboardData } from '@/store/harness-store';
 
 /* ── Quick Metrics Chart ────────────────────────────── */
 export function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardData['metrics']; isLoading: boolean }) {
+  const gradId = useId();
   if (isLoading) {
     return (
       <Card className="glass-card">
@@ -98,7 +100,7 @@ export function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardD
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="metricGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`metricGrad-${gradId}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
                 <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
@@ -116,7 +118,7 @@ export function QuickMetricsChart({ metrics, isLoading }: { metrics?: DashboardD
               dataKey="value"
               stroke="#10b981"
               strokeWidth={2}
-              fill="url(#metricGradient)"
+              fill={`url(#metricGrad-${gradId})`}
               dot={false}
               activeDot={{ r: 3, fill: '#10b981', stroke: '#050a0e', strokeWidth: 2 }}
             />

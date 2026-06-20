@@ -12,6 +12,7 @@ export interface CategoryColor {
 export const DECISION_CATEGORIES: Record<string, CategoryColor> = {
   feature:      { tw: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', hex: '#10b981' },
   fix:          { tw: 'bg-red-500/10 text-red-400 border-red-500/20',           hex: '#ef4444' },
+  bug_fix:      { tw: 'bg-red-500/10 text-red-400 border-red-500/20',           hex: '#ef4444' }, // alias
   performance:  { tw: 'bg-orange-500/10 text-orange-400 border-orange-500/20', hex: '#f97316' },
   code_quality: { tw: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',       hex: '#06b6d4' },
   refactor:     { tw: 'bg-violet-500/10 text-violet-400 border-violet-500/20', hex: '#8b5cf6' },

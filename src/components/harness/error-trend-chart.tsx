@@ -12,9 +12,11 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { DashboardData } from '@/store/harness-store';
+import { useId } from 'react';
 import { CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE } from '@/lib/constants';
 
 export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['errorTrend'] }) {
+  const gradId = useId();
   if (!errorTrend?.length) {
     return (
       <Card className="glass-card">
@@ -74,7 +76,7 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <defs>
-                <linearGradient id="errorGrad" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id={`errorGrad-${gradId}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
                   <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
                 </linearGradient>
@@ -86,7 +88,7 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
                 contentStyle={CHART_TOOLTIP_STYLE}
                 labelStyle={CHART_TOOLTIP_LABEL_STYLE}
               />
-              <Area type="stepAfter" dataKey="errors" stroke="#ef4444" fill="url(#errorGrad)" strokeWidth={2} />
+              <Area type="stepAfter" dataKey="errors" stroke="#ef4444" fill={`url(#errorGrad-${gradId})`} strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
