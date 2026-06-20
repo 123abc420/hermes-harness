@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 07:10 UTC+8
+2026-06-21 07:21 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 224)
-- **Waves in DB**: 224
+- **Phase**: Post-Compliance Evolution (Wave 225)
+- **Waves in DB**: 157
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -16,12 +16,12 @@
 | API routes | 16 |
 | Dashboard tabs | 6 |
 | Skills | 9 (+ 1 template) |
-| Components | 28 |
+| Components | 29 |
 | Exported components | 11 |
-| GitHub commits | ~375 |
-| Waves in DB | 224 |
-| Wave success rate (recent 5) | 100% |
-| Health score | 87/100 (verified) |
+| GitHub commits | ~400 |
+| Waves in DB | 157 |
+| Wave success rate (recent 5) | 60% |
+| Health score | 82/100 |
 | execSync calls | 0 |
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
@@ -40,9 +40,11 @@
 - Wave replay auto-stops, phase timeline labeled estimated
 - Shared zod schemas (src/lib/schemas.ts) with 8 input validators + validationError helper
 - ensure-server.md v2.0: correct sandbox process lifecycle docs
-- 3D character faces camera, natural arm pose (no T-pose), health score works
+- 3D character faces camera, natural arm pose, floating orb accessory
+- Health score uses live git data (not stale DB status)
+- CartesianGrid on all charts including WaveCategoryBreakdown
 
 ## What's next
-1. All known code quality issues resolved — system is in maintenance mode
-2. Consider zod for agent-status POST (low priority)
-3. Consider per-wave replay with real phase data (requires schema change)
+1. Consider zod for agent-status POST (low priority)
+2. Consider per-wave replay with real phase data (requires schema change)
+3. Consider 3D world interactive elements (clickable objects)

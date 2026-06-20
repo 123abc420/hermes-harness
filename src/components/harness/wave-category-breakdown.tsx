@@ -12,6 +12,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from 'recharts';
 import { ErrorBlock } from './error-block';
 import type { Wave, Decision } from '@/store/harness-store';
@@ -133,6 +134,7 @@ export function WaveCategoryBreakdown({
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%" role="img" aria-label="Decision category breakdown stacked bar chart">
             <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: 8 }} barCategoryGap="20%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
               <XAxis
                 dataKey="name"
                 tick={{ fill: '#71717a', fontSize: 10 }}

@@ -10,6 +10,68 @@ import {
 } from './agent-3d-shared';
 
 /* ═══════════════════════════════════════════════════════════════════════
+   FLOATING ORB — small magical orb orbiting the character
+   ═══════════════════════════════════════════════════════════════════════ */
+function FloatingOrb({ bodyColor }: { bodyColor: string }) {
+  const orbRef = useRef<THREE.Mesh>(null);
+  const trailRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (orbRef.current) {
+      // Elliptical orbit: wider on X, shallower on Z, bobbing on Y
+      orbRef.current.position.x = Math.sin(t * 0.8) * 0.35;
+      orbRef.current.position.z = Math.cos(t * 0.8) * 0.15;
+      orbRef.current.position.y = 0.65 + Math.sin(t * 1.6) * 0.06;
+      // Gentle pulse
+      const pulse = 1 + Math.sin(t * 3) * 0.15;
+      orbRef.current.scale.setScalar(pulse);
+    }
+    if (trailRef.current) {
+      trailRef.current.position.x = Math.sin(t * 0.8 - 0.15) * 0.35;
+      trailRef.current.position.z = Math.cos(t * 0.8 - 0.15) * 0.15;
+      trailRef.current.position.y = 0.65 + Math.sin(t * 1.6 - 0.3) * 0.06;
+      const trailPulse = 0.8 + Math.sin(t * 3 - 0.5) * 0.1;
+      trailRef.current.scale.setScalar(trailPulse);
+    }
+  });
+
+  return (
+    <group>
+      {/* Main orb */}
+      <mesh ref={orbRef}>
+        <sphereGeometry args={[0.04, 12, 12]} />
+        <meshStandardMaterial
+          color={bodyColor}
+          emissive={bodyColor}
+          emissiveIntensity={1.5}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      {/* Trail orb (smaller, dimmer) */}
+      <mesh ref={trailRef}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshStandardMaterial
+          color={bodyColor}
+          emissive={bodyColor}
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+      {/* Orb point light for ambient glow */}
+      <pointLight
+        color={bodyColor}
+        intensity={0.3}
+        distance={1.5}
+        position={[0, 0.65, 0]}
+      />
+    </group>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    CHIBI CHARACTER — cute humanoid fallback
    ═══════════════════════════════════════════════════════════════════════ */
 export function ChibiCharacter() {
@@ -341,6 +403,9 @@ export function ChibiCharacter() {
           </mesh>
         </group>
       </group>
+
+      {/* Floating magic orb — orbits around character */}
+      <FloatingOrb bodyColor={bodyColor} />
 
       {/* Ground aura */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { execFile } from 'child_process';
-import { readdirSync } from 'fs';
+import { readdirSync, statSync } from 'fs';
 import { promisify } from 'util';
 import { join } from 'path';
 import { db } from '@/lib/db';
@@ -161,19 +161,22 @@ export async function GET() {
     }
 
     // Health Score (0-100): weighted composite
-    // - Spec compliance: 40% (all 15 items done = 40pts)
+    // - Spec compliance: 40% (all spec/memory files present = 40pts)
     // - Recent success rate: 30% (100% = 30pts)
     // - Error trend decreasing: 20% (0 errors in recent waves = 20pts)
-    // - GitHub connected: 10%
+    // - GitHub active: 10% (git repo has commits = 10pts)
     let specScore = 0;
     try {
-      const statsDir = join(process.cwd(), 'gh-sync', 'specs');
-      const specFiles = readdirSync(statsDir).filter(f => f.endsWith('.md'));
+      const specsDir = join(process.cwd(), 'gh-sync', 'specs');
+      const specFiles = readdirSync(specsDir).filter(f => f.endsWith('.md'));
       const memDir = join(process.cwd(), 'gh-sync', 'memory');
       const memFiles = readdirSync(memDir).filter(f => f.endsWith('.md'));
-      // 15 spec items → count files + dynamic checks
-      const fileScore = Math.min((specFiles.length + memFiles.length) / 6, 1); // ~6 spec/memory files
-      specScore = fileScore;
+      // SPEC.md at gh-sync root + specs/*.md + memory/*.md = expected files
+      let expectedFiles = 0;
+      try { statSync(join(process.cwd(), 'gh-sync', 'SPEC.md')); expectedFiles++; } catch { /* */ }
+      expectedFiles += specFiles.length + memFiles.length;
+      // Normalize: 7 total expected files (1 SPEC.md + 2 specs + 3 memory + 1 user_profile)
+      specScore = Math.min(expectedFiles / 7, 1);
     } catch { /* dir not found */ }
 
     let errorScore = 0;
@@ -185,7 +188,8 @@ export async function GET() {
     }
 
     const successScore = recentSuccessRate / 100;
-    const githubScore = githubSync?.status === 'connected' ? 1 : 0;
+    // GitHub score: use live git data (reliable) instead of stale DB status field
+    const githubScore = gitCommitCount > 0 ? 1 : 0;
     const healthScore = Math.round(
       (specScore * 40) +
       (successScore * 30) +

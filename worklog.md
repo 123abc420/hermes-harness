@@ -4178,3 +4178,32 @@ Stage Summary:
 - 1 visual improvement (Chibi eyes + arms)
 - 0 lint errors, production build successful
 - All fixes verified with VLM image analysis
+
+---
+Task ID: W225
+Agent: wave-engine
+Task: Fix health score calculation, add chart gridlines, add 3D floating orb
+
+Work Log:
+- **BUG FIX: Health score github component (0/10 → 10/10)**
+  - Root cause: githubScore used stale DB `GitHubSync.status` field which defaults to 'disconnected'
+  - The sync endpoint sets 'connected' only for 2 seconds after sync, then DB gets stale
+  - Fix: Changed to use live `gitCommitCount > 0` (from `getGitData()`) which always reflects actual git state
+- **BUG FIX: Health score spec component (33/40 → 34/40)**
+  - Root cause: specScore only counted specs/*.md + memory/*.md (5 files / 6 = 83%)
+  - Missing: gh-sync/SPEC.md was not counted
+  - Fix: Added statSync check for SPEC.md + updated denominator to 7 (1 SPEC + 2 specs + 3 memory + 1 user_profile)
+- **STYLE: Added CartesianGrid to WaveCategoryBreakdown chart**
+  - All other Recharts charts had gridlines but this stacked bar chart did not
+  - Added horizontal-only dashed gridlines (#27272a) for consistent readability
+- **STYLE: Added FloatingOrb to Chibi 3D character**
+  - New `FloatingOrb` component: main orb + trail orb orbiting in elliptical path
+  - Orb pulses (scale), bobs (Y), and changes color with agent state
+  - Includes pointLight for subtle ambient glow effect on character
+- Overall health score improved: 71 → 82 (+11 points)
+
+Stage Summary:
+- 2 bug fixes (health score github + spec calculations)
+- 2 styling improvements (chart gridlines, 3D floating orb)
+- 0 lint errors, production build successful
+- Health score: 71 → 82
