@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError } from '@/lib/logger';
+import {
+  createDecisionSchema,
+  validationError,
+} from '@/lib/schemas';
 
 /** Derive a decision outcome from its action + wave status */
 function deriveOutcome(action: string, waveStatus: string): string | null {
@@ -67,12 +71,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { waveId, category, priority, action, description, reasoning, targetFile, targetModule, outcome } = body;
-
-    if (!waveId || !category || !description) {
-      return NextResponse.json({ error: 'waveId, category, and description are required' }, { status: 400 });
+    const body = await req.json().catch(() => null);
+    const parsed = createDecisionSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(createDecisionSchema, body);
     }
+
+    const { waveId, category, priority, action, description, reasoning, targetFile, targetModule, outcome } = parsed.data;
 
     const wave = await db.harnessWave.findUnique({ where: { id: waveId } });
     if (!wave) {
@@ -80,14 +85,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Auto-derive outcome if not provided: based on wave status + action
-    const derivedOutcome = outcome ?? deriveOutcome(action ?? 'planned', wave.status);
+    const derivedOutcome = outcome ?? deriveOutcome(action, wave.status);
 
     const decision = await db.harnessDecision.create({
       data: {
         waveId,
         category,
-        priority: priority ?? 'medium',
-        action: action ?? 'planned',
+        priority,
+        action,
         description,
         reasoning: reasoning ?? null,
         targetFile: targetFile ?? null,

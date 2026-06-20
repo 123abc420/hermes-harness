@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError, logDebug } from '@/lib/logger';
+import {
+  patchWaveSchema,
+  validationError,
+} from '@/lib/schemas';
 
 export async function GET(
   _req: NextRequest,
@@ -30,17 +34,22 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    const parsed = patchWaveSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(patchWaveSchema, body);
+    }
 
-    const updateData: Record<string, unknown> = {
-      ...(body.status && { status: body.status }),
-      ...(body.completedAt && { completedAt: new Date(body.completedAt) }),
-      ...(body.summary !== undefined && { summary: body.summary }),
-      ...(body.decisionsCount !== undefined && { decisionsCount: body.decisionsCount }),
-      ...(body.improvementsCount !== undefined && { improvementsCount: body.improvementsCount }),
-      ...(body.errorsCount !== undefined && { errorsCount: body.errorsCount }),
-      ...(body.metricsSnapshot && { metricsSnapshot: body.metricsSnapshot }),
-    };
+    const data = parsed.data;
+
+    const updateData: Record<string, unknown> = {};
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.completedAt !== undefined) updateData.completedAt = data.completedAt ? new Date(data.completedAt) : null;
+    if (data.summary !== undefined) updateData.summary = data.summary;
+    if (data.decisionsCount !== undefined) updateData.decisionsCount = data.decisionsCount;
+    if (data.improvementsCount !== undefined) updateData.improvementsCount = data.improvementsCount;
+    if (data.errorsCount !== undefined) updateData.errorsCount = data.errorsCount;
+    if (data.metricsSnapshot !== undefined) updateData.metricsSnapshot = data.metricsSnapshot;
 
     const wave = await db.harnessWave.update({
       where: { id },
@@ -48,13 +57,13 @@ export async function PATCH(
     });
 
     // Cascade: when wave is completed/failed/interrupted, backfill outcomes for its decisions
-    if (body.status && body.status !== 'running' && body.status !== 'pending') {
+    if (data.status && data.status !== 'running' && data.status !== 'pending') {
       await db.harnessDecision.updateMany({
         where: { waveId: id, outcome: null },
         data: {
           outcome:
-            body.status === 'completed' ? 'success_verified' :
-            body.status === 'failed' || body.status === 'error' ? 'failed_wave' :
+            data.status === 'completed' ? 'success_verified' :
+            data.status === 'failed' || data.status === 'error' ? 'failed_wave' :
             'interrupted',
         },
       }).catch((e) => { logDebug('WAVE', 'Decision outcome backfill failed', { waveId: id, error: String(e) }); });
