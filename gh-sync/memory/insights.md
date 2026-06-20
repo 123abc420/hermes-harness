@@ -96,3 +96,9 @@
 - Prisma Float columns reject non-numeric values at query time — a single bad row crashes the entire `findMany()`. Always validate data before insert.
 - Wrap non-critical queries (e.g. metrics) in `.catch()` so one bad row can't bring down the whole composite API.
 - Raw SQL inserts bypass Prisma validation — type mismatches silently persist until Prisma reads them back.
+
+## Event Loop & Process
+
+- `execSync` in API routes blocks the ENTIRE server — even a cached dashboard can't respond while lint runs (up to 60s). ALWAYS use `execFile` (async).
+- ReadableStream `cancel()` is NOT optional for SSE — browser tab close doesn't always fire `abort` signal. Without `cancel()`, setInterval timers leak forever.
+- Closure scope matters: `cancel()` can't access variables declared inside `start()` — hoist interval refs to the outer scope.

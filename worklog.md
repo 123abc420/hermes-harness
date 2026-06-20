@@ -2978,3 +2978,20 @@ Stage Summary:
 - agent-status POST no longer accepts arbitrary state injection — validates all fields
 - agent-demo route protected by optional Bearer token auth (open in dev, gated in prod)
 - Log severity corrected for recovery events
+---
+Task ID: w142
+Agent: Wave Engine (W142)
+Task: Eliminate execSync, fix SSE timer leak, restore skills route
+
+Work Log:
+- ASSESS: 139 waves in DB, 100% spec compliance, 0 errors. Deep codebase audit found: SSE ReadableStream missing cancel() (timer leak), skills route missing 5th time, 5 execSync calls blocking event loop.
+- EXECUTE (1/3): Fixed SSE timer leak in agent-status/route.ts — added cancel() method, hoisted interval/keepAlive/closed to outer closure, wrapped all controller.enqueue in try/catch with cleanup() function that clears both timers.
+- EXECUTE (2/3): Recreated /api/harness/skills/route.ts (5th time lost) — reads gh-sync/skills/*.md, parses YAML frontmatter, supports search param, returns structured skill objects.
+- EXECUTE (3/3): Converted ALL execSync to async execFile — git.ts (2 calls), dashboard/route.ts (bun run lint), github/sync/route.ts (2 inline calls). Added 10s timeout to git commands, 60s to lint. Updated all 3 callers to await the now-async getGitData(). Zero execSync remaining in src/.
+- VERIFY: rm -rf .next && bun run lint → 0 errors. Grep confirmed 0 execSync in src/.
+- PERSIST: Git commit, DB records, context.md, insights.md update
+
+Stage Summary:
+- SSE streams no longer leak timers on client disconnect (cancel() + closed flag)
+- Skills API route functional again (recreated)
+- Event loop no longer blocks — all child_process calls are async with timeouts
