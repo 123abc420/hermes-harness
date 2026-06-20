@@ -16,6 +16,7 @@ import { DecisionsTab } from '@/components/harness/decisions-tab';
 import { ResearchTab } from '@/components/harness/research-tab';
 import { GithubTab } from '@/components/harness/github-tab';
 import { HarnessErrorBoundary } from '@/components/harness/error-boundary';
+import { CommandPalette } from '@/components/harness/command-palette';
 
 const TAB_CONFIG = [
   { value: 'agent', label: 'Agent Live', icon: Eye },
@@ -36,19 +37,36 @@ export default function Home() {
   const { activeTab, setActiveTab } = useHarnessStore();
   const { data: dash } = useHarnessDashboard();
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showPalette, setShowPalette] = useState(false);
 
   // Connect to the real-time agent live service
   useAgentLive();
 
-  // Keyboard shortcuts: 1-6 to switch tabs (only when no input/textarea focused)
+  // Keyboard shortcuts: 1-6 to switch tabs, Cmd+K for command palette
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+    const inInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+    // Cmd/Ctrl+K opens command palette (works even in inputs)
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      setShowPalette(v => !v);
+      return;
+    }
+
+    // ESC closes palette
+    if (e.key === 'Escape' && showPalette) {
+      setShowPalette(false);
+      return;
+    }
+
+    if (inInput) return;
+
     const tabValue = TAB_KEY_MAP[e.key];
     if (tabValue && tabValue !== activeTab) {
       setActiveTab(tabValue);
     }
-  }, [activeTab, setActiveTab]);
+  }, [activeTab, setActiveTab, showPalette]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -56,6 +74,14 @@ export default function Home() {
   }, [handleKeyDown]);
 
   return (
+    <>
+    {/* Global Command Palette (Cmd+K) */}
+    <CommandPalette
+      open={showPalette}
+      onClose={() => setShowPalette(false)}
+      onNavigate={(tab) => setActiveTab(tab)}
+    />
+
     <div className="dot-pattern min-h-screen flex flex-col bg-[#0d0906]">
       <HarnessHeader
         githubStatus={dash?.githubStatus}
@@ -171,6 +197,12 @@ export default function Home() {
               >
                 <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3">Keyboard Shortcuts</p>
                 <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-amber-400/80">Global Search</span>
+                    <kbd className="inline-flex items-center justify-center h-5 px-1.5 rounded text-[10px] font-mono text-zinc-500 bg-white/[0.05] border border-white/[0.08]">
+                      ⌘K
+                    </kbd>
+                  </div>
                   {TAB_CONFIG.map((tab) => (
                     <div key={tab.value} className="flex items-center justify-between">
                       <span className="text-xs text-zinc-400">{tab.label}</span>
@@ -186,5 +218,6 @@ export default function Home() {
         </AnimatePresence>
       </footer>
     </div>
+    </>
   );
 }
