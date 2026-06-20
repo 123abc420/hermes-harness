@@ -2995,3 +2995,20 @@ Stage Summary:
 - SSE streams no longer leak timers on client disconnect (cancel() + closed flag)
 - Skills API route functional again (recreated)
 - Event loop no longer blocks — all child_process calls are async with timeouts
+---
+Task ID: w143
+Agent: Wave Engine (W143)
+Task: Centralized logger, eliminate raw console.error in API routes
+
+Work Log:
+- ASSESS: 142 waves, 100% compliance, 0 errors. Context item 2: logError helper.
+- EXECUTE (1/3): Created src/lib/logger.ts — logError(tag, error, extra?) outputs structured JSON, logDebug(tag, msg) suppressed in production. Sanitizes error objects.
+- EXECUTE (2/3): Replaced ALL 22 console.error calls across 14 API route files with logError. Each call gets a consistent tag, and some include method context.
+- EXECUTE (3/3): Fixed 6 silent .catch(() => {}) — dashboard stale cleanup, agent-status forwardToService (x4), wave [id] decision backfill. All now use logDebug.
+- VERIFY: rm -rf .next && bun run lint → 0 errors. Grep confirmed 0 console.error in src/app/api/.
+- PERSIST: Git commit, DB records, context.md update
+
+Stage Summary:
+- Created src/lib/logger.ts (logError + logDebug) — all API routes now use structured logging
+- 22 console.error calls eliminated from API routes (0 remaining)
+- 6 silent error swallows now visible via logDebug in development
