@@ -61,7 +61,7 @@ export function ExportMenu({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-50 mt-1 min-w-[100px] rounded-lg border border-white/[0.08] bg-[#1a1f2e] py-1 shadow-xl">
+          <div className="absolute left-0 top-full z-50 mt-1 min-w-[100px] rounded-lg border border-white/[0.08] bg-[#1a1f2e] py-1 shadow-xl sm:left-auto sm:right-0">
             {OPTIONS.map((opt) => (
               <button
                 key={opt.format}

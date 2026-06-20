@@ -190,7 +190,7 @@ export function ActivityFeedColumn({
         </div>
       </div>
 
-      <ScrollArea className="flex-1 h-[420px] lg:h-[540px]" ref={feedRef}>
+      <ScrollArea className="flex-1 h-[280px] sm:h-[420px] lg:h-[540px]" ref={feedRef}>
         <div className="p-2 space-y-1" aria-live="polite" aria-label="Agent activity feed">
           <AnimatePresence initial={false}>
             {activities.length === 0 ? (

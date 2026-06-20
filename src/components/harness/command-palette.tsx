@@ -208,7 +208,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
 
               {/* Footer hint */}
               {query.trim() && totalResults > 0 && (
-                <div className="border-t border-white/[0.06] px-4 py-2 flex items-center gap-4 text-[10px] font-mono text-zinc-600">
+                <div className="border-t border-white/[0.06] px-4 py-2 flex flex-wrap items-center gap-4 text-[10px] font-mono text-zinc-600">
                   <span><kbd className="px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] mr-1">↑↓</kbd> navigate</span>
                   <span><kbd className="px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] mr-1">↵</kbd> open</span>
                   <span><kbd className="px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] mr-1">esc</kbd> close</span>
