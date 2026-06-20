@@ -35,8 +35,11 @@ function parseYamlFrontmatter(raw: string): { meta: Record<string, string>; body
   return { meta, body: body.trim() };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const search = (searchParams.get('search') ?? '').toLowerCase().trim();
+    const limit = parseInt(searchParams.get('limit') ?? '100', 10);
     const skillsDir = join(process.cwd(), 'gh-sync', 'skills');
     let files: string[];
     try {
@@ -72,7 +75,17 @@ export async function GET() {
       return a.name.localeCompare(b.name);
     });
 
-    return NextResponse.json({ skills });
+    // Filter by search term
+    const filtered = search
+      ? skills.filter(s =>
+          s.title.toLowerCase().includes(search) ||
+          s.name.toLowerCase().includes(search) ||
+          s.category?.toLowerCase().includes(search) ||
+          s.trigger?.toLowerCase().includes(search)
+        )
+      : skills;
+
+    return NextResponse.json({ skills: filtered.slice(0, limit) });
   } catch (error) {
     console.error('[SKILLS] Error:', error);
     return NextResponse.json({ error: 'Failed to fetch skills' }, { status: 500 });

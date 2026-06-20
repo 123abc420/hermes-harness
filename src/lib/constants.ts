@@ -1,6 +1,9 @@
 // Shared constants for the HERMES Harness dashboard
 
-export const HERMES_VERSION = 'v0.4.0';
+// Read version from package.json at build time; fallback for non-Next.js contexts
+export const HERMES_VERSION = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERSION
+  ? `v${process.env.NEXT_PUBLIC_VERSION}`
+  : 'v0.4.0';
 
 // Internal service URLs (server-to-server, not client-facing)
 export const AGENT_LIVE_SERVICE_URL = process.env.AGENT_LIVE_PORT

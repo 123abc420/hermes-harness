@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github } from 'lucide-react';
+import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github, Sparkles } from 'lucide-react';
 
 /* ── Types ─────────────────────────────────────────────── */
 interface WaveResult {
@@ -19,6 +19,14 @@ interface DecisionResult {
   priority: string;
   description: string;
   wave?: { waveNumber: number; status: string } | null;
+}
+
+interface SkillResult {
+  id: string;
+  name: string;
+  title: string;
+  category: string | null;
+  trigger: string | null;
 }
 
 interface CommandPaletteProps {
@@ -41,6 +49,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
   const [query, setQuery] = useState('');
   const [waves, setWaves] = useState<WaveResult[]>([]);
   const [decisions, setDecisions] = useState<DecisionResult[]>([]);
+  const [skills, setSkills] = useState<SkillResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const [debounceRef, setDebounceRef] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -50,6 +59,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
   const allResults = [
     ...waves.map(w => ({ type: 'wave' as const, data: w, label: `Wave #${w.waveNumber}`, sub: w.summary ?? '' })),
     ...decisions.map(d => ({ type: 'decision' as const, data: d, label: `${d.category} — ${d.priority}`, sub: d.description })),
+    ...skills.map(s => ({ type: 'skill' as const, data: s, label: s.title ?? s.name, sub: s.category ? `${s.category}${s.trigger ? ' · ' + s.trigger : ''}` : 'Skill' })),
   ];
   const totalResults = allResults.length;
 
@@ -60,6 +70,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
         setQuery('');
         setWaves([]);
         setDecisions([]);
+        setSkills([]);
         setActiveIdx(0);
         setLoading(false);
         inputRef.current?.focus();
@@ -69,15 +80,17 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
 
   // Debounced search
   const doSearch = useCallback(async (q: string) => {
-    if (!q.trim()) { setWaves([]); setDecisions([]); return; }
+    if (!q.trim()) { setWaves([]); setDecisions([]); setSkills([]); return; }
     setLoading(true);
     try {
-      const [wRes, dRes] = await Promise.all([
+      const [wRes, dRes, sRes] = await Promise.all([
         fetch(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`).then(r => r.json()),
         fetch(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`).then(r => r.json()),
+        fetch(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`).then(r => r.json()).catch(() => ({ skills: [] })),
       ]);
       setWaves(wRes.waves ?? []);
       setDecisions(dRes.decisions ?? []);
+      setSkills(sRes.skills ?? []);
       setActiveIdx(0);
     } catch { /* silent */ }
     setLoading(false);
@@ -145,7 +158,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
                   value={query}
                   onChange={e => handleQueryChange(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Search waves & decisions..."
+                  placeholder="Search waves, decisions, skills..."
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                 />
                 <kbd className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-mono text-zinc-600 bg-white/[0.04] border border-white/[0.06]">ESC</kbd>
@@ -181,7 +194,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
                   </div>
                 )}
                 {allResults.map((item, idx) => {
-                  const Icon = item.type === 'wave' ? Waves : Brain;
+                  const Icon = item.type === 'wave' ? Waves : item.type === 'skill' ? Sparkles : Brain;
                   const isActive = idx === activeIdx;
                   const btnCls = isActive
                     ? 'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors bg-amber-500/10 text-amber-200'
@@ -190,7 +203,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
                   return (
                     <button
                       key={`${item.type}-${item.data.id}`}
-                      onClick={() => { onNavigate(item.type === 'wave' ? 'waves' : 'decisions'); onClose(); }}
+                      onClick={() => { onNavigate(item.type === 'wave' ? 'waves' : item.type === 'skill' ? 'research' : 'decisions'); onClose(); }}
                       className={btnCls}
                     >
                       <Icon className={iconCls} />

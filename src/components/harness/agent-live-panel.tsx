@@ -57,16 +57,12 @@ export function AgentLivePanel() {
   // Countdown
   const countdownMin = useNextWaveCountdown(waveNumber, latestWave);
 
-  // Brief skeleton on initial mount while SSE connects
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setIsInitialLoad(false), 600);
-    return () => clearTimeout(t);
-  }, []);
+  // Show skeleton until data arrives from SSE/store
+  const hasData = isConnected || activities.length > 0 || waveCount > 0;
 
   const xpPercent = Math.min((xp / xpToNext) * 100, 100);
 
-  if (isInitialLoad) {
+  if (!hasData) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
         <div className="flex flex-col gap-5">
