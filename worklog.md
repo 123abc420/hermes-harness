@@ -2259,3 +2259,23 @@ Stage Summary:
 - research-tab.tsx: 157→67 lines (-57%)
 - insights.md: 62→74 lines (added Component Extraction + Data Hygiene sections)
 - 102 waves in DB, 22 skills, health ~92/100
+
+---
+Task ID: 107
+Agent: Wave Engine
+Task: Component decomposition — GitHub-tab + Decisions-tab
+
+Work Log:
+- Assessed state: 100% spec compliance, 22 skills, 102 waves in DB, no errors
+- Identified github-tab (373L) and decisions-tab (332L) as next largest components
+- Extracted 4 internal components from github-tab.tsx to github-subcomponents.tsx:
+  - ConnectionStatus (122L), InfoGrid (53L), CommitHistory (46L), ExportModules (67L)
+- Extracted DecisionCard (109L memo) + OutcomeBadge (24L) from decisions-tab.tsx to decision-card.tsx
+- Cleared .next cache, ran lint — 0 errors
+- Verified dev.log — no new errors
+
+Stage Summary:
+- github-tab.tsx: 373→59 lines (-84%)
+- decisions-tab.tsx: 332→181 lines (-45%)
+- New files: github-subcomponents.tsx (317L), decision-card.tsx (157L)
+- All tab components now <200 lines (orchestrators only)
