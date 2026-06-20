@@ -2747,3 +2747,22 @@ Stage Summary:
 - Exportable module: HarnessDashboard now has full feature parity with page.tsx (Cmd+K, footer, shortcuts)
 - Wave visualization: Phase timeline in detail dialog shows protocol progression with status-aware styling
 - Lint: 0 errors. Git: 1 commit pushed.
+---
+Task ID: w130
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 130 — Waves tab inline visualizations + DRY + label consistency
+
+Work Log:
+- ASSESS: Read context.md (W129, 126 waves, 100% compliance), insights.md, dev.log (clean). Dashboard confirmed: 126 waves, 287 decisions, 0 errors.
+- PLAN: 3 improvements — (1) waves tab lacks inline charts (users navigate away for viz), (2) WaveDurationBars has duplicated empty state, (3) "Research & Memory" vs "Analytics" label drift
+- EXEC-1: Added WavesInlineCharts component to waves-tab.tsx — duration sparkline (last 20 waves, bar chart with trend indicator) and success donut (SVG ring with ok/fail/other breakdown). Shows when 5+ waves loaded.
+- EXEC-2: Extracted DurationEmptyState() in wave-duration-bars.tsx — replaced 2 identical 15-line blocks with shared component, 2 early returns now 1-liners.
+- EXEC-3: Changed "Research & Memory" → "Analytics" in page.tsx TAB_CONFIG and command-palette.tsx TAB_NAV_ITEMS to match harness-dashboard.tsx.
+- VERIFY: rm -rf .next && bun run lint — 0 errors. dev.log clean.
+- PERSIST: DB records (wave + 3 decisions + 3 metrics). Git push.
+
+Stage Summary:
+- Waves tab now has inline visualizations (duration sparkline + success donut) — no need to visit Overview for charts
+- WaveDurationBars DRY: 15 lines of duplicated JSX → shared component
+- Label consistency: "Analytics" is now canonical across all 3 tab config locations
+- Lint: 0 errors. Git: 1 commit pushed.
