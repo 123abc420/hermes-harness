@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { logError } from '@/lib/logger';
+import { updateMemorySchema, validationError } from '@/lib/schemas';
 
 async function readFileSafe(filePath: string): Promise<string> {
   try {
@@ -40,17 +41,22 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { context, insights } = body;
+    const body = await req.json().catch(() => null);
+    const parsed = updateMemorySchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(updateMemorySchema, body);
+    }
+
+    const { context, insights } = parsed.data;
     const memoryDir = path.join(process.cwd(), 'gh-sync', 'memory');
 
     await fs.mkdir(memoryDir, { recursive: true });
 
     if (context !== undefined) {
-      await fs.writeFile(path.join(memoryDir, 'context.md'), context, 'utf-8');
+      await fs.writeFile(path.join(memoryDir, 'context.md'), String(context), 'utf-8');
     }
     if (insights !== undefined) {
-      await fs.writeFile(path.join(memoryDir, 'insights.md'), insights, 'utf-8');
+      await fs.writeFile(path.join(memoryDir, 'insights.md'), String(insights), 'utf-8');
     }
 
     return NextResponse.json({ success: true });

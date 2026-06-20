@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError } from '@/lib/logger';
+import { createMetricSchema, validationError } from '@/lib/schemas';
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,12 +25,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { metricKey, metricValue, waveId } = body;
-
-    if (!metricKey || metricValue === undefined) {
-      return NextResponse.json({ error: 'metricKey and metricValue required' }, { status: 400 });
+    const body = await req.json().catch(() => null);
+    const parsed = createMetricSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(createMetricSchema, body);
     }
+
+    const { metricKey, metricValue, waveId } = parsed.data;
 
     const prev = await db.harnessMetric.findFirst({
       where: { metricKey },

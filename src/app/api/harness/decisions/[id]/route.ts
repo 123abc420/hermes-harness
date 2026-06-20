@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError } from '@/lib/logger';
-
-// Allowed fields for decision PATCH — prevents unrestricted body spread
-const ALLOWED_FIELDS = new Set([
-  'action', 'category', 'priority', 'description',
-  'reasoning', 'targetFile', 'targetModule', 'outcome',
-]);
+import {
+  updateDecisionSchema,
+  validationError,
+} from '@/lib/schemas';
 
 export async function PATCH(
   req: NextRequest,
@@ -14,17 +12,16 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
-
-    // Build safe update object with only whitelisted fields
-    const data: Record<string, unknown> = {};
-    for (const key of ALLOWED_FIELDS) {
-      if (body[key] !== undefined) {
-        data[key] = body[key];
-      }
+    const body = await req.json().catch(() => null);
+    const parsed = updateDecisionSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(updateDecisionSchema, body);
     }
-    // Special field: auto-set executedAt when action is 'executed'
-    if (body.action === 'executed') {
+
+    const data: Record<string, unknown> = { ...parsed.data };
+
+    // Auto-set executedAt when action is 'executed'
+    if (data.action === 'executed') {
       data.executedAt = new Date();
     }
 
