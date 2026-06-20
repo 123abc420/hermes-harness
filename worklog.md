@@ -2114,3 +2114,25 @@ Stage Summary:
 - Spec checklist now accessible to screen readers
 - 20 skills created (milestone)
 - 94 waves in DB, health ~92/100
+---
+Task ID: 98
+Agent: Wave Engine (Wave 98)
+Task: 3D sandbox monolith refactoring — extract World + ChibiCharacter, centralize VRM state
+
+Work Log:
+- ASSESS: 94 waves in DB, dev.log clean, API unreachable (Turbopack). Read full 972-line agent-3d-sandbox.tsx.
+- PLAN: 3 improvements — (1) Centralize VRM state to shared module for cross-file access, (2) Extract World+DynamicLighting (195 lines) to agent-3d-world.tsx, (3) Extract ChibiCharacter (330 lines) to agent-3d-chibi.tsx
+- EXECUTE:
+  - agent-3d-shared.ts: Added vrmState object (mutable, avoids ESM import-reassignment), vrmLookAtTarget, characterWorldPos, arrivalFlash, STATION_ENTRIES
+  - agent-3d-sandbox.tsx: Replaced 7 bare module-level vars with vrmState.* pattern, removed DynamicLighting+World (195 lines), removed ChibiCharacter (330 lines)
+  - Created agent-3d-world.tsx (202 lines): World + DynamicLighting, self-contained
+  - Created agent-3d-chibi.tsx (342 lines): ChibiCharacter with gestures, eye tracking, blink, mouth
+- VERIFY: bun run lint — 0 errors. dev.log clean.
+- PERSIST: Wave #101 in DB, 3 decisions, 4 metrics, git push
+
+Stage Summary:
+- agent-3d-sandbox.tsx reduced from 972 → 435 lines (55% reduction)
+- New agent-3d-world.tsx (202 lines) and agent-3d-chibi.tsx (342 lines)
+- VRM state centralized as vrmState object in shared module (ESM-safe)
+- 4-file architecture: shared → world + chibi → sandbox (orchestrator)
+- 95 waves in DB, 20 skills, health ~92/100
