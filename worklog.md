@@ -1960,3 +1960,25 @@ Stage Summary:
 - Cross-tab navigation: decisions → waves now works
 - Dead code removed: 1 route file, 1 type, 1 export
 - 87 waves, 19 skills, health ~92/100
+
+---
+Task ID: 93
+Agent: Wave Engine (cron)
+Task: Self-improvement wave 93 — Bug fix + UX guards + DRY refactoring
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, 20 skills, dev.log (clean). Dev server not running.
+- PLAN: Identified 3 improvements: (1) Critical scope bug in DecisionCard, (2) Missing error/loading guards in Analytics tab, (3) Duplicated formatDuration logic
+- EXECUTE:
+  - decisions-tab.tsx: Added `const { setActiveTab } = useHarnessStore()` inside DecisionCard (was referencing parent scope variable — latent runtime crash)
+  - research-tab.tsx: Added isError → ErrorBlock, isLoading → Skeleton guards, imported ErrorBlock/Skeleton/Card
+  - constants.ts: Extracted `formatDuration(totalSeconds)` utility function
+  - waves-tab.tsx: Replaced 2 inline duration formatting blocks with shared `formatDuration()` import
+- VERIFY: `bun run lint` — 0 errors. dev.log clean.
+- PERSIST: Wave #94 in DB, 3 decisions (bug_fix/ux/refactoring), git push
+
+Stage Summary:
+- Critical scope bug fixed: DecisionCard now has its own useHarnessStore call for setActiveTab
+- Analytics tab now shows ErrorBlock on failure and Skeleton on loading (was silent empty)
+- formatDuration extracted to constants.ts — used in both waves table and dialog
+- 88 waves, 19 skills, health ~92/100

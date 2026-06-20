@@ -62,3 +62,8 @@
 - Chart tooltip styles are duplicated across components — extract to constants.ts
 - Health score trend can be derived from error trend + success rate without storing history
 - Categories can appear in DB before being added to maps — always grep DB for actual values
+
+## Component Scope & Hooks
+
+- A child component CANNOT access variables from its parent's function scope — each component needs its own hook calls
+- Shared utility functions (formatDuration, tooltip styles) belong in constants.ts, not duplicated inline
