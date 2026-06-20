@@ -86,7 +86,7 @@ export function OverviewTab() {
       )}
 
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} healthScoreTrend={dash?.healthScoreTrend} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} healthScoreTrend={dash?.healthScoreTrend} healthBreakdown={dash?.healthBreakdown} isLoading={isLoading} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />

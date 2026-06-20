@@ -28,6 +28,7 @@ export function HeroStatusCard({
   npmDeps?: number;
   healthScore?: number;
   healthScoreTrend?: 'up' | 'down' | 'stable';
+  healthBreakdown?: { spec: number; success: number; errors: number; github: number };
   isLoading: boolean;
 }) {
   const agentState = useAgentLiveStore(s => s.agentState);
@@ -141,6 +142,19 @@ export function HeroStatusCard({
                     </>
                   )}
                 </p>
+                {healthBreakdown && (
+                  <div className="mt-2 flex items-center gap-3">
+                    {([['S', healthBreakdown.spec, 40, 'bg-violet-400'], ['R', healthBreakdown.success, 30, 'bg-emerald-400'], ['E', healthBreakdown.errors, 20, 'bg-rose-400'], ['G', healthBreakdown.github, 10, 'bg-sky-400']] as const).map(([label, val, max, color]) => (
+                      <div key={label} className="flex items-center gap-1">
+                        <span className="text-[8px] font-mono text-zinc-600 w-2">{label}</span>
+                        <div className="h-1 w-12 rounded-full bg-white/[0.06] overflow-hidden">
+                          <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${Math.round((val / max) * 100)}%` }} />
+                        </div>
+                        <span className="text-[8px] font-mono tabular-nums text-zinc-600">{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {latestWave && (
                   <div className="mt-1.5 flex items-center gap-2">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium ${

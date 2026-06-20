@@ -2533,3 +2533,23 @@ Stage Summary:
 - harness-header.tsx: 150→183L (breakdown tooltip)
 - src/index.ts: 11 exported components
 - 26 skills, 114 waves in DB
+
+---
+Task ID: 120
+Agent: Wave Engine
+Task: Footer activity indicator + hero card inline health breakdown
+
+Work Log:
+- Assessed: 114 waves, 100% compliance, 0 errors
+- Added last-wave indicator to footer (page.tsx): shows wave number, status, and relative completion time with Activity icon
+- Added inline health breakdown to hero-status-card.tsx (186→201L): 4 mini bars (S/R/E/G) with values below stats line
+- Wired healthBreakdown from overview-tab.tsx to HeroStatusCard
+- Added formatDistanceToNow + Activity imports to page.tsx
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- page.tsx: footer now shows last wave (#NNN completed Xm ago)
+- hero-status-card.tsx: 186→201L (inline health breakdown, always visible)
+- Health transparency now complete: header tooltip + hero card inline bars
+- 26 skills, 115 waves in DB

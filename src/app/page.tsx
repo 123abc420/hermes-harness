@@ -3,7 +3,8 @@
 import { useEffect, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
+import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { useAgentLive } from '@/hooks/use-agent-live';
@@ -180,9 +181,21 @@ export default function Home() {
 
       <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906] relative">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-2 text-xs text-amber-800/50">
-            <Zap className="h-3 w-3 text-amber-500/30" />
-            <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs text-amber-800/50">
+              <Zap className="h-3 w-3 text-amber-500/30" />
+              <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
+            </div>
+            {dash?.waves?.[0] && (
+              <span className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
+                <Activity className="h-2.5 w-2.5 text-emerald-500/40" />
+                <span className="text-zinc-500">#{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
+                <span className="text-zinc-700">{dash.waves[0].status === 'completed' ? 'completed' : dash.waves[0].status}</span>
+                {dash.waves[0].completedAt && (
+                  <span className="text-zinc-700">{formatDistanceToNow(new Date(dash.waves[0].completedAt), { addSuffix: true })}</span>
+                )}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
