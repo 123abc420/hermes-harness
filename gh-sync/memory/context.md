@@ -6,8 +6,8 @@
 2026-06-20 17:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 146)
-- **Waves in DB**: 146
+- **Phase**: Post-Compliance Evolution (Wave 147)
+- **Waves in DB**: 147
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -26,8 +26,8 @@
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
 | unprotected fetch→json | 0 |
-| Routes with zod validation | 5 (decisions POST+PATCH, waves/[id] PATCH, metrics POST, memory POST) |
-| Shared zod schemas | 7 |
+| Routes with zod validation | 8 of 9 (all body-parsing routes except agent-status POST) |
+| Shared zod schemas | 8 |
 | Skills tracked in git | 6 |
 
 ## What exists
@@ -36,9 +36,9 @@
 - Centralized logger (logError + logDebug) across all 14 API routes
 - ALL client-side fetch calls check .ok before .json()
 - Wave replay auto-stops, phase timeline labeled estimated
-- Shared zod schemas (src/lib/schemas.ts) with 7 input validators + validationError helper
+- Shared zod schemas (src/lib/schemas.ts) with 8 input validators + validationError helper
 
 ## What's next
-1. Extend zod validation to remaining 4 routes (config POST, waves POST, agent-status POST, agent-demo POST)
+1. Consider zod for agent-status POST (complex discriminated union — low priority, already has manual validation)
 2. Consider per-wave replay with real phase data (requires schema change)
-3. All known issues resolved — skills gitignore root cause fixed
+3. All known issues resolved — zod coverage nearly complete

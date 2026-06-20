@@ -3088,3 +3088,22 @@ Stage Summary:
 - Routes with zod validation: 2 → 5 (decisions POST, decisions/[id] PATCH, waves/[id] PATCH, metrics POST, memory POST)
 - Remaining unprotected: 4 (config POST, waves POST, agent-status POST, agent-demo POST)
 - Lint: 0 errors
+
+---
+Task ID: W147
+Agent: HERMES Wave Engine
+Task: Complete zod validation coverage for remaining simple routes
+
+Work Log:
+- ASSESSED: 4 unprotected routes remaining. agent-status POST already has hand-rolled validation — skipped (large risky refactor).
+- EXECUTED 1: config/route.ts POST — updateConfigSchema.safeParse. key as non-empty string, value as string.
+- EXECUTED 2: waves/route.ts POST — createWaveSchema.safeParse. Fixed body.summary→parsed.data.summary.
+- EXECUTED 3: agent-demo/route.ts POST — new agentDemoPostSchema with strict() mode. Rejects unknown keys, constrains numerics.
+- Added agentDemoPostSchema to schemas.ts (8 schemas total).
+- VERIFIED: rm -rf .next && bun run lint — 0 errors
+
+Stage Summary:
+- Modified: config/route.ts, waves/route.ts, agent-demo/route.ts, schemas.ts
+- Routes with zod: 5 → 8 of 9 body-parsing routes
+- Only agent-status POST remains (has existing hand-rolled validation, complex discriminated union)
+- Lint: 0 errors
