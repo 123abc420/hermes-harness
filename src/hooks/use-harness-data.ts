@@ -55,11 +55,12 @@ export function useHarnessDashboard() {
   return query;
 }
 
-export function useWaves(page = 1, limit = 20, status = '') {
+export function useWaves(page = 1, limit = 20, status = '', search = '') {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (status) params.set('status', status);
-  return useQuery<{ waves: Wave[]; total: number; page: number; limit: number }>({
-    queryKey: ['harness-waves', page, limit, status],
+  if (search) params.set('search', search);
+  return useQuery<{ waves: Wave[]; total: number; page: number; limit: number; countsByStatus: Record<string, number> }>({
+    queryKey: ['harness-waves', page, limit, status, search],
     queryFn: () => fetchJSON(`${API_BASE}/waves?${params}`),
   });
 }
@@ -89,11 +90,12 @@ export function useCreateWave() {
   });
 }
 
-export function useDecisions(page = 1, limit = 50, category = '') {
+export function useDecisions(page = 1, limit = 50, category = '', search = '') {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (category) params.set('category', category);
+  if (search) params.set('search', search);
   return useQuery<{ decisions: Decision[]; total: number; page: number; limit: number; countsByCategory: Record<string, number>; countsByAction: Record<string, number> }>({
-    queryKey: ['harness-decisions', page, limit, category],
+    queryKey: ['harness-decisions', page, limit, category, search],
     queryFn: () => fetchJSON(`${API_BASE}/decisions?${params}`),
   });
 }

@@ -7,9 +7,12 @@ export async function GET(req: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)));
     const status = searchParams.get('status') ?? '';
+    const search = searchParams.get('search')?.trim() ?? '';
     const skip = (page - 1) * limit;
 
-    const where = status ? { status } : {};
+    const where: Record<string, unknown> = {};
+    if (status) where.status = status;
+    if (search) where.summary = { contains: search };
 
     const [waves, total, statusCounts] = await Promise.all([
       db.harnessWave.findMany({

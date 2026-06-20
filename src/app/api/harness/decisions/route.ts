@@ -18,11 +18,13 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)));
     const category = searchParams.get('category') ?? '';
     const action = searchParams.get('action') ?? '';
+    const search = searchParams.get('search')?.trim() ?? '';
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
     if (category) where.category = category;
     if (action) where.action = action;
+    if (search) where.description = { contains: search };
 
     const [decisions, total, categoryCounts, actionCounts] = await Promise.all([
       db.harnessDecision.findMany({

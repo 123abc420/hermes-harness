@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWaves } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
-import { Waves as WavesIcon, ChevronDown } from 'lucide-react';
+import { Waves as WavesIcon, ChevronDown, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 import { STATUS_COLORS } from './wave-detail-dialog';
@@ -37,9 +37,10 @@ export function WavesTab() {
   const setWaveFilter = useHarnessStore(s => s.setWaveFilter);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const limit = 30;
 
-  const { data, isLoading, isError, error, refetch } = useWaves(page, limit, waveFilter);
+  const { data, isLoading, isError, error, refetch } = useWaves(page, limit, waveFilter, search);
 
   const waves = data?.waves ?? [];
   const totalWaves = data?.total ?? 0;
@@ -49,6 +50,11 @@ export function WavesTab() {
 
   const handleFilterChange = (val: string) => {
     setWaveFilter(val);
+    setPage(1);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
     setPage(1);
   };
 
@@ -64,6 +70,23 @@ export function WavesTab() {
           Wave History
         </h2>
         <div className="flex items-center gap-2 min-w-0">
+          {/* Search input */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-600 pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Search summaries..."
+              aria-label="Search waves"
+              className="h-7 w-[140px] rounded-md border border-white/[0.06] bg-white/[0.02] pl-7 pr-2 text-[11px] text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/30 transition-colors"
+            />
+            {search && (
+              <button onClick={() => handleSearchChange('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300" aria-label="Clear search">
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
           {/* Filter buttons */}
           <div className="flex rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5 overflow-x-auto max-w-[220px] sm:max-w-none scrollbar-dark">
             {FILTER_OPTIONS.map((opt) => (

@@ -2301,3 +2301,26 @@ Stage Summary:
 - New skill: wave-comparison.md (#23)
 - overview-tab.tsx: 195→209L (feature addition, not bloat)
 - 23 skills total, 104 waves in DB
+
+---
+Task ID: 109
+Agent: Wave Engine
+Task: Add server-side text search to Waves and Decisions tabs
+
+Work Log:
+- Assessed: 104 waves, 100% compliance, 0 errors, component extraction + comparison done
+- Context.md flagged search as next priority
+- Added `search` query param to waves API (Prisma `summary: { contains }`) — 3 lines
+- Added `search` query param to decisions API (Prisma `description: { contains }`) — 3 lines
+- Updated useWaves hook: 4th param `search`, added to queryKey + URL params
+- Updated useDecisions hook: 4th param `search`, added to queryKey + URL params
+- Added search UI to waves-tab: compact input (140px) with Search icon, X clear button, resets page
+- Added search UI to decisions-tab: same pattern, composable with category filter
+- Also fixed useWaves return type to include `countsByStatus` (was missing from type)
+- Cleared .next cache, lint — 0 errors, dev.log clean
+
+Stage Summary:
+- waves-tab.tsx: 213→236L (+23 search UI)
+- decisions-tab.tsx: 181→203L (+22 search UI)
+- 2 API routes updated, 2 hooks updated
+- Search is server-side + composable with existing filters
