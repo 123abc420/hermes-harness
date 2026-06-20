@@ -16,6 +16,7 @@ import { ErrorTrendChart } from './error-trend-chart';
 import { RecentCommitsCard } from './recent-commits-card';
 import { BuildHealthCard } from './build-health-card';
 import { WaveComparisonCard } from './wave-comparison-card';
+import { CategoryTrendsChart } from './category-trends-chart';
 import { isErrorsTrendingDown } from '@/lib/constants';
 
 /* ── Overview Tab ─────────────────────────────────────── */
@@ -145,6 +146,15 @@ export function OverviewTab() {
         ) : (
           <MilestonesTimeline waves={waves} totalWaves={stats?.totalWaves ?? 0} skillsCount={dash?.skillsCount} />
         )}
+      </motion.div>
+
+      {/* Category Trends */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.38 }}
+      >
+        <CategoryTrendsChart />
       </motion.div>
 
       {/* Wave Duration + Recent Activity + Build Health */}

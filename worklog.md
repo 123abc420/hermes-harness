@@ -2441,3 +2441,34 @@ Stage Summary:
 - page.tsx: +1 line (onSearch prop)
 - insights.md: +3 lines (new section)
 - Command palette now discoverable via header button + keyboard shortcut
+
+---
+Task ID: 115
+Agent: Wave Engine
+Task: Category trends chart — advanced wave comparison
+
+Work Log:
+- Assessed: 111 waves, 100% compliance, 0 errors
+- Context priority #1: advanced wave comparison (category trends over ranges)
+- Created /api/harness/decisions/trends/route.ts (48L):
+  - Single raw SQL query with CASE WHEN to split category counts by wave midpoint
+  - Auto-calculates midpoint from min/max wave numbers
+  - Returns trends array + range metadata
+- Created category-trends-chart.tsx (130L):
+  - Stacked horizontal bars: dark segment (earlier) + colored segment (recent)
+  - Top 8 categories by total count
+  - Trend icons (TrendingUp/Down/Minus) per category
+  - Range legend (#min–max for each half)
+  - Uses CATEGORY_HEX + CATEGORY_TW for color consistency
+  - React Query with 5min staleTime
+- Added to overview-tab.tsx between milestones and 3-col section (+8 lines)
+- Created skill #25 category-trends.md (45L)
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- New API: /api/harness/decisions/trends (15th route)
+- New component: category-trends-chart.tsx (130L)
+- overview-tab.tsx: +8 lines (import + insertion)
+- New skill: category-trends.md (#25)
+- 25 skills total, 15 API routes, 111 waves in DB
