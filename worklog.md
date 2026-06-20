@@ -2785,3 +2785,22 @@ Stage Summary:
 - Exportable HarnessDashboard has per-tab error isolation (crash in one tab won't kill others)
 - All "Analytics" labels now consistent across TAB_CONFIG, command palette, and error boundaries
 - Lint: 0 errors. Git: 1 commit pushed.
+---
+Task ID: w132
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 132 — GitHub tab polish + URL extraction
+
+Work Log:
+- ASSESS: Read context.md (W131, 128 waves), dev.log (clean). Dashboard: 128 waves, 293 decisions.
+- PLAN: 3 improvements — (1) GitHub tab missing summary bar (only tab without), (2) InfoGrid duplicates summary data, (3) hardcoded localhost URLs violate guardrails
+- EXEC-1: Added GithubSummaryBar component showing commits count, modules ready ratio, branch name, last sync time. Wired into github-tab.tsx.
+- EXEC-2: Replaced "Total Commits" and "Last Sync" InfoGrid cards with "Repository" (username/repoName) and "Last Commit SHA" — complementary info that doesn't repeat the summary bar.
+- EXEC-3: Added AGENT_LIVE_SERVICE_URL and APP_INTERNAL_URL to constants.ts with env var overrides (AGENT_LIVE_PORT, APP_PORT). Updated agent-status/route.ts and agent-demo/route.ts.
+- VERIFY: rm -rf .next && bun run lint — 0 errors
+- PERSIST: DB records (wave + 3 decisions + 3 metrics). Git push.
+
+Stage Summary:
+- All 6 tabs now have summary stats bars (pattern consistency complete)
+- InfoGrid shows complementary data (repo name, SHA) instead of repeating summary
+- 2 hardcoded localhost URLs eliminated; configurable via env vars
+- Lint: 0 errors. Git: 1 commit pushed.
