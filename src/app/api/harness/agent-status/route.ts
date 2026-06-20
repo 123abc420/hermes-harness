@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { formatArgentinaTime } from '@/lib/constants';
+import { formatArgentinaTime, AGENT_LIVE_SERVICE_URL } from '@/lib/constants';
 
 // ─── In-memory state (always available, no external service needed) ─
 let latestStatus: Record<string, unknown> = {
@@ -26,7 +26,7 @@ let activityTimestamp = 0;
 // Also try to forward to the agent-live service (best-effort)
 async function forwardToService(data: { type: string; payload: Record<string, unknown> }) {
   try {
-    await fetch('http://localhost:3004/broadcast', {
+    await fetch(AGENT_LIVE_SERVICE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

@@ -5,7 +5,7 @@ import {
   useHarnessDashboard,
 } from '@/hooks/use-harness-data';
 import type { ExportModule } from '@/store/harness-store';
-import { ConnectionStatus, InfoGrid, CommitHistory, ExportModules } from './github-subcomponents';
+import { ConnectionStatus, InfoGrid, CommitHistory, ExportModules, GithubSummaryBar } from './github-subcomponents';
 import { AnimatedSection } from './animated-section';
 
 /* ── GitHub Tab ──────────────────────────────────────── */
@@ -16,7 +16,7 @@ export function GithubTab() {
   const modules = (dash?.exports ?? []) as ExportModule[];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <AnimatedSection variant="header">
         <ConnectionStatus
           githubStatus={githubStatus}
@@ -26,6 +26,10 @@ export function GithubTab() {
           refetch={refetch}
         />
       </AnimatedSection>
+
+      {!isError && !isLoading && githubStatus && (
+        <GithubSummaryBar githubStatus={githubStatus} modules={modules} />
+      )}
 
       <AnimatedSection delay={0.05}>
         <InfoGrid githubStatus={githubStatus} />

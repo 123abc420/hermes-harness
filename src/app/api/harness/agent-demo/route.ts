@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { APP_INTERNAL_URL } from '@/lib/constants';
 
 const DEMO_SEQUENCE = [
   { agentState: 'thinking', message: 'ASSESS: Reading context.md...', phase: 'assess', progress: 0.08 },
@@ -21,7 +22,7 @@ const DEMO_SEQUENCE = [
 
 async function postToStatus(data: Record<string, unknown>) {
   try {
-    await fetch('http://localhost:3000/api/harness/agent-status', {
+    await fetch(`${APP_INTERNAL_URL}/api/harness/agent-status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

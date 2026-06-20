@@ -16,6 +16,8 @@ import {
   Package,
   CheckCircle2,
   Circle,
+  Clock,
+  FolderGit2,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ErrorBlock } from './error-block';
@@ -145,6 +147,43 @@ export function ConnectionStatus({
   );
 }
 
+/* ── Summary Stats Bar ──────────────────────────────── */
+export function GithubSummaryBar({ githubStatus, modules }: { githubStatus: GithubStatus; modules?: ExportModule[] }) {
+  const commits = githubStatus.totalCommits ?? 0;
+  const readyModules = (modules ?? []).filter(m => m.isReady).length;
+  const totalModules = (modules ?? []).length;
+  const lastSync = githubStatus.lastSyncAt
+    ? formatDistanceToNow(new Date(githubStatus.lastSyncAt), { addSuffix: true })
+    : 'Never';
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2.5">
+      <div className="flex items-center gap-1.5">
+        <GitCommitHorizontal className="h-3 w-3 text-emerald-400" />
+        <span className="text-xs font-mono text-zinc-300 tabular-nums">{commits}</span>
+        <span className="text-[10px] text-zinc-600">commits</span>
+      </div>
+      {totalModules > 0 && (
+        <div className="flex items-center gap-1.5">
+          <Package className="h-3 w-3 text-cyan-400" />
+          <span className="text-xs font-mono text-zinc-300 tabular-nums">{readyModules}/{totalModules}</span>
+          <span className="text-[10px] text-zinc-600">modules ready</span>
+        </div>
+      )}
+      <div className="flex items-center gap-1.5">
+        <FolderGit2 className="h-3 w-3 text-zinc-500" />
+        <span className="text-xs font-mono text-zinc-300">{githubStatus.branch ?? 'main'}</span>
+        <span className="text-[10px] text-zinc-600">branch</span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <Clock className="h-3 w-3 text-zinc-500" />
+        <span className="text-xs text-zinc-400">{lastSync}</span>
+        <span className="text-[10px] text-zinc-600">last sync</span>
+      </div>
+    </div>
+  );
+}
+
 /* ── Info Grid ────────────────────────────────────────── */
 export function InfoGrid({ githubStatus }: { githubStatus?: GithubStatus }) {
   const status = githubStatus;
@@ -159,18 +198,16 @@ export function InfoGrid({ githubStatus }: { githubStatus?: GithubStatus }) {
       mono: true,
     },
     {
-      icon: GitCommitHorizontal,
-      label: 'Total Commits',
-      value: String(status.totalCommits ?? 0),
-      mono: true,
+      icon: Github,
+      label: 'Repository',
+      value: `${status.username}/${status.repoName}`,
+      mono: false,
     },
     {
-      icon: Github,
-      label: 'Last Sync',
-      value: status.lastSyncAt
-        ? formatDistanceToNow(new Date(status.lastSyncAt), { addSuffix: true })
-        : 'Never',
-      mono: false,
+      icon: GitCommitHorizontal,
+      label: 'Last Commit SHA',
+      value: status.lastCommitSha?.slice(0, 12) ?? 'N/A',
+      mono: true,
     },
   ];
 
