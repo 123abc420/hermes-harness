@@ -2689,3 +2689,23 @@ Stage Summary:
 - 3 files changed, 3 remaining medium mobile issues fixed
 - All mobile issues from W125 audit now resolved
 - Lint: 0 errors. Git: 2 commits pushed.
+
+---
+Task ID: w127
+Agent: HERMES HARNESS Wave Engine
+Task: Wave 127 — Knowledge capture (skill update + insights + final min-w-0 fix)
+
+Work Log:
+- ASSESS: Read context.md, insights.md, guardrails.md, dev.log (clean)
+- PLAN: Mobile work complete; focus on knowledge capture and final cleanup
+- EXEC-1: Rewrote responsive-audit skill from v1.0 to v2.0 — expanded from 5-step process to 8-category checklist covering min-w-0 trap, table overflow-x, responsive heights, mobile dropdown alignment, badge flex-wrap, fixed-width elements
+- EXEC-2: Added 3 new insights to insights.md: flex-1+min-w-0 trap, responsive height breakpoints, mobile dropdown alignment pattern
+- EXEC-3: Fixed last remaining flex-1 text child without min-w-0 (overview tab error card); verified via grep that all other flex-1 text children already have min-w-0
+- VERIFY: `rm -rf .next && bun run lint` — 0 errors
+- PERSIST: DB records (wave + 3 decisions + 3 metrics). Git push. context.md updated.
+
+Stage Summary:
+- responsive-audit skill v2.0 with comprehensive 8-category checklist
+- 3 new insights codified from W125-126 learnings
+- Last min-w-0 fix (overview error card) applied and verified via full grep
+- Lint: 0 errors. Git: 2 commits pushed.
