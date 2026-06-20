@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError } from '@/lib/logger';
+import { updateConfigSchema, validationError } from '@/lib/schemas';
 
 export async function GET() {
   try {
@@ -18,11 +19,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { key, value, description } = body;
-    if (!key || value === undefined) {
-      return NextResponse.json({ error: 'key and value required' }, { status: 400 });
+    const body = await req.json().catch(() => null);
+    const parsed = updateConfigSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(updateConfigSchema, body);
     }
+
+    const { key, value, description } = parsed.data;
     const config = await db.harnessConfig.upsert({
       where: { key },
       update: { value, description: description ?? null },

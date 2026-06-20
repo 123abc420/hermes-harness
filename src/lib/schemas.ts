@@ -130,6 +130,25 @@ export const updateConfigSchema = z.object({
 
 export type UpdateConfigInput = z.infer<typeof updateConfigSchema>;
 
+/** Minimal validation for agent-demo POST body (forwarded to agent-status). */
+export const agentDemoPostSchema = z.object({
+  type: z.string().min(1).optional(),
+  agentState: z.string().optional(),
+  message: z.string().optional(),
+  phase: z.string().optional(),
+  waveNumber: z.number().int().min(0).optional(),
+  progress: z.number().min(0).max(1).optional(),
+  waveCount: z.number().int().min(0).optional(),
+  totalImprovements: z.number().int().min(0).optional(),
+  totalDecisions: z.number().int().min(0).optional(),
+  name: z.string().optional(),
+  state: z.string().optional(),
+  color: z.string().optional(),
+  agentId: z.string().optional(),
+}).strict();
+
+export type AgentDemoPostInput = z.infer<typeof agentDemoPostSchema>;
+
 // ── Helper: parse with 400 fallback ───────────────────────────────
 
 /**

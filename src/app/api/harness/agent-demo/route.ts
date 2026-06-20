@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { APP_INTERNAL_URL } from '@/lib/constants';
+import { agentDemoPostSchema, validationError } from '@/lib/schemas';
 
 const DEMO_SECRET = process.env.DEMO_SECRET;
 
@@ -88,8 +89,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
-    await postToStatus(body);
+    const body = await req.json().catch(() => null);
+    const parsed = agentDemoPostSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(agentDemoPostSchema, body);
+    }
+    await postToStatus(parsed.data);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });

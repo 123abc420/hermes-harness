@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError } from '@/lib/logger';
+import { createWaveSchema, validationError } from '@/lib/schemas';
 
 export async function GET(req: NextRequest) {
   try {
@@ -81,7 +82,12 @@ export async function PATCH(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    const parsed = createWaveSchema.safeParse(body);
+    if (!parsed.success) {
+      return validationError(createWaveSchema, body);
+    }
+
     const lastWave = await db.harnessWave.findFirst({
       orderBy: { waveNumber: 'desc' },
       select: { waveNumber: true },
@@ -92,7 +98,7 @@ export async function POST(req: NextRequest) {
       data: {
         waveNumber: nextNumber,
         status: 'running',
-        summary: body.summary ?? null,
+        summary: parsed.data.summary ?? null,
       },
     });
 
