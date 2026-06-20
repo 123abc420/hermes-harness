@@ -76,8 +76,8 @@ export function DonutChartCard({
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={35}
-                  outerRadius={60}
+                  innerRadius="30%"
+                  outerRadius="46%"
                   strokeWidth={0}
                 >
                   {data.map((entry, i) => (

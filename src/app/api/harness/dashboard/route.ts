@@ -142,7 +142,9 @@ export async function GET() {
       select: { status: true },
     });
     const recentCompleted = recentWavesForRate.filter((w) => w.status === 'completed').length;
-    const recentSuccessRate = Math.round((recentCompleted / recentWavesForRate.length) * 100);
+    const recentSuccessRate = recentWavesForRate.length > 0
+      ? Math.round((recentCompleted / recentWavesForRate.length) * 100)
+      : 0;
 
     // Skills count (md files in gh-sync/skills/, excluding _template.md)
     let skillsCount = 0;

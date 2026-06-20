@@ -102,7 +102,7 @@ export function HeroStatusCard({
                   <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
                     HERMES HARNESS
                   </h2>
-                  {healthScore !== undefined && (
+                  {healthScore != null && typeof healthScore === 'number' && (
                     <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-mono font-bold tabular-nums ${
                       healthScore >= 90 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                       healthScore >= 70 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :

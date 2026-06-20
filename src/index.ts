@@ -18,7 +18,7 @@ export { DecisionsTab } from './components/harness/decisions-tab';
 export { ResearchTab } from './components/harness/research-tab';
 export { GithubTab } from './components/harness/github-tab';
 export { AgentLivePanel } from './components/harness/agent-live-panel';
-export { Agent3DSandbox } from './components/harness/agent-3d-sandbox';
+
 export { HarnessHeader } from './components/harness/harness-header';
 export { HarnessErrorBoundary } from './components/harness/error-boundary';
 export { AnimatedSection } from './components/harness/animated-section';
