@@ -121,6 +121,8 @@ export interface DashboardData {
 interface HarnessState {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  pendingWaveDetailId: string | null;
+  setPendingWaveDetailId: (id: string | null) => void;
   waveFilter: string;
   setWaveFilter: (filter: string) => void;
   decisionCategoryFilter: string;
@@ -130,6 +132,8 @@ interface HarnessState {
 export const useHarnessStore = create<HarnessState>((set) => ({
   activeTab: 'agent',
   setActiveTab: (tab) => set({ activeTab: tab }),
+  pendingWaveDetailId: null,
+  setPendingWaveDetailId: (id) => set({ pendingWaveDetailId: id }),
   waveFilter: '',
   setWaveFilter: (filter) => set({ waveFilter: filter }),
   decisionCategoryFilter: '',

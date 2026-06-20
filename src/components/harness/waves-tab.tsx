@@ -36,6 +36,8 @@ const FILTER_OPTIONS = [
 export function WavesTab() {
   const waveFilter = useHarnessStore(s => s.waveFilter);
   const setWaveFilter = useHarnessStore(s => s.setWaveFilter);
+  const pendingWaveDetailId = useHarnessStore(s => s.pendingWaveDetailId);
+  const setPendingWaveDetailId = useHarnessStore(s => s.setPendingWaveDetailId);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -282,7 +284,13 @@ export function WavesTab() {
         </motion.div>
       )}
 
-      <WaveDetailDialog waveId={detailId} onClose={() => setDetailId(null)} />
+      <WaveDetailDialog
+        waveId={pendingWaveDetailId ?? detailId}
+        onClose={() => {
+          setDetailId(null);
+          if (pendingWaveDetailId) setPendingWaveDetailId(null);
+        }}
+      />
     </div>
   );
 }

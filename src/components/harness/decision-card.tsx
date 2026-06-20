@@ -49,6 +49,7 @@ function OutcomeBadge({ outcome }: { outcome: string | null }) {
 /* ── Decision Card ───────────────────────────────────── */
 export const DecisionCard = memo(function DecisionCard({ decision }: { decision: Decision }) {
   const setActiveTab = useHarnessStore(s => s.setActiveTab);
+  const setPendingWaveDetailId = useHarnessStore(s => s.setPendingWaveDetailId);
   const [open, setOpen] = useState(false);
 
   return (
@@ -96,7 +97,10 @@ export const DecisionCard = memo(function DecisionCard({ decision }: { decision:
           <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-zinc-600">
             {decision.wave && (
               <button
-                onClick={() => setActiveTab('waves')}
+                onClick={() => {
+                  setActiveTab('waves');
+                  setPendingWaveDetailId(decision.wave.id);
+                }}
                 className="font-mono text-zinc-500 hover:text-amber-400 transition-colors"
               >
                 Wave {decision.wave.waveNumber}

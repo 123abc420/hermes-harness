@@ -113,6 +113,7 @@ export function HarnessDashboard() {
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
+                    aria-label={tab.label}
                     className={`relative flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
                       isAgentTab && isActive
                         ? 'bg-amber-500/15 text-amber-300 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.3)]'
