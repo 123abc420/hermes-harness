@@ -52,15 +52,12 @@ export function useAgentLive() {
         }
       }
       if (hasNew) {
-        // Batch: update activities + extract latest state in a single setState
-        const latest = data.activities[0];
+        // Batch: update activities in a single setState
         const stateUpdate: Record<string, unknown> = {
           activities: [...newActivities, ...store.activities]
             .sort((a, b) => b.timestamp - a.timestamp)
             .slice(0, store.maxActivities),
         };
-        if (latest.agentState) stateUpdate.agentState = latest.agentState;
-        if (latest.message) stateUpdate.message = latest.message;
         useAgentLiveStore.setState(stateUpdate);
       }
     }

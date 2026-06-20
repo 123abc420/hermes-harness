@@ -2910,3 +2910,21 @@ Stage Summary:
 - Dashboard 12s response cache now functional (was dead code — unreachable after early return)
 - SSE agent state correctly synced from activity entries (was reading wrong field name)
 - Skills API route created (was missing, command palette always returned empty results)
+---
+Task ID: w138
+Agent: Wave Engine (W138)
+Task: Accessibility improvements — ExportMenu ARIA, aria-live split, sparkline labels
+
+Work Log:
+- ASSESS: System healthy, 135 waves, 0 errors, 100% spec compliance. W137 context "What's next" items 2 and 3.
+- EXECUTE (1/3): ExportMenu ARIA menu semantics — added role="menu" on container, role="menuitem" on items, Escape/ArrowDown/ArrowUp keyboard navigation, Tab trap to close, focus management (auto-focus first item on open, return focus to trigger on close), aria-haspopup="menu".
+- EXECUTE (2/3): Split aria-live regions in activity feed — removed aria-live="polite" from full 30+ item list (was re-announcing everything). Added sr-only aria-live="assertive" for wave complete/error state changes. Added sr-only aria-live="polite" that announces only the latest entry. Feed container now has role="list".
+- EXECUTE (3/3): Sparkline SVG accessibility — added role="img", aria-label, and <title> to stats-grid Sparkline component. Added role="img" with descriptive aria-label to waves-tab duration bar chart. Individual bars get role="presentation" + aria-label.
+- Also cleaned up use-agent-live.ts: removed dead code that read latest.agentState (wrong field, LiveActivityEntry has state) — the state sync was redundant since latestStatus already handles it.
+- VERIFY: bun run lint → 0 errors
+- PERSIST: Git commit, DB records, context.md update
+
+Stage Summary:
+- ExportMenu fully keyboard-navigable (Escape closes, arrows navigate, Tab exits)
+- Screen readers now get focused announcements instead of re-reading the full activity list
+- All data visualizations have accessible text alternatives

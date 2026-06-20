@@ -339,7 +339,7 @@ function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: 
             {trendPct === 0 ? 'stable' : `${Math.abs(trendPct)}%`}
           </span>
         </div>
-        <div className="flex items-end gap-px h-8">
+        <div className="flex items-end gap-px h-8" role="img" aria-label={`Duration trend for last ${Math.min(durations.length, 20)} waves`}>
           {durations.slice(-20).map((sec, i) => {
             const pct = (sec / maxDur) * 100;
             return (
@@ -348,6 +348,8 @@ function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: 
                 className="flex-1 rounded-t bg-emerald-500/40 hover:bg-emerald-400/60 transition-colors min-w-[2px]"
                 style={{ height: `${Math.max(pct, 4)}%` }}
                 title={`${sec}s`}
+                aria-label={`${sec} seconds`}
+                role="presentation"
               />
             );
           })}

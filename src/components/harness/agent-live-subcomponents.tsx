@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -190,8 +190,20 @@ export function ActivityFeedColumn({
         </div>
       </div>
 
+      {/* Visually-hidden assertive region for important state changes (wave complete, errors) */}
+      <div aria-live="assertive" className="sr-only">
+        {(() => {
+          const stateEntry = activities.find(a => a.state === 'celebrating' || a.state === 'error');
+          return stateEntry ? `${stateEntry.state === 'celebrating' ? 'Wave completed' : 'Wave error'}: ${stateEntry.message}` : '';
+        })()}
+      </div>
+
       <ScrollArea className="flex-1 h-[280px] sm:h-[420px] lg:h-[540px]" ref={feedRef}>
-        <div className="p-2 space-y-1" aria-live="polite" aria-label="Agent activity feed">
+        {/* Polite region announces only the latest new entry, not the full list */}
+        <div aria-live="polite" aria-label="Latest activity" className="sr-only">
+          {activities.length > 0 ? activities[0].message : ''}
+        </div>
+        <div className="p-2 space-y-1" role="list" aria-label="Agent activity feed">
           <AnimatePresence initial={false}>
             {activities.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">

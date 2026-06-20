@@ -7,8 +7,8 @@ import { motion } from 'framer-motion';
 import type { Wave, TotalStats, Metric } from '@/store/harness-store';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
-function Sparkline({ data, color = 'currentColor' }: {
-  data: number[]; color?: string;
+function Sparkline({ data, color = 'currentColor', label = 'Trend chart' }: {
+  data: number[]; color?: string; label?: string;
 }) {
   if (data.length < 2) return null;
   const W = 120, H = 24;
@@ -21,7 +21,8 @@ function Sparkline({ data, color = 'currentColor' }: {
     return `${x},${y}`;
   }).join(' ');
   return (
-    <svg width="100%" height={H} className="shrink-0" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+    <svg width="100%" height={H} className="shrink-0" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={label}>
+      <title>{label}</title>
       <polyline
         fill="none"
         stroke={color}
@@ -94,7 +95,7 @@ function StatCard({
           </div>
           {sparkline && sparkline.length >= 2 ? (
             <div className="mt-2">
-              <Sparkline data={sparkline} color={sparkColor ?? '#10b981'} />
+              <Sparkline data={sparkline} color={sparkColor ?? '#10b981'} label={`${label} trend: ${sparkline[sparkline.length - 1]}`} />
             </div>
           ) : trend ? (
             <div className="mt-2 flex items-center gap-1 text-[10px]">
