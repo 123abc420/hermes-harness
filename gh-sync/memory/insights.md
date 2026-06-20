@@ -32,6 +32,9 @@
 - `flex justify-between` without `flex-wrap` is the #1 mobile overflow cause
 - Always add `shrink-0` to children inside scrollable containers
 - Zero isError checks across tabs = misleading empty states on network failures
+- `flex-1` text children without `min-w-0` = `truncate`/`line-clamp` silently fails. Always pair them
+- Fixed heights (e.g., `h-[420px]`) that work on desktop can consume 75%+ of small mobile viewports — use responsive breakpoints
+- Dropdown menus with `absolute right-0` overflow off-screen on mobile — use `left-0 sm:left-auto sm:right-0`
 
 ## Performance
 

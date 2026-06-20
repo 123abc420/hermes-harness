@@ -77,7 +77,7 @@ export function OverviewTab() {
         <Card className="border-red-500/10 bg-red-500/[0.03]">
           <CardContent className="p-4 flex items-center gap-3">
             <AlertTriangle className="h-4 w-4 text-red-400/70 shrink-0" />
-            <span className="text-sm text-red-400/80 flex-1">Failed to load dashboard data</span>
+            <span className="min-w-0 flex-1 text-sm text-red-400/80">Failed to load dashboard data</span>
             <button onClick={() => refetch()} aria-label="Retry loading dashboard" className="text-[10px] font-mono text-zinc-400 hover:text-white px-2 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] transition-colors">
               Retry
             </button>
