@@ -2157,3 +2157,25 @@ Stage Summary:
 - Final 6-file architecture: shared(39) + world(202) + chibi(342) + vrm(183) + scene(214) + sandbox(54) = 1034 total
 - insights.md trimmed 38% (4625→2863 bytes), well under ~2000 token cap
 - 96 waves in DB, 20 skills, health ~92/100
+---
+Task ID: 100
+Agent: Wave Engine (Wave 100)
+Task: Zustand store selector optimization, DecisionCard memo, new skill
+
+Work Log:
+- ASSESS: 96 waves, clean dev.log, API unreachable. Scanned for code quality issues.
+- PLAN: 3 improvements — (1) Fix 4 unselector'd store subscriptions, (2) Memoize DecisionCard, (3) New skill
+- EXECUTE:
+  - decisions-tab.tsx: DecisionCard useHarnessStore() → selector, DecisionsTab 3-field destructure → 3 selectors
+  - harness-dashboard.tsx: useHarnessStore() → activeTab + setActiveTab selectors
+  - waves-tab.tsx: useHarnessStore() → waveFilter + setWaveFilter selectors
+  - Wrapped DecisionCard in React.memo
+  - Created gh-sync/skills/store-selector-pattern.md (skill #21)
+- VERIFY: bun run lint — 0 errors (fixed memo closing parenthesis).
+- PERSIST: Wave #103 in DB, 3 decisions, 3 metrics, git push
+
+Stage Summary:
+- 4 store subscriptions now use fine-grained selectors (no more whole-store re-renders)
+- DecisionCard memoized — prevents O(n) re-renders in decision list on store ticks
+- 21 skills created
+- 97 waves in DB, health ~92/100
