@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
 import {
   Table,
   TableBody,
@@ -13,30 +12,16 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { useWaves, useWave, useCreateWave } from '@/hooks/use-harness-data';
+import { useWaves } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
-import { Play, Loader2, Waves as WavesIcon, ChevronDown } from 'lucide-react';
+import { Waves as WavesIcon, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
-import { CATEGORY_TW } from '@/lib/category-colors';
+import { STATUS_COLORS } from './wave-detail-dialog';
+import { TriggerWaveDialog } from './trigger-wave-dialog';
+import { WaveDetailDialog } from './wave-detail-dialog';
 import { formatDuration } from '@/lib/constants';
-
-const STATUS_COLORS: Record<string, string> = {
-  running: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  interrupted: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  failed: 'bg-red-500/10 text-red-400 border-red-500/20',
-  pending: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-};
 
 const FILTER_OPTIONS = [
   { value: '', label: 'All' },
@@ -51,14 +36,10 @@ export function WavesTab() {
   const waveFilter = useHarnessStore(s => s.waveFilter);
   const setWaveFilter = useHarnessStore(s => s.setWaveFilter);
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [triggerOpen, setTriggerOpen] = useState(false);
-  const [summary, setSummary] = useState('');
   const [page, setPage] = useState(1);
   const limit = 30;
 
   const { data, isLoading, isError, error, refetch } = useWaves(page, limit, waveFilter);
-  const { data: waveDetail } = useWave(detailId);
-  const createWave = useCreateWave();
 
   const waves = data?.waves ?? [];
   const totalWaves = data?.total ?? 0;
@@ -83,7 +64,7 @@ export function WavesTab() {
           Wave History
         </h2>
         <div className="flex items-center gap-2 min-w-0">
-          {/* Filter buttons — scrollable on mobile */}
+          {/* Filter buttons */}
           <div className="flex rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5 overflow-x-auto max-w-[220px] sm:max-w-none scrollbar-dark">
             {FILTER_OPTIONS.map((opt) => (
               <button
@@ -108,61 +89,11 @@ export function WavesTab() {
             ))}
           </div>
 
-          {/* Trigger wave */}
-          <Dialog open={triggerOpen} onOpenChange={setTriggerOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                className="gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500"
-                aria-label="Trigger new wave"
-              >
-                <Play className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Trigger Wave</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="border-white/[0.08] bg-[#0f172a] sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-white">Trigger New Wave</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Textarea
-                  placeholder="Optional summary for this wave..."
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  className="border-white/[0.08] bg-white/[0.03] text-white placeholder:text-zinc-600"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setTriggerOpen(false)}
-                    className="text-zinc-400"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      createWave.mutate(summary || undefined);
-                      setSummary('');
-                      setTriggerOpen(false);
-                    }}
-                    disabled={createWave.isPending}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
-                  >
-                    {createWave.isPending && (
-                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                    )}
-                    Start Wave
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <TriggerWaveDialog />
         </div>
       </motion.div>
 
-      {/* Error State */}
+      {/* Error / Loading / Empty */}
       {isError ? (
         <ErrorBlock message={error?.message} onRetry={() => refetch()} />
       ) : isLoading ? (
@@ -174,59 +105,35 @@ export function WavesTab() {
           </CardContent>
         </Card>
       ) : waves.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
           <Card className="glass-card">
             <CardContent className="flex h-64 items-center justify-center">
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
                   <WavesIcon className="h-8 w-8 text-zinc-700" />
                 </div>
-                <p className="text-sm font-medium text-zinc-400">
-                  No waves yet
-                </p>
+                <p className="text-sm font-medium text-zinc-400">No waves yet</p>
                 <p className="mt-1 max-w-xs text-xs text-zinc-600">
                   The harness will start improving automatically via cron jobs.
-                  You can also trigger a wave manually.
                 </p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
           <Card className="glass-card overflow-hidden">
             <ScrollArea className="max-h-[60vh]">
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/[0.06] hover:bg-transparent">
-                    <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                      Wave #
-                    </TableHead>
-                    <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                      Status
-                    </TableHead>
-                    <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 sm:table-cell">
-                      Decisions
-                    </TableHead>
-                    <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 md:table-cell">
-                      Improved
-                    </TableHead>
-                    <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 lg:table-cell">
-                      Errors
-                    </TableHead>
-                    <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                      Duration
-                    </TableHead>
-                    <TableHead className="hidden max-w-[200px] text-[10px] font-medium uppercase tracking-wider text-zinc-500 md:table-cell">
-                      Summary
-                    </TableHead>
+                    <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Wave #</TableHead>
+                    <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Status</TableHead>
+                    <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 sm:table-cell">Decisions</TableHead>
+                    <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 md:table-cell">Improved</TableHead>
+                    <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 lg:table-cell">Errors</TableHead>
+                    <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Duration</TableHead>
+                    <TableHead className="hidden max-w-[200px] text-[10px] font-medium uppercase tracking-wider text-zinc-500 md:table-cell">Summary</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -243,21 +150,16 @@ export function WavesTab() {
                         className="border-white/[0.04] transition-colors hover:bg-white/[0.02] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px]"
                         onClick={() => setDetailId(wave.id)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            setDetailId(wave.id);
-                          }
+                          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDetailId(wave.id); }
                         }}
                       >
                         <TableCell className="font-mono text-xs font-bold text-white">
                           #{String(wave.waveNumber).padStart(3, '0')}
                         </TableCell>
                         <TableCell>
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
-                              STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending
-                            }`}
-                          >
+                          <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
+                            STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending
+                          }`}>
                             {wave.status.toUpperCase()}
                           </span>
                         </TableCell>
@@ -271,13 +173,10 @@ export function WavesTab() {
                           {wave.errorsCount}
                         </TableCell>
                         <TableCell className="text-xs text-zinc-500">
-                          {duration !== null ? (
-                            <span className="font-mono tabular-nums">
-                              {formatDuration(duration)}
-                            </span>
-                          ) : (
-                            <span className="text-zinc-600">—</span>
-                          )}
+                          {duration !== null
+                            ? <span className="font-mono tabular-nums">{formatDuration(duration)}</span>
+                            : <span className="text-zinc-600">—</span>
+                          }
                         </TableCell>
                         <TableCell className="max-w-[200px] truncate text-xs text-zinc-500 md:table-cell">
                           {wave.summary || '—'}
@@ -288,20 +187,18 @@ export function WavesTab() {
                 </TableBody>
               </Table>
             </ScrollArea>
-            {/* Pagination footer */}
             <div className="flex items-center justify-between border-t border-white/[0.04] px-4 py-3">
               <span className="text-[10px] font-mono text-zinc-600">
                 Showing {showingCount} of {totalWaves}
               </span>
               {hasMore && (
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  variant="ghost" size="sm"
                   onClick={() => setPage((p) => p + 1)}
                   disabled={isLoading}
                   className="gap-1.5 text-xs text-zinc-400 hover:text-white hover:bg-white/[0.04]"
                 >
-                  {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
+                  {isLoading && <ChevronDown className="h-3 w-3 animate-spin" />}
                   <ChevronDown className="h-3 w-3" />
                   Load More
                 </Button>
@@ -311,113 +208,7 @@ export function WavesTab() {
         </motion.div>
       )}
 
-      {/* Wave Detail Dialog */}
-      <Dialog open={!!detailId} onOpenChange={(open) => !open && setDetailId(null)}>
-        <DialogContent className="max-h-[80vh] border-white/[0.08] bg-[#0f172a] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-white">
-              {waveDetail ? `Wave ${waveDetail.waveNumber}` : 'Loading...'}
-            </DialogTitle>
-          </DialogHeader>
-          {waveDetail && (
-            <ScrollArea className="max-h-[60vh] pr-2">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
-                      STATUS_COLORS[waveDetail.status] ?? STATUS_COLORS.pending
-                    }`}
-                  >
-                    {waveDetail.status.toUpperCase()}
-                  </span>
-                  <span className="text-xs text-zinc-500">
-                    {formatDistanceToNow(new Date(waveDetail.startedAt), {
-                      addSuffix: true,
-                    })}
-                  </span>
-                  {waveDetail.completedAt && (
-                    <span className="text-[10px] font-mono text-zinc-600">
-                      Duration: {formatDuration(Math.round((new Date(waveDetail.completedAt).getTime() - new Date(waveDetail.startedAt).getTime()) / 1000))}
-                    </span>
-                  )}
-                </div>
-                {waveDetail.summary && (
-                  <p className="text-sm text-zinc-400">{waveDetail.summary}</p>
-                )}
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    {
-                      label: 'Decisions',
-                      value: waveDetail.decisions?.length ?? waveDetail.decisionsCount,
-                      color: 'text-cyan-400',
-                    },
-                    {
-                      label: 'Improved',
-                      value: waveDetail.improvementsCount,
-                      color: 'text-emerald-400',
-                    },
-                    {
-                      label: 'Errors',
-                      value: waveDetail.errorsCount,
-                      color: 'text-red-400',
-                    },
-                  ].map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-center"
-                    >
-                      <p className={`text-lg font-bold ${stat.color}`}>
-                        {stat.value}
-                      </p>
-                      <p className="mt-0.5 text-[10px] uppercase tracking-wider text-zinc-600">
-                        {stat.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                {waveDetail.decisions && waveDetail.decisions.length > 0 && (
-                  <div>
-                    <h3 className="mb-2 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
-                      Decisions
-                    </h3>
-                    <div className="space-y-2">
-                      {waveDetail.decisions.map((d) => (
-                        <div
-                          key={d.id}
-                          className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className={`rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium ${
-                              CATEGORY_TW[d.category] ?? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
-                            }`}>
-                              {d.category.replace('_', ' ')}
-                            </span>
-                            <span
-                              className={`text-[10px] font-mono ${
-                                d.action === 'executed'
-                                  ? 'text-emerald-400'
-                                  : d.action === 'failed'
-                                    ? 'text-red-400'
-                                    : 'text-zinc-500'
-                              }`}
-                            >
-                              {d.action}
-                            </span>
-                          </div>
-                          <p className="mt-1 text-xs text-zinc-300">{d.description}</p>
-                          {d.targetFile && (
-                            <p className="mt-1 text-[10px] font-mono text-zinc-600 truncate">{d.targetFile}</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          )}
-        </DialogContent>
-      </Dialog>
+      <WaveDetailDialog waveId={detailId} onClose={() => setDetailId(null)} />
     </div>
   );
 }

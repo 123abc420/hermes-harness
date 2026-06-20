@@ -2221,3 +2221,22 @@ Stage Summary:
 - DB categories consolidated: 15→14 unique names
 - Color map: 11→14 entries, 2 aliases removed, 4 new colors added
 - 22 skills, 100 waves in DB, health ~92/100
+---
+Task ID: 106
+Agent: Wave Engine (Wave 106)
+Task: Waves-tab decomposition — extract WaveDetailDialog + TriggerWaveDialog
+
+Work Log:
+- ASSESS: 100 waves, no errors, 100% spec compliance. waves-tab.tsx largest at 422 lines.
+- PLAN: Extract 2 dialog components from waves-tab for 50% reduction.
+- EXECUTE:
+  - Created wave-detail-dialog.tsx (109 lines) — stats grid, decisions list, status badge, shared STATUS_COLORS export
+  - Created trigger-wave-dialog.tsx (73 lines) — self-contained trigger form with local state
+  - Rewrote waves-tab.tsx as 213-line orchestrator importing both dialogs
+- VERIFY: bun run lint — 0 errors.
+- PERSIST: Wave #106 in DB, 2 decisions, 4 metrics, git push
+
+Stage Summary:
+- waves-tab.tsx: 422→213 lines (-50%)
+- STATUS_COLORS shared via export from wave-detail-dialog.tsx
+- 101 waves in DB, 22 skills, health ~92/100
