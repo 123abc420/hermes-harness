@@ -105,7 +105,12 @@ function DecisionCard({ decision }: { decision: Decision }) {
           <p className="text-sm text-zinc-200">{decision.description}</p>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-zinc-600">
             {decision.wave && (
-              <span className="font-mono">Wave {decision.wave.waveNumber}</span>
+              <button
+                onClick={() => setActiveTab('waves')}
+                className="font-mono text-zinc-500 hover:text-amber-400 transition-colors"
+              >
+                Wave {decision.wave.waveNumber}
+              </button>
             )}
             <span>
               {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
@@ -163,7 +168,7 @@ function DecisionCard({ decision }: { decision: Decision }) {
 }
 
 export function DecisionsTab() {
-  const { decisionCategoryFilter, setDecisionCategoryFilter } = useHarnessStore();
+  const { decisionCategoryFilter, setDecisionCategoryFilter, setActiveTab } = useHarnessStore();
   const [page, setPage] = useState(1);
   const limit = 30;
 

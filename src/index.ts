@@ -55,7 +55,6 @@ export type {
   GithubStatus,
   SpecData,
   Skill,
-  ResearchItem,
   TotalStats,
   ExportModule,
   DashboardData,

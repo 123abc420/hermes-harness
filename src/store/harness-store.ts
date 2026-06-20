@@ -74,15 +74,6 @@ export interface Skill {
   trigger?: string;
 }
 
-export interface ResearchItem {
-  id: string;
-  title: string;
-  source: string;
-  url: string;
-  summary: string;
-  keyInsight: string;
-}
-
 export interface TotalStats {
   totalWaves: number;
   totalDecisions: number;

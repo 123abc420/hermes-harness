@@ -1942,3 +1942,21 @@ Stage Summary:
 - Agent Live: no more stale connection state on reset, OFFLINE has visual parity with LIVE badge, offline state is actually used
 - Waves tab: pending waves are now filterable, detail dialog duration matches table format
 - 86 waves, 19 skills, health ~92/100
+
+---
+Task ID: 93
+Agent: Wave Engine
+Task: Wave 93 — Decisions math bug fix, wave navigation, dead code cleanup
+
+Work Log:
+- ASSESS: 86 waves, clean, explored decisions tab + dead code
+- PLAN: 3 fixes — summary bar math bug, wave navigation link, dead research cleanup
+- EXECUTE: (1) Added `where` filter to both groupBy queries in decisions API so counts match filtered total, (2) Made "Wave N" in decision cards a clickable button calling setActiveTab('waves'), (3) Deleted /api/harness/research/route.ts (dead route), removed ResearchItem type from store and index.ts export
+- VERIFY: bun run lint 0 errors
+- PERSIST: Wave #93, 3 decisions, git push
+
+Stage Summary:
+- Critical math bug fixed: executed% can no longer exceed 100% when filtering by category
+- Cross-tab navigation: decisions → waves now works
+- Dead code removed: 1 route file, 1 type, 1 export
+- 87 waves, 19 skills, health ~92/100

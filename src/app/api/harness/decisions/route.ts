@@ -35,10 +35,12 @@ export async function GET(req: NextRequest) {
       db.harnessDecision.count({ where }),
       db.harnessDecision.groupBy({
         by: ['category'],
+        where,
         _count: { category: true },
       }),
       db.harnessDecision.groupBy({
         by: ['action'],
+        where,
         _count: { action: true },
       }),
     ]);
