@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { formatDistanceToNow } from 'date-fns';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { useAgentLive } from '@/hooks/use-agent-live';
+import { HERMES_VERSION } from '@/lib/constants';
 import { OverviewTab } from './overview-tab';
 import { WavesTab } from './waves-tab';
 import { DecisionsTab } from './decisions-tab';
@@ -15,6 +17,7 @@ import { GithubTab } from './github-tab';
 import { AgentLivePanel } from './agent-live-panel';
 import { HarnessHeader } from './harness-header';
 import { HarnessErrorBoundary } from './error-boundary';
+import { CommandPalette } from './command-palette';
 
 const TAB_CONFIG = [
   { value: 'agent', label: 'Agent Live', icon: Eye },
@@ -28,7 +31,7 @@ const TAB_CONFIG = [
 /**
  * HarnessDashboard — Self-contained composite component.
  * Drop this into any Next.js app to render the full HARNESS dashboard
- * with tabs, header, footer, and keyboard shortcuts.
+ * with tabs, header, command palette, footer, and keyboard shortcuts.
  *
  * Usage:
  *   import { HarnessDashboard } from '@/harness';
@@ -38,19 +41,37 @@ export function HarnessDashboard() {
   const activeTab = useHarnessStore(s => s.activeTab);
   const setActiveTab = useHarnessStore(s => s.setActiveTab);
   const { data: dash } = useHarnessDashboard();
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showPalette, setShowPalette] = useState(false);
 
   // Connect to the real-time agent live service
   useAgentLive();
 
-  // Keyboard shortcuts: 1-6 to switch tabs (only when not in an input/textarea)
+  // Keyboard shortcuts: 1-6 to switch tabs, Cmd+K for command palette
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    const tag = (e.target as HTMLElement)?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target as HTMLElement)?.isContentEditable) return;
+    const target = e.target as HTMLElement;
+    const inInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+    // Cmd/Ctrl+K opens command palette (works even in inputs)
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      setShowPalette(v => !v);
+      return;
+    }
+
+    // ESC closes palette
+    if (e.key === 'Escape' && showPalette) {
+      setShowPalette(false);
+      return;
+    }
+
+    if (inInput) return;
+
     const num = parseInt(e.key, 10);
     if (num >= 1 && num <= TAB_CONFIG.length) {
       setActiveTab(TAB_CONFIG[num - 1].value);
     }
-  }, [setActiveTab]);
+  }, [setActiveTab, showPalette]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -58,6 +79,14 @@ export function HarnessDashboard() {
   }, [handleKeyDown]);
 
   return (
+    <>
+    {/* Global Command Palette (Cmd+K) */}
+    <CommandPalette
+      open={showPalette}
+      onClose={() => setShowPalette(false)}
+      onNavigate={(tab) => setActiveTab(tab)}
+    />
+
     <div className="dot-pattern min-h-screen flex flex-col bg-[#0d0906]">
       <HarnessHeader
         githubStatus={dash?.githubStatus}
@@ -65,6 +94,7 @@ export function HarnessDashboard() {
         healthScore={dash?.healthScore}
         healthScoreTrend={dash?.healthScoreTrend}
         healthBreakdown={dash?.healthBreakdown}
+        onSearch={() => setShowPalette(true)}
       />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
@@ -140,6 +170,74 @@ export function HarnessDashboard() {
           </HarnessErrorBoundary>
         </Tabs>
       </main>
+
+      {/* Footer with wave status and keyboard shortcuts */}
+      <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906] relative">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs text-amber-800/50">
+              <Zap className="h-3 w-3 text-amber-500/30" />
+              <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
+            </div>
+            {dash?.waves?.[0] && (
+              <span className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
+                <Activity className="h-2.5 w-2.5 text-emerald-500/40" />
+                <span className="text-zinc-500">#{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
+                <span className="text-zinc-700">{dash.waves[0].status === 'completed' ? 'completed' : dash.waves[0].status}</span>
+                {dash.waves[0].completedAt && (
+                  <span className="text-zinc-700">{formatDistanceToNow(new Date(dash.waves[0].completedAt), { addSuffix: true })}</span>
+                )}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
+            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">
+              Spec-Driven Self-Evolution
+            </span>
+            <button
+              onClick={() => setShowShortcuts(v => !v)}
+              className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-amber-900/40 hover:text-amber-400/70 bg-white/[0.03] border border-white/[0.06] hover:border-amber-500/20 transition-colors"
+              aria-label="Keyboard shortcuts"
+            >
+              ?
+            </button>
+          </div>
+        </div>
+        <AnimatePresence>
+          {showShortcuts && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute bottom-full right-4 sm:right-6 mb-2 z-50 w-64 rounded-xl border border-white/[0.08] bg-[#1a1510] p-4 shadow-2xl"
+              >
+                <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3">Keyboard Shortcuts</p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-amber-400/80">Global Search</span>
+                    <kbd className="inline-flex items-center justify-center h-5 px-1.5 rounded text-[10px] font-mono text-zinc-500 bg-white/[0.05] border border-white/[0.08]">
+                      ⌘K
+                    </kbd>
+                  </div>
+                  {TAB_CONFIG.map((tab) => (
+                    <div key={tab.value} className="flex items-center justify-between">
+                      <span className="text-xs text-zinc-400">{tab.label}</span>
+                      <kbd className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-zinc-500 bg-white/[0.05] border border-white/[0.08]">
+                        {TAB_CONFIG.indexOf(tab) + 1}
+                      </kbd>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </footer>
     </div>
+    </>
   );
 }

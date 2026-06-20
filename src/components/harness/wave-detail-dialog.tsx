@@ -12,7 +12,7 @@ import {
 import { useWave } from '@/hooks/use-harness-data';
 import { CATEGORY_TW } from '@/lib/category-colors';
 import { formatDuration } from '@/lib/constants';
-import { Copy, Check, ChevronDown } from 'lucide-react';
+import { Copy, Check, ChevronDown, Eye, Lightbulb, Play, ShieldCheck, Save, FileText } from 'lucide-react';
 
 const STATUS_COLORS: Record<string, string> = {
   running: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -118,6 +118,72 @@ function DecisionItem({ d }: { d: { id: string; category: string; action: string
   );
 }
 
+/* ── Phase Timeline ───────────────────────────────── */
+const WAVE_PHASES = [
+  { key: 'assess',   label: 'ASSESS',  icon: Eye,        color: 'text-sky-400',    bg: 'bg-sky-500/10',    border: 'border-sky-500/20',    dot: 'bg-sky-400' },
+  { key: 'plan',     label: 'PLAN',    icon: Lightbulb,  color: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/20',  dot: 'bg-amber-400' },
+  { key: 'execute',  label: 'EXECUTE', icon: Play,       color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', dot: 'bg-emerald-400' },
+  { key: 'verify',   label: 'VERIFY',  icon: ShieldCheck, color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20', dot: 'bg-violet-400' },
+  { key: 'persist',  label: 'PERSIST', icon: Save,       color: 'text-cyan-400',   bg: 'bg-cyan-500/10',   border: 'border-cyan-500/20',   dot: 'bg-cyan-400' },
+  { key: 'report',   label: 'REPORT',  icon: FileText,   color: 'text-lime-400',   bg: 'bg-lime-500/10',   border: 'border-lime-500/20',   dot: 'bg-lime-400' },
+] as const;
+
+function getCompletedPhaseIndex(status: string): number {
+  if (status === 'completed') return 6;
+  if (status === 'failed') return 3;    // typically fails during VERIFY
+  if (status === 'interrupted') return 2; // typically interrupted during EXECUTE
+  if (status === 'running') return 3;     // best guess: mid-wave
+  return 0; // pending
+}
+
+function WavePhaseTimeline({ status }: { status: string }) {
+  const completedIdx = getCompletedPhaseIndex(status);
+  const isRunning = status === 'running';
+
+  return (
+    <div>
+      <h3 className="mb-3 text-[10px] font-medium uppercase tracking-wider text-zinc-500">Wave Protocol Phases</h3>
+      <div className="relative flex items-start gap-0">
+        {WAVE_PHASES.map((phase, idx) => {
+          const PhaseIcon = phase.icon;
+          const isCompleted = idx < completedIdx;
+          const isCurrent = idx === completedIdx && (isRunning || status === 'pending');
+          const isPending = idx >= completedIdx && !isCurrent;
+
+          return (
+            <div key={phase.key} className="relative flex flex-1 flex-col items-center">
+              {/* Connector line (not on last item) */}
+              {idx < WAVE_PHASES.length - 1 && (
+                <div className={`absolute left-1/2 top-2.5 h-px w-full ${
+                  idx < completedIdx - 1 ? 'bg-zinc-500/40' : 'bg-zinc-800'
+                }`} />
+              )}
+              {/* Dot */}
+              <div className={`relative z-10 flex h-5 w-5 items-center justify-center rounded-full border transition-all ${
+                isCompleted
+                  ? `${phase.bg} ${phase.border}`
+                  : isCurrent
+                  ? `${phase.bg} ${phase.border} ring-2 ring-offset-1 ring-offset-[#0f172a] ${phase.dot}/30 ring-current animate-pulse`
+                  : 'border-zinc-800 bg-zinc-900'
+              }` }>
+                <PhaseIcon className={`h-2.5 w-2.5 ${
+                  isCompleted ? phase.color : isCurrent ? phase.color : 'text-zinc-700'
+                }`} />
+              </div>
+              {/* Label */}
+              <span className={`mt-1.5 text-[8px] font-mono font-medium sm:text-[9px] ${
+                isCompleted ? phase.color : isCurrent ? phase.color : 'text-zinc-700'
+              }`}>
+                {phase.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ── Wave Detail Dialog ─────────────────────────────── */
 export function WaveDetailDialog({
   waveId,
@@ -173,6 +239,10 @@ export function WaveDetailDialog({
                     <p className="mt-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{stat.label}</p>
                   </div>
                 ))}
+              </div>
+              {/* Phase Timeline */}
+              <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
+                <WavePhaseTimeline status={wave.status} />
               </div>
               {wave.decisions && wave.decisions.length > 0 && (
                 <div>
