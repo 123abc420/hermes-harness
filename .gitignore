@@ -19,4 +19,4 @@ examples/
 bun.lock
 *.tsbuildinfo
 out/
-.vercel/
+.vercel/next-dev.log
