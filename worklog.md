@@ -3978,3 +3978,17 @@ Work Log:
 
 Stage Summary:
 - Stability wave. No code changes. 70th consecutive maintenance wave.
+
+---
+Task ID: W218
+Agent: wave-engine
+Task: Fix server stability + maintenance check
+
+Work Log:
+- ASSESSED: 0 lint errors, 100% spec compliance, memory healthy
+- FIXED: Server dying when Bash tool command ends — created scripts/start-server.sh using setsid to fully daemonize the process
+- Server verified stable with correct next-server PID tracking
+- 1 improvement: start-server.sh script
+
+Stage Summary:
+- 1 improvement (start-server.sh). Broke 70-wave maintenance streak.
