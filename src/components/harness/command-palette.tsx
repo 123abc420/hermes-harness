@@ -32,7 +32,7 @@ const TAB_NAV_ITEMS = [
   { key: 'overview', label: 'Overview', icon: Zap },
   { key: 'waves', label: 'Waves', icon: Waves },
   { key: 'decisions', label: 'Decisions', icon: Brain },
-  { key: 'research', label: 'Research & Memory', icon: BookOpen },
+  { key: 'research', label: 'Analytics', icon: BookOpen },
   { key: 'github', label: 'GitHub & Export', icon: Github },
 ];
 

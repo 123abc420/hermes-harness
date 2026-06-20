@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWaves } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
-import { Waves as WavesIcon, ChevronDown, Search, X, CheckCircle2, Clock } from 'lucide-react';
+import { Waves as WavesIcon, ChevronDown, Search, X, CheckCircle2, Clock, BarChart3, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 import { ExportMenu } from './export-menu';
@@ -160,6 +160,11 @@ export function WavesTab() {
         </div>
       )}
 
+      {/* Inline mini-visualizations */}
+      {!isError && !isLoading && waves.length >= 5 && (
+        <WavesInlineCharts waves={waves} />
+      )}
+
       {/* Error / Loading / Empty */}
       {isError ? (
         <ErrorBlock message={error?.message} onRetry={() => refetch()} />
@@ -279,5 +284,109 @@ export function WavesTab() {
 
       <WaveDetailDialog waveId={detailId} onClose={() => setDetailId(null)} />
     </div>
+  );
+}
+
+/* ── Inline Mini-Visualizations ──────────────────────── */
+function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: string; completedAt: string | null; status: string }[] }) {
+  // Last 20 waves reversed (oldest→newest) for the sparkline
+  const recent = [...waves].reverse().slice(-20);
+  const durations = recent
+    .map(w => w.completedAt && w.startedAt
+      ? Math.round((new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime()) / 1000)
+      : null)
+    .filter((d): d is number => d !== null);
+
+  const maxDur = Math.max(...durations, 1);
+
+  // Success rate from visible waves
+  const completed = waves.filter(w => w.status === 'completed').length;
+  const failed = waves.filter(w => w.status === 'failed').length;
+  const other = waves.length - completed - failed;
+  const successPct = waves.length > 0 ? Math.round((completed / waves.length) * 100) : 0;
+
+  // Trend: compare avg of last 5 vs previous 5
+  const last5 = durations.slice(-5);
+  const prev5 = durations.slice(-10, -5);
+  const avgLast = last5.length > 0 ? last5.reduce((a, b) => a + b, 0) / last5.length : 0;
+  const avgPrev = prev5.length > 0 ? prev5.reduce((a, b) => a + b, 0) / prev5.length : 0;
+  const trendPct = avgPrev > 0 ? Math.round(((avgLast - avgPrev) / avgPrev) * 100) : 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: 0.1 }}
+      className="grid gap-3 sm:grid-cols-2"
+    >
+      {/* Duration sparkline */}
+      <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <BarChart3 className="h-3 w-3 text-amber-400/70" />
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Recent Duration</span>
+          </div>
+          <span className={`flex items-center gap-1 text-[10px] font-mono ${trendPct <= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            <TrendingUp className={`h-2.5 w-2.5 ${trendPct <= 0 ? '' : 'rotate-180'}`} />
+            {trendPct === 0 ? 'stable' : `${Math.abs(trendPct)}%`}
+          </span>
+        </div>
+        <div className="flex items-end gap-px h-8">
+          {durations.slice(-20).map((sec, i) => {
+            const pct = (sec / maxDur) * 100;
+            return (
+              <div
+                key={i}
+                className="flex-1 rounded-t bg-emerald-500/40 hover:bg-emerald-400/60 transition-colors min-w-[2px]"
+                style={{ height: `${Math.max(pct, 4)}%` }}
+                title={`${sec}s`}
+              />
+            );
+          })}
+        </div>
+        <div className="mt-1.5 flex items-center justify-between text-[9px] font-mono text-zinc-600">
+          <span>{durations.length > 0 ? durations[0] : 0}s</span>
+          <span className="text-zinc-500">avg {durations.length > 0 ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0}s</span>
+        </div>
+      </div>
+
+      {/* Success donut */}
+      <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
+        <div className="flex items-center gap-1.5 mb-2">
+          <CheckCircle2 className="h-3 w-3 text-emerald-400/70" />
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Success Rate</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* SVG donut */}
+          <svg viewBox="0 0 36 36" className="h-10 w-10 shrink-0">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="4" />
+            <circle
+              cx="18" cy="18" r="14" fill="none" stroke="#10b981" strokeWidth="4"
+              strokeDasharray={`${successPct * 0.88} 88`}
+              strokeLinecap="round"
+              transform="rotate(-90 18 18)"
+              className="transition-all duration-500"
+            />
+            {failed > 0 && (
+              <circle
+                cx="18" cy="18" r="14" fill="none" stroke="#ef4444" strokeWidth="4"
+                strokeDasharray={`${Math.round((failed / waves.length) * 0.88)} 88`}
+                strokeDashoffset={`${-successPct * 0.88}`}
+                strokeLinecap="round"
+                transform="rotate(-90 18 18)"
+              />
+            )}
+          </svg>
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="text-lg font-bold font-mono text-emerald-400">{successPct}%</div>
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[9px] font-mono">
+              <span className="text-emerald-400/70">{completed} ok</span>
+              {failed > 0 && <span className="text-red-400/70">{failed} fail</span>}
+              {other > 0 && <span className="text-zinc-500">{other} other</span>}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }
