@@ -9,7 +9,7 @@ research_*.json
 tool-results/
 download/
 .env
-skills/
+/skills/
 next-env.d.ts
 screenshot-*.png
 agent-ctx/
