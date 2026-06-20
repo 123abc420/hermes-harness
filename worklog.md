@@ -2610,3 +2610,23 @@ Stage Summary:
 - waves-tab.tsx: search input mobile flex fix
 - decisions-tab.tsx: search input + category filter mobile flex fix
 - 27 skills, 118 waves in DB
+
+---
+Task ID: 124
+Agent: Wave Engine
+Task: Wave detail dialog enhancement — reasoning, outcome, copy-summary
+
+Work Log:
+- Assessed: 118 waves, 100% compliance, 0 errors
+- Enhanced wave-detail-dialog.tsx (110→160L): extracted DecisionItem sub-component with collapsible reasoning/outcome
+- Added outcome badge to each decision in dialog (success=emerald, fail=red)
+- Added CopyButton component with clipboard API + 2s Check feedback
+- Status bar now uses flex-wrap for clean mobile wrapping
+- Updated insights.md: added prop destructuring pitfall to Type Safety section
+- Cleared .next, lint — 0 errors, dev.log clean
+- Git push successful
+
+Stage Summary:
+- wave-detail-dialog.tsx: 110→160L (reasoning, outcome, copy button, DecisionItem extraction)
+- insights.md: +1 line (prop destructuring lesson)
+- 27 skills, 119 waves in DB

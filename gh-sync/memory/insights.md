@@ -42,6 +42,7 @@
 
 - `catch (err: any)` disables narrowing — always use `unknown` + `instanceof Error`
 - Union types can silently fall out of sync with actual data — grep DB/API for all status values
+- Props in the type annotation but NOT in the destructured parameter list = silent no-op (no build error). Always cross-check both lists when adding props
 
 ## DRY & Shared Utilities
 
