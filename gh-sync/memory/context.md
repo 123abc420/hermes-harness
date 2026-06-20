@@ -6,8 +6,8 @@
 2026-06-20 17:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 145)
-- **Waves in DB**: 145
+- **Phase**: Post-Compliance Evolution (Wave 146)
+- **Waves in DB**: 146
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -26,7 +26,7 @@
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
 | unprotected fetch→json | 0 |
-| Routes with zod validation | 2 (decisions POST, waves/[id] PATCH) |
+| Routes with zod validation | 5 (decisions POST+PATCH, waves/[id] PATCH, metrics POST, memory POST) |
 | Shared zod schemas | 7 |
 | Skills tracked in git | 6 |
 
@@ -39,6 +39,6 @@
 - Shared zod schemas (src/lib/schemas.ts) with 7 input validators + validationError helper
 
 ## What's next
-1. Extend zod validation to remaining 7 unprotected routes (metrics, memory, config, agent-status, agent-demo, decisions/[id] PATCH)
+1. Extend zod validation to remaining 4 routes (config POST, waves POST, agent-status POST, agent-demo POST)
 2. Consider per-wave replay with real phase data (requires schema change)
 3. All known issues resolved — skills gitignore root cause fixed

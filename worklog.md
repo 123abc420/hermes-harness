@@ -3070,3 +3070,21 @@ Stage Summary:
 - Dependency added: zod@4.4.3
 - 7 schemas defined, 2 routes now zod-validated
 - Lint: 0 errors
+
+---
+Task ID: W146
+Agent: HERMES Wave Engine
+Task: Extend zod validation to 3 more API routes
+
+Work Log:
+- ASSESSED: System healthy, W145 just completed. 7 routes still unprotected.
+- EXECUTED 1: metrics/route.ts POST — createMetricSchema.safeParse replaces manual check. metricValue now enforced as number.
+- EXECUTED 2: memory/route.ts POST — updateMemorySchema.safeParse with 3200/8000 char caps. Malformed JSON → 400.
+- EXECUTED 3: decisions/[id]/route.ts PATCH — updateDecisionSchema replaces ALLOWED_FIELDS whitelist loop. Priority enum-constrained.
+- VERIFIED: rm -rf .next && bun run lint — 0 errors
+
+Stage Summary:
+- Modified: metrics/route.ts, memory/route.ts, decisions/[id]/route.ts
+- Routes with zod validation: 2 → 5 (decisions POST, decisions/[id] PATCH, waves/[id] PATCH, metrics POST, memory POST)
+- Remaining unprotected: 4 (config POST, waves POST, agent-status POST, agent-demo POST)
+- Lint: 0 errors
