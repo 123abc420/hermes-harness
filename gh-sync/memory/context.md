@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 23:35 UTC+8
+2026-06-21 23:42 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 286)
+- **Phase**: Health-100 Era (Wave 284 re-run)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -34,6 +34,7 @@
 - **WCAG 2.3.3: JS-level reduced-motion in ALL 19/19 framer-motion files + global CSS overrides**
 - SVG gradient IDs: useId() collision-safe
 - **Fetch safety: AbortController on all client-side fetch (command-palette, use-agent-live poll)**
+- **waves/[id] route: resolveWaveId() handles both UUID and waveNumber lookup**
 
 ## What's next
 1. Persist wave activities to DB for cross-reload replay

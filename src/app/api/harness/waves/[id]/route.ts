@@ -7,12 +7,45 @@ import {
   validationErrorFromResult,
 } from '@/lib/schemas';
 
+/**
+ * UUID v4 regex — matches Prisma's default CUID format too.
+ * If the `id` param is NOT a UUID/CUID, treat it as a waveNumber.
+ */
+const UUID_LIKE = /^[\w-]{20,}$/;
+
+/**
+ * Resolve a route param to a database UUID.
+ * If the param looks like a UUID/CUID, use it directly.
+ * If it's a numeric string, look up by waveNumber.
+ * Returns null if not found.
+ */
+async function resolveWaveId(raw: string): Promise<string | null> {
+  // Fast path: looks like a UUID or CUID — use directly
+  if (UUID_LIKE.test(raw)) {
+    return raw;
+  }
+  // Numeric path — resolve by waveNumber
+  const num = parseInt(raw, 10);
+  if (Number.isNaN(num) || num <= 0) return null;
+  const wave = await db.harnessWave.findFirst({
+    where: { waveNumber: num },
+    select: { id: true },
+  });
+  return wave?.id ?? null;
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const id = await resolveWaveId(rawId);
+
+    if (!id) {
+      return NextResponse.json({ error: 'Wave not found' }, { status: 404 });
+    }
+
     const wave = await db.harnessWave.findUnique({
       where: { id },
       include: { decisions: { orderBy: { createdAt: 'asc' } } },
@@ -34,7 +67,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: rawId } = await params;
     const body = await req.json().catch(() => null);
     const parsed = patchWaveSchema.safeParse(body);
     if (!parsed.success) {
@@ -42,6 +75,12 @@ export async function PATCH(
     }
 
     const data = parsed.data;
+
+    // Resolve rawId to a database UUID (supports both UUID and waveNumber)
+    const id = await resolveWaveId(rawId);
+    if (!id) {
+      return NextResponse.json({ error: 'Wave not found' }, { status: 404 });
+    }
 
     const updateData: Prisma.HarnessWaveUpdateInput = {};
     if (data.status !== undefined) updateData.status = data.status;

@@ -6129,3 +6129,20 @@ Stage Summary:
 - 2 files changed. Eliminated 2 fetch race conditions where stale responses could overwrite fresh state.
 - DRY improvement: agent-status URL now single source of truth in use-agent-live.ts.
 - Lint: 0. TypeScript: 0. Health: 100/100.
+---
+Task ID: W284 (cron re-run)
+Agent: Wave Engine
+Task: Wave 284 — Fix PATCH /api/harness/waves/[id] 500 on waveNumber lookup
+
+Work Log:
+- ASSESS: Read worklog (200+ waves, 531 commits), context.md (100% spec), insights.md, SPEC.md, guardrails.md. Checked dev.log — found `PATCH /api/harness/waves/286 500 PrismaClientKnownRequestError: record not found`. Root cause: [id] route uses raw param as DB UUID, but caller passes waveNumber.
+- PLAN: 1 improvement — add resolveWaveId() helper to waves/[id]/route.ts
+- EXECUTE: Added `resolveWaveId(raw)` helper that checks if param is UUID-like (>20 chars) or numeric waveNumber. If numeric, does findFirst({ where: { waveNumber } }) to get the UUID. Applied to both GET and PATCH handlers. Returns 404 instead of 500 when not found.
+- VERIFY: `bun run lint` — 0 errors. `npx tsc --noEmit` — 0 errors. dev.log clean. Tested `GET /api/harness/waves/286` — returns 200 with correct wave data.
+- PERSIST: Wave #284 recorded in DB, 1 decision recorded, 2 metrics recorded, GitHub synced.
+
+Stage Summary:
+- Fixed critical API bug: PATCH /api/harness/waves/[id] no longer crashes with Prisma 500 when called with a waveNumber
+- Both GET and PATCH now transparently resolve waveNumber→UUID
+- Returns proper 404 instead of 500 for unknown wave numbers
+- Lint: 0. TypeScript: 0. Health: 100/100.
