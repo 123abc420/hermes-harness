@@ -4842,3 +4842,22 @@ Stage Summary:
 - harness-dashboard.tsx: 405→333 lines (removed shadowed components, uses shared imports)
 - Net: -455 lines of dead/duplicated code eliminated
 - Git push successful: 83cb959..cb179b7
+---
+Task ID: W238
+Agent: Wave Engine (orchestrator)
+Task: Fix tab animation regression from W237b dedup + SVG ID collision
+
+Work Log:
+- ASSESS: Read context.md, insights.md, guardrails.md, dev.log, recent git log
+- Identified W237b dedup regression: StaggerContainer had static key="stagger" and non-motion children — tab switch animation was dead
+- Identified SVG linearGradient id="spark-grad" hardcoded in shared-footer-components.tsx (insights.md warning)
+- PLAN: 2 improvements — fix tab animation, fix SVG ID collision
+- EXECUTE: Replaced StaggerContainer with motion.div key={activeTab}, used useId() for gradient
+- VERIFY: lint 0 errors, build 19/19 routes
+- PERSIST: Committed and pushed (3337eef)
+
+Stage Summary:
+- Tab switch animation restored (opacity+translateY on activeTab change)
+- SVG gradient ID collision fixed with React useId()
+- Removed unused Clock import, dead StaggerContainer code (-22 lines)
+- Git push successful: fb3d95c..3337eef
