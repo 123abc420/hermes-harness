@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { logError, logDebug } from '@/lib/logger';
 import {
   patchWaveSchema,
@@ -42,7 +43,7 @@ export async function PATCH(
 
     const data = parsed.data;
 
-    const updateData: Record<string, unknown> = {};
+    const updateData: Prisma.HarnessWaveUpdateInput = {};
     if (data.status !== undefined) updateData.status = data.status;
     if (data.completedAt !== undefined) updateData.completedAt = data.completedAt ? new Date(data.completedAt) : null;
     if (data.summary !== undefined) updateData.summary = data.summary;

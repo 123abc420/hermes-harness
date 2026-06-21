@@ -6,7 +6,23 @@ import { getGitData } from '@/lib/git';
 import { logError, logDebug } from '@/lib/logger';
 
 // ── Dashboard response cache ────
-let dashboardCache: { data: Record<string, unknown>; timestamp: number } | null = null;
+interface DashboardResponse {
+  waves: unknown[];
+  totalStats: Record<string, unknown>;
+  metrics: unknown[];
+  latestMetrics: Record<string, number>;
+  githubStatus: Record<string, unknown>;
+  config: Record<string, string>;
+  exports: unknown[];
+  recentDecisions: unknown[];
+  errorTrend: { wave: number; errors: number; status: string }[];
+  skillsCount: number;
+  healthScore: number;
+  healthScoreTrend: 'up' | 'down' | 'stable';
+  healthBreakdown: { spec: number; success: number; errors: number; github: number };
+}
+
+let dashboardCache: { data: DashboardResponse; timestamp: number } | null = null;
 const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
 
 export async function GET() {

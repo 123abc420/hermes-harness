@@ -7,7 +7,7 @@ const DEMO_SECRET = process.env.DEMO_SECRET;
 // Agent-status is in the same Next.js server — use relative URL
 const STATUS_ENDPOINT = '/api/harness/agent-status';
 
-const DEMO_SEQUENCE = [
+const DEMO_SEQUENCE: (Record<string, string | number> & { type?: string })[] = [
   { agentState: 'thinking', message: 'ASSESS: Reading context.md...', phase: 'assess', progress: 0.08 },
   { agentState: 'thinking', message: 'ASSESS: Analyzing system state...', phase: 'assess', progress: 0.15 },
   { agentState: 'searching', message: 'ASSESS: Verifying build status and lint...', phase: 'assess', progress: 0.22 },
@@ -56,24 +56,24 @@ export async function GET(req: NextRequest) {
     if (step.type === 'sub-agent') {
       await postToStatus({
         type: 'sub-agent',
-        name: (step as { name: string }).name,
-        state: (step as { state: string }).state,
-        color: (step as { color: string }).color,
-        message: (step as { message: string }).message,
+        name: step.name as string,
+        state: step.state as string,
+        color: step.color as string,
+        message: step.message as string,
       });
     } else if (step.type === 'sub-agent-clear') {
       await postToStatus({ type: 'sub-agent-clear' });
     } else {
       await postToStatus({
         type: 'activity',
-        agentState: step.agentState,
-        message: step.message,
-        phase: step.phase,
+        agentState: step.agentState as string,
+        message: step.message as string,
+        phase: step.phase as string,
       });
       await postToStatus({
-        agentState: step.agentState,
-        message: step.message,
-        phase: step.phase,
+        agentState: step.agentState as string,
+        message: step.message as string,
+        phase: step.phase as string,
         waveNumber: 3,
         progress: step.progress,
         waveCount: 2,

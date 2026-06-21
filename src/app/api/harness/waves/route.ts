@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { logError } from '@/lib/logger';
 import { createWaveSchema, validationError } from '@/lib/schemas';
 
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search')?.trim() ?? '';
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {};
+    const where: Prisma.HarnessWaveWhereInput = {};
     if (status) where.status = status;
     if (search) where.summary = { contains: search };
 

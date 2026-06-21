@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { logError } from '@/lib/logger';
 import {
   updateDecisionSchema,
@@ -18,7 +19,7 @@ export async function PATCH(
       return validationError(updateDecisionSchema, body);
     }
 
-    const data: Record<string, unknown> = { ...parsed.data };
+    const data: Prisma.HarnessDecisionUpdateInput = { ...parsed.data };
 
     // Auto-set executedAt when action is 'executed'
     if (data.action === 'executed') {
