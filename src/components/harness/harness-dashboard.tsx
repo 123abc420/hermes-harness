@@ -2,9 +2,8 @@
 
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity, Clock } from 'lucide-react';
+import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
 import { WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge } from './shared-footer-components';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
@@ -28,57 +27,6 @@ const TAB_CONFIG = [
   { value: 'research', label: 'Analytics', icon: BookOpen, dotColor: 'bg-orange-500' },
   { value: 'github', label: 'GitHub & Export', icon: Github, dotColor: 'bg-amber-500' },
 ] as const;
-
-/* ── Wave Activity Sparkline (inline SVG, no Recharts) ── */
-function WaveSparkline({ waves }: { waves: { status: string }[] }) {
-  const last10 = waves.slice(0, 10).reverse();
-  if (last10.length < 2) return null;
-  // Encode status as height: completed=1, failed=0.3, others=0.5
-  const heights = last10.map(w =>
-    w.status === 'completed' ? 1 : w.status === 'failed' ? 0.3 : 0.5
-  );
-  const W = 60, H = 16;
-  const step = W / (heights.length - 1);
-  const points = heights.map((h, i) => `${i * step},${H - h * H}`).join(' ');
-  const areaPoints = `${points} ${W},${H} 0,${H}`;
-
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0" aria-label="Wave activity sparkline">
-      <defs>
-        <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon fill="url(#spark-grad)" points={areaPoints} />
-      <polyline fill="none" stroke="#f59e0b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" points={points} opacity="0.7" />
-      <circle cx={(heights.length - 1) * step} cy={H - heights[heights.length - 1] * H} r="1.5" fill="#f59e0b" opacity="0.9" />
-    </svg>
-  );
-}
-
-/* ── Success Rate Pulse Bar ── */
-function SuccessRatePulse({ rate }: { rate: number }) {
-  const barColor = rate >= 90 ? '#10b981' : rate >= 70 ? '#f59e0b' : '#ef4444';
-  const pulseSpeed = rate >= 90 ? '1.5s' : rate >= 70 ? '2.5s' : '1s';
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-[10px] font-mono text-zinc-600">health</span>
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.04]">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${rate}%`,
-            backgroundColor: barColor,
-            animation: `pulse-health ${pulseSpeed} ease-in-out infinite`,
-          }}
-        />
-      </div>
-      <span className="text-[10px] font-mono tabular-nums" style={{ color: barColor }}>{rate}%</span>
-    </div>
-  );
-}
 
 /* ── Stagger Container for tab content ── */
 function StaggerContainer({ children }: { children: React.ReactNode }) {
@@ -178,11 +126,6 @@ export function HarnessDashboard() {
   const waves = dash?.waves ?? [];
   const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
   const successRate = dash?.totalStats?.waveSuccessRate ?? 0;
-
-  // System uptime from first wave
-  const uptimeStr = firstWave?.startedAt
-    ? formatDistanceToNow(new Date(firstWave.startedAt), { addSuffix: false })
-    : null;
 
   // Parallax offset for dot pattern
   const parallaxOffset = scrollY * 0.08;
@@ -325,25 +268,10 @@ export function HarnessDashboard() {
               </div>
             )}
 
-            {dash?.waves?.[0] && (
-              <span className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
-                <Activity className="h-2.5 w-2.5 text-emerald-500/40" />
-                <span className="text-zinc-500">#{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
-                <span className="text-zinc-700">{dash.waves[0].status === 'completed' ? 'completed' : dash.waves[0].status}</span>
-                {dash.waves[0].completedAt && (
-                  <span className="text-zinc-700">{formatDistanceToNow(new Date(dash.waves[0].completedAt), { addSuffix: true })}</span>
-                )}
-              </span>
-            )}
+            <LastWaveBadge wave={dash?.waves?.[0]} />
 
             {/* System uptime */}
-            {uptimeStr && (
-              <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
-                <Clock className="h-2.5 w-2.5 text-amber-500/30" />
-                <span className="text-zinc-500">uptime</span>
-                <span className="text-amber-500/40">{uptimeStr}</span>
-              </span>
-            )}
+            <UptimeDisplay firstWaveStart={firstWave?.startedAt} />
           </div>
 
           {/* Right section: success rate pulse + motto + shortcuts */}
