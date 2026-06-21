@@ -62,17 +62,20 @@ export async function getGitData(): Promise<GitData> {
 
     if (existsSync(reflogPath)) {
       const reflogContent = readFileSync(reflogPath, 'utf-8');
-      // Reflog format: <sha> <sha> user <email> <timestamp> <tz>\t<message>
+      // Reflog format: <old-sha(40)> <new-sha(40)> user <email> <timestamp> <tz>\t<message>
       const lines = reflogContent.trim().split('\n').reverse(); // Most recent first
-      for (const line of lines.slice(0, 10)) {
+      for (const line of lines) {
         const tabIdx = line.indexOf('\t');
         if (tabIdx === -1) continue;
-        const sha = line.slice(0, 7);
+        // Extract NEW SHA from position 41 (old-sha=40 chars + space)
+        const newSha = line.slice(41, 48);
         let message = line.slice(tabIdx + 1).trim();
-        // Strip common reflog prefixes
-        if (message.startsWith('commit: ')) message = message.slice(8);
-        if (sha && message) {
-          commits.push({ sha, message });
+        // Only include actual commit operations (skip pull, merge, reset, checkout, etc.)
+        if (!message.startsWith('commit')) continue;
+        // Strip prefixes: "commit: ", "commit (amend): ", "commit (merge): "
+        message = message.replace(/^commit\s*(?:\([^)]*\))?\s*:\s*/, '');
+        if (newSha && message && newSha.length === 7) {
+          commits.push({ sha: newSha, message });
           if (commits.length >= 5) break;
         }
       }

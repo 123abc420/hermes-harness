@@ -16,13 +16,15 @@ export const APP_INTERNAL_URL = process.env.APP_PORT
 
 // Agent evolution stages — single source of truth (names + visual params)
 export const EVOLUTION_STAGES = [
-  { level: 1,  name: 'Nascent',      particles: 15, nodes: 3,  rings: 1, description: 'First spark of consciousness' },
-  { level: 2,  name: 'Apprentice',   particles: 25, nodes: 6,  rings: 2, description: 'Learning from every wave' },
-  { level: 3,  name: 'Operational',  particles: 35, nodes: 10, rings: 3, description: 'Stable operational system' },
-  { level: 5,  name: 'Specialist',   particles: 50, nodes: 15, rings: 3, description: 'Improving specialized skills' },
-  { level: 8,  name: 'Architect',    particles: 65, nodes: 20, rings: 4, description: 'Designing its own evolution' },
-  { level: 12, name: 'Master',       particles: 80, nodes: 25, rings: 4, description: 'Mastery in self-improvement' },
-  { level: 20, name: 'Transcendent', particles: 100, nodes: 30, rings: 5, description: 'Beyond the cycles' },
+  { level: 1,    name: 'Nascent',        particles: 15, nodes: 3,   rings: 1, description: 'First spark of consciousness' },
+  { level: 5,    name: 'Apprentice',     particles: 25, nodes: 6,   rings: 2, description: 'Learning from every wave' },
+  { level: 15,   name: 'Operational',    particles: 35, nodes: 10,  rings: 3, description: 'Stable operational system' },
+  { level: 30,   name: 'Specialist',     particles: 50, nodes: 15,  rings: 3, description: 'Improving specialized skills' },
+  { level: 50,   name: 'Architect',      particles: 65, nodes: 20,  rings: 4, description: 'Designing its own evolution' },
+  { level: 75,   name: 'Master',         particles: 80, nodes: 25,  rings: 4, description: 'Mastery in self-improvement' },
+  { level: 100,  name: 'Transcendent',   particles: 100, nodes: 30,  rings: 5, description: 'Beyond the cycles' },
+  { level: 150,  name: 'Omniscient',     particles: 120, nodes: 40,  rings: 6, description: 'All-seeing, all-knowing' },
+  { level: 200,  name: 'Singularity',    particles: 150, nodes: 50,  rings: 7, description: 'Convergence point' },
 ] as const;
 
 // Derived from EVOLUTION_STAGES for quick level→name lookups

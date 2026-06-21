@@ -71,19 +71,44 @@ export interface AgentLiveState {
   setIsReplaying: (replaying: boolean) => void;
 }
 
-function getLevel(waves: number, improvements: number) {
-  return Math.floor(waves / 2) + Math.floor(improvements / 5) + 1;
+// Level thresholds: each level requires N waves (wave-based leveling, not XP-based)
+// This avoids quadratic XP math that produces negative values at high wave counts
+const LEVEL_THRESHOLDS = [
+  0,   // Level 1:  0 waves
+  5,   // Level 2:  5 waves
+  12,  // Level 3:  12 waves
+  22,  // Level 4:  22 waves
+  35,  // Level 5:  35 waves
+  50,  // Level 6:  50 waves
+  70,  // Level 7:  70 waves
+  95,  // Level 8:  95 waves
+  125, // Level 9:  125 waves
+  160, // Level 10: 160 waves
+  200, // Level 11: 200 waves
+  250, // Level 12: 250 waves
+  300, // Level 13: 300 waves
+];
+
+function getLevel(waves: number, _improvements: number) {
+  let lvl = 1;
+  for (const threshold of LEVEL_THRESHOLDS) {
+    if (waves >= threshold) lvl++;
+    else break;
+  }
+  return Math.min(lvl, LEVEL_THRESHOLDS.length);
 }
 
 function getXpToNext(level: number): number {
-  return level * 10 + 5;
+  // XP to next level = waves needed from current to next threshold
+  const currentThreshold = LEVEL_THRESHOLDS[level - 1] ?? 0;
+  const nextThreshold = LEVEL_THRESHOLDS[level] ?? currentThreshold + 50;
+  return nextThreshold - currentThreshold;
 }
 
-/** Total XP required to reach a given level (sum of all previous xpToNext values). */
-function getXpForLevel(level: number): number {
-  // Level n requires sum(i=1..n-1) of (10*i + 5) = 5*(n-1)*(n+1)
-  if (level <= 1) return 0;
-  return 5 * (level - 1) * (level + 1);
+/** XP within the current level (waves completed beyond the current threshold). */
+function getXpInLevel(waves: number, level: number): number {
+  const currentThreshold = LEVEL_THRESHOLDS[level - 1] ?? 0;
+  return Math.max(0, waves - currentThreshold);
 }
 
 export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
@@ -119,8 +144,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
     const newDecisions = update.totalDecisions ?? state.totalDecisions;
     const newLevel = getLevel(newWaves, newImprovements);
 
-    const totalXp = newImprovements * 10 + newDecisions * 5;
-    const xpInCurrentLevel = totalXp - getXpForLevel(newLevel);
+    const xpInCurrentLevel = getXpInLevel(newWaves, newLevel);
 
     set({
       ...update,

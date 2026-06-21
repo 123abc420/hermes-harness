@@ -288,7 +288,7 @@ export function AgentLivePanel() {
                 <Zap className="h-4 w-4 text-amber-400" />
                 <span className="text-xs font-mono text-zinc-400 font-medium tracking-wider">EXPERIENCE</span>
               </div>
-              <span className="text-xs font-mono text-zinc-500 tabular-nums">{xp} / {xpToNext} XP</span>
+              <span className="text-xs font-mono text-zinc-500 tabular-nums">{xp} / {xpToNext} waves</span>
             </div>
             <Progress value={xpPercent} className="h-2.5 bg-white/[0.05]" />
             <p className="text-[10px] text-zinc-600 mt-1.5 font-mono">Next: {levelName} → {getLevelName(level + 1)}</p>
