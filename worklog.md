@@ -4786,3 +4786,40 @@ Stage Summary:
 - 3 useMemo optimizations (overview-tab: 2 hot-path computations, stats-grid: 6 hot-path lookups)
 - Shared components properly re-exported from src/index.ts
 - Lint: 0 errors, build: 19/19 routes success
+
+---
+Task ID: W237-manual
+Agent: Main (manual session, continued from context recovery)
+Task: Skill v3.0 + cron setup + Canvas v3.0 "Living World" + Panel enhancements
+
+Work Log:
+- Assessed project state: all previous W236 changes committed, clean working tree
+- Deleted old cron job (216402) — duplicate without broadcast protocol
+- Updated agent-live-broadcast.md to v3.0 with comprehensive node-network protocol
+- Created new cron job (221210) with full wave engine prompt including broadcast helpers
+- Canvas v3.0 "Living World" — 7 new visual features:
+  1. Mesh connections: sub-nodes connect to each other (not just orchestrator)
+  2. Grid dot interaction: dots near active nodes glow with node color
+  3. Spawn flash: bright expanding ring + flash ring when node born
+  4. Energy dashes: animated setLineDash on active connections
+  5. Node repulsion: sub-nodes push apart when too close
+  6. Mouse attraction: nodes subtly pulled toward cursor
+  7. Third nebula layer: per-node dynamic ambient glow halos
+- Fixed `allNodes` reference-before-definition (moved ensureOrchestrator before grid drawing)
+- Panel enhancements:
+  - Bottom-left canvas overlay: large "WAVE N" + "X agents active" / "standby"
+  - PhaseTracker v2: per-phase progress micro-bar under current phase step
+  - ActivityEntry: new-item glow flash (3s colored border + inset shadow + brighter text)
+- Bug fixes:
+  - Missing Clock import in page.tsx
+  - Missing SuccessRatePulse component definition in page.tsx
+  - Duplicate isErrorsDecreasing variable in overview-tab.tsx
+  - React Compiler memoization deps mismatch in waveVelocity useMemo
+- All changes committed and pushed to GitHub
+
+Stage Summary:
+- Canvas upgraded from v2.2 to v3.0 with living network world
+- Skill v3.0 with comprehensive broadcast sequence for cron wave engine
+- Single consolidated cron job (221210) replacing duplicate
+- 0 lint errors, server compiles and responds 200
+- Agent-browser verification blocked by sandbox network isolation (same as documented in skill)
