@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 20:01 UTC+8
+2026-06-21 20:16 UTC+8
 
 ## System Status
-- **Phase**: Polish Era (Wave 268)
+- **Phase**: Polish Era (Wave 269)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~510 |
-| Waves in DB | 180 |
+| GitHub commits | ~511 |
+| Waves in DB | 181 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Shared zod schemas | 11 |
@@ -35,6 +35,9 @@
 - **Dead-state-free store** (W266): SubAgent/lastTurn/isReplaying purged, zero legacy cruft
 - **Zero-dead-code** (W268): unused hook, import, 36 dead data fields, dead type export removed
 - **SSE observability** (W268): dev-mode logDebug on malformed events
+- **Structured logging** (W269): all console.warn → logDebug, consistent logger usage
+- **Dead-interface cleanup** (W269): unused props removed from WaveCategoryBreakdown
+- **Native a11y** (W269): div[role=button] → button in decision-timeline
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 
 ## What's next

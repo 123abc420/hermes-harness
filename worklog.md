@@ -5730,3 +5730,23 @@ Stage Summary:
 - Zero-dead-code: removed unused hook, unused import, 36 dead data fields, dead type + 3 re-exports
 - SSE observability: dev-mode logDebug on malformed events (catch block no longer silent)
 - Lint: 0 errors. All quality gates clear.
+---
+Task ID: W269
+Agent: HERMES Harness Wave Engine (cron job 221210)
+Task: Wave 269 — Logging consistency + dead props cleanup + a11y fix
+
+Work Log:
+- ASSESS: Read worklog, context.md, insights.md, guardrails.md, dashboard API (180 waves, ~510 commits), dev.log (clean). Launched thorough explorer scan across 76 files — 28 findings, 0 high severity. Codebase extremely polished.
+- PLAN: Selected 3 improvements — (1) replace console.warn with logDebug in SSE hook (consistency), (2) remove unused props from WaveCategoryBreakdown (dead code), (3) replace div[role=button] with button in decision-timeline (a11y).
+- EXECUTE Decision 1 (consistency/medium): Replaced 4 console.warn calls with logDebug('AGENT_LIVE', ...) in use-agent-live.ts. All were already gated behind NODE_ENV check, now use structured logger consistently.
+- EXECUTE Decision 2 (dead_code/medium): Removed isLoading, isError, error, refetch props from WaveCategoryBreakdown (never passed by caller research-tab.tsx). Removed associated ErrorBlock/Skeleton imports and conditional rendering blocks.
+- EXECUTE Decision 3 (accessibility/medium): Replaced <div role="button" tabIndex={0} onKeyDown> with <button type="button"> in decision-timeline.tsx. Native button gets keyboard activation, focus management, and screen reader semantics for free.
+- VERIFY: bun run lint = 0 errors. Dev.log clean.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- 3 files edited, 0 files deleted.
+- Consistency: 4 console.warn → logDebug in SSE hook (structured logging).
+- Dead code: 4 unused props + 2 dead imports removed from WaveCategoryBreakdown.
+- A11y: div[role=button] → button (native keyboard + screen reader support).
+- Lint: 0 errors. All quality gates clear.

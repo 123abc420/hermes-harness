@@ -75,12 +75,10 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                   style={{ backgroundColor: color }}
                 />
                 <div className="min-w-0 flex-1">
-                  <div
-                    className="flex flex-wrap cursor-pointer items-center gap-2"
+                  <button
+                    type="button"
+                    className="flex flex-wrap cursor-pointer items-center gap-2 bg-transparent border-0 p-0 text-left w-full"
                     onClick={() => toggle(d.id)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggle(d.id); }}
                   >
                     <span className="text-[10px] font-mono text-zinc-500">
                       W{d.wave?.waveNumber ?? '?'}
@@ -102,7 +100,7 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                     {(d.reasoning || d.targetFile) && (
                       <ChevronDown className={cn('ml-auto h-3 w-3 shrink-0 text-zinc-600 transition-transform duration-200', isOpen && 'rotate-180')} />
                     )}
-                  </div>
+                  </button>
                   <p className={cn('mt-0.5 text-xs text-zinc-400', !isOpen && 'truncate')}>{d.description}</p>
                   {d.targetFile && (
                     <p className="mt-0.5 text-[10px] text-zinc-600 font-mono truncate">{d.targetFile}</p>

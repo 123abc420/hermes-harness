@@ -192,7 +192,7 @@ export function useAgentLive() {
       sseRetryRef.current = null;
       if (eventSourceRef.current) return; // SSE already re-established
       if (process.env.NODE_ENV !== 'production') {
-        console.warn('[AgentLive] Attempting SSE reconnection...');
+        logDebug('AGENT_LIVE', 'Attempting SSE reconnection...');
       }
       stopPolling();
       const retryEs = createSSEConnection({
@@ -207,7 +207,7 @@ export function useAgentLive() {
         },
         onError: () => {
           if (process.env.NODE_ENV !== 'production') {
-            console.warn('[AgentLive] SSE retry failed, rescheduling...');
+            logDebug('AGENT_LIVE', 'SSE retry failed, rescheduling...');
           }
           if (eventSourceRef.current) {
             eventSourceRef.current.close();
@@ -239,7 +239,7 @@ export function useAgentLive() {
         },
         onError: () => {
           if (process.env.NODE_ENV !== 'production') {
-            console.warn('[AgentLive] SSE error, falling back to polling');
+            logDebug('AGENT_LIVE', 'SSE error, falling back to polling');
           }
           if (eventSourceRef.current) {
             eventSourceRef.current.close();
@@ -260,7 +260,7 @@ export function useAgentLive() {
       eventSourceRef.current = es;
     } catch {
       if (process.env.NODE_ENV !== 'production') {
-        console.warn('[AgentLive] SSE not supported, using polling');
+        logDebug('AGENT_LIVE', 'SSE not supported, using polling');
       }
       useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
       startPolling();

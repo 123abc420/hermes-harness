@@ -1,7 +1,6 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
 import { CATEGORY_HEX } from '@/lib/category-colors';
 import { CHART_TOOLTIP_STYLE } from '@/lib/constants';
@@ -14,24 +13,15 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { ErrorBlock } from './error-block';
 import type { Wave, Decision } from '@/store/harness-store';
 
 /* ── Wave Category Breakdown ─────────────────────────── */
 export function WaveCategoryBreakdown({
   waves,
   decisions,
-  isLoading,
-  isError,
-  error,
-  refetch,
 }: {
   waves?: Wave[];
   decisions?: Decision[];
-  isLoading?: boolean;
-  isError?: boolean;
-  error?: Error | null;
-  refetch?: () => void;
 }) {
   const waveList = waves ?? [];
   const allDecisions = decisions ?? [];
@@ -60,42 +50,6 @@ export function WaveCategoryBreakdown({
     }
   }
   const categories = Array.from(allCats).sort();
-
-  if (isError) {
-    return (
-      <Card className="glass-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-rose-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Wave Category Breakdown
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ErrorBlock message={error?.message} onRetry={() => refetch?.()} />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <Card className="glass-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-rose-400" />
-            <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-              Wave Category Breakdown
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[180px] w-full rounded-lg" />
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (chartData.length === 0) {
     return (
