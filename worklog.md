@@ -5452,3 +5452,20 @@ Stage Summary:
 - wave-replay-view.tsx: 398 lines NEW (replay timeline + controls)
 - Canvas animation frames/sec: 60 → 0 (zero animation loop)
 - Total lines in agent-live files: 1566 → 818 (-48%)
+
+---
+Task ID: W255
+Agent: Wave Engine (HERMES)
+Task: Dead code cleanup — remove old canvas + old replay hook
+
+Work Log:
+- ASSESS: 0 lint errors. Replay view (wave-replay-view.tsx) already built by webDevReview cron. Found 2 dead files: agent-network-canvas.tsx (756 lines, 0 imports) and use-wave-replay.ts (80 lines, 0 imports).
+- PLAN: Delete both dead files.
+- EXECUTE: Deleted agent-network-canvas.tsx and use-wave-replay.ts.
+- VERIFY: 0 lint errors. Agent-browser verified: replay UI shows timeline with timestamps, phase separators, SVG node graph, play/pause/loop controls, speed selector.
+
+Stage Summary:
+- 2 dead files deleted: agent-network-canvas.tsx (756 lines), use-wave-replay.ts (80 lines)
+- Total dead code removed: 836 lines
+- Replay-first Agent Live panel confirmed working via agent-browser
+- Total improvements: 2, Decisions: 2
