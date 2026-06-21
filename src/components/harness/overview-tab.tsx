@@ -73,7 +73,7 @@ export function OverviewTab() {
     if (waves.length < 2 || !firstWave?.startedAt || !waves[0]?.startedAt) return null;
     const ms = (new Date(waves[0].startedAt).getTime() - new Date(firstWave.startedAt).getTime()) / 3_600_000;
     return ms > 0 ? (waves.length / ms).toFixed(1) : null;
-  }, [waves, firstWave, waves[0]]);
+  }, [waves, firstWave]);
 
   // Compute dynamic error trend for spec compliance (already memoized above)
 

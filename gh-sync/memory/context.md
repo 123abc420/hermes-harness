@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 23:57 UTC+8
+2026-06-22 00:12 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 286)
+- **Phase**: Health-100 Era (Wave 287)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics

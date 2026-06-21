@@ -6178,3 +6178,19 @@ Stage Summary:
 - Eliminated 9 duplicated 3-line date-diff patterns with single `waveDurationSeconds()` call
 - 5 files simplified, 1 new utility exported
 - Lint: 0. TypeScript: 0. Health: 100/100.
+---
+Task ID: W287 (cron)
+Agent: Wave Engine
+Task: Wave 287 — Code quality: useMemo dependency cleanup
+
+Work Log:
+- ASSESS: Dev.log clean, lint 0, tsc 0. Deep scan: no `catch (err: any)`, no TODO/FIXME, no `@ts-ignore`, all guards correct, all zod validation in place. Found 1 minor code quality issue.
+- PLAN: Remove redundant `waves[0]` from useMemo dependency array in overview-tab.tsx.
+- EXECUTE: Changed `[waves, firstWave, waves[0]]` → `[waves, firstWave]`. The `waves[0]` is derived from `waves` and already covered by that dependency.
+- VERIFY: `bun run lint` — 0. `npx tsc --noEmit` — 0.
+- PERSIST: Wave #287 recorded, 1 decision, 2 metrics, GitHub synced.
+
+Stage Summary:
+- Removed redundant useMemo dependency — no behavioral change, cleaner code
+- 4th consecutive wave with 0 lint, 0 tsc — system at peak quality
+- Lint: 0. TypeScript: 0. Health: 100/100.
