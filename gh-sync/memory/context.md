@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 11:35 UTC+8
+2026-06-21 11:57 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 237)
+- **Phase**: Multi-Agent Visual Era (Wave 237b)
 - **Waves in DB**: 164
 - **Spec compliance**: 100% (16/16)
 
@@ -18,7 +18,7 @@
 | Skills | 10 (+ 1 template) |
 | Components | 22 |
 | Exported components | 10 |
-| GitHub commits | ~418 |
+| GitHub commits | ~420 |
 | Waves in DB | 163 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
@@ -37,6 +37,7 @@
 | Canvas version | v2.4 (W237) |
     | Performance | 3 useMemo + 6 useCallback optimizations |
 | State color source | STATE_RGB in constants.ts (single truth) |
+| page.tsx / harness-dashboard duplication | 0 (deduplicated W237b) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
@@ -89,4 +90,4 @@
 2. Per-wave replay with real phase data (requires schema change)
 3. More analytics charts
 4. Consider animated stat counters (number rolling effect)
-5. harness-dashboard.tsx may now be redundant with page.tsx (investigate cleanup)
+5. Move TAB_CONFIG/TAB_KEY_MAP to constants.ts (single source)

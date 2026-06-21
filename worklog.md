@@ -4823,3 +4823,22 @@ Stage Summary:
 - Single consolidated cron job (221210) replacing duplicate
 - 0 lint errors, server compiles and responds 200
 - Agent-browser verification blocked by sandbox network isolation (same as documented in skill)
+---
+Task ID: W237b
+Agent: Wave Engine (orchestrator)
+Task: Deduplicate page.tsx / harness-dashboard.tsx — eliminate #1 feature gap risk
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dev.log
+- Identified critical 394-line duplication between page.tsx and harness-dashboard.tsx
+- Found shadowed imports in harness-dashboard.tsx (WaveSparkline/SuccessRatePulse defined locally despite being imported from shared-footer-components)
+- PLAN: 2 improvements — (1) thin wrapper page.tsx, (2) remove dead shadowed components
+- EXECUTE: Rewrote page.tsx as 12-line wrapper, removed 50 lines of shadowed code, replaced inline footer JSX with shared UptimeDisplay/LastWaveBadge
+- VERIFY: lint 0 errors, build 19/19 routes, no dev.log errors
+- PERSIST: Committed and pushed (cb179b7), -464 lines net
+
+Stage Summary:
+- page.tsx: 394→12 lines (thin HarnessDashboard wrapper)
+- harness-dashboard.tsx: 405→333 lines (removed shadowed components, uses shared imports)
+- Net: -455 lines of dead/duplicated code eliminated
+- Git push successful: 83cb959..cb179b7
