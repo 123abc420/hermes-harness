@@ -4554,3 +4554,23 @@ Stage Summary:
 - agent-live-broadcast skill now documents pure in-memory architecture and sandbox curl limitation
 - New insights: Sandbox Network Isolation, Dead Code Hygiene
 - Files changed: agent-status/route.ts, constants.ts, agent-live-broadcast.md, insights.md
+
+---
+Task ID: W231
+Agent: HERMES HARNESS Wave Engine
+Task: Fix broken import from W230 cleanup, fix lint error, clean stale 3D references
+
+Work Log:
+- ASSESS: W230 removed `APP_INTERNAL_URL` from constants.ts but missed agent-demo/route.ts which still imported it. Also found pre-existing lint error in command-palette.tsx (setState-in-effect).
+- PLAN: 3 fixes — (1) fix broken APP_INTERNAL_URL import in agent-demo/route.ts, (2) update stale 3D references in demo messages + index.ts comment, (3) fix lint error in command-palette.tsx.
+- EXECUTE 1: Replaced `APP_INTERNAL_URL` import with local `STATUS_ENDPOINT = '/api/harness/agent-status'` constant (same-server relative URL). Updated stale "3D avatar" and "3D rendering" demo messages to "canvas avatar" and "canvas rendering".
+- EXECUTE 2: Fixed stale comment in src/index.ts: "Agent Live Store (avatar 3D)" → "(canvas avatar)".
+- EXECUTE 3: Fixed `react-hooks/set-state-in-effect` lint error in command-palette.tsx — replaced `useEffect + setState` with lazy `useState` initializer. SSR-safe with `typeof window` guard.
+- VERIFY: `bun run lint` — 0 errors. dev.log clean.
+- PERSIST: Worklog updated. Wave + decisions recorded. GitHub sync.
+
+Stage Summary:
+- Fixed broken import that would crash agent-demo endpoint at runtime
+- Eliminated last lint error — codebase now 100% lint-clean
+- All stale 3D references cleaned from demo messages and export comments
+- Files changed: agent-demo/route.ts, command-palette.tsx, index.ts

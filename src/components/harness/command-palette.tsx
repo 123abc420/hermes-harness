@@ -66,14 +66,13 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
   ];
   const totalResults = allResults.length;
 
-  // Load recent searches from localStorage (lazy initializer)
+  // Load recent searches from localStorage (lazy init avoids setState-in-effect)
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
-      if (stored) return JSON.parse(stored) as string[];
-    } catch { /* ignore */ }
-    return [];
+      return stored ? (JSON.parse(stored) as string[]) : [];
+    } catch { return []; }
   });
 
   const addRecentSearch = useCallback((q: string) => {

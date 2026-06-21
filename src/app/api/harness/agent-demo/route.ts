@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { APP_INTERNAL_URL } from '@/lib/constants';
 import { agentDemoPostSchema, validationError } from '@/lib/schemas';
 
 const DEMO_SECRET = process.env.DEMO_SECRET;
+
+// Agent-status is in the same Next.js server — use relative URL
+const STATUS_ENDPOINT = '/api/harness/agent-status';
 
 const DEMO_SEQUENCE = [
   { agentState: 'thinking', message: 'ASSESS: Reading context.md...', phase: 'assess', progress: 0.08 },
@@ -12,11 +14,11 @@ const DEMO_SEQUENCE = [
   { agentState: 'planning', message: 'PLAN: Deploying sub-agent for refactor...', phase: 'plan', progress: 0.35 },
   // Sub-agent spawn
   { type: 'sub-agent', name: 'Refactor Agent', state: 'executing', color: '#06b6d4', message: 'Refactoring modules...' },
-  { agentState: 'executing', message: 'EXECUTE: Improving 3D avatar with new particles', phase: 'execute', progress: 0.45 },
+  { agentState: 'executing', message: 'EXECUTE: Improving canvas avatar with new particles', phase: 'execute', progress: 0.45 },
   { agentState: 'executing', message: 'EXECUTE: Adding sub-agent system to sandbox', phase: 'execute', progress: 0.55 },
   { agentState: 'executing', message: 'EXECUTE: Implementing Argentina timestamps', phase: 'execute', progress: 0.65 },
   { agentState: 'verifying', message: 'VERIFY: Running lint — 0 errors', phase: 'verify', progress: 0.75 },
-  { agentState: 'verifying', message: 'VERIFY: Checking 3D rendering in browser', phase: 'verify', progress: 0.82 },
+  { agentState: 'verifying', message: 'VERIFY: Checking canvas rendering in browser', phase: 'verify', progress: 0.82 },
   { agentState: 'executing', message: 'PERSIST: Commit + push to GitHub...', phase: 'persist', progress: 0.9 },
   { type: 'sub-agent-clear' },
   { agentState: 'celebrating', message: 'Wave complete — 3 improvements, 1 sub-agent deployed', phase: 'report', progress: 0.98 },
@@ -31,7 +33,7 @@ function checkAuth(req: NextRequest): boolean {
 
 async function postToStatus(data: Record<string, unknown>) {
   try {
-    await fetch(`${APP_INTERNAL_URL}/api/harness/agent-status`, {
+    await fetch(STATUS_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

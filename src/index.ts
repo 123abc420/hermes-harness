@@ -39,7 +39,7 @@ export {
 } from './hooks/use-harness-data';
 export { useAgentLive } from './hooks/use-agent-live';
 
-// ─── Agent Live Store (avatar 3D) ─────────────────────────────────────────
+// ─── Agent Live Store (canvas avatar) ──────────────────────────────────
 export { useAgentLiveStore } from './store/agent-live-store';
 export type { LiveActivityEntry, SubAgent } from './store/agent-live-store';
 
