@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { Prisma } from '@prisma/client';
 import { logError } from '@/lib/logger';
-import { createWaveSchema, validationError } from '@/lib/schemas';
+import { createWaveSchema, validationErrorFromResult } from '@/lib/schemas';
 
 export async function GET(req: NextRequest) {
   try {
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null);
     const parsed = createWaveSchema.safeParse(body);
     if (!parsed.success) {
-      return validationError(createWaveSchema, body);
+      return validationErrorFromResult(parsed.error);
     }
 
     const lastWave = await db.harnessWave.findFirst({

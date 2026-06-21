@@ -140,7 +140,6 @@ export const VALID_BROADCAST_TYPES = [
   'sub-agent', 'sub-agent-remove', 'sub-agent-clear', 'sub-agent-update',
   'node-pulse', 'decision-count', 'full-update',
 ] as const;
-export type BroadcastType = (typeof VALID_BROADCAST_TYPES)[number];
 
 /** Zod schema for activity entries in full-update broadcasts. */
 export const activityEntrySchema = z.object({
@@ -164,15 +163,7 @@ export const subAgentEntrySchema = z.object({
   timestampAR: z.string().optional(),
 });
 
-/** Allowed keys for the full-update spread (prevents injection). */
-export const FULL_UPDATE_KEYS = new Set([
-  'agentState', 'message', 'phase', 'waveNumber', 'progress',
-  'waveCount', 'totalImprovements', 'totalDecisions', 'decisionCountThisWave',
-  'activities', 'subAgents',
-]);
-
-/**
- * Zod schema for agent-status POST body.
+/** Zod schema for agent-status POST body.
  * Validates base fields (agentState, progress, etc.) and constrains `type`
  * to known broadcast types. Type-specific fields are validated per-handler
  * to keep the schema maintainable.
@@ -230,14 +221,11 @@ export const agentDemoPostSchema = z.object({
 export type AgentDemoPostInput = z.infer<typeof agentDemoPostSchema>;
 
 /**
- * Returns a 400 response from a Zod parse failure.
- * Pass the raw request body and schema to get the error message.
+ * Returns a 400 response from an already-computed ZodError.
+ * Avoids re-parsing the body that already failed validation.
  */
-export function validationError(schema: z.ZodType, body: unknown): Response {
-  const result = schema.safeParse(body);
-  const message = result.success
-    ? 'Validation failed'
-    : result.error.issues.map((i) => i.message).join('; ');
+export function validationErrorFromResult(error: z.ZodError): Response {
+  const message = error.issues.map((i) => i.message).join('; ');
   return new Response(JSON.stringify({ error: message }), {
     status: 400,
     headers: { 'Content-Type': 'application/json' },

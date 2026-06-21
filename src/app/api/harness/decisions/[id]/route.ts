@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { logError } from '@/lib/logger';
 import {
   updateDecisionSchema,
-  validationError,
+  validationErrorFromResult,
 } from '@/lib/schemas';
 
 export async function PATCH(
@@ -16,7 +16,7 @@ export async function PATCH(
     const body = await req.json().catch(() => null);
     const parsed = updateDecisionSchema.safeParse(body);
     if (!parsed.success) {
-      return validationError(updateDecisionSchema, body);
+      return validationErrorFromResult(parsed.error);
     }
 
     const data: Prisma.HarnessDecisionUpdateInput = { ...parsed.data };

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { agentDemoPostSchema, validationError, VALID_AGENT_STATES_Z, VALID_PHASES_Z } from '@/lib/schemas';
+import { agentDemoPostSchema, validationErrorFromResult, VALID_AGENT_STATES_Z, VALID_PHASES_Z } from '@/lib/schemas';
 import { logError, logDebug } from '@/lib/logger';
 
 const DEMO_SECRET = process.env.DEMO_SECRET;
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null);
     const parsed = agentDemoPostSchema.safeParse(body);
     if (!parsed.success) {
-      return validationError(agentDemoPostSchema, body);
+      return validationErrorFromResult(parsed.error);
     }
     await postToStatus(parsed.data);
     return NextResponse.json({ ok: true });

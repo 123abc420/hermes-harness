@@ -5622,3 +5622,22 @@ Stage Summary:
 - context.md: 870 → 350 tokens (60% reduction). Still has all essential metrics.
 - insights.md: 2138 → 1100 tokens (48% reduction). All patterns preserved, consolidated where redundant.
 - Lint: 0 errors.
+
+---
+Task ID: W263
+Agent: Main Orchestrator
+Task: SSE reconnect dead-state fix + validationError elimination + dead export cleanup
+
+Work Log:
+- ASSESS: Read worklog, spec, context, insights, guardrails. Dashboard API. Dev log clean. W262 (DB #174) stuck running.
+- ASSESS: Explorer agent found 3 subtle bugs: (1) SSE reconnect enters permanent polling-only dead-state after retry failure, (2) validationError double-parses body on every validation failure (9 routes), (3) 2 dead exports (FULL_UPDATE_KEYS, BroadcastType)
+- PLAN: Fix SSE with recursive setTimeout + ref pattern. Replace validationError with validationErrorFromResult. Remove dead exports.
+- EXECUTE: Rewrote use-agent-live.ts reconnect logic — recursive setTimeout via scheduleReconnectRef avoids setInterval dead-state. Lint caught circular useCallback; fixed with ref + useEffect sync pattern.
+- EXECUTE: Replaced validationError(schema, body) with validationErrorFromResult(error) in all 9 API routes. Removed FULL_UPDATE_KEYS Set and BroadcastType type from schemas.ts.
+- VERIFY: bun run lint — 0 errors. Dev log — all 200s.
+
+Stage Summary:
+- SSE reconnect: setInterval → recursive setTimeout with ref. No more permanent degradation to polling-only mode.
+- validationErrorFromResult: accepts ZodError directly, eliminating redundant re-parse on every 400 response. 9 routes updated.
+- Dead exports removed: FULL_UPDATE_KEYS (unused Set), BroadcastType (unused type alias).
+- Lint: 0 errors.

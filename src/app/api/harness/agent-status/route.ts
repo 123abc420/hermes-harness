@@ -4,7 +4,7 @@ import { logError } from '@/lib/logger';
 import { formatArgentinaTime } from '@/lib/constants';
 import {
   agentStatusPostSchema,
-  validationError,
+  validationErrorFromResult,
   activityEntrySchema,
   subAgentEntrySchema,
   type AgentVisualState,
@@ -251,7 +251,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = agentStatusPostSchema.safeParse(raw);
     if (!parsed.success) {
-      return validationError(agentStatusPostSchema, raw);
+      return validationErrorFromResult(parsed.error);
     }
     const body = parsed.data;
 

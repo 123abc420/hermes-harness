@@ -89,7 +89,9 @@ function createSSEConnection(handlers: {
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sseRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sseRetryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Ref-based self-reference to break recursive useCallback ordering. */
+  const scheduleReconnectRef = useRef<(delayMs: number) => void>(() => {});
   const { setStatus, setConnected, setNetworkNodes } = useAgentLiveStore();
 
   const processData = useCallback((data: HealthData) => {
@@ -181,11 +183,59 @@ export function useAgentLive() {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
-    if (sseRetryRef.current) {
-      clearInterval(sseRetryRef.current);
+    if (sseRetryRef.current !== null) {
+      clearTimeout(sseRetryRef.current);
       sseRetryRef.current = null;
     }
   }, []);
+
+  /**
+   * Schedule a single SSE reconnection attempt after `delayMs`.
+   * Uses recursive setTimeout instead of setInterval so each retry
+   * independently reschedules itself — no dead-state possible.
+   * Self-references via ref to avoid "used before declared" lint error.
+   */
+  const scheduleReconnect = useCallback((delayMs: number) => {
+    if (sseRetryRef.current !== null) return; // already scheduled
+    sseRetryRef.current = window.setTimeout(() => {
+      sseRetryRef.current = null;
+      if (eventSourceRef.current) return; // SSE already re-established
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[AgentLive] Attempting SSE reconnection...');
+      }
+      stopPolling();
+      const retryEs = createSSEConnection({
+        onMessage: (data) => processData(data),
+        onOpen: () => {
+          setConnected(true);
+          // Cancel pending retry on successful reconnect
+          if (sseRetryRef.current !== null) {
+            clearTimeout(sseRetryRef.current);
+            sseRetryRef.current = null;
+          }
+        },
+        onError: () => {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[AgentLive] SSE retry failed, rescheduling...');
+          }
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            eventSourceRef.current = null;
+          }
+          setConnected(false);
+          startPolling();
+          // Reschedule via ref — no dead-state, no circular dependency
+          scheduleReconnectRef.current(30_000);
+        },
+      });
+      eventSourceRef.current = retryEs;
+    }, delayMs);
+  }, [processData, setConnected, startPolling, stopPolling]);
+
+  // Keep ref in sync so the recursive call always uses the latest closure
+  useEffect(() => {
+    scheduleReconnectRef.current = scheduleReconnect;
+  }, [scheduleReconnect]);
 
   const connectSSE = useCallback(() => {
     try {
@@ -200,38 +250,20 @@ export function useAgentLive() {
           if (process.env.NODE_ENV !== 'production') {
             console.warn('[AgentLive] SSE error, falling back to polling');
           }
-          stopSSE();
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            eventSourceRef.current = null;
+          }
+          // Clear any pending retry
+          if (sseRetryRef.current !== null) {
+            clearTimeout(sseRetryRef.current);
+            sseRetryRef.current = null;
+          }
           setConnected(false);
           useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
           startPolling();
-          // Schedule reconnection attempt
-          if (!sseRetryRef.current) {
-            sseRetryRef.current = setInterval(() => {
-              if (eventSourceRef.current) return;
-              if (process.env.NODE_ENV !== 'production') {
-                console.warn('[AgentLive] Attempting SSE reconnection...');
-              }
-              stopPolling();
-              // Clear retry timer on successful reconnect
-              const retryTimer = sseRetryRef.current;
-              const retryEs = createSSEConnection({
-                onMessage: (data) => processData(data),
-                onOpen: () => {
-                  setConnected(true);
-                  if (retryTimer) {
-                    clearInterval(retryTimer);
-                    sseRetryRef.current = null;
-                  }
-                },
-                onError: () => {
-                  stopSSE();
-                  setConnected(false);
-                  startPolling();
-                },
-              });
-              eventSourceRef.current = retryEs;
-            }, 30_000);
-          }
+          // Schedule first reconnection attempt
+          scheduleReconnect(30_000);
         },
       });
       eventSourceRef.current = es;
@@ -242,7 +274,7 @@ export function useAgentLive() {
       useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
       startPolling();
     }
-  }, [processData, setConnected, startPolling, stopPolling, stopSSE]);
+  }, [processData, setConnected, startPolling, scheduleReconnect]);
 
   useEffect(() => {
     connectSSE();

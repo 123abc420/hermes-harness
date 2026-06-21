@@ -102,3 +102,9 @@
 
 - Self-referencing HTTP calls (`curl` to `localhost:3000`) frequently time out from within the sandbox.
 - SSE works fine for browser clients (outside sandbox). Issue is server-to-self only.
+
+## React Hooks — Recursive Callbacks
+
+- A `useCallback` that references itself creates a "used before declared" lint error. Fix: store the fn in a ref, update ref in `useEffect`, call via `ref.current()` inside the callback.
+- `useRef.current = value` during render triggers react-hooks/refs lint error. Must assign inside `useEffect`.
+- Recursive `setTimeout` is safer than `setInterval` for retry loops — each attempt independently schedules the next, no dead-state if the interval is cleared.

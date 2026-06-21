@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { logError, logDebug } from '@/lib/logger';
 import {
   patchWaveSchema,
-  validationError,
+  validationErrorFromResult,
 } from '@/lib/schemas';
 
 export async function GET(
@@ -38,7 +38,7 @@ export async function PATCH(
     const body = await req.json().catch(() => null);
     const parsed = patchWaveSchema.safeParse(body);
     if (!parsed.success) {
-      return validationError(patchWaveSchema, body);
+      return validationErrorFromResult(parsed.error);
     }
 
     const data = parsed.data;

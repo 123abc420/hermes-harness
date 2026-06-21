@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { logError } from '@/lib/logger';
-import { createMetricSchema, validationError } from '@/lib/schemas';
+import { createMetricSchema, validationErrorFromResult } from '@/lib/schemas';
 
 export async function GET(req: NextRequest) {
   try {
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null);
     const parsed = createMetricSchema.safeParse(body);
     if (!parsed.success) {
-      return validationError(createMetricSchema, body);
+      return validationErrorFromResult(parsed.error);
     }
 
     const { metricKey, metricValue, waveId } = parsed.data;

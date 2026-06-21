@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { logError } from '@/lib/logger';
 import {
   createDecisionSchema,
-  validationError,
+  validationErrorFromResult,
 } from '@/lib/schemas';
 
 /** Derive a decision outcome from its action + wave status */
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null);
     const parsed = createDecisionSchema.safeParse(body);
     if (!parsed.success) {
-      return validationError(createDecisionSchema, body);
+      return validationErrorFromResult(parsed.error);
     }
 
     const { waveId, category, priority, action, description, reasoning, targetFile, targetModule, outcome } = parsed.data;
