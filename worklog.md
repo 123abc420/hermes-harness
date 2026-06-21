@@ -4942,3 +4942,27 @@ Stage Summary:
 - agent-status/route.ts: +22 lines interfaces, -4 lines casts/wrappers (net type safety gain)
 - Lesson: always verify dead-code claims with build, not just grep
 - Git push: b0c505e..7f4aabb
+
+---
+Task ID: W243
+Agent: Wave Engine (orchestrator)
+Task: Remove 16 dead deps + 3 dead UI files + deduplicate types
+
+Work Log:
+- ASSESS: Clean state from W242, no dev.log errors
+- Sub-agent scan found 13 zero-import deps, 3 dead UI components, 3 dead Radix deps, type duplication
+- Verified all 13 deps with rg — confirmed zero imports in src/
+- Verified 3 Radix deps only used by the 3 dead UI components
+- PLAN: 2 improvements — (1) remove dead deps + files, (2) deduplicate types
+- EXECUTE: Removed 16 deps from package.json, deleted 3 UI files, bun install removed 19 total packages
+- Single-sourced WaveStatus + DecisionPriority from schemas.ts (also fixed missing 'error' in store WaveStatus)
+- VERIFY: lint 0 errors, build 19/19
+- PERSIST: Committed and pushed (c408a7f)
+
+Stage Summary:
+- package.json: 35→23 dependencies (16 removed, including 3 Radix)
+- Deleted: label.tsx, progress.tsx, toggle.tsx (65 lines)
+- bun install: 19 packages removed (including transitive)
+- harness-store.ts: WaveStatus + DecisionPriority now imported from schemas.ts (single source of truth, fixes missing 'error' status)
+- Net: -871 lines deleted
+- Git push: 0c5f38b..c408a7f
