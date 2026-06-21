@@ -186,7 +186,7 @@ function GraphNode({
 export function AgentNetworkGraph() {
   const networkNodes = useAgentLiveStore(s => s.networkNodes);
   const selectedNodeId = useAgentLiveStore(s => s.selectedNodeId);
-  const setSelectedNodeId = useAgentLiveStore(s => s.setSelectedNodeId);
+  const selectNode = useAgentLiveStore(s => s.selectNode);
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -311,7 +311,7 @@ export function AgentNetworkGraph() {
                 node={node}
                 isHovered={isHov}
                 isOrchestrator={isOrch}
-                onSelect={() => setSelectedNodeId(isSel ? null : node.id)}
+                onSelect={() => selectNode(isSel ? null : node.id)}
                 onHover={(h) => setHoveredId(h ? node.id : null)}
                 svgW={w}
                 svgH={h}

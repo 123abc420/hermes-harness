@@ -5430,3 +5430,25 @@ Stage Summary:
 - Decision objects fetched per dashboard: N×10 → 0 (count-only)
 - Empty catch with logError in API POST: fixed 1 (agent-demo)
 - Total improvements: 3, Decisions: 3
+
+---
+Task ID: W256
+Agent: Main Orchestrator
+Task: Rebuild Agent Live as replay-first timeline + SVG node graph
+
+Work Log:
+- User feedback: "cielo estrellado", "pelota bugueada flotando" — canvas animations are terrible
+- User request: "Diseñemoslo enfocado en mostrar la replay" — timeline with timestamps, loop option, understandable
+- Removed 726-line agent-live-panel.tsx → replaced with 95-line replay-focused panel
+- Removed 756-line agent-network-canvas.tsx (procedural Canvas 2D) → replaced with 325-line agent-network-graph.tsx (SVG, zero animation loop)
+- Created wave-replay-view.tsx: timestamped timeline, play/pause/speed/loop controls, phase progress bar, auto-scroll
+- New layout: compact status bar → phase progress → (graph + timeline) side by side
+- Verified with agent-browser: SSE delivers data, timeline shows timestamps (00:00, 00:18, 00:34), phases grouped, SVG node renders
+
+Stage Summary:
+- agent-live-panel.tsx: 726 → 95 lines (removed: STATE_VISUALS, AgentSkill, ActionPalette, StatCard, etc.)
+- agent-network-canvas.tsx: 756 lines (DELETED — replaced by agent-network-graph.tsx)
+- agent-network-graph.tsx: 325 lines NEW (SVG, no requestAnimationFrame, no particles)
+- wave-replay-view.tsx: 398 lines NEW (replay timeline + controls)
+- Canvas animation frames/sec: 60 → 0 (zero animation loop)
+- Total lines in agent-live files: 1566 → 818 (-48%)
