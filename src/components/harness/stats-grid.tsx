@@ -1,18 +1,20 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useId } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, Brain, TrendingUp, AlertTriangle, Target, GitBranch, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedNumber } from './animated-number';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import type { Wave, TotalStats, Metric } from '@/store/harness-store';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
 function Sparkline({ data, color = 'currentColor', label = 'Trend chart' }: {
   data: number[]; color?: string; label?: string;
 }) {
+  const gradId = useId();
   if (data.length < 2) return null;
   const W = 120, H = 24;
   const min = Math.min(...data);
@@ -29,13 +31,13 @@ function Sparkline({ data, color = 'currentColor', label = 'Trend chart' }: {
     <svg width="100%" height={H} className="shrink-0" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={label}>
       <title>{label}</title>
       <defs>
-        <linearGradient id={`grad-${label.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.2" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
       <polygon
-        fill={`url(#grad-${label.replace(/\s/g, '')})`}
+        fill={`url(#${gradId})`}
         points={areaPoints}
       />
       <polyline
@@ -176,12 +178,13 @@ function StatCard({
   changePercent?: number | null;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const reduced = usePrefersReducedMotion();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.35, delay }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0, y: 12, scale: 0.97 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+      transition={reduced ? { duration: 0 } : { duration: 0.35, delay }}
     >
       <Card
         className="glass-card group relative overflow-hidden transition-all duration-300 hover:border-white/10 hover:shadow-lg hover:shadow-black/20"
@@ -244,10 +247,10 @@ function StatCard({
         <AnimatePresence>
           {showTooltip && (
             <motion.div
-              initial={{ opacity: 0, y: 4, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 4, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
+              initial={reduced ? { opacity: 1 } : { opacity: 0, y: 4, scale: 0.95 }}
+              animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={reduced ? { opacity: 0 } : { opacity: 0, y: 4, scale: 0.95 }}
+              transition={reduced ? { duration: 0 } : { duration: 0.15 }}
             >
               <StatTooltip
                 label={label}

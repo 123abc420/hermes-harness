@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import type { Wave } from '@/store/harness-store';
 
 /* ── Wave Duration Bars ────────────────────────────── */
@@ -29,6 +30,7 @@ function DurationEmptyState() {
 }
 
 export function WaveDurationBars({ waves }: { waves: Wave[] }) {
+  const reduced = usePrefersReducedMotion();
   if (waves.length < 2) return <DurationEmptyState />;
 
   const durationData = [...waves]
@@ -83,9 +85,9 @@ export function WaveDurationBars({ waves }: { waves: Wave[] }) {
                 <div className={cn('h-3 flex-1 rounded-full overflow-hidden', barTrack)}>
                   <motion.div
                     className={cn('h-full rounded-full', barColor(d.status))}
-                    initial={{ width: 0 }}
+                    initial={reduced ? { width: `${pct}%` } : { width: 0 }}
                     animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    transition={reduced ? { duration: 0 } : { duration: 0.5, ease: 'easeOut' }}
                   />
                 </div>
                 <span className="w-10 shrink-0 text-right text-[10px] font-mono tabular-nums text-zinc-500">

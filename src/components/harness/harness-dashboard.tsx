@@ -5,6 +5,7 @@ import { useEffect, useCallback, useState, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge } from './shared-footer-components';
 import { useHarnessStore, type TabValue } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
@@ -36,6 +37,7 @@ export function HarnessDashboard() {
   const { data: dash } = useHarnessDashboard();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
+  const reduced = usePrefersReducedMotion();
   const tabListRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
@@ -155,7 +157,7 @@ export function HarnessDashboard() {
               <motion.div
                 className="absolute bottom-1.5 h-[calc(100%-12px)] rounded-lg bg-amber-500/[0.08] shadow-[inset_0_0_0_1px_rgba(245,158,11,0.15)]"
                 animate={indicatorStyle}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
               />
               {TAB_CONFIG.map((tab, idx) => {
                 const Icon = tab.icon;
@@ -200,9 +202,9 @@ export function HarnessDashboard() {
 
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            initial={reduced ? { opacity: 1 } : { opacity: 0, y: 6 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            transition={reduced ? { duration: 0 } : { duration: 0.25, ease: 'easeOut' }}
           >
             <TabsContent value="agent" className="mt-0" style={{ height: 'calc(100vh - 220px)' }}>
               <HarnessErrorBoundary inline label="Agent Live">
@@ -288,10 +290,10 @@ export function HarnessDashboard() {
             <>
               <div role="presentation" className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
               <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={{ duration: 0.15 }}
+                initial={reduced ? { opacity: 1 } : { opacity: 0, y: 8 }}
+                animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                transition={reduced ? { duration: 0 } : { duration: 0.15 }}
                 className="absolute bottom-full right-4 sm:right-6 mb-2 z-50 w-64 rounded-xl border border-white/[0.08] bg-[#1a1510] p-4 shadow-2xl"
               >
                 <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3">Keyboard Shortcuts</p>

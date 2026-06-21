@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Github, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AnimatedNumber } from './animated-number';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { formatDistanceToNow } from 'date-fns';
 import type { TotalStats, GithubStatus } from '@/store/harness-store';
 import { useAgentLiveStore } from '@/store/agent-live-store';
@@ -117,6 +118,7 @@ export function HeroStatusCard({
 }) {
   const agentState = useAgentLiveStore(s => s.agentState);
   const isAgentLive = useAgentLiveStore(s => s.isConnected);
+  const reduced = usePrefersReducedMotion();
 
   if (isLoading) {
     return (
@@ -164,9 +166,9 @@ export function HeroStatusCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0, y: -8 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0 } : { duration: 0.35 }}
     >
       <Card className="hero-glow-border overflow-hidden">
         <CardContent className="p-5 sm:p-6 relative">

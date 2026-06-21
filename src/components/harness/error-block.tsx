@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
 interface ErrorBlockProps {
   message?: string;
@@ -11,10 +12,12 @@ interface ErrorBlockProps {
 }
 
 export function ErrorBlock({ message, onRetry }: ErrorBlockProps) {
+  const reduced = usePrefersReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={reduced ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+      animate={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1 }}
+      transition={reduced ? { duration: 0 } : undefined}
     >
       <Card className="glass-card border-red-500/10">
         <CardContent className="flex h-48 items-center justify-center">

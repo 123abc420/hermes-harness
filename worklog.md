@@ -6042,3 +6042,27 @@ Work Log:
 Stage Summary:
 - 3 files changed. Zustand subscription perf fix, CSS-level reduced-motion safety net, spec compliance accuracy.
 - Lint: 0. TypeScript: 0. Health: 100/100.
+
+---
+Task ID: W283
+Agent: Main Orchestrator
+Task: WCAG 2.3.3 JS-level reduced-motion for 6 key framer-motion components + SVG gradient ID fix
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0. Found 17/19 framer-motion files lack JS-level usePrefersReducedMotion. Also found SVG linearGradient id collision risk in stats-grid.tsx Sparkline.
+- PLAN: 2 improvements:
+  1. HIGH — Integrate usePrefersReducedMotion into 6 high-visibility framer-motion components (stats-grid, hero-status-card, harness-dashboard, decision-card, wave-duration-bars, error-block)
+  2. MEDIUM — Fix SVG gradient ID uniqueness in stats-grid Sparkline using useId()
+- EXECUTE:
+  1. stats-grid.tsx: Added usePrefersReducedMotion to StatCard (entry + tooltip), useId() for Sparkline gradient IDs
+  2. hero-status-card.tsx: Added usePrefersReducedMotion to HeroStatusCard entry animation
+  3. harness-dashboard.tsx: Added usePrefersReducedMotion to tab indicator spring, tab content transition, shortcuts popover
+  4. decision-card.tsx: Added usePrefersReducedMotion to card entry + expand/collapse animation
+  5. wave-duration-bars.tsx: Added usePrefersReducedMotion to bar width animation
+  6. error-block.tsx: Added usePrefersReducedMotion to error entry animation
+- VERIFY: Lint 0, tsc 0. All 6 files compile cleanly.
+
+Stage Summary:
+- 6 files changed. JS-level reduced-motion now in 8/19 framer-motion files (2 existing + 6 new). SVG gradient IDs unique via useId().
+- Pattern: `reduced ? { opacity: 1 } : { opacity: 0, y: N }` for initial, `reduced ? { duration: 0 } : { duration: N }` for transition.
+- Lint: 0. TypeScript: 0. Health: 100/100.

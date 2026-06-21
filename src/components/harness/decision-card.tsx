@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { CATEGORY_TW, CATEGORY_HEX } from '@/lib/category-colors';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import type { DecisionPriority } from '@/lib/schemas';
 
 const PRIORITY_STYLES: Record<DecisionPriority, string> = {
@@ -53,6 +54,7 @@ export const DecisionCard = memo(function DecisionCard({ decision }: { decision:
   const setActiveTab = useHarnessStore(s => s.setActiveTab);
   const setPendingWaveDetailId = useHarnessStore(s => s.setPendingWaveDetailId);
   const [open, setOpen] = useState(false);
+  const reduced = usePrefersReducedMotion();
 
   // Category color for left border
   const borderColor = CATEGORY_HEX[decision.category] ?? '#71717a';
@@ -63,9 +65,9 @@ export const DecisionCard = memo(function DecisionCard({ decision }: { decision:
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
+        initial={reduced ? { opacity: 1 } : { opacity: 0, y: 8 }}
+        animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={reduced ? { duration: 0 } : { duration: 0.25 }}
       >
         <Card className={cn(
           'glass-card group transition-all duration-200 overflow-hidden',
@@ -156,10 +158,10 @@ export const DecisionCard = memo(function DecisionCard({ decision }: { decision:
                   {open && (
                     <CollapsibleContent forceMount>
                       <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        initial={reduced ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
+                        animate={reduced ? { height: 'auto', opacity: 1 } : { height: 'auto', opacity: 1 }}
+                        exit={reduced ? { height: 0, opacity: 0 } : { height: 0, opacity: 0 }}
+                        transition={reduced ? { duration: 0 } : { duration: 0.2, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
                         <div className="mt-2 space-y-2 rounded-lg bg-white/[0.02] p-3 border border-white/[0.04]">
