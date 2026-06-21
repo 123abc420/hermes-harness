@@ -5252,3 +5252,28 @@ Stage Summary:
 - cn() adoption: 4 → 6 harness files (+decisions-tab, +hero-status-card)
 - Template-literal className in harness: 42 remaining across 17 files (was 55 before prior waves)
 - Net: +10 -16 lines across 3 files (net reduction via cleaner patterns)
+---
+Task ID: W250
+Agent: Main Orchestrator
+Task: Complete cn() migration across all harness component files
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dashboard API
+- Found 0 TS errors, 0 lint errors, 0 as any, 1 as string (JSON.parse)
+- Identified 48 dynamic template-literal classNames across 19 harness files without cn()
+- PLAN: 3 improvements — cn() migration (primary), W251 bug fixes, inline style review
+- EXECUTE: Migrated 17 harness files from template-literal to cn() className
+  - Files: stats-grid, harness-header, wave-comparison-card, spec-compliance-card,
+    github-subcomponents (2 remaining), donut-chart-card, decision-timeline,
+    wave-duration-bars, mini-wave-timeline, skills-section, error-trend-chart,
+    activity-heatmap, overview-tab, harness-dashboard, agent-live-subcomponents,
+    category-trends-chart
+- Fixed W251 bug: agent-live-panel.tsx was empty (restored from git) + double-brace style prop
+- VERIFY: 0 lint errors, 0 TS errors, 0 template-literal classNames remaining
+- PERSIST: Committed, recorded wave + 2 decisions + 6 metrics, GitHub sync, context.md updated
+
+Stage Summary:
+- Template-literal classNames in harness: 48 → 0
+- cn() adoption in harness: 6 → 17 files (all harness files with dynamic classNames)
+- Fixed W251 corruption (empty agent-live-panel.tsx + syntax error)
+- 17 files changed, 132 insertions, 99 deletions

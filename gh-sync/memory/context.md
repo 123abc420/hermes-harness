@@ -3,11 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 15:33 UTC+8
+2026-06-21 15:45 UTC+8
 
 ## System Status
 - **Phase**: Multi-Agent Visual Era (Wave 250)
-- **Waves in DB**: 161
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,7 +17,7 @@
 | Skills | 10 (+ 1 template) |
 | Components | 21 (BuildHealthCard removed, W247) |
 | Exported components | 10 |
-| GitHub commits | ~476 |
+| GitHub commits | ~478 |
 | Waves in DB | 161 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
@@ -64,8 +63,8 @@
 | Prisma-typed query params | 4 routes (W248) |
 | useState for non-rendering values | 0 (scrollY+debounceRef→useRef, W249) |
 | as AgentVisualState[] assertions | 0 (AgentSkill interface, W250) |
-| cn() adoption | 6 harness files (W250) |
-| Template-literal className in harness | 42 across 17 files (W250) |
+| cn() adoption | 17 harness files (W250) |
+| Template-literal className in harness | 0 (W250) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
