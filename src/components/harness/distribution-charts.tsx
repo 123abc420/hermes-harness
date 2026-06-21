@@ -4,9 +4,8 @@ import { PieChart as PieChartIcon, CheckCircle2 } from 'lucide-react';
 import { CATEGORY_HEX } from '@/lib/category-colors';
 import { DonutChartCard, type DonutSlice } from './donut-chart-card';
 import type { DashboardData } from '@/store/harness-store';
-import type { DecisionOutcome } from '@/lib/schemas';
 
-const OUTCOME_COLORS: Record<DecisionOutcome, string> = {
+const OUTCOME_COLORS: Record<string, string> = {
   success: '#34d399',
   success_verified: '#10b981',
   skipped: '#71717a',
@@ -41,7 +40,7 @@ export function OutcomeDistribution({ recentDecisions }: { recentDecisions?: Das
   const outMap: Record<string, number> = {};
   for (const d of decisions) { const k = d.outcome ?? 'pending'; outMap[k] = (outMap[k] ?? 0) + 1; }
   const data: DonutSlice[] = Object.entries(outMap)
-    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: OUTCOME_COLORS[name as DecisionOutcome] ?? '#71717a' }))
+    .map(([name, value]) => ({ name: name.replace('_', ' '), value, color: OUTCOME_COLORS[name] ?? '#71717a' }))
     .sort((a, b) => b.value - a.value);
   const successPct = decisions.length > 0 ? Math.round(((outMap['success_verified'] ?? 0) / decisions.length) * 100) : 0;
 

@@ -40,10 +40,15 @@ export async function POST() {
       });
       pushOk = true;
     } catch (pushErr) {
-      logDebug('GITHUB_SYNC', 'git push failed (may already be up-to-date)', { error: String(pushErr) });
-      // If "already up-to-date", that's still a success
-      if (String(pushErr).includes('already up-to-date') || String(pushErr).includes('Everything up-to-date')) {
+      // git push may throw even when "already up-to-date" (rare: pre-push hook)
+      // Check stderr for up-to-date indicators before treating as failure
+      const errMsg = pushErr instanceof Error ? pushErr.message : String(pushErr);
+      const isUpToDate = errMsg.includes('already up-to-date') || errMsg.includes('Everything up-to-date');
+      if (isUpToDate) {
+        logDebug('GITHUB_SYNC', 'git push up-to-date (no new commits to push)');
         pushOk = true;
+      } else {
+        logDebug('GITHUB_SYNC', 'git push failed', { error: errMsg });
       }
     }
 

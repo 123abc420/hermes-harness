@@ -105,7 +105,7 @@ export function OverviewTab() {
         {!isLoading && waves.length >= 2 ? (
           <WaveComparisonCard waves={waves} />
         ) : !isLoading ? null : (
-          <Card className="glass-card"><CardContent className="p-6"><div className="flex items-center gap-4"><div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.04]" /><div className="space-y-2"><div className="h-4 w-40 animate-pulse rounded bg-white/[0.04]" /><div className="h-3 w-60 animate-pulse rounded bg-white/[0.03]" /></div></div></CardContent></Card>
+          <Card className="glass-card"><CardContent className="p-6"><div className="flex items-center gap-4"><Skeleton className="h-10 w-10 rounded-xl" /><div className="space-y-2"><Skeleton className="h-4 w-40" /><Skeleton className="h-3 w-60" /></div></div></CardContent></Card>
         )}
       </AnimatedSection>
 
@@ -114,7 +114,7 @@ export function OverviewTab() {
         {!isLoading && waves.length > 0 ? (
           <ActivityHeatmap waves={waves} />
         ) : !isLoading ? null : (
-          <Card className="glass-card shimmer-card"><CardContent className="p-6"><div className="h-24 w-full rounded bg-white/[0.03] animate-pulse" /></CardContent></Card>
+          <Card className="glass-card shimmer-card"><CardContent className="p-6"><Skeleton className="h-24 w-full rounded" /></CardContent></Card>
         )}
       </AnimatedSection>
 

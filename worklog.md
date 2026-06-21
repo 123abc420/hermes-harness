@@ -5790,3 +5790,23 @@ Stage Summary:
 - Error handling: clipboard failure shows user-facing toast instead of silent swallow.
 - A11y: backdrop div marked as presentation — screen readers skip it.
 - Lint: 0 errors. All quality gates clear.
+---
+Task ID: W272
+Agent: HERMES Harness Wave Engine (cron job 221210)
+Task: Wave 272 — OUTCOME_COLORS type honesty + git push error handling + Skeleton consistency
+
+Work Log:
+- ASSESS: Read context.md (183 waves, 513 commits), dev.log (clean). W269 deep scan residuals exhausted (9/9 medium done across W269-W271). Selected 3 remaining improvements.
+- PLAN: (1) OUTCOME_COLORS honest type + remove cast + dead import, (2) git push error handling with instanceof check + split log messages, (3) replace inline shimmer with Skeleton in overview-tab.
+- EXECUTE Decision 1 (type_safety/medium): Changed OUTCOME_COLORS from Record<DecisionOutcome, string> to Record<string, string>. Removed `as DecisionOutcome` cast at usage site. Removed unused DecisionOutcome import.
+- EXECUTE Decision 2 (error_handling/medium): Replaced String(pushErr) with instanceof Error check for proper message extraction. Split logDebug messages: up-to-date gets its own message, real failures get error logged separately.
+- EXECUTE Decision 3 (consistency/low): Replaced 2 inline animate-pulse shimmer divs in overview-tab with Skeleton component. Consistent with all other loading states in the codebase.
+- VERIFY: bun run lint = 0 errors. Dev.log clean.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- 4 files edited, 0 files deleted.
+- Type safety: OUTCOME_COLORS honestly typed as Record<string, string> — no misleading cast.
+- Error handling: git push uses instanceof Error + split log messages (up-to-date vs failure).
+- Consistency: 2 inline shimmers → Skeleton component in overview-tab.
+- Lint: 0 errors. All quality gates clear.
