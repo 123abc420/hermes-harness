@@ -54,14 +54,24 @@ export function AgentAvatarCanvas() {
     const cx = W / 2;
     const cy = H / 2 + 10;
 
-    // Particles
-    const particles = Array.from({ length: 30 }, () => ({
+    // Particles (increased count for richer scene)
+    const particles = Array.from({ length: 45 }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
       speed: 0.2 + Math.random() * 0.5,
       offset: Math.random() * Math.PI * 2,
-      size: 1 + Math.random() * 2,
-      alpha: 0.2 + Math.random() * 0.4,
+      size: 0.8 + Math.random() * 2,
+      alpha: 0.15 + Math.random() * 0.35,
+    }));
+
+    // Orbiting ring particles (small dots on elliptical paths around character)
+    const ringParticles = Array.from({ length: 8 }, (_, i) => ({
+      angle: (Math.PI * 2 * i) / 8,
+      radiusX: 55 + Math.random() * 15,
+      radiusY: 20 + Math.random() * 8,
+      speed: 0.0003 + Math.random() * 0.0004,
+      size: 1 + Math.random() * 1.5,
+      yOff: cy + 5,
     }));
 
     function draw(t: number) {
@@ -98,22 +108,66 @@ export function AgentAvatarCanvas() {
         ctx.fill();
       }
 
-      // Station markers
+      // Orbiting ring (elliptical path around character)
+      const ringAlpha = 0.12 + Math.sin(t * 0.001) * 0.05;
+      ctx.strokeStyle = color + Math.round(ringAlpha * 255).toString(16).padStart(2, '0');
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 5, 65, 22, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Ring particles orbiting
+      for (const rp of ringParticles) {
+        rp.angle += rp.speed * (t % 100000);
+        const rx = cx + Math.cos(rp.angle) * rp.radiusX;
+        const ry = rp.yOff + Math.sin(rp.angle) * rp.radiusY;
+        ctx.beginPath();
+        ctx.arc(rx, ry, rp.size, 0, Math.PI * 2);
+        ctx.fillStyle = color + '88';
+        ctx.fill();
+      }
+
+      // Station markers with pulsing glow and connection lines to character
       const stations = [
         { x: cx - 80, y: cy - 60, label: 'LIBRARY', c: '#06b6d4' },
-        { x: cx + 80, y: cy - 60, label: 'OBSERVATORY', c: '#f97316' },
+        { x: cx + 80, y: cy - 60, label: 'OBSERV.', c: '#f97316' },
         { x: cx, y: cy - 90, label: 'MAP', c: '#a855f7' },
         { x: cx + 90, y: cy + 30, label: 'WORKSHOP', c: '#ef4444' },
         { x: cx - 90, y: cy + 30, label: 'LAB', c: '#22c55e' },
         { x: cx, y: cy + 70, label: 'PLAZA', c: '#eab308' },
       ];
+
+      // Connection lines from character center to each station (dashed, faint)
+      ctx.setLineDash([3, 5]);
+      ctx.lineWidth = 0.5;
       for (const s of stations) {
-        ctx.fillStyle = s.c + '40';
-        ctx.beginPath(); ctx.arc(s.x, s.y, 3, 0, Math.PI * 2); ctx.fill();
+        const lineAlpha = 0.08 + Math.sin(t * 0.002 + s.x * 0.01) * 0.04;
+        ctx.strokeStyle = s.c + Math.round(lineAlpha * 255).toString(16).padStart(2, '0');
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 5);
+        ctx.lineTo(s.x, s.y);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      // Station dots with pulsing glow
+      for (const s of stations) {
+        const pulse = 1 + Math.sin(t * 0.004 + s.x * 0.02) * 0.3;
+        // Outer glow
+        const sgrd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 8 * pulse);
+        sgrd.addColorStop(0, s.c + '30');
+        sgrd.addColorStop(1, 'transparent');
+        ctx.fillStyle = sgrd;
+        ctx.fillRect(s.x - 10, s.y - 10, 20, 20);
+        // Core dot
         ctx.fillStyle = s.c + '90';
-        ctx.font = '7px monospace';
+        ctx.beginPath(); ctx.arc(s.x, s.y, 2.5 * pulse, 0, Math.PI * 2); ctx.fill();
+        // Label (centered below the dot for better alignment)
+        ctx.fillStyle = s.c + '90';
+        ctx.font = '600 7px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(s.label, s.x, s.y - 8);
+        ctx.textBaseline = 'top';
+        ctx.fillText(s.label, s.x, s.y + 6);
       }
 
       // Ground glow
@@ -245,20 +299,42 @@ export function AgentAvatarCanvas() {
       ctx.ellipse(cx, headY + 15, mouthW, mouthH, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Floating orb
-      const orbX = cx + Math.sin(t * 0.002) * 40;
+      // Floating orb with trail
+      const orbAngle = t * 0.002;
+      const orbX = cx + Math.sin(orbAngle) * 40;
       const orbY = headY - 30 + Math.cos(t * 0.003) * 10;
       const orbSize = 6 + Math.sin(t * 0.006) * 2;
+
+      // Trail (3 ghost orbs behind main)
+      for (let ti = 1; ti <= 3; ti++) {
+        const trailAngle = orbAngle - ti * 0.15;
+        const tx = cx + Math.sin(trailAngle) * 40;
+        const ty = headY - 30 + Math.cos(t * 0.003 - ti * 0.1) * 10;
+        const tAlpha = 0.15 / ti;
+        ctx.fillStyle = color + Math.round(tAlpha * 255).toString(16).padStart(2, '0');
+        ctx.beginPath(); ctx.arc(tx, ty, orbSize * (1 - ti * 0.15), 0, Math.PI * 2); ctx.fill();
+      }
+
+      // Main orb glow
       const orbGrd = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbSize * 3);
       orbGrd.addColorStop(0, color + 'AA');
       orbGrd.addColorStop(0.3, color + '44');
       orbGrd.addColorStop(1, 'transparent');
       ctx.fillStyle = orbGrd;
       ctx.fillRect(orbX - orbSize * 3, orbY - orbSize * 3, orbSize * 6, orbSize * 6);
+      // Main orb
       ctx.fillStyle = color;
       ctx.beginPath(); ctx.arc(orbX, orbY, orbSize, 0, Math.PI * 2); ctx.fill();
+      // Highlight
       ctx.fillStyle = '#fff';
       ctx.beginPath(); ctx.arc(orbX - 1, orbY - 1, orbSize * 0.3, 0, Math.PI * 2); ctx.fill();
+
+      // Vignette overlay for depth
+      const vigGrd = ctx.createRadialGradient(W / 2, H / 2, W * 0.25, W / 2, H / 2, W * 0.7);
+      vigGrd.addColorStop(0, 'transparent');
+      vigGrd.addColorStop(1, 'rgba(0,0,0,0.4)');
+      ctx.fillStyle = vigGrd;
+      ctx.fillRect(0, 0, W, H);
 
       rafRef.current = requestAnimationFrame(draw);
     }

@@ -31,23 +31,32 @@ export async function POST() {
       // git not available, keep DB values
     }
 
+    // Do actual git push (async — no event loop blocking)
+    let pushOk = false;
+    try {
+      await execFileAsync('git', ['push', 'origin', 'HEAD'], {
+        encoding: 'utf-8',
+        timeout: 30_000,
+      });
+      pushOk = true;
+    } catch (pushErr) {
+      logDebug('GITHUB_SYNC', 'git push failed (may already be up-to-date)', { error: String(pushErr) });
+      // If "already up-to-date", that's still a success
+      if (String(pushErr).includes('already up-to-date') || String(pushErr).includes('Everything up-to-date')) {
+        pushOk = true;
+      }
+    }
+
     const updated = await db.gitHubSync.update({
       where: { id: sync.id },
       data: {
-        status: 'syncing',
+        status: pushOk ? 'connected' : 'error',
         lastSyncAt: new Date(),
         totalCommits: commitCount,
         lastCommitSha: lastSha,
+        errorMessage: pushOk ? null : 'Push failed',
       },
     });
-
-    // Simulate sync completing
-    setTimeout(async () => {
-      await db.gitHubSync.update({
-        where: { id: sync.id },
-        data: { status: 'connected' },
-      });
-    }, 2000);
 
     return NextResponse.json(updated);
   } catch (error) {
