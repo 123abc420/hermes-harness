@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-22 00:34 UTC+8
+2026-06-22 00:49 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 289)
+- **Phase**: Health-100 Era (Wave 290)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,7 +18,7 @@
 | Components | 20 |
 | Exported components | 13 |
 | GitHub commits | ~533 |
-| Waves in DB | 202 |
+| Waves in DB | 203 |
 | TS errors | 0 (enforced, ignoreBuildErrors removed) |
 | Lint errors | 0 |
 | Health score | 100/100 |
@@ -33,6 +33,7 @@
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 - **WCAG 2.3.3: JS-level reduced-motion in ALL 19/19 framer-motion files + global CSS overrides**
 - **SVG SMIL animations (animate, animateMotion) gated behind reduced-motion in agent-network-graph**
+- **Inline CSS keyframe animations (pulse-health, system-pulse) gated behind reduced-motion (W290)**
 - SVG gradient/pattern IDs: useId() collision-safe
 - **Fetch safety: AbortController on all client-side fetch (command-palette, use-agent-live poll)**
 - **waves/[id] route: resolveWaveId() handles both UUID and waveNumber lookup**

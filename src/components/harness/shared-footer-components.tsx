@@ -3,6 +3,7 @@
 import { useId } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Activity } from 'lucide-react';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
 /* ── Wave Activity Sparkline (inline SVG, no Recharts) ─────────── */
 export function WaveSparkline({ waves }: { waves: { status: string }[] }) {
@@ -35,6 +36,7 @@ export function WaveSparkline({ waves }: { waves: { status: string }[] }) {
 
 /* ── Success Rate Pulse Bar ── */
 export function SuccessRatePulse({ rate }: { rate: number }) {
+  const reduced = usePrefersReducedMotion();
   const barColor = rate >= 90 ? '#10b981' : rate >= 70 ? '#f59e0b' : '#ef4444';
   const pulseSpeed = rate >= 90 ? '1.5s' : rate >= 70 ? '2.5s' : '1s';
 
@@ -47,7 +49,7 @@ export function SuccessRatePulse({ rate }: { rate: number }) {
           style={{
             width: `${rate}%`,
             backgroundColor: barColor,
-            animation: `pulse-health ${pulseSpeed} ease-in-out infinite`,
+            ...(!reduced && { animation: `pulse-health ${pulseSpeed} ease-in-out infinite` }),
           }}
         />
       </div>

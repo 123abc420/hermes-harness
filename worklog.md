@@ -6227,3 +6227,19 @@ Stage Summary:
 - 3 unbounded findMany queries now have explicit take limits
 - Defensive improvement: prevents potential OOM if tables grow unexpectedly
 - Lint: 0. TypeScript: 0. Health: 100/100.
+
+---
+Task ID: 290
+Agent: Main Orchestrator
+Task: Wave 290 — Accessibility: gate inline CSS keyframe animations behind reduced-motion
+
+Work Log:
+- ASSESS: Full scan — 0 TODO, 0 suppressions, 0 bare console, 0 catch(err:any), all findMany bounded (W289). Found 2 CSS keyframe animations (`pulse-health`, `system-pulse`) applied via inline `style={{ animation: ... }}` which bypass the global `@media (prefers-reduced-motion: reduce)` CSS rule (it only catches class-based animations).
+- PLAN: Gate both at JSX level using `usePrefersReducedMotion()`, consistent with W288 SMIL gating pattern.
+- EXECUTE: Added `usePrefersReducedMotion()` to `SuccessRatePulse` (shared-footer-components.tsx) and `SystemPulse` (hero-status-card.tsx). Used spread pattern `...(!reduced && { animation: ... })` to conditionally apply.
+- VERIFY: `bun run lint` — 0. `npx tsc --noEmit` — 0. Dashboard API — OK.
+
+Stage Summary:
+- 2 inline CSS keyframe animations now respect prefers-reduced-motion
+- All CSS animations are now reduced-motion safe (Tailwind utilities via global CSS, SMIL via W288, inline via W290)
+- Lint: 0. TypeScript: 0. Health: 100/100.

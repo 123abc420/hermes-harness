@@ -52,6 +52,7 @@ function HealthRing({ score, trend }: { score: number; trend?: 'up' | 'down' | '
 
 /* ── System Pulse Mini Visualization ─────────────────── */
 function SystemPulse({ waves }: { waves: { startedAt: string; status: string }[] }) {
+  const reduced = usePrefersReducedMotion();
   // Take last 5 waves to show frequency
   const last5 = waves.slice(0, 5).reverse();
   if (last5.length < 2) return null;
@@ -81,7 +82,7 @@ function SystemPulse({ waves }: { waves: { startedAt: string; status: string }[]
             height: `${Math.max(bar.h * 24, 4)}px`,
             backgroundColor: bar.color,
             opacity: 0.7,
-            animation: `system-pulse ${1.5 + bar.delay}s ease-in-out ${bar.delay}s infinite`,
+            ...(!reduced && { animation: `system-pulse ${1.5 + bar.delay}s ease-in-out ${bar.delay}s infinite` }),
             transformOrigin: 'bottom',
           }}
         />
