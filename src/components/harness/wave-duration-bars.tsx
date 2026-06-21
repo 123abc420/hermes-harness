@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
+import { waveDurationSeconds } from '@/lib/constants';
 import type { Wave } from '@/store/harness-store';
 
 /* ── Wave Duration Bars ────────────────────────────── */
@@ -37,8 +38,8 @@ export function WaveDurationBars({ waves }: { waves: Wave[] }) {
     .reverse()
     .map((w) => {
       if (!w.completedAt || !w.startedAt) return null;
-      const ms = new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime();
-      return { wave: w.waveNumber, seconds: Math.max(0, Math.round(ms / 1000)), status: w.status };
+      const seconds = waveDurationSeconds(w.startedAt, w.completedAt);
+      return { wave: w.waveNumber, seconds: Math.max(0, seconds), status: w.status };
     })
     .filter((d): d is NonNullable<typeof d> => d !== null);
 

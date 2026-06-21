@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 23:54 UTC+8
+2026-06-21 23:57 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 285)
+- **Phase**: Health-100 Era (Wave 286)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -35,6 +35,7 @@
 - SVG gradient IDs: useId() collision-safe
 - **Fetch safety: AbortController on all client-side fetch (command-palette, use-agent-live poll)**
 - **waves/[id] route: resolveWaveId() handles both UUID and waveNumber lookup**
+- **waveDurationSeconds() DRY utility in constants.ts**
 
 ## What's next
 1. Persist wave activities to DB for cross-reload replay

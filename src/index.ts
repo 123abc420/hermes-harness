@@ -67,4 +67,4 @@ export type {
 
 // ─── Utilities ──────────────────────────────────────────────────────────
 export { fetchJSON } from './lib/fetch-json';
-export { formatDuration, getLevelName, getStateHex, CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE } from './lib/constants';
+export { formatDuration, waveDurationSeconds, getLevelName, getStateHex, CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE } from './lib/constants';

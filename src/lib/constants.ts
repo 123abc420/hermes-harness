@@ -59,6 +59,13 @@ export const CHART_TOOLTIP_STYLE_DARK = {
 // Shared tooltip label style for Recharts <Tooltip labelStyle>
 export const CHART_TOOLTIP_LABEL_STYLE = { color: '#a1a1aa' } as const;
 
+// Compute wave duration in seconds from two ISO date strings.
+// Centralizes the `new Date(b).getTime() - new Date(a).getTime()` pattern
+// that was duplicated 9+ times across components.
+export function waveDurationSeconds(startedAt: string, completedAt: string): number {
+  return Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000);
+}
+
 // Format seconds into human-readable "Xm Ys" or "Xs" string
 export function formatDuration(totalSeconds: number): string {
   if (totalSeconds < 60) return `${totalSeconds}s`;

@@ -6162,3 +6162,19 @@ Stage Summary:
 - Public export contract now complete: all harness hooks, types, stores, and key utilities exported
 - New "Utilities" section in index.ts for shared functions consumers need
 - Lint: 0. TypeScript: 0. Health: 100/100.
+---
+Task ID: W286 (cron)
+Agent: Wave Engine
+Task: Wave 286 — DRY refactor: extract waveDurationSeconds() utility
+
+Work Log:
+- ASSESS: Dev.log clean, lint 0. Deep scan found `new Date(b).getTime() - new Date(a).getTime()` duration pattern duplicated 9 times across 5 component files.
+- PLAN: Extract `waveDurationSeconds(startedAt, completedAt)` to constants.ts, replace all 9 occurrences.
+- EXECUTE: Added `waveDurationSeconds()` to constants.ts. Updated imports and replaced patterns in: wave-comparison-card.tsx (1), wave-detail-dialog.tsx (1), waves-tab.tsx (5), wave-duration-bars.tsx (1). Added to public exports in index.ts.
+- VERIFY: `bun run lint` — 0 errors. `npx tsc --noEmit` — 0 errors.
+- PERSIST: Wave #286 recorded, 1 decision, 2 metrics, GitHub synced.
+
+Stage Summary:
+- Eliminated 9 duplicated 3-line date-diff patterns with single `waveDurationSeconds()` call
+- 5 files simplified, 1 new utility exported
+- Lint: 0. TypeScript: 0. Health: 100/100.

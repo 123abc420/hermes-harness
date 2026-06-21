@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeftRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { STATUS_COLORS } from './wave-detail-dialog';
-import { formatDuration } from '@/lib/constants';
+import { formatDuration, waveDurationSeconds } from '@/lib/constants';
 import type { Wave } from '@/store/harness-store';
 
 /* ── Delta indicator ─────────────────────────────────── */
@@ -26,7 +26,7 @@ function Delta({ current, previous, invert = false }: { current: number; previou
 /* ── Single wave column ──────────────────────────────── */
 function WaveColumn({ wave, label }: { wave: Wave; label: string }) {
   const duration = wave.completedAt && wave.startedAt
-    ? Math.round((new Date(wave.completedAt).getTime() - new Date(wave.startedAt).getTime()) / 1000)
+    ? waveDurationSeconds(wave.startedAt, wave.completedAt)
     : null;
 
   return (

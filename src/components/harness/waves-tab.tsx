@@ -24,7 +24,7 @@ import { ExportMenu } from './export-menu';
 import { STATUS_COLORS } from './wave-detail-dialog';
 import { TriggerWaveDialog } from './trigger-wave-dialog';
 import { WaveDetailDialog } from './wave-detail-dialog';
-import { formatDuration } from '@/lib/constants';
+import { formatDuration, waveDurationSeconds } from '@/lib/constants';
 
 const FILTER_OPTIONS = [
   { value: '', label: 'All' },
@@ -60,14 +60,14 @@ export function WavesTab() {
   let avgDurationSec: number | null = null;
   const doneWaves = waves.filter(w => w.completedAt && w.startedAt);
   if (doneWaves.length > 0) {
-    const totalSec = doneWaves.reduce((s, w) => s + (new Date(w.completedAt!).getTime() - new Date(w.startedAt!).getTime()) / 1000, 0);
+    const totalSec = doneWaves.reduce((s, w) => s + waveDurationSeconds(w.startedAt!, w.completedAt!), 0);
     avgDurationSec = Math.round(totalSec / doneWaves.length);
   }
 
   // Max duration for progress bar normalization
   const maxDuration = waves.reduce((max, w) => {
     if (w.completedAt && w.startedAt) {
-      const dur = (new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime()) / 1000;
+      const dur = waveDurationSeconds(w.startedAt, w.completedAt);
       return dur > max ? dur : max;
     }
     return max;
@@ -311,7 +311,7 @@ export function WavesTab() {
                 <TableBody>
                   {waves.map((wave, idx) => {
                     const duration = wave.completedAt && wave.startedAt
-                      ? Math.round((new Date(wave.completedAt).getTime() - new Date(wave.startedAt).getTime()) / 1000)
+                      ? waveDurationSeconds(wave.startedAt, wave.completedAt)
                       : null;
                     const durationPct = duration !== null && maxDuration > 0 ? Math.round((duration / maxDuration) * 100) : 0;
                     const isSelected = compareSelections.includes(wave.id);
@@ -437,8 +437,8 @@ function WaveComparePanel({ waves }: { waves: { waveNumber: number; status: stri
   const [a, b] = waves;
   if (!a || !b) return null;
 
-  const durA = a.completedAt && a.startedAt ? Math.round((new Date(a.completedAt).getTime() - new Date(a.startedAt).getTime()) / 1000) : null;
-  const durB = b.completedAt && b.startedAt ? Math.round((new Date(b.completedAt).getTime() - new Date(b.startedAt).getTime()) / 1000) : null;
+  const durA = a.completedAt && a.startedAt ? waveDurationSeconds(a.startedAt, a.completedAt) : null;
+  const durB = b.completedAt && b.startedAt ? waveDurationSeconds(b.startedAt, b.completedAt) : null;
 
   const metrics = [
     { label: 'Status', valA: a.status, valB: b.status, format: (v: string) => v.toUpperCase(), compare: (x: string, y: string) => x === y ? 'equal' : 'different' },
@@ -508,7 +508,7 @@ function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: 
   const recent = [...waves].reverse().slice(-20);
   const durations = recent
     .map(w => w.completedAt && w.startedAt
-      ? Math.round((new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime()) / 1000)
+      ? waveDurationSeconds(w.startedAt, w.completedAt)
       : null)
     .filter((d): d is number => d !== null);
 

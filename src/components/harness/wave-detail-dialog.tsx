@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useWave } from '@/hooks/use-harness-data';
 import { CATEGORY_TW } from '@/lib/category-colors';
-import { formatDuration } from '@/lib/constants';
+import { formatDuration, waveDurationSeconds } from '@/lib/constants';
 import { Copy, Check, ChevronDown, Eye, Lightbulb, Play, ShieldCheck, Save, FileText } from 'lucide-react';
 
 const STATUS_COLORS: Record<WaveStatus, string> = {
@@ -241,7 +241,7 @@ export function WaveDetailDialog({
                 </span>
                 {wave.completedAt && (
                   <span className="text-[10px] font-mono text-zinc-600">
-                    Duration: {formatDuration(Math.round((new Date(wave.completedAt).getTime() - new Date(wave.startedAt).getTime()) / 1000))}
+                    Duration: {formatDuration(waveDurationSeconds(wave.startedAt, wave.completedAt))}
                   </span>
                 )}
               </div>
