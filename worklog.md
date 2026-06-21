@@ -4900,3 +4900,23 @@ Stage Summary:
 - ACTIVITY_FILTERS icons now derived from STATE_ICONS (eliminates emoji duplication)
 - 0 net line change (semantic cleanup only)
 - Git push: abc5e34..78b0e14
+
+---
+Task ID: W241
+Agent: Wave Engine (orchestrator)
+Task: Remove dead exports + add logDebug to silent catches + clean unused import
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dev.log, dashboard API
+- Sub-agent scan found: dead KNOWN_ACTIONS export, dead safeParse() helper, 2 silent catches, unused React import
+- PLAN: 3 improvements — (1) remove dead code from schemas.ts, (2) add logDebug to 2 silent catches, (3) remove unused React import
+- EXECUTE: Removed KNOWN_ACTIONS (12 lines) + safeParse (16 lines) from schemas.ts, added logDebug to agent-demo + dashboard catches, removed unused React import
+- VERIFY: lint 0 errors, build 19/19 routes, no dev.log errors
+- PERSIST: Committed and pushed (155b139)
+
+Stage Summary:
+- schemas.ts: -28 lines (removed KNOWN_ACTIONS dead export + safeParse dead helper)
+- agent-demo/route.ts: postToStatus catch now logs via logDebug instead of silently ignoring
+- dashboard/route.ts: Metrics query fallback catch now logs via logDebug
+- agent-network-canvas.tsx: Removed unused React named import
+- Git push: 098405e..155b139

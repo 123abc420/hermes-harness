@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 12:20 UTC+8
+2026-06-21 13:00 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 240)
+- **Phase**: Multi-Agent Visual Era (Wave 241)
 - **Waves in DB**: 154
 - **Spec compliance**: 100% (16/16)
 
@@ -25,7 +25,7 @@
 | Network nodes | Multi-agent (orchestrator + sub-agents) |
 | execSync calls | 0 |
 | raw console.error in API | 0 |
-| silent .catch() | 0 |
+| silent .catch() | 0 (logged via logDebug, W241) |
 | unprotected fetch→json | 0 |
 | Routes with zod validation | 8 of 9 |
 | Bare req.json() calls | 0 |
@@ -44,6 +44,8 @@
 | Hardcoded localhost URLs | 0 (fixed W239) |
 | Misleading getStateRgb alias | 0 (renamed getStateColor, W240) |
 | ACTIVITY_FILTERS icon duplication | 0 (derived from STATE_ICONS, W240) |
+| Dead exports in schemas.ts | 0 (KNOWN_ACTIONS + safeParse removed, W241) |
+| Unused imports | 0 (React removed from canvas, W241) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
