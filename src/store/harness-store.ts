@@ -59,13 +59,6 @@ export interface GithubStatus {
   recentCommits?: { sha: string; message: string }[];
 }
 
-export interface SpecData {
-  content: string;
-  version: string;
-  lastUpdated: string;
-  sectionsCount: number;
-}
-
 export interface Skill {
   name: string;
   title: string;

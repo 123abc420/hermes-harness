@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useAgentLiveStore, type LiveActivityEntry, type NetworkNode } from '@/store/agent-live-store';
 import { formatArgentinaTime } from '@/lib/constants';
+import { logDebug } from '@/lib/logger';
 import type { AgentVisualState } from '@/lib/schemas';
 
 /** Mirrors the in-memory AgentStatus shape from agent-status/route.ts */
@@ -63,7 +64,9 @@ function createSSEConnection(handlers: {
       const data: HealthData = JSON.parse(event.data);
       handlers.onMessage(data);
     } catch {
-      // Malformed SSE event — skip silently
+      if (process.env.NODE_ENV !== 'production') {
+        logDebug('AGENT_LIVE', 'Malformed SSE event skipped', { raw: event.data });
+      }
     }
   };
 

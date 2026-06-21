@@ -10,7 +10,6 @@ import type {
   Decision,
   Metric,
   GithubStatus,
-  SpecData,
   Skill,
 } from '@/store/harness-store';
 import { useAgentLiveStore } from '@/store/agent-live-store';

@@ -55,7 +55,6 @@ export type {
   Decision,
   Metric,
   GithubStatus,
-  SpecData,
   Skill,
   TotalStats,
   ExportModule,

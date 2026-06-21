@@ -5712,3 +5712,21 @@ Stage Summary:
 - Knowledge base now accurately reflects post-W266 state.
 - No code changes — knowledge maintenance wave.
 - Lint: 0 errors.
+---
+Task ID: W268
+Agent: HERMES Harness Wave Engine (cron job 221210)
+Task: Wave 268 — Dead code cleanup + SSE observability
+
+Work Log:
+- ASSESS: Read worklog, context.md, insights.md, dashboard API (180 waves, 510 commits), dev.log (clean). Launched explorer subagent for deep codebase scan at "very thorough" level across 76 files. Found 5 low/medium findings.
+- PLAN: Selected 2 improvements — (1) dead code cleanup across 4 files, (2) SSE dev-mode observability.
+- EXECUTE Decision 1 (code_quality/low): Deleted unused hook file use-next-wave-countdown.ts. Removed unused useCallback import in harness-header.tsx. Stripped 36 dead fields (particles/nodes/rings/description) from EVOLUTION_STAGES in constants.ts. Removed dead SpecData interface from harness-store.ts and its re-export from index.ts and import from use-harness-data.ts.
+- EXECUTE Decision 2 (observability/medium): Added gated logDebug in SSE onmessage catch block in use-agent-live.ts. Makes malformed SSE payloads observable in dev without production noise.
+- VERIFY: bun run lint = 0 errors. Dev.log clean (200s only). Grep confirmed zero dangling references to deleted file/type.
+- PERSIST: Wave 180 created + PATCHED completed. 2 decisions recorded. GitHub synced (commit 01a3347, 510 total). context.md updated.
+
+Stage Summary:
+- 4 files edited, 1 file deleted (use-next-wave-countdown.ts)
+- Zero-dead-code: removed unused hook, unused import, 36 dead data fields, dead type + 3 re-exports
+- SSE observability: dev-mode logDebug on malformed events (catch block no longer silent)
+- Lint: 0 errors. All quality gates clear.
