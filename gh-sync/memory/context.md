@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 11:15 UTC+8
+2026-06-21 11:35 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 236)
-- **Waves in DB**: 163
+- **Phase**: Multi-Agent Visual Era (Wave 237)
+- **Waves in DB**: 164
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -34,7 +34,8 @@
 | Skills tracked in git | 10 (+ 1 template) |
 | VALID_NODE_TYPES dead code | 0 (removed W234) |
 | Activity log capacity | 50 (server) / 80 (client) |
-| Canvas version | v2.3 (W236) |
+| Canvas version | v2.4 (W237) |
+    | Performance | 3 useMemo + 6 useCallback optimizations |
 | State color source | STATE_RGB in constants.ts (single truth) |
 
 ## What exists

@@ -33,24 +33,32 @@ const ACTIVITY_FILTERS: Array<{ state: AgentVisualState | 'all'; label: string; 
 // State → hex color (single source of truth from constants.ts)
 const getStateRgb = getStateHex;
 
-// ─── Activity Entry (W235: left accent stripe, memoized) ─────────────────
+// ─── Activity Entry (W237: left accent stripe + new-item glow flash, memoized) ─
 const ActivityEntry = memo(function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {
   const stateRgb = getStateRgb(entry.state);
+  const ageMs = Date.now() - entry.timestamp;
+  const isVeryNew = ageMs < 3000;
   return (
     <motion.div
       initial={isNew ? { opacity: 0, x: -12 } : false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
-      className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.03] transition-colors group"
+      className={`flex items-start gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.03] transition-all duration-500 group ${
+        isVeryNew ? 'bg-white/[0.04]' : ''
+      }`}
+      style={isVeryNew ? {
+        borderLeft: `2px solid ${stateRgb}60`,
+        boxShadow: `inset 3px 0 8px -3px ${stateRgb}20`,
+      } : undefined}
     >
       {/* Left accent stripe */}
       <div
-        className="w-[2px] rounded-full shrink-0 mt-0.5 opacity-40 group-hover:opacity-80 transition-opacity"
+        className={`w-[2px] rounded-full shrink-0 mt-0.5 transition-opacity ${isVeryNew ? 'opacity-100' : 'opacity-40 group-hover:opacity-80'}`}
         style={{ backgroundColor: getStateRgb(entry.state), height: '28px' }}
       />
       <span className="text-sm mt-0.5 shrink-0">{STATE_ICONS[entry.state] || '•'}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-[12px] text-zinc-200 leading-relaxed break-all">{entry.message}</p>
+        <p className={`text-[12px] leading-relaxed break-all ${isVeryNew ? 'text-white' : 'text-zinc-200'}`}>{entry.message}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-[10px] text-zinc-600 font-mono">{entry.timestampAR || '—'}</span>
           {entry.phase && (
@@ -319,6 +327,29 @@ export function AgentLivePanel() {
             <PhaseTracker phase={phase} progress={progress} />
           </div>
         )}
+
+        {/* W237: Canvas bottom-left overlay — Wave number + active agent count */}
+        <div className="absolute bottom-[76px] sm:bottom-[84px] left-4 sm:left-6 z-10 pointer-events-none">
+          {waveNumber > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-1"
+            >
+              <p className="text-[10px] font-mono text-zinc-600 tracking-widest uppercase">Wave</p>
+              <p className="text-2xl sm:text-3xl font-mono font-bold text-white/[0.12] tabular-nums leading-none">
+                {String(waveNumber).padStart(3, '0')}
+              </p>
+            </motion.div>
+          )}
+          <div className="mt-2">
+            <p className={`text-[9px] font-mono tracking-wider uppercase ${
+              networkNodes.length > 1 ? 'text-cyan-500/50' : 'text-zinc-700'
+            }`}>
+              {networkNodes.length > 1 ? `${networkNodes.length - 1} agents active` : 'standby'}
+            </p>
+          </div>
+        </div>
 
         {/* ── HUD: Bottom Bar ── */}
         <div className="absolute bottom-0 left-0 right-0 z-10">

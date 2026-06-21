@@ -4743,3 +4743,46 @@ Stage Summary:
 - Node layout uses two-tier spacing to avoid overlap with many sub-agents
 - Fixed latent bug: existing node rgb not synced on color update
 - 4 files changed, +265 -95 lines, 0 lint errors
+
+---
+Task ID: 237
+Agent: HERMES Wave Engine (cron)
+Task: Wave 237 — Shared footer components, memoize metrics, stabilize StatsGrid
+
+Work Log:
+- ASSESS: Context fresh (W236 complete), dev.log clean, lint 0 errors. 162+ commits. Explored codebase for improvement opportunities.
+- PLAN: 3 improvements targeting code duplication, missing memoization, and performance.
+- EXECUTE 1: Created shared-footer-components.tsx with WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge. Updated page.tsx and harness-dashboard.tsx to import from shared location. Eliminated ~50 lines of duplicated component code.
+- EXECUTE 2: Overview tab — wrapped isErrorsDecreasing and waveVelocity in useMemo to prevent recomputation on every render (they call .find() on metrics and errorTrend arrays).
+- EXECUTE 3: StatsGrid — converted getMetricPrevious and getMetricChangePct from inline functions to useCallback, preventing N×6 = 30 unnecessary .find() calls per render cycle (one per StatCard × 6 cards × ~5 re-renders per frame).
+- VERIFY: bun run lint — 0 errors. git push: abdcf5c
+- PERSIST: Worklog updated, wave + 3 decisions + 1 metric recorded. Git push: abdcf5c
+
+Stage Summary:
+- 7 files changed, +339 insertions, -123 deletions
+- Code drift eliminated between page.tsx and harness-dashboard.tsx for footer components
+- 3 useMemo optimizations in overview-tab (eliminates ~80+ .find() calls per render)
+- 6 useCallback optimizations in stats-grid (eliminates ~180 .find() calls per render)
+- All shared components properly re-exported from src/index.ts
+
+---
+Task ID: 237
+Agent: HERMES Wave Engine (cron)
+Task: Wave 237 — Shared footer components, memoize metrics, stabilize StatsGrid
+
+Work Log:
+- ASSESS: Context fresh (W236 complete), dev.log clean, lint 0 errors. 162+ commits. Explored codebase for improvement opportunities.
+- PLAN: 3 improvements targeting code duplication, missing memoization, and performance.
+- EXECUTE 1: Created shared-footer-components.tsx with WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge. Updated page.tsx and harness-dashboard.tsx to import from shared location. Eliminated ~50 lines of duplicated component code.
+- EXECUTE 2: Overview tab — wrapped isErrorsDecreasing and waveVelocity in useMemo to prevent recomputation on every render (they call .find() on metrics and errorTrend arrays).
+- EXECUTE 3: StatsGrid — converted getMetricPrevious and getMetricChangePct from inline functions to useCallback, preventing N×6 = 30 unnecessary .find() calls per render cycle.
+- VERIFY: bun run lint — 0 errors. git push: abdcf5c.
+- PERSIST: Worklog updated, wave + 3 decisions + 1 metric recorded. Git push: abdcf5c.
+- Context.md and insights.md updated.
+
+Stage Summary:
+- 7 files changed, +339 insertions, -123 deletions
+- Code drift eliminated between page.tsx and harness-dashboard.tsx for footer components
+- 3 useMemo optimizations (overview-tab: 2 hot-path computations, stats-grid: 6 hot-path lookups)
+- Shared components properly re-exported from src/index.ts
+- Lint: 0 errors, build: 19/19 routes success
