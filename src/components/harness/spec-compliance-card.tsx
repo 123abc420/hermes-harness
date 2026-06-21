@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Minus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
 const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'Spec-Driven Architecture', done: true },
@@ -37,6 +38,7 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
   const totalCount = checklist.length;
   const percent = Math.round((doneCount / totalCount) * 100);
   const isComplete = percent === 100;
+  const reduced = usePrefersReducedMotion();
 
   return (
     <Card className={cn('glass-card', isComplete && 'border-emerald-500/20')}>
@@ -50,9 +52,9 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
             {isComplete && (
               <motion.span
                 className="ml-1.5 inline-block"
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+                initial={reduced ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -180 }}
+                animate={reduced ? { scale: 1, rotate: 0 } : { scale: 1, rotate: 0 }}
+                transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 12 }}
               >
                 &#9733;
               </motion.span>
@@ -62,9 +64,9 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
         {isComplete && (
           <motion.p
             className="text-[10px] text-amber-400/70"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            initial={reduced ? { opacity: 1 } : { opacity: 0, y: -4 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            transition={reduced ? { duration: 0 } : { delay: 0.3 }}
           >
             All spec requirements implemented
           </motion.p>
@@ -77,9 +79,9 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
             role="listitem"
             aria-checked={item.done === true ? true : item.done === false ? false : undefined}
             className="flex items-center gap-2.5"
-            initial={{ opacity: 0, x: -6 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.03 }}
+            initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: -6 }}
+            animate={reduced ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
+            transition={reduced ? { duration: 0 } : { delay: i * 0.03 }}
           >
             {item.done === true ? (
               <Check className="h-3.5 w-3.5 shrink-0 text-emerald-400" />

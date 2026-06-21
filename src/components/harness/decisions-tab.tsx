@@ -8,6 +8,7 @@ import { useDecisions } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
 import { ChevronDown, Filter, Brain, Loader2, CheckCircle2, Search, X, PieChart, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { ErrorBlock } from './error-block';
 import { DecisionCard } from './decision-card';
 import { ExportMenu } from './export-menu';
@@ -51,12 +52,15 @@ export function DecisionsTab() {
     setPage(1);
   };
 
+  const reduced = usePrefersReducedMotion();
+
   return (
     <div className="space-y-5">
       {/* Header + Filters */}
       <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={reduced ? { opacity: 1 } : { opacity: 0, y: -6 }}
+        animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={reduced ? { duration: 0 } : undefined}
         className="flex flex-wrap items-center justify-between gap-3"
       >
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
@@ -123,9 +127,9 @@ export function DecisionsTab() {
       {/* Summary bar */}
       {!isError && !isLoading && totalDecisions > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={reduced ? { opacity: 1 } : { opacity: 0, y: -4 }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={reduced ? { duration: 0 } : { delay: 0.1 }}
           className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2.5"
         >
           <div className="flex items-center gap-1.5">
@@ -165,8 +169,9 @@ export function DecisionsTab() {
         </div>
       ) : decisions.length === 0 ? (
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={reduced ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+          animate={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1 }}
+          transition={reduced ? { duration: 0 } : undefined}
         >
           <Card className="glass-card">
             <CardContent className="flex h-64 items-center justify-center">
@@ -188,8 +193,9 @@ export function DecisionsTab() {
       ) : (
         <>
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={reduced ? { opacity: 1 } : { opacity: 0 }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1 }}
+          transition={reduced ? { duration: 0 } : undefined}
           className="grid gap-3 sm:grid-cols-2"
         >
           {decisions.map((decision) => (
@@ -225,6 +231,7 @@ export function DecisionsTab() {
 
 /* ── Inline Visualizations ─────────────────────────── */
 function DecisionsInlineViz({ categoryCounts, actionCounts, total }: { categoryCounts: Record<string, number>; actionCounts: Record<string, number>; total: number }) {
+  const reduced = usePrefersReducedMotion();
   // Top 6 categories by count for the distribution bar
   const sortedCats = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
   const catsTotal = sortedCats.reduce((s, [, c]) => s + c, 0);
@@ -241,9 +248,9 @@ function DecisionsInlineViz({ categoryCounts, actionCounts, total }: { categoryC
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: 0.1 }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0, y: 4 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0 } : { duration: 0.25, delay: 0.1 }}
       className="grid gap-3 sm:grid-cols-2"
     >
       {/* Category distribution bar */}

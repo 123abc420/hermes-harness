@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github, Sparkles, Clock, Trash2 } from 'lucide-react';
 import { fetchJSON } from '@/lib/fetch-json';
 
@@ -155,6 +156,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
 
   // Compute nav items including recent searches
   const showRecentSearches = !query.trim() && recentSearches.length > 0;
+  const reduced = usePrefersReducedMotion();
 
   return (
     <AnimatePresence>
@@ -162,19 +164,19 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
+            initial={reduced ? { opacity: 1 } : { opacity: 0 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0 }}
+            transition={reduced ? { duration: 0 } : { duration: 0.12 }}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
           {/* Panel */}
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.97 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+            initial={reduced ? { opacity: 1 } : { opacity: 0, y: -20, scale: 0.96 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.97 }}
+            transition={reduced ? { duration: 0 } : { duration: 0.18, ease: 'easeOut' }}
             className="fixed inset-x-0 top-[15%] z-50 mx-auto w-full max-w-lg px-4"
           >
             <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1a1510]/95 shadow-2xl shadow-black/50 backdrop-blur-xl">

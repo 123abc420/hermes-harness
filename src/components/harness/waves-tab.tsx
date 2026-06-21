@@ -18,6 +18,7 @@ import { useWaves } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
 import { Waves as WavesIcon, ChevronDown, Search, X, CheckCircle2, Clock, BarChart3, TrendingUp, GitCompareArrows, ArrowLeftRight, Check, X as XIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { ErrorBlock } from './error-block';
 import { ExportMenu } from './export-menu';
 import { STATUS_COLORS } from './wave-detail-dialog';
@@ -95,14 +96,17 @@ export function WavesTab() {
     setCompareMode(false);
   };
 
+  const reduced = usePrefersReducedMotion();
+
   const compareWaves = compareSelections.map(id => waves.find(w => w.id === id)).filter(Boolean);
 
   return (
     <div className="space-y-5">
       {/* Header + Filters */}
       <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={reduced ? { opacity: 1 } : { opacity: 0, y: -6 }}
+        animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={reduced ? { duration: 0 } : undefined}
         className="flex flex-wrap items-center justify-between gap-3"
       >
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
@@ -187,9 +191,10 @@ export function WavesTab() {
       <AnimatePresence>
         {compareMode && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={reduced ? { height: 'auto', opacity: 1 } : { opacity: 0, height: 0 }}
+            animate={reduced ? { height: 'auto', opacity: 1 } : { opacity: 1, height: 'auto' }}
+            exit={reduced ? { height: 0, opacity: 0 } : { opacity: 0, height: 0 }}
+            transition={reduced ? { duration: 0 } : undefined}
             className="overflow-hidden"
           >
             <div className="flex items-center gap-3 rounded-lg border border-amber-500/15 bg-amber-500/[0.04] px-4 py-2.5">
@@ -220,10 +225,10 @@ export function WavesTab() {
       <AnimatePresence>
         {compareMode && compareWaves.length === 2 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.25 }}
+            initial={reduced ? { opacity: 1 } : { opacity: 0, y: 10 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 10 }}
+            transition={reduced ? { duration: 0 } : { duration: 0.25 }}
           >
             <WaveComparePanel waves={compareWaves as NonNullable<typeof waves>[number][]} />
           </motion.div>
@@ -270,7 +275,7 @@ export function WavesTab() {
           </CardContent>
         </Card>
       ) : waves.length === 0 ? (
-        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
+        <motion.div initial={reduced ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }} animate={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1 }} transition={reduced ? { duration: 0 } : undefined}>
           <Card className="glass-card">
             <CardContent className="flex h-64 items-center justify-center">
               <div className="text-center">
@@ -286,7 +291,7 @@ export function WavesTab() {
           </Card>
         </motion.div>
       ) : (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+        <motion.div initial={reduced ? { opacity: 1 } : { opacity: 0 }} animate={reduced ? { opacity: 1 } : { opacity: 1 }} transition={reduced ? { duration: 0 } : { duration: 0.3 }}>
           <Card className="glass-card overflow-hidden">
             <ScrollArea className="max-h-[60vh]">
               <div className="overflow-x-auto">
@@ -498,6 +503,7 @@ function WaveComparePanel({ waves }: { waves: { waveNumber: number; status: stri
 
 /* ── Inline Mini-Visualizations ──────────────────────── */
 function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: string; completedAt: string | null; status: string }[] }) {
+  const reduced = usePrefersReducedMotion();
   // Last 20 waves reversed (oldest→newest) for the sparkline
   const recent = [...waves].reverse().slice(-20);
   const durations = recent
@@ -523,9 +529,9 @@ function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: 0.1 }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0, y: 4 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0 } : { duration: 0.25, delay: 0.1 }}
       className="grid gap-3 sm:grid-cols-2"
     >
       {/* Duration sparkline */}

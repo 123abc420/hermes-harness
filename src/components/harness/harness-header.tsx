@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Zap, Eye, Clock, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import { getStateHex } from '@/lib/constants';
 
@@ -43,15 +44,16 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
   const agentState = useAgentLiveStore(s => s.agentState);
   const isLiveConnected = useAgentLiveStore(s => s.isConnected);
   const stateColor = getStateHex(agentState);
+  const reduced = usePrefersReducedMotion();
 
   return (
     <header className="sticky top-0 z-50 border-b border-amber-900/[0.12] bg-[#0d0906]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo + Title */}
         <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
+          initial={reduced ? { opacity: 1 } : { opacity: 0, x: -10 }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1, x: 0 }}
+          transition={reduced ? { duration: 0 } : { duration: 0.4 }}
           className="flex items-center gap-3"
         >
           <div className="relative">
@@ -94,9 +96,9 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
 
         {/* Right status indicators */}
         <motion.div
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+          initial={reduced ? { opacity: 1 } : { opacity: 0, x: 10 }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1, x: 0 }}
+          transition={reduced ? { duration: 0 } : { duration: 0.4, delay: 0.1 }}
           className="flex items-center gap-3"
         >
           {/* Agent live status */}

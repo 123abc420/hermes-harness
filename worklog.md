@@ -6066,3 +6066,25 @@ Stage Summary:
 - 6 files changed. JS-level reduced-motion now in 8/19 framer-motion files (2 existing + 6 new). SVG gradient IDs unique via useId().
 - Pattern: `reduced ? { opacity: 1 } : { opacity: 0, y: N }` for initial, `reduced ? { duration: 0 } : { duration: N }` for transition.
 - Lint: 0. TypeScript: 0. Health: 100/100.
+
+---
+Task ID: W284
+Agent: Main Orchestrator
+Task: WCAG 2.3.3 JS-level reduced-motion for 5 more framer-motion components
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0. 11 framer-motion files still lack JS-level reduced-motion (W283 did 6).
+- PLAN: 1 improvement covering 5 files (counted as batch under guardrails' 3-improvement limit):
+  1. HIGH — Integrate usePrefersReducedMotion into waves-tab, decisions-tab, command-palette, harness-header, spec-compliance-card
+- EXECUTE:
+  1. waves-tab.tsx: 7 motion elements (header, compare banner, compare panel, empty state, table wrapper, inline charts) + WavesInlineCharts sub-component
+  2. decisions-tab.tsx: 5 motion elements (header, summary bar, empty state, grid, inline viz) + DecisionsInlineViz sub-component
+  3. command-palette.tsx: 2 motion elements (backdrop, panel overlay) with AnimatePresence
+  4. harness-header.tsx: 2 motion elements (logo slide-in, status indicators slide-in)
+  5. spec-compliance-card.tsx: 3 motion elements (star spring, completion text, checklist stagger)
+- VERIFY: Lint 0, tsc 0.
+- PERSIST: Wave recorded, GitHub synced.
+
+Stage Summary:
+- 5 files changed. JS-level reduced-motion now in 13/19 framer-motion files (8 existing + 5 new). Only 6 remaining: agent-live-panel, agent-network-graph, decision-timeline, milestones-timeline, activity-heatmap, skills-section.
+- Lint: 0. TypeScript: 0. Health: 100/100.
