@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { logError } from '@/lib/logger';
-import { formatArgentinaTime } from '@/lib/constants';
+import { formatArgentinaTime, SSE_SERVER_POLL_INTERVAL, SSE_KEEP_ALIVE_INTERVAL } from '@/lib/constants';
 import {
   agentStatusPostSchema,
   validationErrorFromResult,
@@ -51,8 +51,6 @@ let latestStatus: AgentStatus = {
 let activityLog: ActivityEntry[] = [];
 const MAX_LOG = 50;
 const MAX_SUB_AGENTS = 20;
-const SSE_POLL_INTERVAL = 2000;
-const SSE_KEEP_ALIVE = 30_000;
 
 // ─── Sub-agents (legacy) ─
 interface SubAgentEntry {
@@ -200,14 +198,14 @@ export async function GET(req: NextRequest) {
         sendData();
 
         // Poll every 2 seconds for changes
-        interval = setInterval(sendData, SSE_POLL_INTERVAL);
+        interval = setInterval(sendData, SSE_SERVER_POLL_INTERVAL);
 
         // Keep alive every 30s
         keepAlive = setInterval(() => {
           if (closed) return;
           try { controller.enqueue(encoder.encode(`: keepalive\n\n`)); }
           catch { cleanup(); }
-        }, SSE_KEEP_ALIVE);
+        }, SSE_KEEP_ALIVE_INTERVAL);
 
         req.signal.addEventListener('abort', () => {
           cleanup();

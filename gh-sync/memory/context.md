@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 20:50 UTC+8
+2026-06-21 21:07 UTC+8
 
 ## System Status
-- **Phase**: Polish Era (Wave 272)
+- **Phase**: Type-Safe Era (Wave 273)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,13 +17,14 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~516 |
-| Waves in DB | 186 |
+| GitHub commits | ~517 |
+| Waves in DB | 187 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Shared zod schemas | 11 |
 | Routes with zod validation | 9 of 9 |
-| TS compilation errors | 0 |
+| TS compilation errors | 0 (enforced) |
+| ignoreBuildErrors | removed |
 | Quality gates | All clear |
 
 ## What exists
@@ -44,15 +45,11 @@
 - **STATE_RGB narrow typing** (W271): Record<AgentVisualState, ...> + getStateHex(AgentVisualState)
 - **Clipboard toast** (W271): user feedback on copy failure
 - **Backdrop a11y** (W271): role=presentation on shortcuts overlay backdrop
-- **OUTCOME_COLORS honest** (W272): Record<string,string> — no misleading cast
-- **Git push robustness** (W272): instanceof Error + split log messages
-- **Skeleton consistency** (W272): 2 inline shimmers → Skeleton in overview-tab
-- **SSE status guard** (W273): onmessage checks data.status === 'ok'
-- **Dashboard observability** (W273): 2 empty catches → logDebug
-- **Placeholder removed** (W273): deleted /api/route.ts
-- **TS error sweep** (W274): 7 compilation errors fixed — AgentVisualState/AgentPhase/TabValue boundary casts, ExportMenu transform typing, browser setTimeout type
-- **Disclosure a11y** (W274): aria-expanded + aria-controls on decision-timeline toggles
-- **Silent catch instrumentation** (W274): logDebug in skills + dashboard routes
+- **TS error sweep** (W272): 7 compilation errors — AgentVisualState/AgentPhase/TabValue casts, ExportMenu, setTimeout
+- **Disclosure a11y** (W272): aria-expanded + aria-controls on decision-timeline
+- **Silent catch cleanup** (W272): logDebug in skills + dashboard routes
+- **tsc enforced** (W273): ignoreBuildErrors removed — TypeScript errors now fail builds
+- **SSE constants** (W273): 3 timing values extracted to shared constants.ts
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 
 ## What's next

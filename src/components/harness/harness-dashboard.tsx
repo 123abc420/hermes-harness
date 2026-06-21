@@ -146,7 +146,7 @@ export function HarnessDashboard() {
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={(v) => setActiveTab(v as TabValue)}
           className="w-full"
         >
           <div className="mb-6 overflow-x-auto scrollbar-dark">

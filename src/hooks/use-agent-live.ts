@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useAgentLiveStore, type LiveActivityEntry, type NetworkNode } from '@/store/agent-live-store';
-import { formatArgentinaTime } from '@/lib/constants';
+import { formatArgentinaTime, SSE_CLIENT_POLL_INTERVAL } from '@/lib/constants';
 import { logDebug } from '@/lib/logger';
 import type { AgentVisualState } from '@/lib/schemas';
 
@@ -161,7 +161,7 @@ export function useAgentLive() {
       }
     };
     poll();
-    pollRef.current = setInterval(poll, 3000);
+    pollRef.current = setInterval(poll, SSE_CLIENT_POLL_INTERVAL);
   }, [processData, setConnected]);
 
   const stopPolling = useCallback(() => {

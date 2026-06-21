@@ -5854,3 +5854,24 @@ Work Log:
 Stage Summary:
 - 7 files changed, 7 TS compilation errors resolved, 2 silent catches instrumented, 1 a11y gap closed
 - Lint: 0 errors. Dev.log: clean. GitHub: 516 commits.
+
+---
+Task ID: W273
+Agent: Wave Engine
+Task: Wave 273 — Remove ignoreBuildErrors + final TS error fix + SSE constants
+
+Work Log:
+- ASSESS: Read context, insights. Ran tsc --noEmit — found 1 remaining error in harness-dashboard.tsx:149
+- PLAN: 3 improvements — fix TS error, remove ignoreBuildErrors, extract SSE constants
+- EXECUTE:
+  1. harness-dashboard.tsx:149 — `onValueChange={setActiveTab}` → `onValueChange={(v) => setActiveTab(v as TabValue)}`
+  2. next.config.ts — removed `typescript: { ignoreBuildErrors: true }` entirely
+  3. constants.ts — added SSE_SERVER_POLL_INTERVAL (2000), SSE_CLIENT_POLL_INTERVAL (3000), SSE_KEEP_ALIVE_INTERVAL (30000)
+  4. agent-status/route.ts — replaced local SSE_POLL_INTERVAL/SSE_KEEP_ALIVE with shared imports
+  5. use-agent-live.ts — replaced magic `3000` with SSE_CLIENT_POLL_INTERVAL import
+- VERIFY: `bun run lint` — 0 errors. `npx tsc --noEmit` — 0 errors. TypeScript now enforced.
+- PERSIST: Wave 187 recorded, 3 decisions, 3 improvements, GitHub sync → 517 commits
+
+Stage Summary:
+- 4 files changed, 1 TS error fixed, ignoreBuildErrors removed (milestone: tsc enforced), 3 magic numbers → named constants
+- Lint: 0 errors. TypeScript: 0 errors (enforced). Dev.log: clean. GitHub: 517 commits.

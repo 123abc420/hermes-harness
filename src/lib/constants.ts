@@ -2,6 +2,13 @@
 
 import { type AgentVisualState } from '@/lib/schemas';
 
+/** Server SSE poll interval (ms) — how often the SSE endpoint checks for state changes. */
+export const SSE_SERVER_POLL_INTERVAL = 2000;
+/** Client fallback poll interval (ms) — used when SSE is unavailable. */
+export const SSE_CLIENT_POLL_INTERVAL = 3000;
+/** Server SSE keep-alive interval (ms). */
+export const SSE_KEEP_ALIVE_INTERVAL = 30_000;
+
 // Read version from package.json at build time; fallback for non-Next.js contexts
 export const HERMES_VERSION = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERSION
   ? `v${process.env.NEXT_PUBLIC_VERSION}`
