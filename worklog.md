@@ -6088,3 +6088,26 @@ Work Log:
 Stage Summary:
 - 5 files changed. JS-level reduced-motion now in 13/19 framer-motion files (8 existing + 5 new). Only 6 remaining: agent-live-panel, agent-network-graph, decision-timeline, milestones-timeline, activity-heatmap, skills-section.
 - Lint: 0. TypeScript: 0. Health: 100/100.
+
+---
+Task ID: W285
+Agent: Main Orchestrator
+Task: Complete WCAG 2.3.3 JS-level reduced-motion — final 6 framer-motion files (19/19 coverage)
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0. 6 framer-motion files remaining.
+- PLAN: 1 improvement — complete reduced-motion for all 6 remaining files.
+- EXECUTE: Added usePrefersReducedMotion to all 6:
+  1. skills-section.tsx: skill card list animation
+  2. decision-timeline.tsx: expand/collapse reasoning
+  3. milestones-timeline.tsx: staggered milestone entries
+  4. activity-heatmap.tsx: card entry animation
+  5. agent-network-graph.tsx: selection ring AnimatePresence
+  6. agent-live-panel.tsx: panel fade-in
+- VERIFY: Lint 0, tsc 0.
+- PERSIST: Wave recorded, GitHub synced.
+
+Stage Summary:
+- 6 files changed. ALL 19/19 framer-motion files now have JS-level usePrefersReducedMotion() integration.
+- Combined with global CSS @media (prefers-reduced-motion: reduce) overrides, the entire dashboard is now WCAG 2.3.3 compliant for motion.
+- Lint: 0. TypeScript: 0. Health: 100/100.

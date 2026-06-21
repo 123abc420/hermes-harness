@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { cn } from '@/lib/utils';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 import { WaveReplayView } from './wave-replay-view';
@@ -85,13 +86,14 @@ export function AgentLivePanel() {
 
   const stateHex = getStateHex(agentState);
   const isWaveActive = agentState !== 'idle' && agentState !== 'offline';
+  const reduced = usePrefersReducedMotion();
 
   return (
     <motion.div
       key="agent-live"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1 }}
+      transition={reduced ? { duration: 0 } : { duration: 0.3 }}
       className="flex flex-col gap-2 h-full overflow-hidden"
     >
       {/* ═══ ROW 1: STATUS BAR ═══ */}

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
 import { getStateHex } from '@/lib/constants';
 import type { AgentVisualState } from '@/lib/schemas';
@@ -188,6 +189,7 @@ export function AgentNetworkGraph() {
   const networkNodes = useAgentLiveStore(s => s.networkNodes);
   const selectedNodeId = useAgentLiveStore(s => s.selectedNodeId);
   const selectNode = useAgentLiveStore(s => s.selectNode);
+  const reduced = usePrefersReducedMotion();
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -295,10 +297,10 @@ export function AgentNetworkGraph() {
               <AnimatePresence>
                 {isSel && (
                   <motion.circle
-                    initial={{ r: 0, opacity: 0 }}
+                    initial={reduced ? { r: 30, opacity: 0.4 } : { r: 0, opacity: 0 }}
                     animate={{ r: (isOrch ? ORCH_RADIUS : NODE_RADIUS) + 12, opacity: 0.4 }}
-                    exit={{ r: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    exit={reduced ? { r: 0, opacity: 0 } : { r: 0, opacity: 0 }}
+                    transition={reduced ? { duration: 0 } : { duration: 0.3 }}
                     cx={toSvgX(node.x)}
                     cy={toSvgY(node.y)}
                     fill="none"

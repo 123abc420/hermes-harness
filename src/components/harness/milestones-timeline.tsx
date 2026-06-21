@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { formatDistanceToNow } from 'date-fns';
 import type { Wave } from '@/store/harness-store';
 
@@ -12,6 +13,7 @@ export function MilestonesTimeline({ waves, totalWaves, skillsCount }: { waves: 
   const allWaveNumbers = waves.map(w => w.waveNumber).sort((a, b) => a - b);
   const firstWave = allWaveNumbers[0];
   const latestWave = allWaveNumbers[allWaveNumbers.length - 1];
+  const reduced = usePrefersReducedMotion();
 
   const milestones: { wave: number; label: string; time: string; summary?: string }[] = [];
 
@@ -74,9 +76,9 @@ export function MilestonesTimeline({ waves, totalWaves, skillsCount }: { waves: 
             <motion.div
               key={`${m.wave}-${m.label}`}
               className="relative flex gap-3 py-2.5"
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
+              initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: -8 }}
+              animate={reduced ? { opacity: 1, x: 0 } : { opacity: 1, x: 0 }}
+              transition={reduced ? { duration: 0 } : { delay: i * 0.05 }}
             >
               {i < milestones.length - 1 && (
                 <div className="absolute left-[7px] top-7 h-full w-px bg-amber-500/10" />

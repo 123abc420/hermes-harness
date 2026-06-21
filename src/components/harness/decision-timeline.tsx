@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ListChecks, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { CATEGORY_HEX } from '@/lib/category-colors';
 import type { DashboardData } from '@/store/harness-store';
 
@@ -12,6 +13,7 @@ import type { DashboardData } from '@/store/harness-store';
 export function DecisionTimeline({ decisions }: { decisions?: DashboardData['recentDecisions'] }) {
   const items = decisions ?? [];
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const reduced = usePrefersReducedMotion();
 
   if (items.length === 0) {
     return (
@@ -111,10 +113,10 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                     {isOpen && d.reasoning && (
                       <motion.div
                         id={`decision-detail-${d.id}`}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
+                        initial={reduced ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
+                        animate={reduced ? { height: 'auto', opacity: 1 } : { height: 'auto', opacity: 1 }}
+                        exit={reduced ? { height: 0, opacity: 0 } : { height: 0, opacity: 0 }}
+                        transition={reduced ? { duration: 0 } : { duration: 0.2 }}
                         className="overflow-hidden"
                       >
                         <p className="mt-1.5 rounded-md border border-white/[0.04] bg-white/[0.02] px-2.5 py-2 text-[11px] leading-relaxed text-zinc-500 italic">

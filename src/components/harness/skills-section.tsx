@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sparkles, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useSkills } from '@/hooks/use-harness-data';
 import { ErrorBlock } from './error-block';
 import { CATEGORY_TW } from '@/lib/category-colors';
@@ -41,6 +42,7 @@ export function SkillsSection() {
   const { data, isLoading, isError, error, refetch } = useSkills();
   const skills = data?.skills ?? [];
   const [activeFilter, setActiveFilter] = useState('all');
+  const reduced = usePrefersReducedMotion();
 
   // Derive unique categories from loaded skills
   const categories = useMemo(() => {
@@ -131,10 +133,10 @@ export function SkillsSection() {
                   <motion.div
                     key={skill.name}
                     layout
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 0.2 }}
+                    initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+                    animate={reduced ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                    exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+                    transition={reduced ? { duration: 0 } : { duration: 0.2 }}
                     className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 transition-colors hover:border-white/10"
                   >
                     <div className="flex items-center justify-between gap-2">

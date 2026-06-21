@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { subDays, format, startOfDay } from 'date-fns';
 
 interface HeatmapWave {
@@ -69,6 +70,7 @@ function HeatCell({
 /* ── Activity Heatmap ────────────────────────────────── */
 export function ActivityHeatmap({ waves }: { waves: HeatmapWave[] }) {
   const today = useMemo(() => startOfDay(new Date()), []);
+  const reduced = usePrefersReducedMotion();
 
   // Build day -> wave counts map
   const dayMap = useMemo(() => {
@@ -135,9 +137,9 @@ export function ActivityHeatmap({ waves }: { waves: HeatmapWave[] }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: 0.15 }}
+      initial={reduced ? { opacity: 1 } : { opacity: 0, y: 8 }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0 } : { duration: 0.35, delay: 0.15 }}
     >
       <Card className="glass-card overflow-hidden">
         <CardContent className="p-4">
