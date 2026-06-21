@@ -4229,3 +4229,26 @@ Stage Summary:
 - Lint: 0 errors
 - Git push: 2180696
 - 8 files changed, 14 insertions, 394 deletions
+
+---
+Task ID: 227
+Agent: Wave Engine (W227)
+Task: Fix 3 QA bugs: health score NaN, donut chart mobile clipping, dead deps
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, skills/, dev.log
+- Identified health score NaN: 0/0 division when recentWavesForRate is empty → NaN → JSON null → renders "null/100"
+- Identified donut chart clipping: fixed pixel radii (35/60) exceed 100px mobile container → 10px clipped each side
+- Identified dead deps: postprocessing + @types/three still in package.json but three.js runtime removed in W226
+- Fixed dashboard/route.ts: guard division with ternary
+- Fixed hero-status-card.tsx: strict `!= null && typeof === 'number'` guard
+- Fixed donut-chart-card.tsx: percentage radii "30%"/"46%" scale to any container
+- Removed postprocessing + @types/three from package.json
+- Removed Agent3DSandbox export from index.ts
+- Lint passes clean, git pushed
+
+Stage Summary:
+- Health score now returns 0 instead of NaN when DB has no recent waves
+- Donut charts no longer clip on mobile viewports
+- 2 dead dependencies removed from package.json
+- Commit 17c19ed pushed to main

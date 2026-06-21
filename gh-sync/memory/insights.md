@@ -121,3 +121,12 @@
 - 10MB VRM model files in `public/` bloat the asset pipeline.
 - ChibiCharacter (pure Three.js geometry, ~400 lines) renders instantly and looks great — prefer procedural geometry over model loading.
 - If a library causes Turbopack to hang, remove it. The sandbox has CPU/memory constraints that make heavy WASM compilation infeasible.
+
+## Dashboard Math Safety
+
+- Division by zero in API routes produces `NaN` → `JSON.stringify(NaN)` = `null` in HTTP response. Always guard with `length > 0 ? ... : 0`.
+- Client-side `value !== undefined` does NOT catch `null` (since `null !== undefined` is true). Use `value != null && typeof value === 'number'` for numeric display.
+
+## Recharts Mobile Safety
+
+- Recharts `Pie` with fixed pixel `innerRadius`/`outerRadius` clips when container is smaller than the radius. Use percentage strings (`"30%"`, `"46%"`) — they scale proportionally to the SVG viewport.
