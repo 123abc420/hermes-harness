@@ -5985,3 +5985,21 @@ Work Log:
 Stage Summary:
 - 2 files changed (dashboard/route.ts, context.md). Health 94→100. Success rate now correctly excludes interrupted waves.
 - Lint: 0. TypeScript: 0. Dev.log: clean.
+
+---
+Task ID: W280
+Agent: Wave Engine
+Task: Wave 280 — Export contract compliance (AnimatedNumber + usePrefersReducedMotion)
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0. Found spec compliance gap: AnimatedNumber and usePrefersReducedMotion (created W277) not exported from index.ts.
+- PLAN: (1) Add missing exports to index.ts, (2) Update context.md metrics.
+- EXECUTE:
+  1. index.ts — Added AnimatedNumber export (Components section) and usePrefersReducedMotion export (Hooks section). Exported components: 11→13.
+  2. Updated context.md — phase Health-100 Era, commits ~525, waves 195, exported 13.
+- VERIFY: Lint 0, tsc 0. Dev.log: clean.
+- PERSIST: Wave recorded, 2 decisions, 1 metric, GitHub sync.
+
+Stage Summary:
+- 2 files changed (index.ts, context.md). SPEC Section 5 export contract now complete for all W277+ additions.
+- Lint: 0. TypeScript: 0. Dev.log: clean.

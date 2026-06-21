@@ -22,6 +22,7 @@ export { AgentLivePanel } from './components/harness/agent-live-panel';
 export { HarnessHeader } from './components/harness/harness-header';
 export { HarnessErrorBoundary } from './components/harness/error-boundary';
 export { AnimatedSection } from './components/harness/animated-section';
+export { AnimatedNumber } from './components/harness/animated-number';
 
 // ─── Shared Footer Components (extracted from page.tsx / harness-dashboard.tsx) ──────────
 export { WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge } from './components/harness/shared-footer-components';
@@ -39,6 +40,7 @@ export {
   useMemory,
 } from './hooks/use-harness-data';
 export { useAgentLive } from './hooks/use-agent-live';
+export { usePrefersReducedMotion } from './hooks/use-prefers-reduced-motion';
 
 // ─── Agent Live Store (replay + node graph) ──────────────────────────
 export { useAgentLiveStore } from './store/agent-live-store';
