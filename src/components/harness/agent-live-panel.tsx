@@ -662,6 +662,7 @@ export function AgentLivePanel() {
               <button
                 key={f}
                 onClick={() => setActivityFilter(f)}
+                aria-label={`Filter: ${f}`}
                 className={cn(
                   'px-1.5 py-0.5 rounded text-[8px] font-semibold tracking-wide shrink-0 transition-all',
                   activityFilter === f

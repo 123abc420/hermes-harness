@@ -1,39 +1,15 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { CATEGORY_HEX, CATEGORY_TW } from '@/lib/category-colors';
-
-/* ── Types ─────────────────────────────────────────────── */
-interface TrendRow {
-  category: string;
-  recent: number;
-  earlier: number;
-}
-
-interface TrendsData {
-  trends: TrendRow[];
-  range: { earlier: { min: number; max: number }; recent: { min: number; max: number } };
-}
-
-/* ── Helpers ───────────────────────────────────────────── */
-function fetchTrends(): Promise<TrendsData> {
-  return fetch('/api/harness/decisions/trends').then(r => {
-    if (!r.ok) throw new Error(`Trends fetch failed: ${r.status}`);
-    return r.json();
-  });
-}
+import { useDecisionTrends, type TrendsData } from '@/hooks/use-harness-data';
 
 /* ── Component ─────────────────────────────────────────── */
 export function CategoryTrendsChart() {
-  const { data, isLoading, isError } = useQuery<TrendsData>({
-    queryKey: ['decision-trends'],
-    queryFn: fetchTrends,
-    staleTime: 5 * 60_000,
-  });
+  const { data, isLoading, isError } = useDecisionTrends();
 
   if (isLoading) {
     return (

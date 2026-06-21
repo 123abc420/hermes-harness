@@ -40,6 +40,7 @@ export function TriggerWaveDialog() {
             placeholder="Optional summary for this wave..."
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
+            aria-label="Wave summary"
             className="border-white/[0.08] bg-white/[0.03] text-white placeholder:text-zinc-600"
           />
           <div className="flex justify-end gap-2">

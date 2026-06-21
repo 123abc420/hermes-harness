@@ -190,6 +190,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
                   onChange={e => handleQueryChange(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search waves, decisions, skills..."
+                  aria-label="Search commands"
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                 />
                 <kbd className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-mono text-zinc-600 bg-white/[0.04] border border-white/[0.06]">ESC</kbd>

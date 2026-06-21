@@ -5277,3 +5277,26 @@ Stage Summary:
 - cn() adoption in harness: 6 → 17 files (all harness files with dynamic classNames)
 - Fixed W251 corruption (empty agent-live-panel.tsx + syntax error)
 - 17 files changed, 132 insertions, 99 deletions
+
+---
+Task ID: W250
+Agent: Main Orchestrator
+Task: Wave 250 — Accessibility, shared hook extraction, staleTime tuning, TS fix
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, guardrails, dashboard API, dev.log. Scanned for improvements.
+- PLAN: Identified 3 improvements + 1 bonus fix from TS check.
+- EXECUTE:
+  1. Added aria-label to 4 interactive elements (command-palette input, trigger-wave textarea, compare button, activity filter buttons)
+  2. Extracted useDecisionTrends() shared hook in use-harness-data.ts, removed duplicate fetchTrends from category-trends-chart.tsx
+  3. Added per-hook staleTime: useGithubStatus 60s, useSkills 60s, useMemory 30s
+  4. Fixed export-menu.tsx transform type from Record<string,unknown> to T (TS2322 from W249)
+- VERIFY: 0 lint errors, 0 TS errors, 0 dev.log errors
+- PERSIST: Wave + 4 decisions + 4 metrics recorded, worklog + context updated
+
+Stage Summary:
+- 4 files modified: command-palette.tsx, trigger-wave-dialog.tsx, waves-tab.tsx, agent-live-panel.tsx (aria-labels)
+- 2 files modified: use-harness-data.ts (new useDecisionTrends hook + staleTime), category-trends-chart.tsx (uses shared hook)
+- 1 file modified: export-menu.tsx (transform type fix)
+- Total improvements: 4, Decisions: 4, Metrics: 4
+- TS errors: 0, Lint errors: 0

@@ -29,7 +29,7 @@ export function ExportMenu<T extends Record<string, unknown>>({
   totalKey: string;
   filename: string;
   columns?: string[];
-  transform?: (row: T) => Record<string, unknown>;
+  transform?: (row: T) => T;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

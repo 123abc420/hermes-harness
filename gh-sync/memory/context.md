@@ -3,7 +3,7 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 15:45 UTC+8
+2026-06-21 16:10 UTC+8
 
 ## System Status
 - **Phase**: Multi-Agent Visual Era (Wave 250)
@@ -65,6 +65,10 @@
 | as AgentVisualState[] assertions | 0 (AgentSkill interface, W250) |
 | cn() adoption | 17 harness files (W250) |
 | Template-literal className in harness | 0 (W250) |
+| ARIA label gaps | 0 (W250) |
+| Duplicate fetchTrends | 0 (useDecisionTrends shared hook, W250) |
+| Per-hook staleTime | 3 tuned (W250) |
+| TS errors | 0 (export-menu generic fix, W250) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
@@ -81,6 +85,9 @@
 - **Typed DEMO_SEQUENCE** as discriminated union (W249)
 - **Generic csv-export** preserves type safety at call sites (W249)
 - **DecisionCategory derived from VALID_CATEGORIES** (W247, 20 categories)
+- **useDecisionTrends shared hook** with fetchJSON reuse (W250)
+- **Per-hook staleTime tuning**: skills/github 60s, memory 30s (W250)
+- **aria-label on all interactive elements** (W250)
 
 ## What's next
 1. Visual QA of node canvas with real broadcast data (sandbox network limits)

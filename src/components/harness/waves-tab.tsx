@@ -112,6 +112,7 @@ export function WavesTab() {
           {/* Compare toggle */}
           <button
             onClick={() => { setCompareMode(v => !v); if (compareMode) setCompareSelections([]); }}
+            aria-label="Compare waves"
             className={cn(
               'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium transition-all border',
               compareMode

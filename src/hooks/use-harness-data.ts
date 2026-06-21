@@ -104,6 +104,7 @@ export function useGithubStatus() {
   return useQuery<GithubStatus>({
     queryKey: ['harness-github-status'],
     queryFn: () => fetchJSON<GithubStatus>(`${API_BASE}/github/status`),
+    staleTime: 60_000,
   });
 }
 
@@ -125,6 +126,28 @@ export function useSkills() {
   return useQuery<{ skills: Skill[] }>({
     queryKey: ['harness-skills'],
     queryFn: () => fetchJSON<{ skills: Skill[] }>(`${API_BASE}/skills`),
+    staleTime: 60_000,
+  });
+}
+
+interface TrendRow {
+  category: string;
+  recent: number;
+  earlier: number;
+}
+
+interface TrendsData {
+  trends: TrendRow[];
+  range: { earlier: { min: number; max: number }; recent: { min: number; max: number } };
+}
+
+export type { TrendRow, TrendsData };
+
+export function useDecisionTrends() {
+  return useQuery<TrendsData>({
+    queryKey: ['decision-trends'],
+    queryFn: () => fetchJSON<TrendsData>(`${API_BASE}/decisions/trends`),
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -138,5 +161,6 @@ export function useMemory() {
   return useQuery<{ context: string; insights: string; userProfile: string; health: { context: MemoryHealth; insights: MemoryHealth; userProfile: MemoryHealth } }>({
     queryKey: ['harness-memory'],
     queryFn: () => fetchJSON<{ context: string; insights: string; userProfile: string; health: { context: MemoryHealth; insights: MemoryHealth; userProfile: MemoryHealth } }>(`${API_BASE}/memory`),
+    staleTime: 30_000,
   });
 }
