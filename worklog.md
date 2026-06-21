@@ -4991,3 +4991,25 @@ Stage Summary:
 - next.config.ts: Documented 31 TS errors for incremental future fixing
 - Net: -341 lines deleted
 - Git push: 4f28f16..b52917c
+
+---
+Task ID: W245
+Agent: Wave Engine (orchestrator)
+Task: Fix all 31 pre-existing TypeScript errors, enable strict builds
+
+Work Log:
+- ASSESS: W244 documented 31 TS errors hidden by ignoreBuildErrors:true
+- Categorized errors by fix pattern: ResponsiveContainer props (4), stats-grid literal \n (10), missing imports (2), type casts (4), hook scoping (2), framer-motion types (2), scope issues (3), Zod 4 API (1), tsconfig (1), misc (2)
+- EXECUTE: Fixed all 31 errors across 18 files
+- Key bug: stats-grid.tsx had literal \n characters instead of newlines, hiding useCallback definitions inside a comment
+- Excluded non-app skills/ dir from tsconfig
+- Flipped ignoreBuildErrors to false
+- VERIFY: lint 0, build 19/19, tsc --noEmit 0 errors in src/
+- PERSIST: Committed and pushed (3a28f15)
+
+Stage Summary:
+- 31→0 TypeScript errors in src/ (all fixed)
+- ignoreBuildErrors: true → false (strict builds now enforced)
+- tsconfig.json: excluded skills/ from TS compilation
+- 18 files changed, net +37/-28 lines
+- Git push: 4674372..3a28f15

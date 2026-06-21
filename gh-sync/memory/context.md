@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 13:30 UTC+8
+2026-06-21 13:40 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 244)
+- **Phase**: Multi-Agent Visual Era (Wave 245)
 - **Waves in DB**: 154
 - **Spec compliance**: 100% (16/16)
 
@@ -53,7 +53,8 @@
 | Duplicated types (WaveStatus, DecisionPriority) | 0 (single-sourced from schemas, W243) |
 | Dead directories (examples/, mini-services/) | 0 (deleted W244) |
 | Private constants leak | 0 (EVOLUTION_STAGES/LEVEL_NAMES private, W244) |
-| Pre-existing TS errors | 31 (audited W244, TODO in next.config.ts) |
+| Pre-existing TS errors | 0 (all 31 fixed W245) |
+| ignoreBuildErrors | false (strict TS enforced, W245) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
