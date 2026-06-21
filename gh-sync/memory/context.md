@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 20:42 UTC+8
+2026-06-21 20:48 UTC+8
 
 ## System Status
-- **Phase**: Polish Era (Wave 272)
+- **Phase**: Polish Era (Wave 273)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~514 |
-| Waves in DB | 184 |
+| GitHub commits | ~515 |
+| Waves in DB | 185 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Shared zod schemas | 11 |
@@ -46,6 +46,9 @@
 - **OUTCOME_COLORS honest** (W272): Record<string,string> — no misleading cast or dead import
 - **Git push robustness** (W272): instanceof Error + split log messages (up-to-date vs failure)
 - **Skeleton consistency** (W272): 2 inline shimmers → Skeleton in overview-tab
+- **SSE status guard** (W273): onmessage checks data.status === 'ok' before spreading
+- **Dashboard observability** (W273): 2 empty catches → logDebug in dashboard route
+- **Placeholder removed** (W273): deleted /api/route.ts (dead Hello, world! endpoint)
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 
 ## What's next

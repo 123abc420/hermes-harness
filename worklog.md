@@ -5810,3 +5810,23 @@ Stage Summary:
 - Error handling: git push uses instanceof Error + split log messages (up-to-date vs failure).
 - Consistency: 2 inline shimmers → Skeleton component in overview-tab.
 - Lint: 0 errors. All quality gates clear.
+---
+Task ID: W273
+Agent: HERMES Harness Wave Engine (cron job 221210)
+Task: Wave 273 — SSE status guard + dashboard observability + remove placeholder route
+
+Work Log:
+- ASSESS: Read context.md (184 waves, 514 commits), dev.log (clean). W269 deep scan fully exhausted across W269-W272 (all 28 findings addressed). Selected 3 final improvements from remaining low-severity residuals.
+- PLAN: (1) SSE onmessage data.status guard (robustness), (2) empty catch → logDebug in dashboard route (observability), (3) remove placeholder /api/route.ts (dead code).
+- EXECUTE Decision 1 (robustness/medium): Added `if (data.status === 'ok')` guard in SSE onmessage handler. Polling path already had this check — SSE path was the gap. Non-ok payloads now silently skipped instead of spreading potentially malformed data.
+- EXECUTE Decision 2 (error_handling/low): Added logDebug to 2 empty catch blocks in dashboard route (skills dir, specs/memory dir). Filesystem miss is non-critical but was invisible even in dev.
+- EXECUTE Decision 3 (dead_code/low): Deleted src/app/api/route.ts — placeholder "Hello, world!" endpoint with no callers. Cleaner API surface.
+- VERIFY: bun run lint = 0 errors. Dev.log clean.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- 2 files edited, 1 file deleted.
+- Robustness: SSE path now matches polling path with data.status guard.
+- Observability: 2 silent filesystem catches now log in dev mode.
+- Dead code: placeholder root API route removed.
+- Lint: 0 errors. All quality gates clear.

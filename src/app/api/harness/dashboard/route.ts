@@ -133,7 +133,7 @@ export async function GET() {
       const skillsDir = join(process.cwd(), 'gh-sync', 'skills');
       const files = (await readdir(skillsDir)).filter(f => f.endsWith('.md') && f !== '_template.md');
       skillsCount = files.length;
-    } catch { /* skills dir not found */ }
+    } catch { logDebug('DASHBOARD', 'Skills dir not found'); }
 
     // Derive latest value per metricKey
     const latestMetrics: Record<string, number> = {};
@@ -156,11 +156,11 @@ export async function GET() {
       const memFiles = (await readdir(memDir)).filter(f => f.endsWith('.md'));
       // SPEC.md at gh-sync root + specs/*.md + memory/*.md = expected files
       let expectedFiles = 0;
-      try { await stat(join(process.cwd(), 'gh-sync', 'SPEC.md')); expectedFiles++; } catch { /* */ }
+      try { await stat(join(process.cwd(), 'gh-sync', 'SPEC.md')); expectedFiles++; } catch { /* stat failed */ }
       expectedFiles += specFiles.length + memFiles.length;
       // Normalize: 7 total expected files (1 SPEC.md + 2 specs + 3 memory + 1 user_profile)
       specScore = Math.min(expectedFiles / 7, 1);
-    } catch { /* dir not found */ }
+    } catch { logDebug('DASHBOARD', 'Specs/memory dir not found'); }
 
     let errorScore = 0;
     if (errorTrend.length >= 2) {

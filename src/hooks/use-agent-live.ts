@@ -62,7 +62,9 @@ function createSSEConnection(handlers: {
   es.onmessage = (event) => {
     try {
       const data: HealthData = JSON.parse(event.data);
-      handlers.onMessage(data);
+      if (data.status === 'ok') {
+        handlers.onMessage(data);
+      }
     } catch {
       if (process.env.NODE_ENV !== 'production') {
         logDebug('AGENT_LIVE', 'Malformed SSE event skipped', { raw: event.data });
