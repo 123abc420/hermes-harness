@@ -3,7 +3,7 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 18:28 UTC+8
+2026-06-21 18:35 UTC+8
 
 ## System Status
 - **Phase**: Replay-First Era (Wave 256)
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 19 (canvas removed, SVG graph + replay added) |
 | Exported components | 10 |
-| GitHub commits | ~501 |
-| Waves in DB | 171 (stuck waves patched W256) |
+| GitHub commits | ~502 |
+| Waves in DB | 172 (stuck waves patched W256) |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Network nodes | SVG node graph (replay-first design) |

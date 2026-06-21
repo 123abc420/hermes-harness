@@ -73,12 +73,6 @@
 - `className="... {expr()}"` — {} is LITERAL TEXT in a string. MUST use backticks.
 - SVG `<linearGradient id="...">` IDs must be unique per instance — always use `useId()`.
 
-## 3D Module Architecture
-
-- Large Three.js components (>200 lines) should split into shared/world/character/scene modules
-- Module-level mutable state must use shared object (not `export let`) to avoid ESM import-reassignment errors
-- Components sharing module-level refs must import from same shared module
-
 ## Single-Source-of-Truth Pattern
 
 - Define color/config maps once as canonical object, derive all consumers from it
@@ -113,14 +107,6 @@
 - `nohup`, `setsid`, `disown`, `detached: true` — NONE survive the cgroup cleanup.
 - The ONLY strategy: start the server fresh in EVERY wave/response, keep it alive with `sleep` during the tool call.
 - Production build (`next start` from `.next/standalone/`) starts in ~1s — fast enough for per-wave startup.
-
-## 3D Library Weight
-
-- `@pixiv/three-vrm` (5.9MB) pulls WASM/GLSL shaders that cause Turbopack to hang in sandbox.
-- `@react-three/postprocessing` (3.9MB) adds significant compile overhead for marginal visual gain.
-- 10MB VRM model files in `public/` bloat the asset pipeline.
-- ChibiCharacter (pure Three.js geometry, ~400 lines) renders instantly and looks great — prefer procedural geometry over model loading.
-- If a library causes Turbopack to hang, remove it. The sandbox has CPU/memory constraints that make heavy WASM compilation infeasible.
 
 ## Dashboard Math Safety
 
@@ -175,7 +161,7 @@
 
 - Activities stored newest-first in Zustand; reversed for oldest-to-newest display.
 - Phase grouping dividers inserted when phase changes between consecutive entries.
-- Auto-scroll via `scrollIntoView({ block: 'nearest' })` during playback.
+- No auto-scroll — timeline clips to viewport via `overflow-hidden` (W258/W259).
 - Speed options: 0.5x (3s), 1x (1.5s), 2x (750ms), 4x (375ms) per step.
 - Loop mode replays automatically from oldest when reaching newest.
 

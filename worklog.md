@@ -5562,3 +5562,24 @@ Stage Summary:
 - wave-replay-view.tsx: Phase bar h-2 (was h-[3px]) with inline labels on lg, timeline text-xs (was text-[10px]), icons w-5 (was w-4), controls py-2 with h-7 buttons
 - No ScrollArea in any agent-live component — confirmed
 - Lint: 0 errors. No regressions.
+
+---
+Task ID: W260
+Agent: Main Orchestrator
+Task: Insight hygiene — remove dead 3D/VRM sections, fix stale replay insight
+
+Work Log:
+- ASSESS: Read context.md, insights.md, guardrails.md, user_profile.md, dashboard, dev.log
+- ASSESS: Codebase scan — 0 dead imports, 0 ungated console.warn, 0 catch(err:any), 0 ScrollArea leaks, 0 TODOs
+- ASSESS: Found 2 dead 3D/VRM insight sections + 1 stale scrollIntoView reference
+- PLAN: Decision 1 — Remove "3D Module Architecture" and "3D Library Weight" sections (~200 tokens recovered)
+- PLAN: Decision 2 — Fix "Auto-scroll via scrollIntoView" → "No auto-scroll — overflow-hidden (W258/W259)"
+- EXECUTE: Edited insights.md — removed 3 sections, updated 1 line
+- VERIFY: `bun run lint` — 0 errors. grep confirmed 0 remaining 3D/VRM/scrollIntoView references
+- PERSIST: Worklog updated, wave record + decisions recorded, GitHub synced
+
+Stage Summary:
+- insights.md: Removed "3D Module Architecture" (3 lines) and "3D Library Weight" (5 lines) — all Three.js/VRM code removed in W244
+- insights.md: Fixed "Replay System Design" — "Auto-scroll via scrollIntoView" → "No auto-scroll — timeline clips to viewport via overflow-hidden (W258/W259)"
+- Recovered ~200 tokens of insight budget. No future wave will be misled by dead 3D patterns.
+- Lint: 0 errors.
