@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readdirSync, statSync } from 'fs';
+import { readdir, stat } from 'fs/promises';
 import { join } from 'path';
 import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
@@ -23,7 +23,8 @@ interface DashboardResponse {
   healthBreakdown: { spec: number; success: number; errors: number; github: number };
 }
 
-let dashboardCache: { data: DashboardResponse; timestamp: number } | null = null;const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
+let dashboardCache: { data: DashboardResponse; timestamp: number } | null = null;
+const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
 
 export async function GET() {
   try {
@@ -123,7 +124,7 @@ export async function GET() {
     let skillsCount = 0;
     try {
       const skillsDir = join(process.cwd(), 'gh-sync', 'skills');
-      const files = readdirSync(skillsDir).filter(f => f.endsWith('.md') && f !== '_template.md');
+      const files = (await readdir(skillsDir)).filter(f => f.endsWith('.md') && f !== '_template.md');
       skillsCount = files.length;
     } catch { /* skills dir not found */ }
 
@@ -143,12 +144,12 @@ export async function GET() {
     let specScore = 0;
     try {
       const specsDir = join(process.cwd(), 'gh-sync', 'specs');
-      const specFiles = readdirSync(specsDir).filter(f => f.endsWith('.md'));
+      const specFiles = (await readdir(specsDir)).filter(f => f.endsWith('.md'));
       const memDir = join(process.cwd(), 'gh-sync', 'memory');
-      const memFiles = readdirSync(memDir).filter(f => f.endsWith('.md'));
+      const memFiles = (await readdir(memDir)).filter(f => f.endsWith('.md'));
       // SPEC.md at gh-sync root + specs/*.md + memory/*.md = expected files
       let expectedFiles = 0;
-      try { statSync(join(process.cwd(), 'gh-sync', 'SPEC.md')); expectedFiles++; } catch { /* */ }
+      try { await stat(join(process.cwd(), 'gh-sync', 'SPEC.md')); expectedFiles++; } catch { /* */ }
       expectedFiles += specFiles.length + memFiles.length;
       // Normalize: 7 total expected files (1 SPEC.md + 2 specs + 3 memory + 1 user_profile)
       specScore = Math.min(expectedFiles / 7, 1);

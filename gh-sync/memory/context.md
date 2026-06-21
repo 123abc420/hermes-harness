@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 16:32 UTC+8
+2026-06-21 16:41 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 252)
+- **Phase**: Multi-Agent Visual Era (Wave 253)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -65,7 +65,8 @@
 | as AgentVisualState casts | 1 (JSON boundary in use-agent-live, W250) |
 | cn() adoption | 17 harness files (W250) |
 | Inline .then(r =>) fetch chains | 0 (fetchJSON shared lib, W251) |
-| ARIA label gaps | 0 (W250) |
+| Component-level Record casts | 0 (removed in W252) |
+| Sync fs calls in API routes | 0 (async readdir/stat, W252) |
 | Duplicate fetchTrends | 0 (useDecisionTrends shared hook, W250) |
 | Per-hook staleTime | 3 tuned (W250) |
 | TS errors | 0 (export-menu generic fix, W250) |

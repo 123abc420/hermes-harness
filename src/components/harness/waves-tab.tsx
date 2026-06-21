@@ -176,7 +176,7 @@ export function WavesTab() {
             columns={["waveNumber","status","decisionsCount","improvementsCount","errorsCount","summary","startedAt","completedAt"]}
             transform={(r) => ({
               ...r,
-              decisions: (r._count as Record<string, unknown> | undefined)?.decisions ?? r.decisionsCount ?? 0,
+              decisions: r._count?.decisions ?? r.decisionsCount ?? 0,
             })}
           />
         </div>

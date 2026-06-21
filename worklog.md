@@ -5351,3 +5351,23 @@ Stage Summary:
 - Inline .then(r =>) fetch chains: 4 → 0
 - fetchJSON definitions: 1 (shared lib) — was 1 local + 3 inline duplications
 - Total improvements: 3, Decisions: 3
+---
+Task ID: W252
+Agent: Wave Engine (HERMES)
+Task: Eliminate unnecessary Record casts, convert sync fs to async in dashboard
+
+Work Log:
+- ASSESS: 0 lint, 0 TS errors. Found 2 unnecessary `as Record<string, unknown>` casts in component export transforms, and sync `readdirSync`/`statSync` in dashboard API.
+- PLAN: (1) Remove cast in decisions-tab, (2) Remove cast in waves-tab, (3) Convert dashboard fs ops to async.
+- EXECUTE:
+  1. decisions-tab.tsx: `(r.wave as Record<string,unknown>)?.waveNumber` → `r.wave?.waveNumber` (type already supports it)
+  2. waves-tab.tsx: `(r._count as Record<string,unknown>)?.decisions` → `r._count?.decisions` (type already supports it)
+  3. dashboard/route.ts: `readdirSync`/`statSync` → `readdir`/`stat` from `fs/promises`. Also fixed missing newline in cache declaration.
+- VERIFY: 0 lint errors, 0 dev.log errors, 0 `as Record<string,unknown>` in components
+- PERSIST: Committed + pushed
+
+Stage Summary:
+- 3 files modified: decisions-tab.tsx, waves-tab.tsx, dashboard/route.ts
+- Component-level Record<string,unknown> casts: 2 → 0
+- Sync fs calls in API routes: 0 (was 3: readdirSync×2 + statSync×1)
+- Total improvements: 3, Decisions: 3
