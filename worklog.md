@@ -5039,3 +5039,73 @@ Stage Summary:
 - Eliminated single-source-of-truth color drift (header vs canvas/badges)
 - Eliminated unsafe double-cast pattern in use-agent-live.ts
 - PRIORITY_STYLES now catches missing priority values at compile time
+
+---
+Task ID: W245
+Agent: Main Agent
+Task: Visual overhaul — rewrite canvas to animated node network, redesign Agent Live panel as mission control
+
+Work Log:
+- Diagnosed dev server issues (process was killed, not code error)
+- Completely rewrote `agent-network-canvas.tsx` (v4.0 "Neural Mesh"):
+  - Deep space background with animated nebula layers
+  - 200 twinkling stars
+  - Dot grid that glows near active nodes
+  - Organic node movement with orbital drift + physics repulsion
+  - Mouse attraction (nodes subtly pulled toward cursor)
+  - Animated Bézier connection lines between nodes
+  - Energy particles flowing along active connections (up to 80)
+  - Pulse rings emanating from active nodes
+  - Per-node breathing/pulsing based on state
+  - Node size changes dynamically with activity level
+  - Spawn flash animations for new nodes
+  - Mesh connections between nearby non-connected nodes
+  - Specular highlights on node cores
+  - Mouse glow cursor effect
+- Completely rewrote `agent-live-panel.tsx` as Mission Control layout:
+  - Top bar: LIVE/OFFLINE indicator, agent state badge, level badge, wave number, countdown
+  - Phase tracker (ASSESS→PLAN→EXECUTE→VERIFY→PERSIST→REPORT)
+  - Current message with animated transitions
+  - Full-width canvas area with scanline overlay for mission control aesthetic
+  - Corner HUD labels ("AGENT NETWORK", "N NODES ACTIVE")
+  - Bottom section split: Stats grid (6 cards) + Activity feed
+  - XP bar with level progression
+  - Wave replay button
+  - Activity feed with state filter pills
+  - Node popup on click (shows name, state, message, connections)
+- Updated `agent-status/route.ts`:
+  - Replaced `ensureOrchestrator()` with `ensureDefaultNetwork()`
+  - Seeds 6 default nodes on first load (HERMES, ASSESSOR, PLANNER, EXECUTOR, VERIFIER, GIT SYNC)
+  - Canvas is never empty — always shows the agent network
+- Verified: lint clean, production build successful (8.9s compile, 19 routes)
+- Agent-browser verification: page renders with all mission control elements, no console errors
+
+Stage Summary:
+- Canvas v4.0 "Neural Mesh" — pure node network with organic animations
+- Mission Control panel layout — dark, information-dense, professional
+- Default network seeded so canvas always shows nodes
+- Build verified: `npx next build` passes clean
+- All 19 API routes compile successfully
+
+---
+Task ID: W247
+Agent: Main Orchestrator
+Task: Deep code quality improvements — dead code removal, type sync, SSE refactor
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, guardrails, dev.log. Sub-agent scan found 5 findings.
+- PLAN: Selected 3 improvements: (1) Remove dead BuildHealth, (2) Sync DecisionCategory, (3) Extract SSE factory
+- EXECUTE Task 1: Removed BuildHealth interface, buildHealthCache/buildHealthCheckedAt/BUILD_HEALTH_TTL vars, getBuildHealth() function (~30 lines), DashboardData.buildHealth field, BuildHealthCard component (112 lines), and its import in overview-tab.tsx
+- EXECUTE Task 2: Changed DecisionCategory from hardcoded 16-member union to `(typeof VALID_CATEGORIES)[number]` — now auto-syncs with category-colors.ts (20 members)
+- EXECUTE Task 3: Extracted `createSSEConnection()` factory function, refactored both initial connect and retry to use it, added `stopPolling`/`stopSSE` helpers for cleaner cleanup. Eliminated ~40 lines of duplication.
+- BONUS FIX: Fixed 3 pre-existing TS errors caught during build: `replay` → `toggleReplay`, added missing args to `useNextWaveCountdown()`, added null guard for `countdown`
+- VERIFY: `bun run lint` = 0 errors, `tsc --noEmit` = 0 errors. Build page-data step OOMs (sandbox limit, not code).
+- PERSIST: Committed 7 files, -866/+431 lines. Pushed to GitHub. Recorded 3 decisions.
+
+Stage Summary:
+- Net -435 lines removed
+- Dead BuildHealth infrastructure fully eliminated (interface, cache, function, component, store field)
+- DecisionCategory now single-source-of-truth derived from VALID_CATEGORIES (20 categories)
+- SSE reconnection logic deduplicated via createSSEConnection factory
+- 3 bonus TS errors fixed (agent-live-panel.tsx)
+- Build: lint clean, tsc clean
