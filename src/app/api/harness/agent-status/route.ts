@@ -11,6 +11,11 @@ const VALID_PHASES = new Set([
   'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
 ]);
 
+const VALID_NODE_TYPES = new Set([
+  'orchestrator', 'assessor', 'planner', 'executor', 'verifier',
+  'git-agent', 'custom',
+]);
+
 function validateAgentState(value: unknown): string | null {
   if (value === undefined || value === null) return null;
   const s = String(value);
@@ -32,7 +37,7 @@ function validateWaveNumber(value: unknown): string | null {
   return null;
 }
 
-// ─── In-memory state (always available, no external service needed) ─
+// ─── In-memory state ─
 let latestStatus: Record<string, unknown> = {
   agentState: 'idle',
   message: 'Waiting for activity...',
@@ -42,6 +47,7 @@ let latestStatus: Record<string, unknown> = {
   waveCount: 0,
   totalImprovements: 0,
   totalDecisions: 0,
+  decisionCountThisWave: 0,
   timestamp: Date.now(),
 };
 
@@ -50,13 +56,62 @@ const MAX_LOG = 80;
 const SSE_POLL_INTERVAL = 2000;
 const SSE_KEEP_ALIVE = 30_000;
 
-// Sub-agents state
+// ─── Sub-agents (legacy) ─
 let subAgents: Array<Record<string, unknown>> = [];
 let activityTimestamp = 0;
 
+// ─── Network nodes (v2.0) ─
+interface NetworkNode {
+  id: string;
+  type: string;
+  name: string;
+  state: string;
+  message: string;
+  color: string;
+  connections: string[];
+  spawnTime: number;
+  x: number;
+  y: number;
+  size: number;
+  glowIntensity: number;
+}
 
+let networkNodes: NetworkNode[] = [];
+let nodeTimestamp = 0;
 
-// GET: Return latest state + activities (also supports SSE stream)
+// Default orchestrator node
+function ensureOrchestrator(): void {
+  const has = networkNodes.some(n => n.type === 'orchestrator');
+  if (!has) {
+    networkNodes.push({
+      id: 'orchestrator',
+      type: 'orchestrator',
+      name: 'HERMES',
+      state: String(latestStatus.agentState || 'idle'),
+      message: String(latestStatus.message || ''),
+      color: '#f59e0b',
+      connections: [],
+      spawnTime: Date.now(),
+      x: 0.5,
+      y: 0.5,
+      size: 1,
+      glowIntensity: 0.5,
+    });
+  }
+}
+
+// Position new nodes in a circle/orbit around center
+function assignPosition(index: number, total: number): { x: number; y: number } {
+  if (total <= 1) return { x: 0.3, y: 0.4 };
+  const angle = (2 * Math.PI * index) / total - Math.PI / 2;
+  const radius = 0.25 + Math.random() * 0.1;
+  return {
+    x: 0.5 + radius * Math.cos(angle),
+    y: 0.5 + radius * Math.sin(angle),
+  };
+}
+
+// GET: Return latest state + activities + nodes (also supports SSE stream)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -68,7 +123,7 @@ export async function GET(req: NextRequest) {
     let interval: ReturnType<typeof setInterval> | null = null;
     let keepAlive: ReturnType<typeof setInterval> | null = null;
 
-    const getHash = () => `${latestStatus.timestamp}_${activityTimestamp}`;
+    const getHash = () => `${latestStatus.timestamp}_${activityTimestamp}_${nodeTimestamp}`;
 
     const cleanup = () => {
       if (closed) return;
@@ -90,6 +145,8 @@ export async function GET(req: NextRequest) {
               activityCount: activityLog.length,
               activityTimestamp,
               subAgents,
+              networkNodes,
+              nodeTimestamp,
             });
             const hash = getHash();
             if (hash !== lastDataHash) {
@@ -120,7 +177,6 @@ export async function GET(req: NextRequest) {
         });
       },
       cancel() {
-        // Stream consumer cancelled (e.g. browser navigated away) — clear timers
         cleanup();
       },
     });
@@ -143,10 +199,12 @@ export async function GET(req: NextRequest) {
     activityCount: activityLog.length,
     activityTimestamp,
     subAgents,
+    networkNodes,
+    nodeTimestamp,
   });
 }
 
-// POST: Update agent status (called by wave engine, cron, or demo)
+// POST: Update agent status
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
@@ -177,12 +235,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Invalid phase: "${phase}"` }, { status: 400 });
     }
 
+    // ─── Activity ──────────────────────────────────────────────────
     if (type === 'activity') {
       const now = Date.now();
       const state = agentState || 'idle';
       const entry = {
         state,
-        agentState: state, // keep for backward compat
+        agentState: state,
         message: message || '',
         phase: phase || '',
         id: `act_${now}_${Math.random().toString(36).slice(2, 6)}`,
@@ -191,15 +250,109 @@ export async function POST(req: NextRequest) {
       };
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = now;
-
-      // Also update latest status
       latestStatus = { ...latestStatus, agentState: state, message: entry.message, phase: entry.phase, timestamp: now };
+
+      // Also update orchestrator node if it exists
+      const orch = networkNodes.find(n => n.type === 'orchestrator');
+      if (orch) {
+        orch.state = state;
+        orch.message = entry.message;
+        nodeTimestamp = now;
+      }
 
       return NextResponse.json({ ok: true, activities: activityLog.length });
     }
 
+    // ─── Node Update (v2.0) ───────────────────────────────────────
+    if (type === 'node') {
+      const nodeId = body.nodeId || `node_${Date.now()}`;
+      const nodeType = body.nodeType || 'custom';
+      const nodeName = body.nodeName || nodeType;
+      const nodeState = body.nodeState || 'executing';
+      const nodeMessage = body.nodeMessage || '';
+      const nodeColor = body.nodeColor || '#8b5cf6';
+      const connections: string[] = body.connections || [];
+
+      const existing = networkNodes.find(n => n.id === nodeId);
+      if (existing) {
+        // Update existing node
+        existing.state = nodeState;
+        existing.message = nodeMessage;
+        existing.connections = connections;
+        existing.glowIntensity = nodeState === 'executing' ? 1.0 : nodeState === 'thinking' ? 0.7 : 0.4;
+        existing.size = nodeState === 'executing' ? 1.2 : nodeState === 'error' ? 1.3 : 1.0;
+      } else {
+        // New node
+        const nonOrch = networkNodes.filter(n => n.type !== 'orchestrator');
+        const pos = assignPosition(nonOrch.length, Math.max(nonOrch.length + 1, 5));
+        networkNodes.push({
+          id: nodeId,
+          type: nodeType,
+          name: nodeName,
+          state: nodeState,
+          message: nodeMessage,
+          color: nodeColor,
+          connections,
+          spawnTime: Date.now(),
+          ...pos,
+          size: nodeState === 'executing' ? 1.2 : 1.0,
+          glowIntensity: nodeState === 'executing' ? 1.0 : 0.6,
+        });
+
+        // Also add as activity
+        const entry = {
+          state: nodeState,
+          agentState: nodeState,
+          message: `🚀 Node ${nodeName} spawned (${nodeType})`,
+          phase: phase || '',
+          id: `act_${Date.now()}_node`,
+          timestamp: Date.now(),
+          timestampAR: formatArgentinaTime(Date.now()),
+        };
+        activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
+      }
+
+      nodeTimestamp = Date.now();
+      return NextResponse.json({ ok: true, nodes: networkNodes.length });
+    }
+
+    // ─── Node Remove (v2.0) ───────────────────────────────────────
+    if (type === 'node-remove') {
+      const nodeId = body.nodeId;
+      if (nodeId) {
+        const removed = networkNodes.find(n => n.id === nodeId);
+        networkNodes = networkNodes.filter(n => n.id !== nodeId);
+        // Also remove this node from other nodes' connections
+        for (const node of networkNodes) {
+          node.connections = node.connections.filter(c => c !== nodeId);
+        }
+        if (removed) {
+          const entry = {
+            state: 'idle',
+            agentState: 'idle',
+            message: `⏹ Node ${removed.name} removed`,
+            phase: '',
+            id: `act_${Date.now()}_nrm`,
+            timestamp: Date.now(),
+            timestampAR: formatArgentinaTime(Date.now()),
+          };
+          activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
+          activityTimestamp = Date.now();
+        }
+      }
+      nodeTimestamp = Date.now();
+      return NextResponse.json({ ok: true, nodes: networkNodes.length });
+    }
+
+    // ─── Node Clear All (v2.0) ────────────────────────────────────
+    if (type === 'node-clear') {
+      networkNodes = [];
+      nodeTimestamp = Date.now();
+      return NextResponse.json({ ok: true, nodes: 0 });
+    }
+
+    // ─── Sub-Agent (legacy — also creates a node) ─────────────────
     if (type === 'sub-agent') {
-      // Add a sub-agent
       const subAgent = {
         id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 4)}`,
         name: body.name || 'Sub-Agent',
@@ -211,11 +364,27 @@ export async function POST(req: NextRequest) {
       };
       subAgents = [...subAgents, subAgent];
 
-      // Also add as activity
-      const subState = body.state || 'executing';
+      // Also create a network node for the sub-agent
+      const nodeId = subAgent.id;
+      const nonOrch = networkNodes.filter(n => n.type !== 'orchestrator');
+      const pos = assignPosition(nonOrch.length, Math.max(nonOrch.length + 1, 5));
+      networkNodes.push({
+        id: nodeId,
+        type: 'custom',
+        name: subAgent.name,
+        state: subAgent.state,
+        message: subAgent.message,
+        color: subAgent.color,
+        connections: ['orchestrator'],
+        spawnTime: subAgent.spawnTime,
+        ...pos,
+        size: 1.0,
+        glowIntensity: 0.6,
+      });
+
       const entry = {
-        state: subState,
-        agentState: subState,
+        state: subAgent.state,
+        agentState: subAgent.state,
         message: `🚀 Sub-agent deployed: ${subAgent.name}`,
         phase: phase || '',
         id: `act_${Date.now()}_sub`,
@@ -224,23 +393,117 @@ export async function POST(req: NextRequest) {
       };
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = Date.now();
+      nodeTimestamp = Date.now();
 
-      return NextResponse.json({ ok: true, subAgents: subAgents.length });
+      return NextResponse.json({ ok: true, subAgents: subAgents.length, nodes: networkNodes.length });
     }
 
     if (type === 'sub-agent-remove') {
       const agentId = body.agentId;
       subAgents = subAgents.filter((a: Record<string, unknown>) => a.id !== agentId);
-      return NextResponse.json({ ok: true, subAgents: subAgents.length });
+      // Also remove corresponding node
+      networkNodes = networkNodes.filter(n => n.id !== agentId);
+      for (const node of networkNodes) {
+        node.connections = (node.connections || []).filter((c: string) => c !== agentId);
+      }
+      nodeTimestamp = Date.now();
+      return NextResponse.json({ ok: true, subAgents: subAgents.length, nodes: networkNodes.length });
     }
 
     if (type === 'sub-agent-clear') {
       subAgents = [];
+      // Also clear non-orchestrator nodes
+      networkNodes = networkNodes.filter(n => n.type === 'orchestrator');
+      nodeTimestamp = Date.now();
       return NextResponse.json({ ok: true });
     }
 
+    // ─── Sub-Agent Update (v2.0) ─────────────────────────────────
+    if (type === 'sub-agent-update') {
+      const agentId = body.agentId;
+      if (!agentId) return NextResponse.json({ error: 'Missing agentId for sub-agent-update' }, { status: 400 });
+      subAgents = subAgents.map((a: Record<string, unknown>) =>
+        a.id === agentId
+          ? { ...a, state: body.state || a.state, message: body.message || a.message, timestampAR: formatArgentinaTime(Date.now()) }
+          : a
+      );
+      // Also update corresponding node
+      const node = networkNodes.find(n => n.id === agentId);
+      if (node) {
+        node.state = body.state || node.state;
+        node.message = body.message || node.message;
+        node.glowIntensity = body.state === 'executing' ? 1.0 : body.state === 'error' ? 1.2 : 0.6;
+        node.size = body.state === 'executing' ? 1.2 : body.state === 'error' ? 1.3 : 1.0;
+        nodeTimestamp = Date.now();
+      }
+      return NextResponse.json({ ok: true, subAgents: subAgents.length });
+    }
+
+    // ─── Node Pulse (v2.0) — ephemeral connection event ───────────
+    if (type === 'node-pulse') {
+      const fromId = body.fromNode || 'orchestrator';
+      const toId = body.toNode || 'unknown';
+      const pulseColor = body.color || '#a855f7';
+      // Boost glow on connected nodes briefly
+      const fromNode = networkNodes.find(n => n.id === fromId);
+      const toNode = networkNodes.find(n => n.id === toId);
+      if (fromNode) { fromNode.glowIntensity = Math.min(fromNode.glowIntensity + 0.3, 2.0); }
+      if (toNode) { toNode.glowIntensity = Math.min(toNode.glowIntensity + 0.3, 2.0); }
+      // Ensure connection exists
+      if (fromNode && toNode && !fromNode.connections.includes(toId)) {
+        fromNode.connections.push(toId);
+      }
+      if (toNode && fromNode && !toNode.connections.includes(fromId)) {
+        toNode.connections.push(fromId);
+      }
+      nodeTimestamp = Date.now();
+      // Add pulse to activity
+      const entry = {
+        state: 'executing',
+        agentState: 'executing',
+        message: `⚡ Pulse: ${fromId} → ${toId}`,
+        phase: phase || '',
+        id: `act_${Date.now()}_pulse`,
+        timestamp: Date.now(),
+        timestampAR: formatArgentinaTime(Date.now()),
+      };
+      activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
+      activityTimestamp = Date.now();
+      return NextResponse.json({ ok: true });
+    }
+
+    // ─── Decision Count (v2.0) ────────────────────────────────────
+    if (type === 'decision-count') {
+      latestStatus = {
+        ...latestStatus,
+        totalDecisions: (latestStatus.totalDecisions as number) + 1,
+        decisionCountThisWave: (latestStatus.decisionCountThisWave as number) + 1,
+        timestamp: Date.now(),
+      };
+      // Boost orchestrator glow briefly
+      ensureOrchestrator();
+      const orch = networkNodes.find(n => n.type === 'orchestrator');
+      if (orch) {
+        orch.glowIntensity = Math.min(orch.glowIntensity + 0.2, 2.0);
+        nodeTimestamp = Date.now();
+      }
+      // Add to activity
+      const entry = {
+        state: 'planning',
+        agentState: 'planning',
+        message: `🧠 Decision: ${body.description || 'Decision made'} [${body.category || 'general'}]`,
+        phase: phase || 'plan',
+        id: `act_${Date.now()}_dec`,
+        timestamp: Date.now(),
+        timestampAR: formatArgentinaTime(Date.now()),
+      };
+      activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
+      activityTimestamp = Date.now();
+      return NextResponse.json({ ok: true, decisionCountThisWave: latestStatus.decisionCountThisWave });
+    }
+
+    // ─── Full Update ──────────────────────────────────────────────
     if (type === 'full-update') {
-      // Validate agentState in full-update body too
       if (body.agentState) {
         const fullErr = validateAgentState(body.agentState);
         if (fullErr) return NextResponse.json({ error: fullErr }, { status: 400 });
@@ -251,7 +514,6 @@ export async function POST(req: NextRequest) {
       }
       latestStatus = { ...latestStatus, ...body, timestamp: Date.now() };
       if (body.activities) {
-        // Ensure all activities have Argentina timestamps
         activityLog = (body.activities as Array<Record<string, unknown>>).map(a => ({
           ...a,
           timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp as number),
@@ -260,10 +522,21 @@ export async function POST(req: NextRequest) {
       if (body.subAgents) {
         subAgents = body.subAgents as Array<Record<string, unknown>>;
       }
+
+      // Update orchestrator node to celebrating state
+      const orch = networkNodes.find(n => n.type === 'orchestrator');
+      if (orch && body.agentState) {
+        orch.state = body.agentState as string;
+        orch.message = (body.message as string) || '';
+        orch.glowIntensity = body.agentState === 'celebrating' ? 1.5 : 0.5;
+        orch.size = body.agentState === 'celebrating' ? 1.4 : 1.0;
+        nodeTimestamp = Date.now();
+      }
+
       return NextResponse.json({ ok: true });
     }
 
-    // Default: status update
+    // ─── Default: status update ───────────────────────────────────
     latestStatus = {
       ...latestStatus,
       agentState: agentState || 'idle',
@@ -274,8 +547,23 @@ export async function POST(req: NextRequest) {
       waveCount: body.waveCount || latestStatus.waveCount || 0,
       totalImprovements: body.totalImprovements || latestStatus.totalImprovements || 0,
       totalDecisions: body.totalDecisions || latestStatus.totalDecisions || 0,
+      decisionCountThisWave: body.decisionCountThisWave || latestStatus.decisionCountThisWave || 0,
       timestamp: Date.now(),
     };
+
+    // Keep orchestrator in sync
+    ensureOrchestrator();
+    const orch = networkNodes.find(n => n.type === 'orchestrator');
+    if (orch) {
+      orch.state = String(latestStatus.agentState);
+      orch.message = String(latestStatus.message);
+      orch.glowIntensity = latestStatus.agentState === 'executing' ? 1.0
+        : latestStatus.agentState === 'thinking' ? 0.7
+        : latestStatus.agentState === 'celebrating' ? 1.5
+        : latestStatus.agentState === 'error' ? 1.2
+        : 0.4;
+      nodeTimestamp = Date.now();
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

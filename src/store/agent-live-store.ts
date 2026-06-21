@@ -16,7 +16,7 @@ export type AgentVisualState =
 export interface LiveActivityEntry {
   id: string;
   timestamp: number;
-  timestampAR: string; // Argentina timezone formatted
+  timestampAR: string;
   state: AgentVisualState;
   message: string;
   phase?: string;
@@ -29,6 +29,22 @@ export interface SubAgent {
   message: string;
   spawnTime: number;
   color: string;
+}
+
+// ─── Network Node (v2.0) ──────────────────────────────────────────────
+export interface NetworkNode {
+  id: string;
+  type: string;
+  name: string;
+  state: AgentVisualState;
+  message: string;
+  color: string;
+  connections: string[];
+  spawnTime: number;
+  x: number;       // 0-1 normalized position
+  y: number;       // 0-1 normalized position
+  size: number;    // multiplier: 1.0 = default
+  glowIntensity: number; // 0-2+: brightness
 }
 
 export interface AgentLiveState {
@@ -44,6 +60,7 @@ export interface AgentLiveState {
   waveCount: number;
   totalImprovements: number;
   totalDecisions: number;
+  decisionCountThisWave: number;
   recentSuccessRate: number;
   healthScore: number;
   healthScoreTrend: 'up' | 'down' | 'stable';
@@ -56,37 +73,32 @@ export interface AgentLiveState {
   activities: LiveActivityEntry[];
   maxActivities: number;
 
-  // Sub-agents
+  // Sub-agents (legacy)
   subAgents: SubAgent[];
+
+  // Network nodes (v2.0)
+  networkNodes: NetworkNode[];
 
   // Last turn replay
   lastTurnActivities: LiveActivityEntry[];
   isReplaying: boolean;
 
+  // Selected node (for popup)
+  selectedNodeId: string | null;
+
   // Actions
-  setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions' | 'recentSuccessRate' | 'healthScore' | 'healthScoreTrend'>>) => void;
+  setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions' | 'decisionCountThisWave' | 'recentSuccessRate' | 'healthScore' | 'healthScoreTrend'>>) => void;
   addActivity: (entry: Omit<LiveActivityEntry, 'id' | 'timestamp' | 'timestampAR'>) => void;
   setConnected: (connected: boolean) => void;
   setLastTurn: (activities: LiveActivityEntry[]) => void;
   setIsReplaying: (replaying: boolean) => void;
+  setNetworkNodes: (nodes: NetworkNode[]) => void;
+  selectNode: (nodeId: string | null) => void;
 }
 
-// Level thresholds: each level requires N waves (wave-based leveling, not XP-based)
-// This avoids quadratic XP math that produces negative values at high wave counts
+// Level thresholds
 const LEVEL_THRESHOLDS = [
-  0,   // Level 1:  0 waves
-  5,   // Level 2:  5 waves
-  12,  // Level 3:  12 waves
-  22,  // Level 4:  22 waves
-  35,  // Level 5:  35 waves
-  50,  // Level 6:  50 waves
-  70,  // Level 7:  70 waves
-  95,  // Level 8:  95 waves
-  125, // Level 9:  125 waves
-  160, // Level 10: 160 waves
-  200, // Level 11: 200 waves
-  250, // Level 12: 250 waves
-  300, // Level 13: 300 waves
+  0, 5, 12, 22, 35, 50, 70, 95, 125, 160, 200, 250, 300,
 ];
 
 function getLevel(waves: number, _improvements: number) {
@@ -99,13 +111,11 @@ function getLevel(waves: number, _improvements: number) {
 }
 
 function getXpToNext(level: number): number {
-  // XP to next level = waves needed from current to next threshold
   const currentThreshold = LEVEL_THRESHOLDS[level - 1] ?? 0;
   const nextThreshold = LEVEL_THRESHOLDS[level] ?? currentThreshold + 50;
   return nextThreshold - currentThreshold;
 }
 
-/** XP within the current level (waves completed beyond the current threshold). */
 function getXpInLevel(waves: number, level: number): number {
   const currentThreshold = LEVEL_THRESHOLDS[level - 1] ?? 0;
   return Math.max(0, waves - currentThreshold);
@@ -122,6 +132,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   waveCount: 0,
   totalImprovements: 0,
   totalDecisions: 0,
+  decisionCountThisWave: 0,
   recentSuccessRate: 0,
   healthScore: 0,
   healthScoreTrend: 'stable' as const,
@@ -134,8 +145,12 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   maxActivities: 80,
 
   subAgents: [],
+  networkNodes: [],
+
   lastTurnActivities: [],
   isReplaying: false,
+
+  selectedNodeId: null,
 
   setStatus: (update) => {
     const state = get();
@@ -168,7 +183,6 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
       timestampAR: formatArgentinaTime(now),
     };
     const activities = [newEntry, ...state.activities].slice(0, state.maxActivities);
-    // Batch all state updates into a single set() to avoid multiple re-renders
     const updates: Partial<AgentLiveState> = { activities };
     if (entry.state) updates.agentState = entry.state;
     if (entry.message) updates.message = entry.message;
@@ -180,4 +194,8 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
 
   setLastTurn: (activities) => set({ lastTurnActivities: activities }),
   setIsReplaying: (replaying) => set({ isReplaying: replaying }),
+
+  setNetworkNodes: (nodes) => set({ networkNodes: nodes }),
+
+  selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
 }));

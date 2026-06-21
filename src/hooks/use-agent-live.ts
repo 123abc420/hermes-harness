@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry } from '@/store/agent-live-store';
+import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry, type NetworkNode } from '@/store/agent-live-store';
 import { formatArgentinaTime } from '@/lib/constants';
 
 interface HealthData {
@@ -11,13 +11,16 @@ interface HealthData {
   activities: LiveActivityEntry[];
   activityCount: number;
   activityTimestamp: number;
+  subAgents?: Array<Record<string, unknown>>;
+  networkNodes?: NetworkNode[];
+  nodeTimestamp?: number;
 }
 
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sseRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const { setStatus, setConnected } = useAgentLiveStore();
+  const { setStatus, setConnected, setNetworkNodes } = useAgentLiveStore();
 
   const processData = useCallback((data: HealthData) => {
     const s = data.latestStatus;
@@ -31,6 +34,7 @@ export function useAgentLive() {
       if (s.waveCount !== undefined) update.waveCount = s.waveCount as number;
       if (s.totalImprovements !== undefined) update.totalImprovements = s.totalImprovements as number;
       if (s.totalDecisions !== undefined) update.totalDecisions = s.totalDecisions as number;
+      if (s.decisionCountThisWave !== undefined) update.decisionCountThisWave = s.decisionCountThisWave as number;
       if (Object.keys(update).length > 0) setStatus(update);
     }
 
@@ -42,7 +46,6 @@ export function useAgentLive() {
       const newActivities: LiveActivityEntry[] = [];
       for (const act of data.activities) {
         if (!localIds.has(act.id)) {
-          // Normalize: server may send `agentState` or `state`
           const raw = act as unknown as Record<string, unknown>;
           const entry: LiveActivityEntry = {
             id: act.id,
@@ -57,7 +60,7 @@ export function useAgentLive() {
         }
       }
       if (hasNew) {
-        // Batch: update activities in a single setState
+        const store = useAgentLiveStore.getState();
         const stateUpdate: Record<string, unknown> = {
           activities: [...newActivities, ...store.activities]
             .sort((a, b) => b.timestamp - a.timestamp)
@@ -66,7 +69,12 @@ export function useAgentLive() {
         useAgentLiveStore.setState(stateUpdate);
       }
     }
-  }, [setStatus]);
+
+    // Sync network nodes (v2.0)
+    if (data.networkNodes) {
+      setNetworkNodes(data.networkNodes);
+    }
+  }, [setStatus, setNetworkNodes]);
 
   const startPolling = useCallback(() => {
     if (pollRef.current) return;
@@ -106,7 +114,7 @@ export function useAgentLive() {
           const data: HealthData = JSON.parse(event.data);
           processData(data);
         } catch {
-          // Malformed SSE event — skip silently (common during reconnect)
+          // Malformed SSE event — skip silently
         }
       };
 
@@ -119,10 +127,9 @@ export function useAgentLive() {
         setConnected(false);
         useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
         startPolling();
-        // Schedule periodic SSE reconnection attempts (every 30s)
         if (!sseRetryRef.current) {
           sseRetryRef.current = setInterval(() => {
-            if (eventSourceRef.current) return; // already connected via SSE
+            if (eventSourceRef.current) return;
             if (process.env.NODE_ENV !== 'production') {
               console.warn('[AgentLive] Attempting SSE reconnection...');
             }
@@ -134,7 +141,6 @@ export function useAgentLive() {
               clearInterval(sseRetryRef.current);
               sseRetryRef.current = null;
             }
-            // Inline SSE reconnect to avoid circular callback reference
             try {
               const retryEs = new EventSource('/api/harness/agent-status?stream=true');
               eventSourceRef.current = retryEs;
@@ -150,7 +156,7 @@ export function useAgentLive() {
                   const data: HealthData = JSON.parse(event.data);
                   processData(data);
                 } catch {
-                  // Malformed SSE event — skip silently (common during reconnect)
+                  // skip
                 }
               };
               retryEs.onerror = () => {
