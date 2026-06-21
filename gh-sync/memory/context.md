@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 13:55 UTC+8
+2026-06-21 14:04 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 246)
-- **Waves in DB**: 154
+- **Phase**: Multi-Agent Visual Era (Wave 247)
+- **Waves in DB**: 155
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -16,10 +16,10 @@
 | API routes | 20 |
 | Dashboard tabs | 6 |
 | Skills | 10 (+ 1 template) |
-| Components | 22 |
+| Components | 21 (BuildHealthCard removed, W247) |
 | Exported components | 10 |
-| GitHub commits | ~424 |
-| Waves in DB | 154 |
+| GitHub commits | ~426 |
+| Waves in DB | 155 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Network nodes | Multi-agent (orchestrator + sub-agents) |
@@ -35,7 +35,6 @@
 | VALID_NODE_TYPES dead code | 0 (removed W234) |
 | Activity log capacity | 50 (server) / 80 (client) |
 | Canvas version | v2.4 (W237) |
-    | Performance | 3 useMemo + 6 useCallback optimizations |
 | State color source | STATE_RGB in constants.ts (single truth) |
 | page.tsx / harness-dashboard duplication | 0 (deduplicated W237b) |
 | Tab switch animation | motion.div key={activeTab} (fixed W238) |
@@ -49,61 +48,30 @@
 | Dead hooks | 0 (useMetrics + useSpec removed, W242) |
 | Record<string,unknown> in agent-status | 0 (typed interfaces, W242) |
 | Dead dependencies | 0 (16 removed, W243) |
-| Dead UI components | 0 (label/progress/toggle removed, W243) |
+| Dead UI components | 0 (label/progress/toggle/build-health removed) |
 | Duplicated types (WaveStatus, DecisionPriority) | 0 (single-sourced from schemas, W243) |
 | Dead directories (examples/, mini-services/) | 0 (deleted W244) |
 | Private constants leak | 0 (EVOLUTION_STAGES/LEVEL_NAMES private, W244) |
-| Pre-existing TS errors | 0 (all 31 fixed W245) |
+| Pre-existing TS errors | 0 (31 fixed W245 + 3 more W247) |
 | ignoreBuildErrors | false (strict TS enforced, W245) |
 | Header color drift | 0 (uses getStateHex, W246) |
 | Record<string,unknown> in use-agent-live | 0 (typed ServerXxx interfaces, W246) |
 | Untyped PRIORITY_STYLES | 0 (DecisionPriority key, W246) |
+| Dead BuildHealth infrastructure | 0 (removed W247) |
+| DecisionCategory sync gap | 0 (derived from VALID_CATEGORIES, W247) |
+| SSE duplication | 0 (createSSEConnection factory, W247) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
-- **Agent Live multi-agent node network canvas v2.3** (W236)
-  - Dot grid — modern look
-  - Dual-layer nebula (primary state + secondary ambient)
-  - Ambient pulse waves emitting from active nodes
-  - Glowing nodes with energy particle trails along bezier curves
-  - **Smart bezier control points** — curves perpendicular to line, distance-scaled, direction-seeded (W236)
-  - Hover connection highlight (proximity-based bezier distance)
-  - Selected node breathing halo with color-matched gradient
-  - Node name labels on ALL nodes (orchestrator shows "HERMES")
-  - Wave progress ring with leading dot + glow
-  - **Two-tier node spawn radius** — first 4 agents at 0.18, rest at 0.28 (W236)
-  - Click-to-select nodes with detail popup (NodePopup)
-  - Organic drift animation for all nodes
-  - STATE_RGB imported from constants.ts (single source of truth)
-- **Agent Live HUD overlay v2.3** (W235+ polished) with:
-  - Glassmorphism stat chips (backdrop-blur-xl, hover border glow)
-  - Staggered entry animations for bottom stats
-  - Wave progress bar with gradient glow effect
-  - Breathing glow on state badge (animated box-shadow, 2.5s cycle)
-  - Shimmer sweep on health + XP progress bars
-  - Spring animations on decision counter (+N)
-  - Health/XP bars as motion.div animated width
-  - Node count badge, phase tracker, level
-  - Sub-agent badges with glow dots
-  - **State filter pills use getStateHex() from constants.ts** (W236)
+- **Agent Live multi-agent node network canvas v2.4** (W236)
+- **Agent Live HUD overlay v2.3** with glassmorphism, animations
 - **page.tsx premium footer** (W236)
-  - Parallax dot-pattern background (scroll-reactive)
-  - Sliding tab indicator with spring motion
-  - Wave activity sparkline (inline SVG)
-  - Success rate pulse bar (animated)
-  - System uptime from first wave
-  - Gradient footer separator
-  - Per-tab dot color indicators
-- **agent-live-broadcast skill v2.0** with multi-agent protocol
-  - 8 payload types
-  - Sub-agent color palette (6 roles)
-  - Full wave broadcast sequence (32 steps)
-- **wave_protocol.md** includes broadcast steps at every phase
-- **API route** supports all v2.0 payload types
+- **agent-live-broadcast skill v3.0** with multi-agent protocol
 - Health score guarded against 0/0 NaN
-- Donut charts use percentage radii — no mobile clipping
-- GitHub sync does real git push inline, status correct
-- Page compiles in <1s
+- Donut charts use percentage radii
+- GitHub sync does real git push inline
+- **SSE reconnection via createSSEConnection factory** (W247)
+- **DecisionCategory derived from VALID_CATEGORIES** (W247, 20 categories)
 
 ## What's next
 1. Visual QA of node canvas with real broadcast data (sandbox network limits)
