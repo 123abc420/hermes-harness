@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 14:04 UTC+8
+2026-06-21 14:18 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 247)
+- **Phase**: Multi-Agent Visual Era (Wave 248)
 - **Waves in DB**: 155
 - **Spec compliance**: 100% (16/16)
 
@@ -52,7 +52,7 @@
 | Duplicated types (WaveStatus, DecisionPriority) | 0 (single-sourced from schemas, W243) |
 | Dead directories (examples/, mini-services/) | 0 (deleted W244) |
 | Private constants leak | 0 (EVOLUTION_STAGES/LEVEL_NAMES private, W244) |
-| Pre-existing TS errors | 0 (31 fixed W245 + 3 more W247) |
+| Record<string,unknown> in API routes | 4 (all justified: YAML parser, forwarder, loose shape fields) |
 | ignoreBuildErrors | false (strict TS enforced, W245) |
 | Header color drift | 0 (uses getStateHex, W246) |
 | Record<string,unknown> in use-agent-live | 0 (typed ServerXxx interfaces, W246) |
@@ -60,6 +60,7 @@
 | Dead BuildHealth infrastructure | 0 (removed W247) |
 | DecisionCategory sync gap | 0 (derived from VALID_CATEGORIES, W247) |
 | SSE duplication | 0 (createSSEConnection factory, W247) |
+| Prisma-typed query params | 4 routes (W248) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
