@@ -3,7 +3,7 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 21:10 UTC+8
+2026-06-21 21:20 UTC+8
 
 ## System Status
 - **Phase**: Type-Safe Era (Wave 273)
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~517 |
-| Waves in DB | 187 |
+| GitHub commits | ~518 |
+| Waves in DB | 188 |
 | TS errors | 0 (enforced, ignoreBuildErrors removed) |
 | Quality gates | All clear |
 

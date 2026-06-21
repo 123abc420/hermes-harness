@@ -109,3 +109,10 @@
 - A `useCallback` that references itself creates a "used before declared" lint error. Fix: store the fn in a ref, update ref in `useEffect`, call via `ref.current()` inside the callback.
 - `useRef.current = value` during render triggers react-hooks/refs lint error. Must assign inside `useEffect`.
 - Recursive `setTimeout` is safer than `setInterval` for retry loops — each attempt independently schedules the next, no dead-state if the interval is cleared.
+
+## Type Safety — Enforcement
+
+- `ignoreBuildErrors: true` is a trap — it lets type errors accumulate silently until fixing them requires a dedicated sweep. Remove it as soon as tsc passes.
+- When narrowing union types (e.g., `string` → `TabValue`), boundary casts are inevitable at framework edges (shadcn `onValueChange`, `CommandPalette` callbacks). Use `as` at the narrowest possible boundary.
+- Generic JSX syntax (`<Component<Type>`) isn't supported by all ESLint parsers. Type the callback parameter directly instead.
+- After removing `ignoreBuildErrors`, add `npx tsc --noEmit` to the VERIFY phase so future waves catch type errors immediately.
