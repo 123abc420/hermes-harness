@@ -4574,3 +4574,46 @@ Stage Summary:
 - Eliminated last lint error — codebase now 100% lint-clean
 - All stale 3D references cleaned from demo messages and export comments
 - Files changed: agent-demo/route.ts, command-palette.tsx, index.ts
+
+---
+Task ID: W228-redesign
+Agent: Main Orchestrator
+Task: Complete redesign of Agent Live view - massive canvas entity, full-screen layout, real-time service
+
+Work Log:
+- Analyzed user feedback: current agent avatar was "chiquito y feo" (tiny and ugly), didn't react to state changes, not live
+- Completely rewrote src/components/harness/agent-avatar-canvas.tsx: replaced chibi character with massive AI consciousness entity
+  - Large glowing orb core with breathing animation and smooth color transitions
+  - Eye tracking (two light points follow mouse cursor)
+  - 3 orbital rings with traveling particles at different tilt angles
+  - 16 neural network nodes with pulsing connections and data flow animation
+  - 8 energy tendrils with wave motion extending from core
+  - 150 ambient particles (orbit, drift, rise types)
+  - Subtle data stream columns on edges
+  - State-specific visual effects: radar scan (searching), sparks (executing), fireworks (celebrating), glitch (error), DNA helix (evolving), hex grid (planning)
+  - Per-state color palettes with smooth RGB interpolation
+  - Full state reactivity: animation speed, intensity, and effects change dramatically per state
+- Completely rewrote src/components/harness/agent-live-panel.tsx: full-screen layout
+  - Canvas fills 60% width on desktop (flex-[3]), full width on mobile (55vh min-height)
+  - HUD overlay system: glassmorphism badges positioned absolutely over canvas
+  - Top bar: LIVE/OFFLINE badge, state badge, wave progress, level indicator
+  - Bottom bar: message quote, compact stats strip (health, XP, waves, improvements, decisions)
+  - Phase tracker positioned above bottom bar during active waves
+  - Right panel (380-420px): activity feed, last wave summary, recent decisions
+  - Responsive: column layout on mobile, row on desktop
+- Created mini-services/agent-live/ with Socket.io WebSocket + REST API (ports 3004/3005)
+- Created seed API endpoint at /api/harness/agent-status/seed for demo data
+- Fixed 4 bugs found during QA:
+  1. agentState vs state field mismatch in activity entries
+  2. TypeScript null-safety errors in canvas component (40+ errors)
+  3. useRef without initial value type errors in use-agent-live.ts
+  4. Command palette HMR infinite rebuild loop crashing dev server
+- Verified with agent-browser: canvas renders, HUD shows, 6 seeded activities display, 0 console errors
+
+Stage Summary:
+- Agent Live completely transformed from tiny chibi character to massive, impressive AI consciousness entity
+- Full-screen layout with glassmorphism HUD overlays replaces 2-column card grid
+- Real-time WebSocket mini-service operational on ports 3004/3005
+- All 10 agent states have distinct visual behaviors and color palettes
+- Entity tracks mouse with "eyes", breathes, pulses, and reacts dramatically to state changes
+- 4 bugs fixed, lint passes clean, browser-verified zero errors
