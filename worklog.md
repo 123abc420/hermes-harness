@@ -4325,3 +4325,34 @@ Stage Summary:
 - Stat cards now have premium sparkline area charts with gradient fill
 - All 9 unvalidated routes: agent-status uses manual validation (sufficient)
 - Component count: 29 → 23 (6 dead 3D files removed)
+
+---
+Task ID: 7
+Agent: Style & Feature Enhancement Agent
+Task: Comprehensive styling improvements and new features for HERMES HARNESS dashboard
+
+Work Log:
+- Added CSS animations/utilities to globals.css: rotating conic gradient border (@property --border-angle), shimmer loading effect, footer gradient line, tab sliding indicator, pulse-health and system-pulse keyframes, parallax dot-pattern class
+- Enhanced Footer: amber-to-transparent gradient separator line, wave activity mini sparkline (last 10 waves using inline SVG), system uptime calculated from first wave, success rate pulse bar with health-matched animation speed
+- Tab Navigation Polish: spring-physics sliding indicator underline that animates between tabs (using framer-motion), tiny colored dot indicators on tabs with data, StaggerContainer for tab content transitions
+- Hero Card Enhancement: rotating conic gradient border (hero-glow-border class with @property CSS), System Pulse mini visualization (5 bars animating up/down showing recent wave frequency), circular SVG progress ring around health score with drop-shadow glow
+- Waves Table Enhancement: alternating row backgrounds (bg-white/[0.015] vs transparent), tiny inline progress bar in duration column showing relative duration, hover effects with border-left highlight (2px amber), shimmer loading on loading state
+- Decision Cards Enhancement: 3px colored left border accent matching category hex color, prominent Clock icon + time ago timestamp, AnimatePresence expand/collapse animation on reasoning section
+- Stats Grid Enhancement: Quick Stats Tooltip on hover showing current value, previous value, change % with directional arrows, trend direction indicator, mini sparkline in tooltip
+- Global Micro-interactions: parallax scroll effect on dot-pattern background (scrollY * 0.08 offset), shimmer loading effect on cards during data fetch
+- NEW FEATURE: Activity Heatmap (activity-heatmap.tsx) - GitHub-style contribution heatmap showing 84 days (12 weeks) of wave activity, color-coded by status (green=completed, red=failed, amber=interrupted), month labels, legend, hover effects
+- NEW FEATURE: Wave Comparison (built into waves-tab.tsx) - "Compare" toggle button, checkbox selection for 2 waves, side-by-side comparison panel showing status/duration/decisions/improvements/errors/summary with color-coded better/worse indicators
+- NEW FEATURE: Command Palette Enhancement (command-palette.tsx) - recent searches stored in localStorage, clear recent searches button, keyboard navigation within results (↑↓ + Enter), improved result display
+
+Files Modified:
+- src/app/globals.css (added CSS animations, properties, keyframes)
+- src/components/harness/harness-dashboard.tsx (footer, tabs, parallax, staggered transitions)
+- src/components/harness/hero-status-card.tsx (rotating border, health ring, system pulse)
+- src/components/harness/waves-tab.tsx (alternating rows, duration bars, wave comparison feature)
+- src/components/harness/decision-card.tsx (colored left border, time ago, expand animation)
+- src/components/harness/stats-grid.tsx (quick stats tooltip with breakdown)
+- src/components/harness/command-palette.tsx (recent searches, improved navigation)
+- src/components/harness/overview-tab.tsx (added activity heatmap)
+- src/components/harness/activity-heatmap.tsx (NEW - GitHub-style heatmap)
+
+Result: All 6 styling improvements + 4 new features implemented. Lint passes clean. Dev server compiles successfully.

@@ -18,6 +18,7 @@ import { BuildHealthCard } from './build-health-card';
 import { WaveComparisonCard } from './wave-comparison-card';
 import { CategoryTrendsChart } from './category-trends-chart';
 import { AnimatedSection } from './animated-section';
+import { ActivityHeatmap } from './activity-heatmap';
 import { isErrorsTrendingDown } from '@/lib/constants';
 
 /* ── Collapsible section header ────────────────────────── */
@@ -89,7 +90,7 @@ export function OverviewTab() {
       )}
 
       {/* Hero Status Card */}
-      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} healthScoreTrend={dash?.healthScoreTrend} healthBreakdown={dash?.healthBreakdown} isLoading={isLoading} />
+      <HeroStatusCard stats={stats} githubStatus={githubStatus} latestWave={waves[0]} firstWaveStart={firstWave?.startedAt} waveVelocity={waveVelocity} npmDeps={npmDep?.metricValue} healthScore={dash?.healthScore} healthScoreTrend={dash?.healthScoreTrend} healthBreakdown={dash?.healthBreakdown} isLoading={isLoading} waves={waves} />
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} metrics={dash?.metrics} waves={waves} />
@@ -100,6 +101,15 @@ export function OverviewTab() {
           <WaveComparisonCard waves={waves} />
         ) : !isLoading ? null : (
           <Card className="glass-card"><CardContent className="p-6"><div className="flex items-center gap-4"><div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.04]" /><div className="space-y-2"><div className="h-4 w-40 animate-pulse rounded bg-white/[0.04]" /><div className="h-3 w-60 animate-pulse rounded bg-white/[0.03]" /></div></div></CardContent></Card>
+        )}
+      </AnimatedSection>
+
+      {/* Activity Heatmap — GitHub-style 12-week grid */}
+      <AnimatedSection delay={0.16}>
+        {!isLoading && waves.length > 0 ? (
+          <ActivityHeatmap waves={waves} />
+        ) : !isLoading ? null : (
+          <Card className="glass-card shimmer-card"><CardContent className="p-6"><div className="h-24 w-full rounded bg-white/[0.03] animate-pulse" /></CardContent></Card>
         )}
       </AnimatedSection>
 

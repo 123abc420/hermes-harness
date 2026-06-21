@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import { execFile } from 'child_process';
 import { readdirSync, statSync } from 'fs';
-import { promisify } from 'util';
 import { join } from 'path';
 import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
 import { logError, logDebug } from '@/lib/logger';
-
-const execFileAsync = promisify(execFile);
 
 // ── Build health cache (module-level, survives between requests) ────
 let buildHealthCache: {
@@ -28,24 +24,13 @@ async function getBuildHealth() {
   if (buildHealthCache && now - buildHealthCheckedAt < BUILD_HEALTH_TTL) {
     return buildHealthCache;
   }
-  let output = '';
-  let exitCode = 0;
-  try {
-    const { stdout } = await execFileAsync('bun', ['run', 'lint'], {
-      encoding: 'utf-8',
-      timeout: 60_000,
-    });
-    output = stdout;
-  } catch (err: unknown) {
-    // bun run lint exits with code 1 when lint errors are found
-    output = (err instanceof Error ? (err as { stdout?: string }).stdout || err.message : '') || String(err);
-    exitCode = (err as { status?: number })?.status ?? 1;
-  }
-  const hasErrors = exitCode !== 0 && output.length > 0;
+  // NOTE: Running `bun run lint` as a child process crashes the Turbopack
+  // dev server in this sandbox environment. Build health is checked externally
+  // via `bun run lint` in the terminal. Return "not checked" by default.
   buildHealthCache = {
-    lintPassed: !hasErrors,
-    lintErrors: hasErrors ? (output.match(/\berror\b/gi)?.length ?? 1) : 0,
-    lintWarnings: (output.match(/\bwarning\b/gi)?.length ?? 0),
+    lintPassed: null as unknown as boolean,
+    lintErrors: 0,
+    lintWarnings: 0,
     checkedAt: new Date().toISOString(),
   };
   buildHealthCheckedAt = now;

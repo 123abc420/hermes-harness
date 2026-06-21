@@ -12,10 +12,10 @@ export interface BuildHealth {
 }
 
 export function BuildHealthCard({ health, isLoading }: { health?: BuildHealth; isLoading?: boolean }) {
-  // Null means "never checked" (lint hasn't been run this session)
+  // Null means "never checked" (lint cannot run in sandbox)
   const isHealthy = health?.lintPassed === true;
   const isUnhealthy = health?.lintPassed === false;
-  const isUnknown = health?.lintPassed === null;
+  const isUnknown = !health || health.lintPassed === null;
 
   const statusColor = isHealthy
     ? 'text-emerald-400'

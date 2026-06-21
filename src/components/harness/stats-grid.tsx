@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Activity, Brain, TrendingUp, AlertTriangle, Target, GitBranch } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Activity, Brain, TrendingUp, AlertTriangle, Target, GitBranch, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Wave, TotalStats, Metric } from '@/store/harness-store';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
@@ -60,6 +61,84 @@ function metricHistory(metrics: Metric[] | undefined, key: string, n = 8): numbe
     .reverse();
 }
 
+/* ── Quick Stats Tooltip ────────────────────────────── */
+function StatTooltip({
+  label,
+  value,
+  previousValue,
+  changePercent,
+  trend,
+  sparkline,
+  sparkColor,
+}: {
+  label: string;
+  value: number;
+  previousValue?: number | null;
+  changePercent?: number | null;
+  trend?: 'up' | 'down' | 'neutral';
+  sparkline?: number[];
+  sparkColor?: string;
+}) {
+  const changeDir = changePercent !== null && changePercent !== undefined
+    ? changePercent > 0 ? 'up' : changePercent < 0 ? 'down' : 'neutral'
+    : trend ?? 'neutral';
+
+  return (
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 pointer-events-none">
+      <div className="rounded-xl border border-white/[0.08] bg-[#1a1510]/95 shadow-2xl shadow-black/50 backdrop-blur-xl p-3">
+        <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-2">{label} Breakdown</div>
+        <div className="space-y-1.5">
+          {/* Current value */}
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-zinc-400">Current</span>
+            <span className="text-xs font-bold font-mono text-white tabular-nums">{value}</span>
+          </div>
+          {/* Previous value */}
+          {previousValue !== null && previousValue !== undefined && (
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-zinc-500">Previous</span>
+              <span className="text-xs font-mono text-zinc-400 tabular-nums">{previousValue}</span>
+            </div>
+          )}
+          {/* Change */}
+          {changePercent !== null && changePercent !== undefined && (
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-zinc-500">Change</span>
+              <span className={`flex items-center gap-0.5 text-[11px] font-mono font-bold tabular-nums ${
+                changeDir === 'up' ? 'text-emerald-400' : changeDir === 'down' ? 'text-red-400' : 'text-zinc-500'
+              }`}>
+                {changeDir === 'up' && <ArrowUp className="h-2.5 w-2.5" />}
+                {changeDir === 'down' && <ArrowDown className="h-2.5 w-2.5" />}
+                {changeDir === 'neutral' && <Minus className="h-2.5 w-2.5" />}
+                {changePercent > 0 ? '+' : ''}{changePercent}%
+              </span>
+            </div>
+          )}
+          {/* Trend direction */}
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-zinc-500">Trend</span>
+            <span className={`text-[10px] font-mono ${
+              changeDir === 'up' ? 'text-emerald-400' : changeDir === 'down' ? 'text-red-400' : 'text-zinc-500'
+            }`}>
+              {changeDir === 'up' ? '▲ Increasing' : changeDir === 'down' ? '▼ Decreasing' : '● Stable'}
+            </span>
+          </div>
+        </div>
+        {/* Mini sparkline in tooltip */}
+        {sparkline && sparkline.length >= 2 && (
+          <div className="mt-2 pt-2 border-t border-white/[0.04]">
+            <Sparkline data={sparkline} color={sparkColor ?? '#10b981'} label={`Trend for ${label}`} />
+          </div>
+        )}
+      </div>
+      {/* Tooltip arrow */}
+      <div className="flex justify-center -mt-px">
+        <div className="w-2 h-2 rotate-45 border-b border-r border-white/[0.08] bg-[#1a1510]/95" />
+      </div>
+    </div>
+  );
+}
+
 /* ── Stat Card ────────────────────────────────────────── */
 function StatCard({
   label,
@@ -72,6 +151,8 @@ function StatCard({
   delay = 0,
   sparkline,
   sparkColor,
+  previousValue,
+  changePercent,
 }: {
   label: string;
   value: number | undefined;
@@ -83,14 +164,22 @@ function StatCard({
   delay?: number;
   sparkline?: number[];
   sparkColor?: string;
+  previousValue?: number | null;
+  changePercent?: number | null;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, delay }}
     >
-      <Card className="glass-card group relative overflow-hidden transition-all duration-300 hover:border-white/10 hover:shadow-lg hover:shadow-black/20">
+      <Card
+        className="glass-card group relative overflow-hidden transition-all duration-300 hover:border-white/10 hover:shadow-lg hover:shadow-black/20"
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
         {/* Top accent line — color matches the stat icon */}
         <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-30 ${color.split(' ')[1] ?? 'text-zinc-400'}`} />
         <CardContent className="p-4">
@@ -140,6 +229,28 @@ function StatCard({
             <p className="mt-1 text-[10px] text-zinc-600">{subLabel}</p>
           )}
         </CardContent>
+
+        {/* Hover tooltip */}
+        <AnimatePresence>
+          {showTooltip && (
+            <motion.div
+              initial={{ opacity: 0, y: 4, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+            >
+              <StatTooltip
+                label={label}
+                value={value ?? 0}
+                previousValue={previousValue}
+                changePercent={changePercent}
+                trend={trend}
+                sparkline={sparkline}
+                sparkColor={sparkColor}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </motion.div>
   );
@@ -151,7 +262,7 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
     return (
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="glass-card">
+          <Card key={i} className="glass-card shimmer-card">
             <CardContent className="p-4">
               <Skeleton className="mb-2 h-3 w-20" />
               <Skeleton className="h-8 w-16" />
@@ -174,6 +285,16 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
     ? [...waves].reverse().slice(-8).map(w => w.errorsCount ?? 0)
     : [];
 
+  // Extract previous values and change percent from metrics
+  const getMetricPrevious = (key: string) => {
+    const m = metrics?.find(m => m.metricKey === key);
+    return m?.previousValue;
+  };
+  const getMetricChangePct = (key: string) => {
+    const m = metrics?.find(m => m.metricKey === key);
+    return m?.changePercent;
+  };
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
       <StatCard
@@ -184,6 +305,8 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         delay={0.05}
         sparkline={wavesSparkline}
         sparkColor="#10b981"
+        previousValue={getMetricPrevious('waves_completed')}
+        changePercent={getMetricChangePct('waves_completed')}
       />
       <StatCard
         label="Decisions"
@@ -193,6 +316,8 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         delay={0.1}
         sparkline={decisionsSparkline}
         sparkColor="#06b6d4"
+        previousValue={getMetricPrevious('total_decisions')}
+        changePercent={getMetricChangePct('total_decisions')}
       />
       <StatCard
         label="Improvements"
@@ -202,6 +327,8 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         delay={0.15}
         sparkline={improvementsSparkline}
         sparkColor="#14b8a6"
+        previousValue={getMetricPrevious('total_improvements')}
+        changePercent={getMetricChangePct('total_improvements')}
       />
       <StatCard
         label="Success Rate"
@@ -212,6 +339,8 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         trend={stats.waveSuccessRate >= 80 ? 'up' : 'down'}
         delay={0.2}
         subLabel={`Last 5: ${stats.recentSuccessRate ?? stats.waveSuccessRate}%`}
+        previousValue={getMetricPrevious('wave_success_rate')}
+        changePercent={getMetricChangePct('wave_success_rate')}
       />
       <StatCard
         label="Errors"
@@ -221,6 +350,8 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         delay={0.25}
         sparkline={errorsSparkline}
         sparkColor="#ef4444"
+        previousValue={getMetricPrevious('total_errors')}
+        changePercent={getMetricChangePct('total_errors')}
       />
       <StatCard
         label="Git Commits"
@@ -229,6 +360,8 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
         color="bg-amber-500/10 text-amber-400"
         delay={0.3}
         subLabel="Pushed to GitHub"
+        previousValue={getMetricPrevious('github_commits')}
+        changePercent={getMetricChangePct('github_commits')}
       />
     </div>
   );

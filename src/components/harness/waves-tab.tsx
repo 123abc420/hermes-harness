@@ -15,8 +15,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWaves } from '@/hooks/use-harness-data';
 import { useHarnessStore } from '@/store/harness-store';
-import { Waves as WavesIcon, ChevronDown, Search, X, CheckCircle2, Clock, BarChart3, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Waves as WavesIcon, ChevronDown, Search, X, CheckCircle2, Clock, BarChart3, TrendingUp, GitCompareArrows, ArrowLeftRight, Check, X as XIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ErrorBlock } from './error-block';
 import { ExportMenu } from './export-menu';
 import { STATUS_COLORS } from './wave-detail-dialog';
@@ -41,6 +41,8 @@ export function WavesTab() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareSelections, setCompareSelections] = useState<string[]>([]);
   const limit = 30;
 
   const { data, isLoading, isError, error, refetch } = useWaves(page, limit, waveFilter, search);
@@ -60,6 +62,15 @@ export function WavesTab() {
     avgDurationSec = Math.round(totalSec / doneWaves.length);
   }
 
+  // Max duration for progress bar normalization
+  const maxDuration = waves.reduce((max, w) => {
+    if (w.completedAt && w.startedAt) {
+      const dur = (new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime()) / 1000;
+      return dur > max ? dur : max;
+    }
+    return max;
+  }, 0);
+
   const handleFilterChange = (val: string) => {
     setWaveFilter(val);
     setPage(1);
@@ -69,6 +80,21 @@ export function WavesTab() {
     setSearch(val);
     setPage(1);
   };
+
+  const toggleCompare = (waveId: string) => {
+    setCompareSelections(prev => {
+      if (prev.includes(waveId)) return prev.filter(id => id !== waveId);
+      if (prev.length >= 2) return [prev[1], waveId]; // Keep last 2
+      return [...prev, waveId];
+    });
+  };
+
+  const clearCompare = () => {
+    setCompareSelections([]);
+    setCompareMode(false);
+  };
+
+  const compareWaves = compareSelections.map(id => waves.find(w => w.id === id)).filter(Boolean);
 
   return (
     <div className="space-y-5">
@@ -82,6 +108,18 @@ export function WavesTab() {
           Wave History
         </h2>
         <div className="flex items-center gap-2 min-w-0">
+          {/* Compare toggle */}
+          <button
+            onClick={() => { setCompareMode(v => !v); if (compareMode) setCompareSelections([]); }}
+            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium transition-all border ${
+              compareMode
+                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.15)]'
+                : 'text-zinc-500 border-white/[0.06] hover:text-zinc-300 hover:border-white/[0.1]'
+            }`}
+          >
+            <GitCompareArrows className="h-3 w-3" />
+            <span className="hidden sm:inline">Compare</span>
+          </button>
           {/* Search input */}
           <div className="relative min-w-0">
             <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-600 pointer-events-none" />
@@ -139,6 +177,53 @@ export function WavesTab() {
         </div>
       </motion.div>
 
+      {/* Compare selection banner */}
+      <AnimatePresence>
+        {compareMode && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="flex items-center gap-3 rounded-lg border border-amber-500/15 bg-amber-500/[0.04] px-4 py-2.5">
+              <ArrowLeftRight className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+              <span className="text-[11px] text-amber-300/80">
+                {compareSelections.length === 0
+                  ? 'Select 2 waves from the table below to compare'
+                  : compareSelections.length === 1
+                    ? `1 selected — choose one more wave`
+                    : `Comparing 2 waves`
+                }
+              </span>
+              {compareSelections.length === 2 && (
+                <button
+                  onClick={clearCompare}
+                  className="ml-auto inline-flex items-center gap-1 text-[10px] font-mono text-zinc-500 hover:text-white px-2 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+                >
+                  <XIcon className="h-2.5 w-2.5" />
+                  Clear
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Wave Comparison Panel */}
+      <AnimatePresence>
+        {compareMode && compareWaves.length === 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.25 }}
+          >
+            <WaveComparePanel waves={compareWaves as NonNullable<typeof waves>[number][]} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Summary bar */}
       {!isError && !isLoading && totalWaves > 0 && (
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2.5">
@@ -171,7 +256,7 @@ export function WavesTab() {
       {isError ? (
         <ErrorBlock message={error?.message} onRetry={() => refetch()} />
       ) : isLoading ? (
-        <Card className="glass-card">
+        <Card className="glass-card shimmer-card">
           <CardContent className="p-4 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-10 w-full" />
@@ -202,6 +287,7 @@ export function WavesTab() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-white/[0.06] hover:bg-transparent">
+                    {compareMode && <TableHead className="w-8 text-[10px] font-medium uppercase tracking-wider text-zinc-500" />}
                     <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Wave #</TableHead>
                     <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Status</TableHead>
                     <TableHead className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-500 sm:table-cell">Decisions</TableHead>
@@ -212,22 +298,43 @@ export function WavesTab() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {waves.map((wave) => {
+                  {waves.map((wave, idx) => {
                     const duration = wave.completedAt && wave.startedAt
                       ? Math.round((new Date(wave.completedAt).getTime() - new Date(wave.startedAt).getTime()) / 1000)
                       : null;
+                    const durationPct = duration !== null && maxDuration > 0 ? Math.round((duration / maxDuration) * 100) : 0;
+                    const isSelected = compareSelections.includes(wave.id);
+                    const isAltRow = idx % 2 === 1;
                     return (
                       <TableRow
                         key={wave.id}
                         tabIndex={0}
                         role="button"
                         aria-label={`View details for wave ${wave.waveNumber}`}
-                        className="border-white/[0.04] transition-colors hover:bg-white/[0.02] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px]"
-                        onClick={() => setDetailId(wave.id)}
+                        className={`border-white/[0.04] transition-all duration-200 hover:bg-white/[0.03] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px] ${
+                          isAltRow ? 'bg-white/[0.015]' : ''
+                        } ${isSelected ? 'bg-amber-500/[0.06] border-l-2 border-l-amber-500/40' : 'hover:border-l-2 hover:border-l-amber-500/20 border-l-2 border-l-transparent'}`}
+                        onClick={() => { if (compareMode) { toggleCompare(wave.id); return; } setDetailId(wave.id); }}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDetailId(wave.id); }
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            if (compareMode) { toggleCompare(wave.id); return; }
+                            setDetailId(wave.id);
+                          }
                         }}
                       >
+                        {/* Compare checkbox */}
+                        {compareMode && (
+                          <TableCell className="w-8 p-2">
+                            <div className={`flex h-4 w-4 items-center justify-center rounded border transition-all ${
+                              isSelected
+                                ? 'bg-amber-500/20 border-amber-500/40'
+                                : 'border-white/[0.1] hover:border-white/[0.2]'
+                            }`}>
+                              {isSelected && <Check className="h-2.5 w-2.5 text-amber-400" />}
+                            </div>
+                          </TableCell>
+                        )}
                         <TableCell className="font-mono text-xs font-bold text-white">
                           #{String(wave.waveNumber).padStart(3, '0')}
                         </TableCell>
@@ -248,10 +355,23 @@ export function WavesTab() {
                           {wave.errorsCount}
                         </TableCell>
                         <TableCell className="text-xs text-zinc-500">
-                          {duration !== null
-                            ? <span className="font-mono tabular-nums">{formatDuration(duration)}</span>
-                            : <span className="text-zinc-600">—</span>
-                          }
+                          {duration !== null ? (
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono tabular-nums shrink-0">{formatDuration(duration)}</span>
+                              <div className="h-1.5 w-12 sm:w-16 overflow-hidden rounded-full bg-white/[0.04]">
+                                <div
+                                  className="h-full rounded-full transition-all duration-300"
+                                  style={{
+                                    width: `${Math.max(durationPct, 3)}%`,
+                                    backgroundColor: durationPct > 70 ? '#f59e0b' : '#10b981',
+                                    opacity: 0.6,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-zinc-600">—</span>
+                          )}
                         </TableCell>
                         <TableCell className="max-w-[200px] truncate text-xs text-zinc-500 md:table-cell">
                           {wave.summary || '—'}
@@ -292,6 +412,75 @@ export function WavesTab() {
         }}
       />
     </div>
+  );
+}
+
+/* ── Wave Compare Panel ───────────────────────────────── */
+function WaveComparePanel({ waves }: { waves: { waveNumber: number; status: string; decisionsCount: number; improvementsCount: number; errorsCount: number; summary: string | null; startedAt: string; completedAt: string | null }[] }) {
+  const [a, b] = waves;
+  if (!a || !b) return null;
+
+  const durA = a.completedAt && a.startedAt ? Math.round((new Date(a.completedAt).getTime() - new Date(a.startedAt).getTime()) / 1000) : null;
+  const durB = b.completedAt && b.startedAt ? Math.round((new Date(b.completedAt).getTime() - new Date(b.startedAt).getTime()) / 1000) : null;
+
+  const metrics = [
+    { label: 'Status', valA: a.status, valB: b.status, format: (v: string) => v.toUpperCase(), compare: (x: string, y: string) => x === y ? 'equal' : 'different' },
+    { label: 'Duration', valA: durA, valB: durB, format: (v: number | null) => v !== null ? formatDuration(v) : '—', compare: (x: number | null, y: number | null) => {
+      if (x === null || y === null) return 'neutral';
+      if (x < y) return 'better';
+      if (x > y) return 'worse';
+      return 'equal';
+    }},
+    { label: 'Decisions', valA: a.decisionsCount, valB: b.decisionsCount, format: (v: number) => String(v), compare: (x: number, y: number) => x > y ? 'better' : x < y ? 'worse' : 'equal' },
+    { label: 'Improvements', valA: a.improvementsCount, valB: b.improvementsCount, format: (v: number) => String(v), compare: (x: number, y: number) => x > y ? 'better' : x < y ? 'worse' : 'equal' },
+    { label: 'Errors', valA: a.errorsCount, valB: b.errorsCount, format: (v: number) => String(v), compare: (x: number, y: number) => x < y ? 'better' : x > y ? 'worse' : 'equal' },
+    { label: 'Summary', valA: a.summary ?? '—', valB: b.summary ?? '—', format: (v: string) => v.length > 50 ? v.slice(0, 50) + '...' : v, compare: () => 'neutral' },
+  ];
+
+  return (
+    <Card className="border-amber-500/15 bg-amber-500/[0.03]">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <ArrowLeftRight className="h-3.5 w-3.5 text-amber-400" />
+          <span className="text-[10px] font-medium uppercase tracking-widest text-amber-400">Wave Comparison</span>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {/* Metric label column */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-mono text-zinc-600 h-8 flex items-center">Metric</div>
+            {metrics.map(m => (
+              <div key={m.label} className="h-8 flex items-center text-[11px] text-zinc-400 font-medium">{m.label}</div>
+            ))}
+          </div>
+          {/* Wave A */}
+          <div className="space-y-2">
+            <div className="text-[11px] font-mono text-amber-400 h-8 flex items-center font-bold">#{String(a.waveNumber).padStart(3, '0')}</div>
+            {metrics.map(m => {
+              const result = m.compare(m.valA as never, m.valB as never);
+              const cls = result === 'better' ? 'text-emerald-400' : result === 'worse' ? 'text-red-400' : 'text-zinc-300';
+              return (
+                <div key={m.label} className={`h-8 flex items-center text-xs font-mono tabular-nums rounded px-2 transition-colors ${cls}`}>
+                  {m.format(m.valA as never)}
+                </div>
+              );
+            })}
+          </div>
+          {/* Wave B */}
+          <div className="space-y-2">
+            <div className="text-[11px] font-mono text-amber-400 h-8 flex items-center font-bold">#{String(b.waveNumber).padStart(3, '0')}</div>
+            {metrics.map(m => {
+              const result = m.compare(m.valB as never, m.valA as never);
+              const cls = result === 'better' ? 'text-emerald-400' : result === 'worse' ? 'text-red-400' : 'text-zinc-300';
+              return (
+                <div key={m.label} className={`h-8 flex items-center text-xs font-mono tabular-nums rounded px-2 transition-colors ${cls}`}>
+                  {m.format(m.valB as never)}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

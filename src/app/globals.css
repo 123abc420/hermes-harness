@@ -187,4 +187,101 @@
     border-radius: 1px;
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
   }
+
+  /* Rotating conic gradient border for hero card */
+  .hero-glow-border {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--border-angle, 0deg),
+      rgba(245, 158, 11, 0.5),
+      rgba(251, 146, 60, 0.1),
+      rgba(245, 158, 11, 0.02),
+      rgba(251, 146, 60, 0.1),
+      rgba(245, 158, 11, 0.5)
+    );
+    z-index: -1;
+    animation: rotate-border 6s linear infinite;
+  }
+
+  .hero-glow-border::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: rgba(13, 9, 6, 0.95);
+    z-index: -1;
+  }
+
+  /* Shimmer loading effect for cards */
+  .shimmer-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(245, 158, 11, 0.03) 40%,
+      rgba(245, 158, 11, 0.06) 50%,
+      rgba(245, 158, 11, 0.03) 60%,
+      transparent 100%
+    );
+    animation: shimmer 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* Footer gradient separator */
+  .footer-gradient-line {
+    background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.3), rgba(251, 146, 60, 0.15), transparent);
+    height: 1px;
+  }
+
+  /* Tab sliding indicator */
+  .tab-indicator {
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Keyframes — outside utilities layer */
+@keyframes rotate-border {
+  to { --border-angle: 360deg; }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-health {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes system-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.3); }
+}
+
+/* Parallax dot pattern (set via JS inline style) */
+.dot-pattern-parallax {
+  will-change: background-position;
+  transition: background-position 0.15s ease-out;
 }

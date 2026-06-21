@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github, Sparkles } from 'lucide-react';
+import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github, Sparkles, Clock, Trash2 } from 'lucide-react';
 
 /* ── Types ─────────────────────────────────────────────── */
 interface WaveResult {
@@ -44,6 +44,9 @@ const TAB_NAV_ITEMS = [
   { key: 'github', label: 'GitHub & Export', icon: Github },
 ];
 
+const RECENT_SEARCHES_KEY = 'hermes-recent-searches';
+const MAX_RECENT = 5;
+
 /* ── Component ─────────────────────────────────────────── */
 export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
@@ -62,6 +65,32 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
     ...skills.map(s => ({ type: 'skill' as const, data: s, label: s.title ?? s.name, sub: s.category ? `${s.category}${s.trigger ? ' · ' + s.trigger : ''}` : 'Skill' })),
   ];
   const totalResults = allResults.length;
+
+  // Load recent searches from localStorage (lazy initializer)
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+      if (stored) return JSON.parse(stored) as string[];
+    } catch { /* ignore */ }
+    return [];
+  });
+
+  const addRecentSearch = useCallback((q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    setRecentSearches(prev => {
+      const filtered = prev.filter(s => s !== trimmed);
+      const updated = [trimmed, ...filtered].slice(0, MAX_RECENT);
+      try { localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
+      return updated;
+    });
+  }, []);
+
+  const clearRecentSearches = useCallback(() => {
+    setRecentSearches([]);
+    try { localStorage.removeItem(RECENT_SEARCHES_KEY); } catch { /* ignore */ }
+  }, []);
 
   // Focus input and reset state on open (async to avoid sync-setState-in-effect)
   useEffect(() => {
@@ -92,9 +121,10 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
       setDecisions(dRes.decisions ?? []);
       setSkills(sRes.skills ?? []);
       setActiveIdx(0);
+      addRecentSearch(q);
     } catch { /* search errors are non-critical — results stay empty */ }
     setLoading(false);
-  }, []);
+  }, [addRecentSearch]);
 
   const handleQueryChange = useCallback((val: string) => {
     setQuery(val);
@@ -123,6 +153,9 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
 
   // Cleanup debounce on unmount
   useEffect(() => () => { if (debounceRef) clearTimeout(debounceRef); }, [debounceRef]);
+
+  // Compute nav items including recent searches
+  const showRecentSearches = !query.trim() && recentSearches.length > 0;
 
   return (
     <AnimatePresence>
@@ -165,10 +198,39 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
               </div>
 
               {/* Results */}
-              <div ref={listRef} className="max-h-72 overflow-y-auto p-2 scrollbar-dark">
+              <div ref={listRef} className="max-h-80 overflow-y-auto p-2 scrollbar-dark">
                 {!query.trim() && (
                   <>
-                    <div className="px-3 py-1.5 text-[10px] font-mono text-zinc-600 uppercase tracking-wider">Navigate</div>
+                    {/* Recent searches */}
+                    {showRecentSearches && (
+                      <>
+                        <div className="flex items-center justify-between px-3 py-1.5">
+                          <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider">Recent Searches</span>
+                          <button
+                            onClick={clearRecentSearches}
+                            className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors"
+                            aria-label="Clear recent searches"
+                          >
+                            <Trash2 className="h-2.5 w-2.5" />
+                          </button>
+                        </div>
+                        {recentSearches.map((term, idx) => (
+                          <button
+                            key={`recent-${idx}`}
+                            onClick={() => { handleQueryChange(term); setQuery(term); }}
+                            className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-zinc-400 hover:bg-white/[0.04] transition-colors"
+                          >
+                            <Clock className="h-3 w-3 shrink-0 text-zinc-600" />
+                            <span className="text-xs flex-1 truncate">{term}</span>
+                            <ArrowRight className="h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
+                        ))}
+                      </>
+                    )}
+
+                    <div className="px-3 py-1.5 text-[10px] font-mono text-zinc-600 uppercase tracking-wider">
+                      {showRecentSearches ? 'Navigate' : 'Navigate'}
+                    </div>
                     {TAB_NAV_ITEMS.map((tab) => {
                       const TabIcon = tab.icon;
                       return (

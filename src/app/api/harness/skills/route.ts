@@ -52,6 +52,7 @@ export async function GET(req: NextRequest) {
         trigger: meta.trigger || null,
         created: meta.created || null,
         description: description.slice(0, 200),
+        content: body, // Full body after frontmatter — needed for skill preview
         filename,
       };
     });
