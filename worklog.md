@@ -5146,3 +5146,22 @@ Stage Summary:
 - Dashboard no longer re-renders on every scroll event (ref+DOM mutation vs state)
 - Command palette debounce no longer causes cascade re-renders per keystroke
 - Dead code removed (1 unused useMemo)
+
+---
+Task ID: W250
+Agent: Main Orchestrator
+Task: Fix dynamic Tailwind classes + migrate cn() utility across 3 files
+
+Work Log:
+- ASSESS: Context fresh from W249. Sub-agent from W249 identified cn() migration as finding #3. Found dynamic `dotColor + '/60'` Tailwind class.
+- PLAN: 2 improvements — fix dynamic class, migrate cn() in top 3 files
+- EXECUTE Task 1: Replaced `tab.dotColor + '/60'` with explicit `dotColorInactive` field in TAB_CONFIG (6 entries). Eliminates runtime string concatenation for Tailwind classes.
+- EXECUTE Task 2: Migrated 24 template-literal className occurrences to cn() across 3 files: waves-tab.tsx (10), wave-detail-dialog.tsx (10), agent-live-panel.tsx (4). cn() usage: 1→4 files.
+- Fixed JSX parsing error: multi-line cn() call with `)}>` needs `)}` on same line as `className=` or `>` on next line.
+- VERIFY: lint 0 errors, tsc 0 errors
+- PERSIST: 4 files, +80/-65 lines. Pushed to GitHub.
+
+Stage Summary:
+- Dynamic Tailwind class construction eliminated (dotColorInactive)
+- 24 className template literals migrated to cn() (twMerge conflict safety)
+- cn() adoption: 1 file → 4 files
