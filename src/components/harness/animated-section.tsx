@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { motion, type TargetAndTransition } from 'framer-motion';
 
 type AnimatedVariant = 'default' | 'header';
 
@@ -15,7 +15,7 @@ interface AnimatedSectionProps {
   children: ReactNode;
 }
 
-const VARIANTS: Record<AnimatedVariant, { initial: Variants['initial']; animate: Variants['animate'] }> = {
+const VARIANTS: Record<AnimatedVariant, { initial: TargetAndTransition; animate: TargetAndTransition }> = {
   default: {
     initial: { opacity: 0, y: 12 },
     animate: { opacity: 1, y: 0 },

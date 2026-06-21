@@ -111,7 +111,7 @@ export function DecisionsTab() {
             columns={["category","priority","action","description","reasoning","targetFile","createdAt"]}
             transform={(r) => ({
               ...r,
-              waveNumber: r.wave?.waveNumber ?? null,
+              waveNumber: (r.wave as { waveNumber?: number } | undefined)?.waveNumber ?? null,
             })}
           />
         </div>

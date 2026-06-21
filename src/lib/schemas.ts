@@ -78,7 +78,7 @@ export const patchWaveSchema = z
     decisionsCount: z.number().int().min(0).optional(),
     improvementsCount: z.number().int().min(0).optional(),
     errorsCount: z.number().int().min(0).optional(),
-    metricsSnapshot: z.record(z.unknown()).nullable().optional(),
+    metricsSnapshot: z.record(z.string(), z.unknown()).nullable().optional(),
   })
   .refine((obj) => Object.keys(obj).length > 0, {
     message: 'At least one field must be provided',

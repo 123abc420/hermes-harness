@@ -131,8 +131,8 @@ export function WaveCategoryBreakdown({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%" role="img" aria-label="Decision category breakdown stacked bar chart">
+        <div className="h-[200px]" role="img" aria-label="Decision category breakdown stacked bar chart">
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: 8 }} barCategoryGap="20%">
               <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
               <XAxis

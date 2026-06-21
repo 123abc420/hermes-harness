@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
   },
   /* config options here */
   typescript: {
-    // TODO(W244): Flipped to false, revealed ~30 pre-existing errors hidden by true.
-    // Fix incrementally in future waves. Revert to false once all resolved.
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   reactStrictMode: false,
 };

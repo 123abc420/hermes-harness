@@ -30,7 +30,7 @@ export function MilestonesTimeline({ waves, totalWaves, skillsCount }: { waves: 
 
   if (latestWave && latestWave !== firstWave && !MILESTONE_WAVES.includes(latestWave)) {
     const w = waves.find(w => w.waveNumber === latestWave);
-    milestones.push({ wave: latestWave, label: 'Latest', time: w?.startedAt ?? '', summary: w.summary ?? undefined });
+    milestones.push({ wave: latestWave, label: 'Latest', time: w?.startedAt ?? '', summary: w?.summary ?? undefined });
   }
 
   if (skillsCount && skillsCount >= 10) {

@@ -67,8 +67,8 @@ export function DonutChartCard({
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-4">
-          <div className="h-[100px] w-[100px] shrink-0 sm:h-[140px] sm:w-[140px]">
-            <ResponsiveContainer width="100%" height="100%" role="img" aria-label="Decision action distribution donut chart">
+          <div className="h-[100px] w-[100px] shrink-0 sm:h-[140px] sm:w-[140px]" role="img" aria-label="Decision action distribution donut chart">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}

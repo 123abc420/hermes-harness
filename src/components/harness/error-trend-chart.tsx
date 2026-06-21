@@ -71,8 +71,8 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
           <span className="text-2xl font-bold text-zinc-100">{totalErrors}</span>
           <span className="text-xs text-zinc-500">total errors across {trend.length} waves</span>
         </div>
-        <div className="h-[100px]">
-          <ResponsiveContainer width="100%" height="100%" role="img" aria-label="Error rate trend chart showing errors per wave">
+        <div className="h-[100px]" role="img" aria-label="Error rate trend chart showing errors per wave">
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id={`errorGrad-${gradId}`} x1="0" y1="0" x2="0" y2="1">

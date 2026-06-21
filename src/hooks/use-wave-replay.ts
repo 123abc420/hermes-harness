@@ -18,7 +18,7 @@ export function useWaveReplay() {
 
   const prevWaveRef = useRef(waveNumber);
   const replayIndexRef = useRef(0);
-  const replayTimerRef = useRef<ReturnType<typeof setInterval>>();
+  const replayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Track wave completion — snapshot activities as "last turn"
   useEffect(() => {
@@ -38,7 +38,7 @@ export function useWaveReplay() {
       setIsReplaying(false);
       if (replayTimerRef.current) {
         clearInterval(replayTimerRef.current);
-        replayTimerRef.current = undefined;
+        replayTimerRef.current = null;
       }
     } else if (lastTurnActivities.length > 0) {
       setIsReplaying(true);
@@ -63,7 +63,7 @@ export function useWaveReplay() {
         }
         if (ticks >= totalTicks) {
           if (replayTimerRef.current) clearInterval(replayTimerRef.current);
-          replayTimerRef.current = undefined;
+          replayTimerRef.current = null;
           setIsReplaying(false);
         }
       }, 2000);

@@ -22,7 +22,7 @@ function parseFrontmatter(content: string): { meta: SkillMeta; body: string } {
     const m = line.match(/^(\w+)\s*:\s*(.+)$/);
     if (m) {
       const key = m[1] as keyof SkillMeta;
-      (meta as Record<string, unknown>)[key] = m[2].trim().replace(/^['"]|['"]$/g, '');
+      (meta as unknown as Record<string, unknown>)[key] = m[2].trim().replace(/^['"]|['"]$/g, '');
     }
   }
   return { meta, body: match[2] };

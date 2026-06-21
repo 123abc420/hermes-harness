@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, Brain, TrendingUp, AlertTriangle, Target, GitBranch, ArrowUp, ArrowDown, Minus } from 'lucide-react';
@@ -258,6 +258,16 @@ function StatCard({
 
 /* ── Stats Grid ───────────────────────────────────────── */
 export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metrics?: Metric[]; waves?: Wave[] }) {
+  // Extract previous values and change percent from metrics — must be before early return (hooks rule)
+  const getMetricPrevious = useCallback((key: string) => {
+    const m = metrics?.find(m => m.metricKey === key);
+    return m?.previousValue;
+  }, [metrics]);
+  const getMetricChangePct = useCallback((key: string) => {
+    const m = metrics?.find(m => m.metricKey === key);
+    return m?.changePercent;
+  }, [metrics]);
+
   if (!stats) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
@@ -284,8 +294,6 @@ export function StatsGrid({ stats, metrics, waves }: { stats?: TotalStats; metri
   const errorsSparkline = waves
     ? [...waves].reverse().slice(-8).map(w => w.errorsCount ?? 0)
     : [];
-
-  // Extract previous values and change percent from metrics — memoized with useCallback\n  const getMetricPrevious = useCallback((key: string) => {\n    const m = metrics?.find(m => m.metricKey === key);\n    return m?.previousValue;\n  }, [metrics]);\n  const getMetricChangePct = useCallback((key: string) => {\n    const m = metrics?.find(m => m.metricKey === key);\n    return m?.changePercent;\n  }, [metrics]);
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">

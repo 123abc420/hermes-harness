@@ -25,7 +25,7 @@ export interface Wave {
 export interface Decision {
   id: string;
   waveId: string;
-  wave?: { waveNumber: number; status: string };
+  wave?: { waveNumber: number; status: string; id: string };
   category: DecisionCategory;
   priority: DecisionPriority;
   action: DecisionAction;
