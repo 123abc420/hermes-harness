@@ -1,7 +1,7 @@
 # Wave Protocol — Detailed Execution Steps
 
 > This is the step-by-step protocol executed every 10 minutes by the `hermes-wave` cron.
-> Updated W233: Embedded `agent-live-broadcast` v2.0 steps at each phase.
+> Updated W274: Synced broadcast types to v3.0 node graph format (node/node-remove/node-pulse/node-clear). Added tsc --noEmit to VERIFY.
 
 ## WAVE EXECUTION
 
@@ -25,11 +25,14 @@ Check: /home/z/my-project/dev.log (last 20 lines for errors)
 Call: GET /api/harness/dashboard (if web app is running)
 
 BROADCAST:
-  broadcast '{"agentState":"thinking","message":"Wave N starting: reading state...","phase":"assess","waveNumber":N,"progress":0.05}'
-  broadcast '{"type":"sub-agent","name":"Explorer","state":"searching","message":"Reading system state files...","color":"#3b82f6"}'
-  ... after each file read:
-  broadcast '{"type":"activity","state":"thinking","message":"Read context.md — X waves, Y% compliance","phase":"assess"}'
-  broadcast '{"type":"sub-agent-remove","agentId":"<explorer id>"}'
+  broadcast '{"type":"node-clear"}'
+  broadcast '{"type":"activity","agentState":"thinking","message":"Wave N starting: reading state...","phase":"assess","waveNumber":N,"progress":0.05}'
+  broadcast '{"type":"node","nodeId":"assessor","nodeType":"assessor","nodeName":"ASSESSOR","nodeState":"searching","nodeMessage":"Reading system state files...","nodeColor":"#06b6d4","connections":["orchestrator"]}'
+  ... after each file read (pulse orchestrator→assessor):
+  broadcast '{"type":"node-pulse","fromNode":"orchestrator","toNode":"assessor","color":"#a855f7"}'
+  broadcast '{"type":"activity","agentState":"thinking","message":"Read context.md — X waves, Y% compliance","phase":"assess"}'
+  ... done:
+  broadcast '{"type":"node-remove","nodeId":"assessor"}'
 ```
 
 **Assessment output:** A mental model of current system state.
@@ -44,12 +47,13 @@ Based on the assessment, identify 1-3 improvements using this priority:
 
 ```
 BROADCAST:
-  broadcast '{"agentState":"planning","message":"Planning improvements from ASSESS findings...","phase":"plan","waveNumber":N,"progress":0.2}'
-  broadcast '{"type":"sub-agent","name":"Planner","state":"planning","message":"Analyzing priorities...","color":"#a855f7"}'
+  broadcast '{"type":"activity","agentState":"planning","message":"Planning improvements from ASSESS findings...","phase":"plan","waveNumber":N,"progress":0.2}'
+  broadcast '{"type":"node","nodeId":"planner","nodeType":"planner","nodeName":"PLANNER","nodeState":"analyzing","nodeMessage":"Identifying improvements...","nodeColor":"#a855f7","connections":["orchestrator"]}'
   ... for each decision:
   broadcast '{"type":"decision-count","category":"<cat>","description":"<desc>"}'
-  broadcast '{"type":"activity","state":"planning","message":"Decision K: <description> — priority HIGH","phase":"plan"}'
-  broadcast '{"type":"sub-agent-remove","agentId":"<planner id>"}'
+  broadcast '{"type":"activity","agentState":"planning","message":"Decision K: <description> — priority HIGH","phase":"plan"}'
+  ... done:
+  broadcast '{"type":"node-remove","nodeId":"planner"}'
 ```
 
 **Planning output:** A list of decisions with:
@@ -66,28 +70,31 @@ For each planned improvement:
 
 ```
 BROADCAST:
-  broadcast '{"agentState":"executing","message":"Executing improvement: <desc>","phase":"execute","waveNumber":N,"progress":0.3}'
-  broadcast '{"type":"sub-agent","name":"Code Writer","state":"executing","message":"Implementing...","color":"#f43f5e"}'
+  broadcast '{"type":"activity","agentState":"executing","message":"Executing improvement: <desc>","phase":"execute","waveNumber":N,"progress":0.3}'
+  broadcast '{"type":"node","nodeId":"executor-1","nodeType":"executor","nodeName":"EXEC-1 <desc>","nodeState":"executing","nodeMessage":"Implementing...","nodeColor":"#f43f5e","connections":["orchestrator"]}'
   ... during implementation:
-  broadcast '{"type":"activity","state":"executing","message":"Editing <file>...","phase":"execute"}'
-  broadcast '{"type":"node-pulse","fromNode":"main","toNode":"code-writer","color":"#a855f7"}'
-  broadcast '{"type":"sub-agent-update","agentId":"<writer id>","state":"executing","message":"Wrote <lines> lines to <file>"}'
+  broadcast '{"type":"node-pulse","fromNode":"orchestrator","toNode":"executor-1","color":"#a855f7"}'
+  broadcast '{"type":"activity","agentState":"executing","message":"Editing <file>...","phase":"execute"}'
   ... after each improvement:
-  broadcast '{"type":"sub-agent-remove","agentId":"<writer id>"}'
+  broadcast '{"type":"node-remove","nodeId":"executor-1"}'
 ```
 
 ### 4. VERIFY (check)
 ```
 Run: bun run lint (in /home/z/my-project/)
+Run: npx tsc --noEmit (type-check, catches errors that lint misses)
 Check: /home/z/my-project/dev.log for new errors
 If broken: roll back changes immediately
 
 BROADCAST:
-  broadcast '{"agentState":"verifying","message":"Running bun run lint to verify changes...","phase":"verify","waveNumber":N,"progress":0.75}'
-  broadcast '{"type":"sub-agent","name":"Validator","state":"verifying","message":"Checking lint...","color":"#22c55e"}'
+  broadcast '{"type":"activity","agentState":"verifying","message":"Running bun run lint to verify changes...","phase":"verify","waveNumber":N,"progress":0.75}'
+  broadcast '{"type":"node","nodeId":"verifier","nodeType":"verifier","nodeName":"VERIFIER","nodeState":"verifying","nodeMessage":"Checking lint + tsc...","nodeColor":"#22c55e","connections":["orchestrator"]}'
   ... after lint:
-  broadcast '{"type":"activity","state":"verifying","message":"Lint passed: 0 errors","phase":"verify"}'
-  broadcast '{"type":"sub-agent-remove","agentId":"<validator id>"}'
+  broadcast '{"type":"activity","agentState":"verifying","message":"Lint passed: 0 errors","phase":"verify"}'
+  ... after tsc:
+  broadcast '{"type":"activity","agentState":"verifying","message":"tsc --noEmit passed: 0 type errors","phase":"verify"}'
+  ... done:
+  broadcast '{"type":"node-remove","nodeId":"verifier"}'
 ```
 
 ### 5. PERSIST (save)
@@ -100,11 +107,12 @@ BROADCAST:
 6. Update /home/z/my-project/gh-sync/memory/context.md
 
 BROADCAST:
-  broadcast '{"agentState":"executing","message":"Persisting to GitHub...","phase":"persist","waveNumber":N,"progress":0.9}'
-  broadcast '{"type":"sub-agent","name":"Git Sync","state":"executing","message":"Committing and pushing...","color":"#f59e0b"}'
+  broadcast '{"type":"activity","agentState":"executing","message":"Persisting to GitHub...","phase":"persist","waveNumber":N,"progress":0.9}'
+  broadcast '{"type":"node","nodeId":"git-sync","nodeType":"git-sync","nodeName":"GIT-SYNC","nodeState":"executing","nodeMessage":"Committing and pushing...","nodeColor":"#f59e0b","connections":["orchestrator"]}'
   ... after push:
-  broadcast '{"type":"activity","state":"executing","message":"Pushed to GitHub successfully","phase":"persist"}'
-  broadcast '{"type":"sub-agent-remove","agentId":"<git id>"}'
+  broadcast '{"type":"activity","agentState":"executing","message":"Pushed to GitHub successfully","phase":"persist"}'
+  ... done:
+  broadcast '{"type":"node-remove","nodeId":"git-sync"}'
 ```
 
 ### 6. REPORT
@@ -114,5 +122,5 @@ Write a brief summary: what was assessed, what was decided, what was done, what'
 BROADCAST:
   broadcast '{"type":"full-update","agentState":"celebrating","message":"Wave N complete! <summary>","waveNumber":N,"progress":1,"waveCount":N,"totalImprovements":X,"totalDecisions":Y,"recentSuccessRate":Z,"healthScore":H,"healthScoreTrend":"up"}'
   broadcast '{"type":"sub-agent-clear"}'
-  broadcast '{"agentState":"idle","message":"Waiting for next wave...","progress":0}'
+  broadcast '{"type":"activity","agentState":"idle","message":"Waiting for next wave...","progress":0}'
 ```

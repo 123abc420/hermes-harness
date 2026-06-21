@@ -158,8 +158,8 @@ export async function GET() {
       let expectedFiles = 0;
       try { await stat(join(process.cwd(), 'gh-sync', 'SPEC.md')); expectedFiles++; } catch { logDebug('DASHBOARD', 'SPEC.md stat failed'); }
       expectedFiles += specFiles.length + memFiles.length;
-      // Normalize: 7 total expected files (1 SPEC.md + 2 specs + 3 memory + 1 user_profile)
-      specScore = Math.min(expectedFiles / 7, 1);
+      // Normalize: 6 total expected files (1 SPEC.md + 2 specs + 3 memory files incl. user_profile)
+      specScore = Math.min(expectedFiles / 6, 1);
     } catch { logDebug('DASHBOARD', 'Specs/memory dir not found'); }
 
     let errorScore = 0;

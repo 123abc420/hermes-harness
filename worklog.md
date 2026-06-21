@@ -5908,3 +5908,22 @@ Work Log:
 
 Stage Summary:
 - 2 memory files updated. Codebase: 0 issues. Lint: 0, tsc: 0. GitHub: 519 commits.
+
+---
+Task ID: W276
+Agent: Wave Engine
+Task: Wave 276 — specScore fix, VERIFY tsc enforcement, protocol sync
+
+Work Log:
+- ASSESS: Dashboard healthy (94/100, 519 commits, 184 waves in DB, 100% recent success). Discovered specScore denominator bug (7→6).
+- PLAN: 3 improvements — (1) Fix specScore denominator bug, (2) Add tsc --noEmit to wave_protocol VERIFY, (3) Sync wave_protocol broadcast format to v3.0 node graph API
+- EXECUTE:
+  1. dashboard/route.ts — Fixed specScore denominator from 7 to 6 (actual file count: 1 SPEC.md + 2 specs + 3 memory = 6). Health score now 100.
+  2. wave_protocol.md — Added `npx tsc --noEmit` as VERIFY step #2 (enforces type safety post-W273 ignoreBuildErrors removal)
+  3. wave_protocol.md — Replaced all v2.0 sub-agent/sub-agent-remove/sub-agent-update types with v3.0 node/node-remove/node-pulse/node-clear format matching actual engine
+- VERIFY: `bun run lint` — 0 errors. `npx tsc --noEmit` — 0 type errors.
+- PERSIST: Wave recorded, decisions + metrics saved, GitHub sync
+
+Stage Summary:
+- 2 files changed (dashboard/route.ts, wave_protocol.md). Health score: 94→100.
+- Lint: 0. TypeScript: 0. All quality gates clear.
