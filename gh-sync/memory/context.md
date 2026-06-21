@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 09:45 UTC+8
+2026-06-21 10:00 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 230)
-- **Waves in DB**: 161
+- **Phase**: Post-Compliance Evolution (Wave 231)
+- **Waves in DB**: 162
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 23 |
 | Exported components | 10 |
-| GitHub commits | ~410 |
-| Waves in DB | 161 |
+| GitHub commits | ~413 |
+| Waves in DB | 162 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
 | Canvas state effects | 10 (all unique) |
