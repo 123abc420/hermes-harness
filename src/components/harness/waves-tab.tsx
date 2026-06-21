@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -111,11 +112,12 @@ export function WavesTab() {
           {/* Compare toggle */}
           <button
             onClick={() => { setCompareMode(v => !v); if (compareMode) setCompareSelections([]); }}
-            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium transition-all border ${
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium transition-all border',
               compareMode
                 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.15)]'
-                : 'text-zinc-500 border-white/[0.06] hover:text-zinc-300 hover:border-white/[0.1]'
-            }`}
+                : 'text-zinc-500 border-white/[0.06] hover:text-zinc-300 hover:border-white/[0.1]',
+            )}
           >
             <GitCompareArrows className="h-3 w-3" />
             <span className="hidden sm:inline">Compare</span>
@@ -144,17 +146,19 @@ export function WavesTab() {
                 key={opt.value}
                 onClick={() => handleFilterChange(opt.value)}
                 aria-pressed={waveFilter === opt.value}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 flex items-center gap-1.5 ${
+                className={cn(
+                  'rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 flex items-center gap-1.5',
                   waveFilter === opt.value
                     ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'
-                    : 'text-zinc-500 hover:text-zinc-300'
-                }`}
+                    : 'text-zinc-500 hover:text-zinc-300',
+                )}
               >
                 {opt.label}
                 {opt.value && statusCounts[opt.value] !== undefined && (
-                  <span className={`text-[9px] tabular-nums ${
-                    waveFilter === opt.value ? 'text-emerald-400/60' : 'text-zinc-600'
-                  }`}>
+                  <span className={cn(
+                    'text-[9px] tabular-nums',
+                    waveFilter === opt.value ? 'text-emerald-400/60' : 'text-zinc-600',
+                  )}>
                     {statusCounts[opt.value]}
                   </span>
                 )}
@@ -311,9 +315,13 @@ export function WavesTab() {
                         tabIndex={0}
                         role="button"
                         aria-label={`View details for wave ${wave.waveNumber}`}
-                        className={`border-white/[0.04] transition-all duration-200 hover:bg-white/[0.03] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px] ${
-                          isAltRow ? 'bg-white/[0.015]' : ''
-                        } ${isSelected ? 'bg-amber-500/[0.06] border-l-2 border-l-amber-500/40' : 'hover:border-l-2 hover:border-l-amber-500/20 border-l-2 border-l-transparent'}`}
+                        className={cn(
+                          'border-white/[0.04] transition-all duration-200 hover:bg-white/[0.03] cursor-pointer focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-[-2px]',
+                          isAltRow && 'bg-white/[0.015]',
+                          isSelected
+                            ? 'bg-amber-500/[0.06] border-l-2 border-l-amber-500/40'
+                            : 'hover:border-l-2 hover:border-l-amber-500/20 border-l-2 border-l-transparent',
+                        )}
                         onClick={() => { if (compareMode) { toggleCompare(wave.id); return; } setDetailId(wave.id); }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
@@ -326,11 +334,12 @@ export function WavesTab() {
                         {/* Compare checkbox */}
                         {compareMode && (
                           <TableCell className="w-8 p-2">
-                            <div className={`flex h-4 w-4 items-center justify-center rounded border transition-all ${
+                            <div className={cn(
+                              'flex h-4 w-4 items-center justify-center rounded border transition-all',
                               isSelected
                                 ? 'bg-amber-500/20 border-amber-500/40'
-                                : 'border-white/[0.1] hover:border-white/[0.2]'
-                            }`}>
+                                : 'border-white/[0.1] hover:border-white/[0.2]',
+                            )}>
                               {isSelected && <Check className="h-2.5 w-2.5 text-amber-400" />}
                             </div>
                           </TableCell>
@@ -339,9 +348,10 @@ export function WavesTab() {
                           #{String(wave.waveNumber).padStart(3, '0')}
                         </TableCell>
                         <TableCell>
-                          <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
-                            STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending
-                          }`}>
+                          <span className={cn(
+                            'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium',
+                            STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending,
+                          )}>
                             {wave.status.toUpperCase()}
                           </span>
                         </TableCell>
@@ -459,7 +469,7 @@ function WaveComparePanel({ waves }: { waves: { waveNumber: number; status: stri
               const result = m.compare(m.valA as never, m.valB as never);
               const cls = result === 'better' ? 'text-emerald-400' : result === 'worse' ? 'text-red-400' : 'text-zinc-300';
               return (
-                <div key={m.label} className={`h-8 flex items-center text-xs font-mono tabular-nums rounded px-2 transition-colors ${cls}`}>
+                <div key={m.label} className={cn('h-8 flex items-center text-xs font-mono tabular-nums rounded px-2 transition-colors', cls)}>
                   {m.format(m.valA as never)}
                 </div>
               );
@@ -472,7 +482,7 @@ function WaveComparePanel({ waves }: { waves: { waveNumber: number; status: stri
               const result = m.compare(m.valB as never, m.valA as never);
               const cls = result === 'better' ? 'text-emerald-400' : result === 'worse' ? 'text-red-400' : 'text-zinc-300';
               return (
-                <div key={m.label} className={`h-8 flex items-center text-xs font-mono tabular-nums rounded px-2 transition-colors ${cls}`}>
+                <div key={m.label} className={cn('h-8 flex items-center text-xs font-mono tabular-nums rounded px-2 transition-colors', cls)}>
                   {m.format(m.valB as never)}
                 </div>
               );
@@ -523,8 +533,8 @@ function WavesInlineCharts({ waves }: { waves: { waveNumber: number; startedAt: 
             <BarChart3 className="h-3 w-3 text-amber-400/70" />
             <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">Recent Duration</span>
           </div>
-          <span className={`flex items-center gap-1 text-[10px] font-mono ${trendPct <= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
-            <TrendingUp className={`h-2.5 w-2.5 ${trendPct <= 0 ? '' : 'rotate-180'}`} />
+          <span className={cn('flex items-center gap-1 text-[10px] font-mono', trendPct <= 0 ? 'text-emerald-400' : 'text-amber-400')}>
+            <TrendingUp className={cn('h-2.5 w-2.5', trendPct > 0 && 'rotate-180')} />
             {trendPct === 0 ? 'stable' : `${Math.abs(trendPct)}%`}
           </span>
         </div>

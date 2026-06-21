@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -66,22 +67,25 @@ function DecisionItem({ d }: { d: { id: string; category: string; action: string
   return (
     <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <span className={`rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium ${
-          CATEGORY_TW[d.category] ?? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
-        }`}>
+        <span className={cn(
+          'rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium',
+          CATEGORY_TW[d.category] ?? 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+        )}>
           {d.category.replace('_', ' ')}
         </span>
-        <span className={`text-[10px] font-mono ${
-          d.action === 'executed' ? 'text-emerald-400' : d.action === 'failed' ? 'text-red-400' : 'text-zinc-500'
-        }`}>
+        <span className={cn(
+          'text-[10px] font-mono',
+          d.action === 'executed' ? 'text-emerald-400' : d.action === 'failed' ? 'text-red-400' : 'text-zinc-500',
+        )}>
           {d.action}
         </span>
         {d.outcome && (
-          <span className={`text-[9px] font-mono rounded px-1 py-0.5 border ${
+          <span className={cn(
+            'text-[9px] font-mono rounded px-1 py-0.5 border',
             d.outcome === 'success' || d.outcome === 'success_verified'
               ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-              : 'text-red-400 bg-red-500/10 border-red-500/20'
-          }`}>
+              : 'text-red-400 bg-red-500/10 border-red-500/20',
+          )}>
             {d.outcome}
           </span>
         )}
@@ -95,7 +99,7 @@ function DecisionItem({ d }: { d: { id: string; category: string; action: string
           onClick={() => setExpanded(v => !v)}
           className="mt-1.5 flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
         >
-          <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <ChevronDown className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')} />
           {expanded ? 'Hide' : 'Show'} details
         </button>
       )}
@@ -156,26 +160,27 @@ function WavePhaseTimeline({ status }: { status: string }) {
             <div key={phase.key} className="relative flex flex-1 flex-col items-center">
               {/* Connector line (not on last item) */}
               {idx < WAVE_PHASES.length - 1 && (
-                <div className={`absolute left-1/2 top-2.5 h-px w-full ${
-                  idx < completedIdx - 1 ? 'bg-zinc-500/40' : 'bg-zinc-800'
-                }`} />
+                <div className={cn(
+                  'absolute left-1/2 top-2.5 h-px w-full',
+                  idx < completedIdx - 1 ? 'bg-zinc-500/40' : 'bg-zinc-800',
+                )} />
               )}
               {/* Dot */}
-              <div className={`relative z-10 flex h-5 w-5 items-center justify-center rounded-full border transition-all ${
-                isCompleted
-                  ? `${phase.bg} ${phase.border}`
-                  : isCurrent
-                  ? `${phase.bg} ${phase.border} ring-2 ring-offset-1 ring-offset-[#0f172a] ${phase.dot}/30 ring-current animate-pulse`
-                  : 'border-zinc-800 bg-zinc-900'
-              }` }>
-                <PhaseIcon className={`h-2.5 w-2.5 ${
-                  isCompleted ? phase.color : isCurrent ? phase.color : 'text-zinc-700'
-                }`} />
+              <div className={cn(
+                'relative z-10 flex h-5 w-5 items-center justify-center rounded-full border transition-all',
+                isCompleted && [phase.bg, phase.border],
+                isCurrent && [phase.bg, phase.border, 'ring-2 ring-offset-1 ring-offset-[#0f172a] ring-current animate-pulse'],
+                !isCompleted && !isCurrent && 'border-zinc-800 bg-zinc-900',
+              ) }>
+                <PhaseIcon className={cn('h-2.5 w-2.5',
+                  (isCompleted || isCurrent) ? phase.color : 'text-zinc-700',
+                )} />
               </div>
               {/* Label */}
-              <span className={`mt-1.5 text-[8px] font-mono font-medium sm:text-[9px] ${
-                isCompleted ? phase.color : isCurrent ? phase.color : 'text-zinc-700'
-              }`}>
+              <span className={cn(
+                'mt-1.5 text-[8px] font-mono font-medium sm:text-[9px]',
+                (isCompleted || isCurrent) ? phase.color : 'text-zinc-700',
+              )}>
                 {phase.label}
               </span>
             </div>
@@ -222,11 +227,10 @@ export function WaveDetailDialog({
           <ScrollArea className="max-h-[60vh] pr-2">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium ${
-                    STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending
-                  }`}
-                >
+                <span className={cn(
+                    'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium',
+                    STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending,
+                  )}>
                   {wave.status.toUpperCase()}
                 </span>
                 <span className="text-xs text-zinc-500">
@@ -251,7 +255,7 @@ export function WaveDetailDialog({
                   { label: 'Errors', value: wave.errorsCount, color: 'text-red-400' },
                 ].map((stat) => (
                   <div key={stat.label} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-center">
-                    <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
+                    <p className={cn('text-lg font-bold', stat.color)}>{stat.value}</p>
                     <p className="mt-0.5 text-[10px] uppercase tracking-wider text-zinc-600">{stat.label}</p>
                   </div>
                 ))}

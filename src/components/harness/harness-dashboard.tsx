@@ -20,12 +20,12 @@ import { HarnessErrorBoundary } from './error-boundary';
 import { CommandPalette } from './command-palette';
 
 const TAB_CONFIG = [
-  { value: 'agent', label: 'Agent Live', icon: Eye, dotColor: 'bg-amber-500' },
-  { value: 'overview', label: 'Overview', icon: Zap, dotColor: 'bg-emerald-500' },
-  { value: 'waves', label: 'Waves', icon: Waves, dotColor: 'bg-cyan-500' },
-  { value: 'decisions', label: 'Decisions', icon: Brain, dotColor: 'bg-violet-500' },
-  { value: 'research', label: 'Analytics', icon: BookOpen, dotColor: 'bg-orange-500' },
-  { value: 'github', label: 'GitHub & Export', icon: Github, dotColor: 'bg-amber-500' },
+  { value: 'agent', label: 'Agent Live', icon: Eye, dotColor: 'bg-amber-500', dotColorInactive: 'bg-amber-500/60' },
+  { value: 'overview', label: 'Overview', icon: Zap, dotColor: 'bg-emerald-500', dotColorInactive: 'bg-emerald-500/60' },
+  { value: 'waves', label: 'Waves', icon: Waves, dotColor: 'bg-cyan-500', dotColorInactive: 'bg-cyan-500/60' },
+  { value: 'decisions', label: 'Decisions', icon: Brain, dotColor: 'bg-violet-500', dotColorInactive: 'bg-violet-500/60' },
+  { value: 'research', label: 'Analytics', icon: BookOpen, dotColor: 'bg-orange-500', dotColorInactive: 'bg-orange-500/60' },
+  { value: 'github', label: 'GitHub & Export', icon: Github, dotColor: 'bg-amber-500', dotColorInactive: 'bg-amber-500/60' },
 ] as const;
 
 /* ── Main Dashboard ────────────────────────────────────── */
@@ -185,7 +185,7 @@ export function HarnessDashboard() {
                       </span>
                     )}
                     {!isAgentTab && showDot && (
-                      <span className={`absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full ${isActive ? tab.dotColor : tab.dotColor + '/60'}`} />
+                      <span className={`absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full ${isActive ? tab.dotColor : tab.dotColorInactive}`} />
                     )}
                     <Icon className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">{tab.label}</span>

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { useAgentLiveStore, type LiveActivityEntry, type AgentVisualState } from '@/store/agent-live-store';
 import { useWaves, useDecisions } from '@/hooks/use-harness-data';
 import { useWaveReplay } from '@/hooks/use-wave-replay';
@@ -67,12 +68,12 @@ export function AgentLivePanel() {
           <div className="flex items-center gap-3">
             {/* LIVE Indicator */}
             <div className="flex items-center gap-1.5">
-              <div className={`relative w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-zinc-600'}`}>
+              <div className={cn('relative w-2 h-2 rounded-full', isConnected ? 'bg-emerald-400' : 'bg-zinc-600')}>
                 {isConnected && (
                   <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-50" />
                 )}
               </div>
-              <span className={`text-[10px] font-bold tracking-widest ${isConnected ? 'text-emerald-400' : 'text-zinc-500'}`}>
+              <span className={cn('text-[10px] font-bold tracking-widest', isConnected ? 'text-emerald-400' : 'text-zinc-500')}>
                 {isConnected ? 'LIVE' : 'OFFLINE'}
               </span>
             </div>
@@ -343,10 +344,10 @@ function StatCard({ icon, label, value, color }: {
 }) {
   return (
     <div className="flex items-center gap-2 p-2 rounded-lg bg-black/40 border border-white/[0.05]">
-      <div className={`${color} opacity-70`}>{icon}</div>
+      <div className={cn(color, 'opacity-70')}>{icon}</div>
       <div className="min-w-0">
         <div className="text-[9px] text-zinc-500 font-medium uppercase tracking-wider">{label}</div>
-        <div className={`text-sm font-bold ${color} tabular-nums`}>{value}</div>
+        <div className={cn('text-sm font-bold tabular-nums', color)}>{value}</div>
       </div>
     </div>
   );
