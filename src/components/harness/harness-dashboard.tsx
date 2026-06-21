@@ -41,10 +41,14 @@ export function HarnessDashboard() {
   // Connect to the real-time agent live service
   useAgentLive();
 
-  // Parallax on scroll
-  const [scrollY, setScrollY] = useState(0);
+  // Parallax on scroll — use ref to avoid re-rendering entire dashboard per scroll pixel
+  const parallaxBgRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
+    const onScroll = () => {
+      if (parallaxBgRef.current) {
+        parallaxBgRef.current.style.backgroundPosition = `0px ${window.scrollY * 0.08}px`;
+      }
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -110,8 +114,7 @@ export function HarnessDashboard() {
   const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
   const successRate = dash?.totalStats?.waveSuccessRate ?? 0;
 
-  // Parallax offset for dot pattern
-  const parallaxOffset = scrollY * 0.08;
+  // Parallax offset is now handled via direct DOM mutation (see effect above)
 
   return (
     <>
@@ -123,11 +126,11 @@ export function HarnessDashboard() {
     />
 
     <div
+      ref={parallaxBgRef}
       className="dot-pattern-parallax min-h-screen flex flex-col bg-[#0d0906]"
       style={{
         backgroundImage: `radial-gradient(circle, rgba(245, 158, 11, 0.06) 1px, transparent 1px)`,
         backgroundSize: '20px 20px',
-        backgroundPosition: `0px ${parallaxOffset}px`,
       }}
     >
       <HarnessHeader

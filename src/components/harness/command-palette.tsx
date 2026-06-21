@@ -55,7 +55,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
   const [skills, setSkills] = useState<SkillResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [debounceRef, setDebounceRef] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -127,10 +127,9 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
 
   const handleQueryChange = useCallback((val: string) => {
     setQuery(val);
-    if (debounceRef) clearTimeout(debounceRef);
-    const ref = setTimeout(() => doSearch(val), 250);
-    setDebounceRef(ref);
-  }, [debounceRef, doSearch]);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => doSearch(val), 250);
+  }, [doSearch]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -151,7 +150,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
   }, [activeIdx]);
 
   // Cleanup debounce on unmount
-  useEffect(() => () => { if (debounceRef) clearTimeout(debounceRef); }, [debounceRef]);
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
   // Compute nav items including recent searches
   const showRecentSearches = !query.trim() && recentSearches.length > 0;

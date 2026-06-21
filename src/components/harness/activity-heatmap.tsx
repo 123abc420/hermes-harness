@@ -65,7 +65,6 @@ function HeatCell({
 /* ── Activity Heatmap ────────────────────────────────── */
 export function ActivityHeatmap({ waves }: { waves: HeatmapWave[] }) {
   const today = useMemo(() => startOfDay(new Date()), []);
-  const startDate = useMemo(() => subDays(today, 83), [today]); // 12 weeks = 84 days, show 84
 
   // Build day -> wave counts map
   const dayMap = useMemo(() => {
