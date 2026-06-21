@@ -1,83 +1,111 @@
 'use client';
 
 import React, { useRef, useEffect, useCallback } from 'react';
-import { useAgentLiveStore, type NetworkNode, type AgentVisualState } from '@/store/agent-live-store';
+import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
 
 /* ═════════════════════════════════════════════════════════════════════
-   AGENT NETWORK CANVAS — Lightweight "Red de Nodos" Edition (W234)
+   AGENT NETWORK CANVAS v2.1 — Multi-Agent "Living Network"
 
-   Multi-agent node world:
-   - Glowing nodes with state-reactive colors and sizes
-   - Curved connections between connected nodes with pulse effect
-   - Nodes drift/float with organic motion
-   - Click-to-select node popup with task details
-   - Subtle grid background
-   - State-tinted nebula atmosphere
-   - Wave progress ring around orchestrator
-   CRT scanline overlay + vignette
+   A node graph where each agent is a glowing orb connected by
+   energy lines. Nodes pulse, drift, and resize based on state.
+   Connections show flowing energy particles along bezier curves.
+   Background: subtle grid + state-tinted nebula.
 
-   Zero heavy effects — pure Canvas 2D + requestAnimationFrame.
-   ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ */
+   W234 fixes:
+   - Full rewrite from broken v2.0 (20+ compile errors)
+   - Particles now follow bezier curves (not straight lines)
+   - Click detection uses animated positions (with drift)
+   - Mouse proximity boosts node glow interactively
+   - No unused subscriptions (healthScore removed)
+   - No nested useEffect (React rules violation)
+   ═════════════════════════════════════════════════════════════════════ */
 
 const STATE_COLORS: Record<string, [number, number, number]> = {
-  idle: [245, 158, 11], thinking: [6, 182, 212], searching: [249, 115, 22],
-  planning: [168, 85, 247], executing: [244, 63, 94],
-  verifying: [34, 197, 94], celebrating: [234, 179, 8],
-  error: [220, 38, 38], evolving: [217, 70, 239], offline: [113, 113, 122],
+  idle: [245, 158, 11],
+  thinking: [6, 182, 212],
+  searching: [249, 115, 22],
+  planning: [168, 85, 247],
+  executing: [244, 63, 94],
+  verifying: [34, 197, 94],
+  celebrating: [234, 179, 8],
+  error: [220, 38, 38],
+  evolving: [217, 70, 239],
+  offline: [113, 113, 122],
 };
 
-function rgba(r: number, g: number, b: number, a: number): string {
-  return `rgba(${r},${g},${b},${a})`;
-}
-
-// Pre-computed state colors as RGBA tuples
-const STATE_RGBA: Record<string, [number, number, number]> = {
-  idle: [245, 158, 11], thinking: [6, 182, 212], searching: [249, 115, 22],
-  planning: [168, 85, 247], executing: [244, 63, 94], verifying: [34, 197, 94],
-  celebrating: [234, 179, 8], error: [220, 38, 38], evolving: [217, 70, 239], offline: [113, 113, 122],
+const NODE_TYPE_LABELS: Record<string, string> = {
+  orchestrator: 'HERMES',
+  assessor: 'ASSESSOR',
+  planner: 'PLANNER',
+  executor: 'EXECUTOR',
+  verifier: 'VERIFIER',
+  'git-agent': 'GIT',
+  custom: 'AGENT',
 };
 
+// ─── Animated node (internal canvas state) ────────────────────────
 interface AnimNode {
   id: string;
   name: string;
   type: string;
   state: string;
+  message: string;
   color: string;
   connections: string[];
   spawnTime: number;
-  tx: number; ty: number;
-  size: number; glow: number;
-  // Animated position
-  ax: number; ay: number;
-  orbitAngle: number; orbitSpeed: number;
+  // Target position (from server)
+  tx: number;
+  ty: number;
+  // Current animated position
+  ax: number;
+  ay: number;
+  // Visual properties
+  size: number;
+  glow: number;
+  tGlow: number;
+  // Animation
+  orbitAngle: number;
+  orbitSpeed: number;
+  orbitRadius: number;
   spawnProgress: number;
 }
 
-// ──── Animations ───────────────────────────────────────────────────────
-const LERP_SPEED = 0.04;
-const DRIFT_STRENGTH = 0.006;
-const MAX_PARTICLES = 8;
-
-interface Particle {
-  id: string;
-  cx: number; cy: number;
-  vx: number; vy: number;
-  life: number;
-  alpha: number;
-  decay: number;
+// ─── Energy particle flowing along a bezier connection ───────────
+interface FlowParticle {
+  fromId: string;
+  toId: string;
+  t: number;           // 0→1 progress along the curve
   speed: number;
+  color: [number, number, number];
   size: number;
-  color: string;
 }
+
+// ─── Star in the background ──────────────────────────────────────
+interface Star {
+  x: number;
+  y: number;
+  size: number;
+  brightness: number;
+  twinkleSpeed: number;
+  twinkleOffset: number;
+}
+
+// ─── Constants ───────────────────────────────────────────────────
+const LERP_SPEED = 0.04;
+const MAX_PARTICLES = 50;
+const MOUSE_GLOW_RADIUS = 120; // px — range where mouse proximity boosts glow
 
 export function AgentNetworkCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasState = useRef({ w: 0, h: 0, dpr: 1 });
-  const animRef = useRef<number>(0);
-  const particlesRef = useRef<Particle[]>([]);
-  const nodesRef = useRef<Map<string, AnimNode>>(new Map());
-  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+  const sizeRef = useRef({ w: 0, h: 0, dpr: 1 });
+  const animFrameRef = useRef<number>(0);
+  const timeRef = useRef(0);
+  const prevNodeKeyRef = useRef('');
+  const nodesMapRef = useRef<Map<string, AnimNode>>(new Map());
+  const particlesRef = useRef<FlowParticle[]>([]);
+  const starsRef = useRef<Star[]>([]);
+  const mouseRef = useRef({ x: -1000, y: -1000 });
 
   const agentState = useAgentLiveStore(s => s.agentState);
   const networkNodes = useAgentLiveStore(s => s.networkNodes);
@@ -86,67 +114,102 @@ export function AgentNetworkCanvas() {
   const waveNumber = useAgentLiveStore(s => s.waveNumber);
   const progress = useAgentLiveStore(s => s.progress);
 
-  // Ensure orchestrator always exists
-  const getOrchestratorNode = useCallback((): AnimNode => ({
-    id: 'orchestrator', type: 'orchestrator', name: 'HERMES',
-    state: agentState, message: '', color: '#f59e0b', connections: [],
-    spawnTime: Date.now(), x: 0.5, y: 0.45, size: 1, glow: 0.5,
-  })), [agentState]);
-
-  // Hex → RGB conversion
+  // ─── Hex → RGB ────────────────────────────────────────────────
   const hexToRgb = useCallback((hex: string): [number, number, number] => {
     const h = hex.replace('#', '');
-    return [parseInt(h.substring(0, 2), 16), parseInt(h.substring(2, 4), 16), parseInt(h.substring(4, 6), 16)];
+    return [
+      parseInt(h.substring(0, 2), 16),
+      parseInt(h.substring(2, 4), 16),
+      parseInt(h.substring(4, 6), 16),
+    ];
   }, []);
 
-  // ─── Sync server nodes → animated nodes ───────────────────────
+  // ─── Ensure orchestrator exists as fallback ────────────────────
+  const ensureOrchestrator = useCallback((): AnimNode => {
+    const existing = nodesMapRef.current.get('orchestrator');
+    if (existing) return existing;
+    const fallback: AnimNode = {
+      id: 'orchestrator', type: 'orchestrator', name: 'HERMES',
+      state: agentState, message: '', color: '#f59e0b', connections: [],
+      spawnTime: Date.now(), tx: 0.5, ty: 0.45, ax: 0.5, ay: 0.45,
+      size: 1, glow: 0.5, tGlow: 0.5,
+      orbitAngle: 0, orbitSpeed: 0, orbitRadius: 0, spawnProgress: 1,
+    };
+    nodesMapRef.current.set('orchestrator', fallback);
+    return fallback;
+  }, [agentState]);
+
+  // ─── Sync store NetworkNode[] → internal AnimNode map ─────────
   useEffect(() => {
-    const nodeMap = nodesRef.current;
+    const nodeMap = nodesMapRef.current;
     const currentIds = new Set<string>();
-    const nodeKey = networkNodes.map(n => `${n.id}:${n.state}:${n.size}:${n.glow}`).join('|');
-    if (nodeKey === prevNodesRef.current) return;
-    prevNodesRef.current = nodeKey;
+
+    // Skip if nothing changed
+    const key = networkNodes.map(n => `${n.id}:${n.state}:${n.size}:${n.glowIntensity}`).join('|');
+    if (key === prevNodeKeyRef.current) return;
+    prevNodeKeyRef.current = key;
 
     for (const node of networkNodes) {
       currentIds.add(node.id);
       const existing = nodeMap.get(node.id);
       if (existing) {
+        // Update mutable fields (animated position lerps toward target)
         existing.tx = node.x;
         existing.ty = node.y;
-        existing.tSize = node.size;
         existing.tGlow = node.glowIntensity;
+        existing.size = node.size;
         existing.state = node.state;
         existing.message = node.message;
         existing.color = node.color;
         existing.connections = node.connections;
       } else {
+        // New node — place in orbit around orchestrator
         const isOrch = node.type === 'orchestrator';
         const nonOrchCount = [...nodeMap.values()].filter(n => n.type !== 'orchestrator').length;
-        const total = Math.max(nonOrchCount, 1);
-        const angle = (2 * Math.PI) / total;
-        const radius = 0.22 + (isOrch ? 0 : 0.12 * Math.sin(angle));
+        const total = Math.max(nonOrchCount + 1, 1);
+        const angle = (2 * Math.PI / total) * nonOrchCount + (Math.random() - 0.5) * 0.4;
+        const radius = 0.2 + Math.random() * 0.08;
+        const targetX = isOrch ? 0.5 : 0.5 + radius * Math.cos(angle);
+        const targetY = isOrch ? 0.45 : 0.45 + radius * Math.sin(angle);
         nodeMap.set(node.id, {
           id: node.id, name: node.name, type: node.type,
           state: node.state, message: node.message, color: node.color,
           connections: node.connections, spawnTime: node.spawnTime,
-          tx: isOrch ? 0.5 : 0.5 + radius * Math.cos(angle),
-          ty: isOrch ? 0.45 : 0.45 + radius * Math.sin(angle),
-          tSize: node.size, tGlow: node.glowIntensity,
-          ax: 0.5, ay: 0.5,  // animated position
+          tx: targetX, ty: targetY,
+          ax: isOrch ? 0.5 : 0.5, ay: isOrch ? 0.45 : 0.45,
+          size: node.size, glow: node.glowIntensity, tGlow: node.glowIntensity,
           orbitAngle: Math.random() * Math.PI * 2,
-          orbitSpeed: 0.0004 + Math.random() * 0.0006,
-          orbitRadius: 0.01 + Math.random() * 0.03,
+          orbitSpeed: 0.0003 + Math.random() * 0.0005,
+          orbitRadius: 0.008 + Math.random() * 0.015,
           spawnProgress: 0,
         });
       }
     }
-    // Remove stale nodes
-    for (const [id] of nodeMap.keys()) {
-      if (!currentIds.has(id)) nodeMap.delete(id);
+
+    // Remove stale nodes (but never remove orchestrator)
+    for (const [id] of nodeMap) {
+      if (!currentIds.has(id) && id !== 'orchestrator') {
+        nodeMap.delete(id);
+      }
     }
   }, [networkNodes]);
 
-  // ─── Canvas setup ───────────────────────────────────────────────────────
+  // ─── Generate stars once ──────────────────────────────────────
+  useEffect(() => {
+    const stars: Star[] = [];
+    for (let i = 0; i < 150; i++) {
+      stars.push({
+        x: Math.random(), y: Math.random(),
+        size: Math.random() * 1.2 + 0.3,
+        brightness: Math.random() * 0.4 + 0.1,
+        twinkleSpeed: Math.random() * 2 + 0.8,
+        twinkleOffset: Math.random() * Math.PI * 2,
+      });
+    }
+    starsRef.current = stars;
+  }, []);
+
+  // ─── Main canvas effect (resize, draw loop, events) ───────────
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -155,37 +218,110 @@ export function AgentNetworkCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const ro = new ResizeObserver(() => {
+    // ── Resize handler ──
+    const resize = () => {
       const rect = container.getBoundingClientRect();
-      canvas.width = rect.width * (window.devicePixelRatio || 1);
-      canvas.height = rect.height * (window.devicePixelRatio || 1);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
-      canvasState.current = { w: rect.width, h: rect.height, dpr: window.devicePixelRatio || 1 };
-      ctx.setTransform(canvasState.current.dpr, 0, 0, canvasState.current.dpr, 0, 0);
-    });
+      sizeRef.current = { w: rect.width, h: rect.height, dpr };
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
     ro.observe(container);
 
-    // ─── Main draw loop ───────────────────────────────────────────────
-    useEffect(() => {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+    // ── Mouse tracking ──
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
 
-      const { w, h, dpr } = canvasState.current;
-      if (w === 0 || h === 0) {
-        animRef.current = requestAnimationFrame(draw);
-        return;
+    // ── Click detection (uses animated positions) ──
+    const onClick = () => {
+      const { w, h } = sizeRef.current;
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+      let clicked: string | null = null;
+
+      ensureOrchestrator();
+      for (const [, n] of nodesMapRef.current) {
+        const nx = n.ax * w;
+        const ny = n.ay * h;
+        const baseR = (n.type === 'orchestrator' ? 32 : 22) * n.size;
+        const dist = Math.sqrt((mx - nx) ** 2 + (my - ny) ** 2);
+        if (dist < baseR + 12) {
+          clicked = selectedNodeId === n.id ? null : n.id;
+          break;
+        }
       }
+      selectNode(clicked);
+    };
 
-      const t = (performance.now() - animRef.current * 16) / 1000;
-      animRef.current = performance.now();
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('click', onClick);
+
+    // ── Quadratic bezier point at parameter t ──
+    const bezierPoint = (
+      x0: number, y0: number,
+      cx: number, cy: number,
+      x1: number, y1: number,
+      t: number,
+    ): [number, number] => {
+      const u = 1 - t;
+      return [
+        u * u * x0 + 2 * u * t * cx + t * t * x1,
+        u * u * y0 + 2 * u * t * cy + t * t * y1,
+      ];
+    };
+
+    // ── Spawn flow particles along connections ──
+    const spawnParticles = (nodes: AnimNode[]) => {
+      const particles = particlesRef.current;
+      if (Math.random() < 0.12 && particles.length < MAX_PARTICLES) {
+        // Pick a random node that has connections
+        const candidates = nodes.filter(n => n.connections.length > 0);
+        if (candidates.length === 0) return;
+        const src = candidates[Math.floor(Math.random() * candidates.length)];
+        const connId = src.connections[Math.floor(Math.random() * src.connections.length)];
+        const dst = nodes.find(n => n.id === connId);
+        if (!dst) return;
+
+        const forward = Math.random() > 0.5;
+        const from = forward ? src : dst;
+        const to = forward ? dst : src;
+        const rgb = hexToRgb(from.color);
+        particles.push({
+          fromId: from.id, toId: to.id,
+          t: 0, speed: 0.004 + Math.random() * 0.008,
+          color: rgb, size: 1 + Math.random() * 1.5,
+        });
+      }
+      // Cull
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].t += particles[i].speed;
+        if (particles[i].t > 1) particles.splice(i, 1);
+      }
+    };
+
+    // ── Main draw loop ──────────────────────────────────────────
+    const draw = () => {
+      const { w, h } = sizeRef.current;
+      if (w === 0 || h === 0) { animFrameRef.current = requestAnimationFrame(draw); return; }
+
+      timeRef.current += 0.016;
+      const t = timeRef.current;
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
 
       // ── Background ──
       ctx.fillStyle = '#08080a';
       ctx.fillRect(0, 0, w, h);
 
       // Subtle grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.018)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.015)';
       ctx.lineWidth = 0.5;
       const gridSize = 80;
       for (let gx = 0; gx < w; gx += gridSize) {
@@ -195,190 +331,268 @@ export function AgentNetworkCanvas() {
         ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
       }
 
-      // State-tinted nebula atmosphere
-      const stRgb = STATE_RGBA[agentState] || STATE_RGBA.idle;
-      const nebGrad = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.4, h * 0.4);
-      nebGrad.addColorStop(0, `rgba(${stRgb[0]}, ${stRgb[1]}, ${stRgb[2]}, 0.04)`);
-      nebGrad.addColorStop(0.5, `rgba(${stRgb[0]}, ${stRgb[1]}, ${stRgb[2]}, 0.01)`);
-      nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = nebGrad;
+      // State-tinted nebula
+      const stateRgb = STATE_COLORS[agentState] || STATE_COLORS.idle;
+      const nebula = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, w * 0.7);
+      nebula.addColorStop(0, `rgba(${stateRgb[0]},${stateRgb[1]},${stateRgb[2]},0.04)`);
+      nebula.addColorStop(0.5, `rgba(${stateRgb[0]},${stateRgb[1]},${stateRgb[2]},0.01)`);
+      nebula.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = nebula;
       ctx.fillRect(0, 0, w, h);
 
-      // ── Animated node state for interpolation
-      const dt = Math.min(t, 0.05);
-      for (const [id, node] of nodesRef.current) {
-        const n = node;
-        // Spawn animation
-        if (n.spawnProgress < 1) {
-          n.spawnProgress = Math.min(n.spawnProgress + dt * 2, 1);
-        }
-        // Orbit drift
-        if (n.type !== 'orchestrator') {
-          n.orbitAngle += n.orbitSpeed * dt;
-          n.ax += (Math.cos(n.orbitAngle) * n.orbitRadius) * dt;
-          n.ay += (Math.sin(n.orbitAngle) * n.orbitRadius) * dt;
-        }
-        // Lerp toward target
-        const lerpK = LERP_SPEED;
-        n.ax += (n.tx - n.ax) * lerpK;
-        n.ay += (n.ty - n.ay) * lerpK;
-        // Glow decay
-        n.glow += (n.tGlow - n.glow) * dt * 0.5;
-      }
-
-      // ── Draw Connections (curved glowing lines) ──
-      for (const [id1, connId] of Object.entries(Object.fromEntries(nodesRef.current))) {
-        const node = nodesRef.current.get(id1) || nodesRef.current.get(connId);
-        const other = nodesRef.current.get(connId);
-        if (!node || !other) continue;
-        if (id1 > connId) continue; // draw once per pair
-
-        const [r1, g1, b1] = hexToRgb(node.color);
-        const isActive = node.state !== 'idle' && node.state !== 'offline';
-        const alpha = (isActive ? 0.18 : 0.06) + Math.sin(t * 2 + node.spawnTime * 0.001) * 0.06;
-        ctx.strokeStyle = `rgba(${r1},${g1},${b1},${Math.max(0, alpha)})`;
-        ctx.lineWidth = (id1 === 'orchestrator' || connId === 'orchestrator') ? 1.5 : 0.8;
+      // ── Stars ──
+      const stars = starsRef.current;
+      for (const star of stars) {
+        const twinkle = Math.sin(t * star.twinkleSpeed + star.twinkleOffset) * 0.5 + 0.5;
+        const alpha = star.brightness * twinkle;
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
         ctx.beginPath();
-        ctx.moveTo(node.ax * w, node.ay * h);
-        const midX = (node.ax * w + other.ax * w) / 2;
-        const midY = (node.ay * h + other.ay * h) / 2 - 15;
-        ctx.quadraticCurveTo(midX, midY, other.ax * w, other.ay * h);
-        ctx.stroke();
+        ctx.arc(star.x * w, star.y * h, star.size, 0, Math.PI * 2);
+        ctx.fill();
       }
 
-      // ── Spawn energy particles (lightweight) ──
-      const particles = particlesRef.current;
-      if (Math.random() < 0.08) {
-        const node = [...nodesRef.current].find(n => n.type === 'orchestrator') || [...nodesRef.current][0];
-        if (!node) continue;
-        if (node.connections.length === 0) continue;
-        const target = nodesRef.current.get(node.connections[Math.floor(Math.random() * node.connections.length)]) || node.connections[0]);
-        if (!target) continue;
-        const from = Math.random() > 0.5 ? node : target;
-        const to = Math.random() > 0.5 ? node : target;
-        const rgb = hexToRgb(from.color);
-        if (particles.length < MAX_PARTICLES) {
-          particles.push({
-            fromX: from.ax, fromY: from.ay,
-            toX: to.ax, toY: to.ay, t: 0,
-            speed: 0.004 + Math.random() * 0.008,
-            color: rgb, size: 1 + Math.random() * 1.5,
-          });
+      // ── Ensure orchestrator ──
+      ensureOrchestrator();
+      const allNodes = [...nodesMapRef.current.values()];
+
+      // ── Update animated positions ──
+      for (const n of allNodes) {
+        // Spawn-in animation
+        if (n.spawnProgress < 1) n.spawnProgress = Math.min(n.spawnProgress + 0.02, 1);
+
+        // Orbit drift (non-orchestrator)
+        if (n.type !== 'orchestrator') {
+          n.orbitAngle += n.orbitSpeed;
+          n.ax += Math.cos(n.orbitAngle) * n.orbitRadius * 0.02;
+          n.ay += Math.sin(n.orbitAngle) * n.orbitRadius * 0.02;
+        }
+
+        // Lerp toward target
+        n.ax += (n.tx - n.ax) * LERP_SPEED;
+        n.ay += (n.ty - n.ay) * LERP_SPEED;
+
+        // Glow lerp
+        n.glow += (n.tGlow - n.glow) * 0.05;
+      }
+
+      // ── Screen positions ──
+      const screen = new Map<string, { x: number; y: number; node: AnimNode }>();
+      for (const n of allNodes) {
+        screen.set(n.id, { x: n.ax * w, y: n.ay * h, node: n });
+      }
+
+      // ── Draw Connections (quadratic bezier) ──
+      const drawnPairs = new Set<string>();
+      for (const n of allNodes) {
+        for (const connId of n.connections) {
+          const pairKey = [n.id, connId].sort().join(':');
+          if (drawnPairs.has(pairKey)) continue;
+          drawnPairs.add(pairKey);
+
+          const target = screen.get(connId);
+          if (!target) continue;
+
+          const fromRgb = hexToRgb(n.color);
+          const isOrchConn = n.type === 'orchestrator' || target.node.type === 'orchestrator';
+          const isActive = n.state !== 'idle' && n.state !== 'offline';
+          const alpha = (isActive ? 0.2 : 0.07) + Math.sin(t * 2 + n.spawnTime * 0.001) * 0.06;
+
+          ctx.strokeStyle = `rgba(${fromRgb[0]},${fromRgb[1]},${fromRgb[2]},${Math.max(0, alpha)})`;
+          ctx.lineWidth = isOrchConn ? 1.5 : 0.8;
+          ctx.beginPath();
+          const sx = n.ax * w;
+          const sy = n.ay * h;
+          const ex = target.x;
+          const ey = target.y;
+          const cpx = (sx + ex) / 2;
+          const cpy = (sy + ey) / 2 - 18;
+          ctx.moveTo(sx, sy);
+          ctx.quadraticCurveTo(cpx, cpy, ex, ey);
+          ctx.stroke();
         }
       }
-      // Update & cull particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.t += p.speed;
-        if (p.t > 1) particles.splice(i, 1);
-      }
-      if (particles.length > MAX_PARTICLES) {
-        particles.splice(0, particles.length - MAX_PARTICLES);
+
+      // ── Spawn & draw flow particles (along bezier curves) ──
+      spawnParticles(allNodes);
+      const particles = particlesRef.current;
+      for (const p of particles) {
+        const fromScreen = screen.get(p.fromId);
+        const toScreen = screen.get(p.toId);
+        if (!fromScreen || !toScreen) continue;
+
+        // Compute bezier control point (same as connection drawing)
+        const cpx = (fromScreen.x + toScreen.x) / 2;
+        const cpy = (fromScreen.y + toScreen.y) / 2 - 18;
+        const [px, py] = bezierPoint(
+          fromScreen.x, fromScreen.y,
+          cpx, cpy,
+          toScreen.x, toScreen.y,
+          p.t,
+        );
+
+        const alpha = Math.sin(p.t * Math.PI) * 0.8;
+        ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${alpha})`;
+        ctx.beginPath();
+        ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       // ── Draw Nodes ──
-      for (const [id, n] of Object.entries(nodesRef.current)) {
+      for (const n of allNodes) {
+        const sx = n.ax * w;
+        const sy = n.ay * h;
         const rgb = hexToRgb(n.color);
-        const stRgb = STATE_RGBA[n.state] || STATE_RGBA.idle;
-        const baseRadius = (n.type === 'orchestrator' ? 36 : 22) * n.size * (1 + Math.sin(t * 1.2 + n.spawnTime * 0.001) * 0.03);
-        const radius = Math.max(8, baseRadius);
-        const glow = n.glow;
+
+        // Mouse proximity → extra glow boost
+        const mouseDist = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2);
+        const mouseBoost = mouseDist < MOUSE_GLOW_RADIUS
+          ? (1 - mouseDist / MOUSE_GLOW_RADIUS) * 0.4
+          : 0;
+        const effectiveGlow = Math.min(1, n.glow + mouseBoost);
+
+        const baseRadius = (n.type === 'orchestrator' ? 32 : 22) * n.size
+          * (1 + Math.sin(t * 1.2 + n.spawnTime * 0.001) * 0.03)
+          * n.spawnProgress;
+        const radius = Math.max(6, baseRadius);
 
         // Outer glow
-        const glowR = radius * (2 + glow * 0.8);
-        if (glowR > 4) {
-          const outerGlow = ctx.createRadialGradient(n.ax, n.ay, radius * 0.4, n.ay, n.ay, glowR);
-          outerGlow.addColorStop(0, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${0.12 * glow})`);
-          outerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = outerGlow;
+        const glowR = radius * (2 + effectiveGlow * 0.8);
+        const outerGlow = ctx.createRadialGradient(sx, sy, radius * 0.4, sx, sy, glowR);
+        outerGlow.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.12 * effectiveGlow})`);
+        outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = outerGlow;
+        ctx.beginPath();
+        ctx.arc(sx, sy, glowR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // State-based secondary glow (active nodes)
+        if (n.state !== 'idle' && n.state !== 'offline') {
+          const stRgb = STATE_COLORS[n.state] || STATE_COLORS.idle;
+          const stateGlowR = radius * (1.8 + effectiveGlow * 0.5);
+          const stateGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, stateGlowR);
+          stateGlow.addColorStop(0, `rgba(${stRgb[0]},${stRgb[1]},${stRgb[2]},${0.18 * effectiveGlow})`);
+          stateGlow.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = stateGlow;
           ctx.beginPath();
-          ctx.arc(n.ax, n.ay, glowR, 0, Math.PI * 2);
+          ctx.arc(sx, sy, stateGlowR, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // State ring pulse (active nodes)
+        // Pulsing ring (active nodes)
         if (n.state !== 'idle' && n.state !== 'offline') {
-          const ringPulse = (Math.sin(t * 2 + n.spawnTime * 0.001) + 1) / 2;
-          const ringR = radius * (1.2 + ringPulse * 0.4);
-          ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${0.2 - ringPulse * 0.15})`;
+          const ringPulse = (Math.sin(t * 2.5 + n.spawnTime * 0.001) + 1) / 2;
+          const ringR = radius * (1.3 + ringPulse * 0.4);
+          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.2 - ringPulse * 0.15})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.arc(n.ax, n.ay, ringR, 0, Math.PI * 2);
+          ctx.arc(sx, sy, ringR, 0, Math.PI * 2);
           ctx.stroke();
         }
 
-        // Core gradient
+        // Selected highlight ring
+        if (selectedNodeId === n.id) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(sx, sy, radius + 8, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Pulsing outer ring for selected
+          const selPulse = (Math.sin(t * 3) + 1) / 2;
+          ctx.strokeStyle = `rgba(255,255,255,${0.1 + selPulse * 0.1})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(sx, sy, radius + 14 + selPulse * 4, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Core circle gradient
         const coreGrad = ctx.createRadialGradient(
-          n.ax - radius * 0.15, n.ay - radius * 0.15, 0,
-          n.ax, n.ay, radius,
+          sx - radius * 0.15, sy - radius * 0.15, 0,
+          sx, sy, radius,
         );
-        const bright = Math.min(1, glow * 0.7);
-        coreGrad.addColorStop(0, `rgba(${bright * 255}, ${bright * 255}, 0.9)`);
-        coreGrad.addColorStop(0.6, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.7)`);
-        coreGrad.addColorStop(1, `rgba(${Math.floor(rgb[0] * 0.5)}, ${Math.floor(rgb[1] * 0.5)}, ${Math.floor(rgb[2] * 0.6)}, 0.7)`);
+        coreGrad.addColorStop(0, `rgba(${Math.min(255, rgb[0] + 80)},${Math.min(255, rgb[1] + 80)},${Math.min(255, rgb[2] + 80)},0.95)`);
+        coreGrad.addColorStop(0.7, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.85)`);
+        coreGrad.addColorStop(1, `rgba(${Math.floor(rgb[0] * 0.6)},${Math.floor(rgb[1] * 0.6)},${Math.floor(rgb[2] * 0.6)},0.8)`);
         ctx.fillStyle = coreGrad;
         ctx.beginPath();
-        ctx.arc(n.ax, n.ay, radius, 0, Math.PI * 2);
+        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
         ctx.fill();
 
         // Inner bright spot
-        if (bright > 0.05) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${bright * 0.15})`;
-          ctx.beginPath();
-          ctx.arc(n.ax - radius * 0.1, n.ay - radius * 0.1, radius * 0.3, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const brightAlpha = 0.15 + effectiveGlow * 0.1;
+        ctx.fillStyle = `rgba(255,255,255,${brightAlpha})`;
+        ctx.beginPath();
+        ctx.arc(sx - radius * 0.15, sy - radius * 0.15, radius * 0.3, 0, Math.PI * 2);
+        ctx.fill();
 
         // Label
-        ctx.fillStyle = `rgba(255, 255, 255, 0.8)`;
-        ctx.font = `${n.type === 'orchestrator' ? 'bold 11px' : '9px'} monospace`;
+        const label = NODE_TYPE_LABELS[n.type] || n.name.toUpperCase();
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = `${n.type === 'orchestrator' ? 'bold 10px' : '8px'} monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(n.name, n.ax, n.ay);
+        ctx.fillText(label, sx, sy);
 
-        // State indicator below (non-orchestrator only)
+        // Task message below (non-orchestrator)
         if (n.type !== 'orchestrator' && n.message) {
-          ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.5)`;
+          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.55)`;
           ctx.font = '7px monospace';
-          const msg = n.message.length > 25 ? n.message.slice(0, 25) + '...' : n.message;
-          ctx.fillText(msg, n.ax, n.ay + radius + 12);
+          const msg = n.message.length > 28 ? n.message.slice(0, 28) + '...' : n.message;
+          ctx.fillText(msg, sx, sy + radius + 12);
         }
       }
 
       // ── Wave Progress Ring (around orchestrator) ──
       if (waveNumber > 0 && progress > 0) {
-        const orch = [...nodesRef.current].find(n => n.type === 'orchestrator') || nodesRef.current.get('orchestrator'));
+        const orch = nodesMapRef.current.get('orchestrator');
         if (orch) {
-          const ringRadius = 40 * orch.size;
+          const sx = orch.ax * w;
+          const sy = orch.ay * h;
+          const ringRadius = 44 * orch.size;
           const startAngle = -Math.PI / 2;
           const endAngle = startAngle + Math.PI * 2 * progress;
-          const progRgb = STATE_RGBA[agentState] || STATE_RGBA.idle;
-          ctx.strokeStyle = `rgba(${progRgb[0]}, ${progRgb[1]}, ${progRgb[2]}, 0.45)`;
+          const progRgb = STATE_COLORS[agentState] || STATE_COLORS.idle;
+          ctx.strokeStyle = `rgba(${progRgb[0]},${progRgb[1]},${progRgb[2]},0.5)`;
           ctx.lineWidth = 2;
           ctx.lineCap = 'round';
           ctx.beginPath();
-          ctx.arc(orch.ax, orch.ay, ringRadius, startAngle, endAngle);
+          ctx.arc(sx, sy, ringRadius, startAngle, endAngle);
           ctx.stroke();
           ctx.lineCap = 'butt';
         }
       }
 
+      // ── CRT scanlines (very subtle) ──
+      ctx.fillStyle = 'rgba(0,0,0,0.025)';
+      for (let y = 0; y < h; y += 3) {
+        ctx.fillRect(0, y, w, 1);
+      }
+
       // ── Vignette ──
-      const vigR = Math.max(w, h) * 0.75;
-      const vignette = ctx.createRadialGradient(w / 2, h / 2, w * 0.25, h / 2, vigR);
-      vignette.addColorStop(0, 'rgba(0,0,0,0,0)');
-      vignette.addColorStop(1, 'rgba(0,0,0,0,0.5)');
+      const vigR = Math.max(w, h) * 0.8;
+      const vignette = ctx.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, vigR);
+      vignette.addColorStop(0, 'rgba(0,0,0,0)');
+      vignette.addColorStop(1, 'rgba(0,0,0,0.5)');
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, w, h);
 
-      animRef.current = requestAnimationFrame(draw);
+      animFrameRef.current = requestAnimationFrame(draw);
     };
+
+    animFrameRef.current = requestAnimationFrame(draw);
 
     return () => {
       ro.disconnect();
-      cancelAnimationFrame(animRef.current);
+      cancelAnimationFrame(animFrameRef.current);
       canvas.removeEventListener('mousemove', onMouseMove);
       canvas.removeEventListener('click', onClick);
     };
-  }, [agentState, selectedNodeId, selectNode, getOrchestratorNode, hexToRgb, waveNumber, progress, healthScore]);
+  }, [agentState, selectedNodeId, selectNode, ensureOrchestrator, hexToRgb, waveNumber, progress]);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0">
+      <canvas ref={canvasRef} className="w-full h-full" />
+    </div>
+  );
 }
