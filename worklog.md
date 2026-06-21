@@ -5660,3 +5660,21 @@ Stage Summary:
 - Stale wave cleanup: logDebug→logError (errors now visible). Added completedAt-based fix (catches waves patched to completed but with stale status).
 - The completedAt cleanup immediately fixed stuck W262 (#174) on first dashboard load.
 - Lint: 0 errors.
+
+---
+Task ID: W265
+Agent: Main Orchestrator
+Task: Replay view — isLooping stale closure + missing aria-labels
+
+Work Log:
+- ASSESS: Context, dev.log clean. Explorer found 2 bugs in wave-replay-view.tsx: (1) isLooping captured at setInterval creation time — toggling loop while playing has no effect until restart, (2) 4 icon-only buttons missing aria-labels (WCAG failure).
+- PLAN: Fix stale closure with isLoopingRef pattern. Add aria-labels to speed/play/skip/loop buttons.
+- EXECUTE: Added isLoopingRef + useEffect sync. Changed setInterval closure to read isLoopingRef.current. Removed isLooping from startPlayback deps (no longer needed).
+- EXECUTE: Added aria-label to speed button (dynamic with current label), play/pause (state-aware), skip (static), loop toggle (state-aware).
+- VERIFY: bun run lint — 0 errors.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- Replay loop toggle now works in real-time (no restart needed). Used ref pattern to avoid stale closure.
+- 4 icon-only buttons now have accessible names. WCAG 2.1 AA compliant.
+- Lint: 0 errors.

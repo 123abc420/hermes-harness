@@ -89,6 +89,8 @@ export function WaveReplayView() {
   const [playbackIndex, setPlaybackIndex] = useState(-1);
   const [speed, setSpeed] = useState(1500);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isLoopingRef = useRef(isLooping);
+  useEffect(() => { isLoopingRef.current = isLooping; }, [isLooping]);
 
   // Show last N entries that fit — no scroll needed
   const maxVisible = 20;
@@ -132,7 +134,7 @@ export function WaveReplayView() {
     timerRef.current = setInterval(() => {
       idx--;
       if (idx < 0) {
-        if (isLooping) {
+        if (isLoopingRef.current) {
           idx = meaningfulActivities.length - 1;
         } else {
           stopPlayback();
@@ -141,7 +143,7 @@ export function WaveReplayView() {
       }
       setPlaybackIndex(idx);
     }, speed);
-  }, [meaningfulActivities, isLooping, speed, stopPlayback]);
+  }, [meaningfulActivities, speed, stopPlayback]);
 
   const togglePlay = useCallback(() => {
     if (isPlaying) stopPlayback(); else startPlayback();
@@ -188,6 +190,7 @@ export function WaveReplayView() {
 
         {/* Speed */}
         <button
+          aria-label={`Playback speed: ${speedOptions[currentSpeedIdx >= 0 ? currentSpeedIdx : 1].label}. Click to change.`}
           onClick={() => {
             const next = (currentSpeedIdx + 1) % speedOptions.length;
             setSpeed(speedOptions[next].value);
@@ -198,14 +201,17 @@ export function WaveReplayView() {
         </button>
 
         <Button variant="ghost" size="sm" onClick={togglePlay} disabled={!hasData}
+          aria-label={isPlaying ? 'Pause replay' : 'Play replay'}
           className="h-7 w-7 p-0 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] shrink-0">
           {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
         </Button>
         <Button variant="ghost" size="sm" onClick={skipToEnd} disabled={!hasData}
+          aria-label="Skip to latest activity"
           className="h-7 w-7 p-0 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] shrink-0">
           <SkipForward className="w-3.5 h-3.5" />
         </Button>
         <Button variant="ghost" size="sm" onClick={() => setIsLooping(!isLooping)}
+          aria-label={isLooping ? 'Disable loop' : 'Enable loop'}
           className={cn('h-7 w-7 p-0 rounded-lg transition-colors shrink-0',
             isLooping ? 'text-sky-400 bg-sky-400/10' : 'text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.08]'
           )}>
