@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 23:42 UTC+8
+2026-06-21 23:54 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 284 re-run)
+- **Phase**: Health-100 Era (Wave 285)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,7 +17,7 @@
 | Skills | 11 (+ 1 template) |
 | Components | 20 |
 | Exported components | 13 |
-| GitHub commits | ~531 |
+| GitHub commits | ~532 |
 | Waves in DB | 200 |
 | TS errors | 0 (enforced, ignoreBuildErrors removed) |
 | Lint errors | 0 |

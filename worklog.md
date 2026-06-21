@@ -6146,3 +6146,19 @@ Stage Summary:
 - Both GET and PATCH now transparently resolve waveNumber→UUID
 - Returns proper 404 instead of 500 for unknown wave numbers
 - Lint: 0. TypeScript: 0. Health: 100/100.
+---
+Task ID: W285 (cron)
+Agent: Wave Engine
+Task: Wave 285 — Complete public export contract in index.ts
+
+Work Log:
+- ASSESS: Read context (100% spec, health 100), insights, SPEC, guardrails. Checked dev.log (clean). Searched for `catch (err: any)`, `console.warn` in client code, `useHarnessStore()` without selectors, `@ts-ignore`, `eslint-disable`, TODO/FIXME — all clean. Deep-audited hooks, stores, API routes, utilities.
+- PLAN: 1 improvement — add missing exports to src/index.ts (SPEC Section 5 compliance)
+- EXECUTE: Added to src/index.ts: `useDecisionTrends` hook, `TrendsData` type, `fetchJSON` utility, `formatDuration`, `getLevelName`, `getStateHex`, `CHART_TOOLTIP_STYLE`, `CHART_TOOLTIP_LABEL_STYLE`. New "Utilities" section added.
+- VERIFY: `bun run lint` — 0 errors. `npx tsc --noEmit` — 0 errors. dev.log clean.
+- PERSIST: Wave #285 recorded, 1 decision, 2 metrics, GitHub synced.
+
+Stage Summary:
+- Public export contract now complete: all harness hooks, types, stores, and key utilities exported
+- New "Utilities" section in index.ts for shared functions consumers need
+- Lint: 0. TypeScript: 0. Health: 100/100.

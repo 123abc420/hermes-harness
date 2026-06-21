@@ -38,7 +38,9 @@ export {
   useGithubSync,
   useSkills,
   useMemory,
+  useDecisionTrends,
 } from './hooks/use-harness-data';
+export type { TrendsData } from './hooks/use-harness-data';
 export { useAgentLive } from './hooks/use-agent-live';
 export { usePrefersReducedMotion } from './hooks/use-prefers-reduced-motion';
 
@@ -62,3 +64,7 @@ export type {
   ExportModule,
   DashboardData,
 } from './store/harness-store';
+
+// ─── Utilities ──────────────────────────────────────────────────────────
+export { fetchJSON } from './lib/fetch-json';
+export { formatDuration, getLevelName, getStateHex, CHART_TOOLTIP_STYLE, CHART_TOOLTIP_LABEL_STYLE } from './lib/constants';
