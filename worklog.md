@@ -5109,3 +5109,22 @@ Stage Summary:
 - SSE reconnection logic deduplicated via createSSEConnection factory
 - 3 bonus TS errors fixed (agent-live-panel.tsx)
 - Build: lint clean, tsc clean
+
+---
+Task ID: W248
+Agent: Main Orchestrator
+Task: Replace Record<string,unknown> with Prisma generated types across API routes
+
+Work Log:
+- ASSESS: Read context/insights. Codebase very clean post-W247. Scanned for Record<string,unknown> — found 7 instances in API routes.
+- PLAN: 2 improvements selected (3rd was already done — patchWaveSchema uses z.enum)
+- EXECUTE Task 1: Replaced Record<string,unknown> with Prisma.HarnessDecisionWhereInput, Prisma.HarnessWaveWhereInput, Prisma.HarnessWaveUpdateInput, Prisma.HarnessDecisionUpdateInput in 4 routes. Initially tried direct import, failed — types are in Prisma namespace. Fixed to use `import { Prisma } from '@prisma/client'`.
+- EXECUTE Task 2: Added DashboardResponse interface for dashboard cache typing (avoids importing client types into server route). Typed DEMO_SEQUENCE as `(Record<string, string | number> & { type?: string })[]`, eliminated `as { name: string }` casts.
+- VERIFY: lint 0 errors, tsc 0 errors. Record<string,unknown> in API routes: 7→4 (remaining are justified: dynamic YAML, forwarder, loose shape fields).
+- PERSIST: Committed 6 files, pushed to GitHub. Recorded wave + 2 decisions.
+
+Stage Summary:
+- 4 API routes now use Prisma generated types (compile-time safety for DB queries)
+- Dashboard cache typed with server-side DashboardResponse interface
+- DEMO_SEQUENCE typed, eliminated 3 unsafe `as` casts
+- Record<string,unknown> reduced from 7 to 4 in API routes (all justified)
