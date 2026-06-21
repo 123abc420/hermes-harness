@@ -5183,3 +5183,26 @@ Stage Summary:
 - Fix: `package.json` dev script changed to `next dev -p 3000 --webpack`
 - Added `keep-alive.sh` for auto-restart on crash
 - Server running on PID 14711, port 3000, health score 82/100
+
+---
+Task ID: 249
+Agent: Main Orchestrator
+Task: W249 — Zod-validate agent-status, harden agent-demo, genericize csv-export
+
+Work Log:
+- ASSESS: 0 TS errors, 0 lint errors, 0 as any, 0 @ts-ignore. Codebase extremely clean.
+- Deep scan found 5 improvements (2 HIGH, 2 MEDIUM, 1 LOW)
+- PLAN: Selected 3 improvements for execution
+- EXECUTE:
+  1. agent-status/route.ts: Replaced 3 hand-rolled validators + Set lookups with Zod schema (agentStatusPostSchema with .strict()). Fixed full-update to only spread FULL_UPDATE_KEYS (prevents prototype pollution).
+  2. agent-demo/route.ts: Wrapped GET handler in try/catch with logError. Typed DEMO_SEQUENCE as StatusStep|SubAgentStep|ClearStep discriminated union — eliminated 10 'as string' casts.
+  3. csv-export.ts: Added <T extends Record<string, unknown>> generic to toCSV, toJSON, fetchAllPages, exportData.
+- VERIFY: tsc --noEmit: 0 errors. lint: 0 errors. Tested Zod rejects unknown types + unknown keys.
+- PERSIST: 1 commit pushed, 3 decisions recorded, 3 metrics recorded, wave patched completed.
+
+Stage Summary:
+- Routes with Zod validation: 8 → 9 (agent-status POST now validated)
+- Full-update injection vector closed (FULL_UPDATE_KEYS whitelist)
+- 10 'as string' casts eliminated in agent-demo
+- 4 functions genericized in csv-export
+- Net change: +157 -101 lines across 4 files

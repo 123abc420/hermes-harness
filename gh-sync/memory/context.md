@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 14:35 UTC+8
+2026-06-21 15:05 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 250)
-- **Waves in DB**: 155
+- **Phase**: Multi-Agent Visual Era (Wave 251)
+- **Waves in DB**: 161
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 21 (BuildHealthCard removed, W247) |
 | Exported components | 10 |
-| GitHub commits | ~426 |
-| Waves in DB | 155 |
+| GitHub commits | ~476 |
+| Waves in DB | 161 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Network nodes | Multi-agent (orchestrator + sub-agents) |
@@ -27,10 +27,10 @@
 | raw console.error in API | 0 |
 | silent .catch() | 0 (logged via logDebug, W241) |
 | unprotected fetch→json | 0 |
-| Routes with zod validation | 8 of 9 |
+| Routes with zod validation | 9 of 9 (agent-status added W249) |
 | Bare req.json() calls | 0 |
 | Ungated client console.warn | 0 |
-| Shared zod schemas | 8 |
+| Shared zod schemas | 9 (agentStatusPostSchema, W249) |
 | Skills tracked in git | 10 (+ 1 template) |
 | VALID_NODE_TYPES dead code | 0 (removed W234) |
 | Activity log capacity | 50 (server) / 80 (client) |
@@ -51,7 +51,8 @@
 | Dead UI components | 0 (label/progress/toggle/build-health removed) |
 | Duplicated types (WaveStatus, DecisionPriority) | 0 (single-sourced from schemas, W243) |
 | Dead directories (examples/, mini-services/) | 0 (deleted W244) |
-| Private constants leak | 0 (EVOLUTION_STAGES/LEVEL_NAMES private, W244) |
+| Unvalidated POST routes | 0 (agent-status Zod-validated, W249) |
+| Full-update injection risk | 0 (FULL_UPDATE_KEYS whitelist, W249) |
 | Record<string,unknown> in API routes | 4 (all justified: YAML parser, forwarder, loose shape fields) |
 | ignoreBuildErrors | false (strict TS enforced, W245) |
 | Header color drift | 0 (uses getStateHex, W246) |
@@ -75,6 +76,10 @@
 - Donut charts use percentage radii
 - GitHub sync does real git push inline
 - **SSE reconnection via createSSEConnection factory** (W247)
+- **Zod-validated agent-status POST** with .strict() (W249)
+- **FULL_UPDATE_KEYS whitelist** prevents body injection (W249)
+- **Typed DEMO_SEQUENCE** as discriminated union (W249)
+- **Generic csv-export** preserves type safety at call sites (W249)
 - **DecisionCategory derived from VALID_CATEGORIES** (W247, 20 categories)
 
 ## What's next
