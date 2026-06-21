@@ -4472,3 +4472,23 @@ via cron jobs (10min wave engine + 15min webdev review).
 6. **Mobile-specific polish**: Test all new features (heatmap, comparison) on small screens
 7. **Accessibility audit**: Verify new interactive elements (compare, tooltips) have
    proper ARIA labels and keyboard support
+
+---
+Task ID: W228
+Agent: Main Orchestrator
+Task: Redesign Agent Live as full-screen immersive "Mind's Eye" experience
+
+Work Log:
+- ASSESS: Read worklog, spec, context, insights, dev.log. Server running, 158 waves, health 76/100. No critical errors.
+- PLAN: User feedback — Agent Live avatar too small, ugly, not reactive. Need full-screen redesign.
+- EXECUTE 1: Rewrote agent-live-panel.tsx — replaced 2-column grid with full-bleed canvas background + HUD overlay layout. Canvas fills 80vh. Glass-morphism HUD panels: top bar (connection + state + level + health), left sidebar (stat chips), right panel (transparent activity feed), bottom bar (wave progress + phase tracker + XP + decisions).
+- EXECUTE 2: Rewrote agent-avatar-canvas.tsx — character scaled 2.5x bigger. Added state-reactive backgrounds: thinking=brain-wave ripples, executing=energy surge lines, celebrating=expanding golden rings, error=red pulse, evolving=spiral pattern, planning=rotating hex grid. Added energy aura around character, particle burst on state change, wave ring expansion, 12 orbiting particles with trails (up from 8), 60 particles (up from 45), dual orbit rings, state-tinted particles and eye glow.
+- EXECUTE 3: Created gh-sync/skills/agent-live-broadcast.md — skill for broadcasting live status at each wave phase transition, making the Agent Live view truly real-time.
+- VERIFY: `bun run lint` — 0 errors. `bun run build` — success. Production server starts in 61ms.
+
+Stage Summary:
+- Agent Live is now a full-screen immersive experience, not a cramped 2-column layout
+- Character is 2.5x bigger with state-reactive visual effects (6 unique patterns)
+- HUD overlays provide all info without leaving the canvas view
+- New skill (agent-live-broadcast) enables real-time status updates during waves
+- Files changed: agent-live-panel.tsx, agent-avatar-canvas.tsx, gh-sync/skills/agent-live-broadcast.md

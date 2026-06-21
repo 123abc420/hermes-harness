@@ -4,17 +4,37 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 
 /* ═══════════════════════════════════════════════════════════════════════
-   2D CANVAS AVATAR — lightweight replacement for Three.js (W227)
-   Uses requestAnimationFrame + Canvas 2D API. Zero heavy dependencies.
-   Draws a cute chibi character with state-reactive colors, eye tracking,
-   idle breathing, walk cycle, and arrival flash effects.
+   2D CANVAS AVATAR — Immersive "Mind's Eye" Version (W228)
+   
+   Full-bleed canvas that fills the Agent Live panel.
+   Character drawn 2.5x larger. State-reactive background effects:
+   - thinking: cyan brain-wave ripples
+   - executing: red/orange energy surges + sparks
+   - celebrating: golden particle explosion + expanding rings
+   - error: red pulse warnings
+   - evolving: fuchsia spiral patterns
+   - idle: gentle amber pulse
+   
+   Zero heavy dependencies — pure Canvas 2D + requestAnimationFrame.
    ═══════════════════════════════════════════════════════════════════════ */
 
 const STATE_COLORS: Record<string, string> = {
-  idle: '#6366f1', thinking: '#06b6d4', searching: '#f97316',
-  planning: '#a855f7', executing: '#ef4444', verifying: '#22c55e',
+  idle: '#f59e0b', thinking: '#06b6d4', searching: '#f97316',
+  planning: '#a855f7', executing: '#f43f5e', verifying: '#22c55e',
   celebrating: '#eab308', error: '#dc2626', evolving: '#d946ef', offline: '#71717a',
 };
+
+// RGBA base for each state (used for gradients / glow effects)
+const STATE_RGBA: Record<string, [number, number, number]> = {
+  idle: [245, 158, 11], thinking: [6, 182, 212], searching: [249, 115, 22],
+  planning: [168, 85, 247], executing: [244, 63, 94], verifying: [34, 197, 94],
+  celebrating: [234, 179, 8], error: [220, 38, 38], evolving: [217, 70, 239], offline: [113, 113, 122],
+};
+
+function rgba(state: string, a: number): string {
+  const [r, g, b] = STATE_RGBA[state] || STATE_RGBA.idle;
+  return `rgba(${r},${g},${b},${a})`;
+}
 
 export function AgentAvatarCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -24,10 +44,18 @@ export function AgentAvatarCanvas() {
   const blinkTimer = useRef(0);
   const nextBlink = useRef(3 + Math.random() * 2);
   const isBlinking = useRef(false);
+  const prevStateRef = useRef<string>('idle');
+  const stateChangeTime = useRef(0);
 
   const agentState = useAgentLiveStore(s => s.agentState);
   const stateRef = useRef(agentState);
-  useEffect(() => { stateRef.current = agentState; }, [agentState]);
+  useEffect(() => {
+    if (stateRef.current !== agentState) {
+      prevStateRef.current = stateRef.current;
+      stateChangeTime.current = performance.now();
+    }
+    stateRef.current = agentState;
+  }, [agentState]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -41,7 +69,6 @@ export function AgentAvatarCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // High-DPI support
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
@@ -50,30 +77,64 @@ export function AgentAvatarCanvas() {
     const W = rect.width;
     const H = rect.height;
 
-    // Character center
+    // Character center — shifted slightly up to leave room for bottom HUD
     const cx = W / 2;
-    const cy = H / 2 + 10;
+    const cy = H * 0.42;
+    const SCALE = Math.min(W / 500, H / 600) * 2.2; // 2.2x scale factor
 
-    // Particles (increased count for richer scene)
-    const particles = Array.from({ length: 45 }, () => ({
+    // ─── Particles (60 floating dots) ───
+    const particles = Array.from({ length: 60 }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
-      speed: 0.2 + Math.random() * 0.5,
+      speed: 0.15 + Math.random() * 0.5,
       offset: Math.random() * Math.PI * 2,
-      size: 0.8 + Math.random() * 2,
-      alpha: 0.15 + Math.random() * 0.35,
+      size: 0.6 + Math.random() * 2.5,
+      alpha: 0.1 + Math.random() * 0.3,
     }));
 
-    // Orbiting ring particles (small dots on elliptical paths around character)
-    const ringParticles = Array.from({ length: 8 }, (_, i) => ({
-      angle: (Math.PI * 2 * i) / 8,
-      radiusX: 55 + Math.random() * 15,
-      radiusY: 20 + Math.random() * 8,
-      speed: 0.0003 + Math.random() * 0.0004,
-      size: 1 + Math.random() * 1.5,
-      yOff: cy + 5,
+    // ─── Energy ring particles (12 on elliptical orbit) ───
+    const ringParticles = Array.from({ length: 12 }, (_, i) => ({
+      angle: (Math.PI * 2 * i) / 12,
+      radiusX: (55 + Math.random() * 20) * SCALE * 0.5,
+      radiusY: (18 + Math.random() * 10) * SCALE * 0.5,
+      speed: 0.0004 + Math.random() * 0.0006,
+      size: (1.2 + Math.random() * 1.8) * SCALE * 0.5,
+      yOff: cy + 8 * SCALE * 0.5,
+      trail: [] as Array<{ x: number; y: number; a: number }>,
     }));
 
+    // ─── State-transition burst particles ───
+    const burstParticles: Array<{
+      x: number; y: number; vx: number; vy: number;
+      life: number; maxLife: number; size: number; color: string;
+    }> = [];
+
+    function spawnBurst(color: string, count: number) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.5 + Math.random() * 4;
+        burstParticles.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1, maxLife: 0.6 + Math.random() * 0.8,
+          size: 1.5 + Math.random() * 3,
+          color,
+        });
+      }
+    }
+
+    // ─── Wave rings (expanding circles on state change) ───
+    const waveRings: Array<{ x: number; y: number; radius: number; maxRadius: number; alpha: number; color: string }> = [];
+
+    function spawnWaveRing(color: string) {
+      waveRings.push({
+        x: cx, y: cy, radius: 10 * SCALE, maxRadius: Math.max(W, H) * 0.6,
+        alpha: 0.4, color,
+      });
+    }
+
+    // ─── MAIN DRAW LOOP ───
     function draw(t: number) {
       const dt = Math.min((t - prevTimeRef.current) / 1000, 0.1);
       prevTimeRef.current = t;
@@ -81,14 +142,126 @@ export function AgentAvatarCanvas() {
       const state = stateRef.current;
       const color = STATE_COLORS[state] || STATE_COLORS.idle;
 
-      // Background
-      ctx.fillStyle = '#050a08';
+      // ─── Check for state change → spawn effects ───
+      const timeSinceChange = (t - stateChangeTime.current) / 1000;
+      if (timeSinceChange < 0.1 && timeSinceChange > 0) {
+        spawnBurst(color, 25);
+        spawnWaveRing(color);
+      }
+
+      // ════════════════════════════════════════════════════
+      // BACKGROUND
+      // ════════════════════════════════════════════════════
+      // Base dark gradient
+      const bgGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
+      bgGrd.addColorStop(0, '#0a0f0d');
+      bgGrd.addColorStop(0.5, '#060b08');
+      bgGrd.addColorStop(1, '#030504');
+      ctx.fillStyle = bgGrd;
       ctx.fillRect(0, 0, W, H);
 
-      // Grid
-      ctx.strokeStyle = 'rgba(26, 58, 42, 0.3)';
+      // State-reactive ambient glow (big soft light behind character)
+      const ambGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200 * SCALE);
+      ambGrd.addColorStop(0, rgba(state, 0.12 + Math.sin(t * 0.001) * 0.04));
+      ambGrd.addColorStop(0.4, rgba(state, 0.05));
+      ambGrd.addColorStop(1, 'transparent');
+      ctx.fillStyle = ambGrd;
+      ctx.fillRect(0, 0, W, H);
+
+      // ─── STATE-SPECIFIC BACKGROUND EFFECTS ───
+
+      // THINKING: concentric brain-wave ripples
+      if (state === 'thinking') {
+        for (let i = 0; i < 4; i++) {
+          const phase = (t * 0.001 + i * 1.5) % 6;
+          const r = phase * 40 * SCALE * 0.5;
+          const a = Math.max(0, 0.15 - phase * 0.025);
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.strokeStyle = rgba('thinking', a);
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      // EXECUTING: energy surge lines
+      if (state === 'executing') {
+        for (let i = 0; i < 6; i++) {
+          const angle = (Math.PI * 2 * i / 6) + t * 0.002;
+          const innerR = 30 * SCALE;
+          const outerR = (80 + Math.sin(t * 0.005 + i) * 20) * SCALE * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
+          ctx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR);
+          ctx.strokeStyle = rgba('executing', 0.2 + Math.sin(t * 0.01 + i * 0.5) * 0.1);
+          ctx.lineWidth = 2 + Math.sin(t * 0.008 + i) * 1;
+          ctx.stroke();
+        }
+      }
+
+      // CELEBRATING: expanding golden rings
+      if (state === 'celebrating') {
+        for (let i = 0; i < 3; i++) {
+          const phase = ((t * 0.001 + i * 2) % 4) / 4;
+          const r = phase * 150 * SCALE * 0.5;
+          const a = Math.max(0, 0.25 * (1 - phase));
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.strokeStyle = rgba('celebrating', a);
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+
+      // ERROR: red warning pulses
+      if (state === 'error') {
+        const pulse = Math.sin(t * 0.008) * 0.5 + 0.5;
+        const errGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 120 * SCALE);
+        errGrd.addColorStop(0, rgba('error', 0.15 * pulse));
+        errGrd.addColorStop(1, 'transparent');
+        ctx.fillStyle = errGrd;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      // EVOLVING: spiral pattern
+      if (state === 'evolving') {
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 6; a += 0.05) {
+          const r = a * 8 * SCALE * 0.15;
+          const x = cx + Math.cos(a + t * 0.001) * r;
+          const y = cy + Math.sin(a + t * 0.001) * r;
+          if (a === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = rgba('evolving', 0.12);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // PLANNING: rotating hex grid (faint)
+      if (state === 'planning') {
+        const hexR = 25 * SCALE * 0.5;
+        const rot = t * 0.0005;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rot);
+        ctx.strokeStyle = rgba('planning', 0.08);
+        ctx.lineWidth = 0.8;
+        for (let row = -3; row <= 3; row++) {
+          for (let col = -3; col <= 3; col++) {
+            const hx = col * hexR * 1.8 + (row % 2) * hexR * 0.9;
+            const hy = row * hexR * 1.55;
+            drawHex(ctx, hx, hy, hexR * 0.8);
+          }
+        }
+        ctx.restore();
+      }
+
+      // ════════════════════════════════════════════════════
+      // GRID (very subtle)
+      // ════════════════════════════════════════════════════
+      ctx.strokeStyle = 'rgba(26, 58, 42, 0.15)';
       ctx.lineWidth = 0.5;
-      const gridSize = 30;
+      const gridSize = 40;
       for (let x = gridSize; x < W; x += gridSize) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       }
@@ -96,52 +269,127 @@ export function AgentAvatarCanvas() {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       }
 
-      // Particles
+      // ════════════════════════════════════════════════════
+      // PARTICLES
+      // ════════════════════════════════════════════════════
       for (const p of particles) {
-        p.x += Math.sin(t * 0.001 * p.speed + p.offset) * 0.3;
-        p.y += Math.cos(t * 0.0007 * p.speed + p.offset) * 0.3;
+        p.x += Math.sin(t * 0.001 * p.speed + p.offset) * 0.4;
+        p.y += Math.cos(t * 0.0007 * p.speed + p.offset) * 0.4;
         if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
         if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        // Tint particles with state color
+        const [pr, pg, pb] = STATE_RGBA[state] || STATE_RGBA.idle;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(165, 243, 252, ${p.alpha})`;
+        ctx.fillStyle = `rgba(${pr},${pg},${pb},${p.alpha * 0.6})`;
+        ctx.fill();
+        // White core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${p.alpha * 0.3})`;
         ctx.fill();
       }
 
-      // Orbiting ring (elliptical path around character)
-      const ringAlpha = 0.12 + Math.sin(t * 0.001) * 0.05;
-      ctx.strokeStyle = color + Math.round(ringAlpha * 255).toString(16).padStart(2, '0');
-      ctx.lineWidth = 0.8;
+      // ════════════════════════════════════════════════════
+      // ENERGY RING (orbiting particles with trails)
+      // ════════════════════════════════════════════════════
+      const ringAlpha = 0.15 + Math.sin(t * 0.001) * 0.08;
+      ctx.strokeStyle = rgba(state, ringAlpha);
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.ellipse(cx, cy + 5, 65, 22, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy + 8 * SCALE * 0.5, 65 * SCALE * 0.5, 22 * SCALE * 0.5, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Ring particles orbiting
+      // Second ring (tilted)
+      ctx.strokeStyle = rgba(state, ringAlpha * 0.5);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 80 * SCALE * 0.5, 15 * SCALE * 0.5, 0.3, 0, Math.PI * 2);
+      ctx.stroke();
+
       for (const rp of ringParticles) {
         rp.angle += rp.speed * (t % 100000);
         const rx = cx + Math.cos(rp.angle) * rp.radiusX;
         const ry = rp.yOff + Math.sin(rp.angle) * rp.radiusY;
+        // Store trail
+        rp.trail.push({ x: rx, y: ry, a: 0.6 });
+        if (rp.trail.length > 8) rp.trail.shift();
+        // Draw trail
+        for (let ti = 0; ti < rp.trail.length; ti++) {
+          const tp = rp.trail[ti];
+          tp.a *= 0.85;
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, rp.size * (ti / rp.trail.length) * 0.7, 0, Math.PI * 2);
+          ctx.fillStyle = rgba(state, tp.a * 0.3);
+          ctx.fill();
+        }
+        // Main dot
         ctx.beginPath();
         ctx.arc(rx, ry, rp.size, 0, Math.PI * 2);
-        ctx.fillStyle = color + '88';
+        ctx.fillStyle = rgba(state, 0.7);
+        ctx.fill();
+        // Glow
+        const rpGrd = ctx.createRadialGradient(rx, ry, 0, rx, ry, rp.size * 4);
+        rpGrd.addColorStop(0, rgba(state, 0.3));
+        rpGrd.addColorStop(1, 'transparent');
+        ctx.fillStyle = rpGrd;
+        ctx.fillRect(rx - rp.size * 4, ry - rp.size * 4, rp.size * 8, rp.size * 8);
+      }
+
+      // ════════════════════════════════════════════════════
+      // WAVE RINGS (expanding from state change)
+      // ════════════════════════════════════════════════════
+      for (let i = waveRings.length - 1; i >= 0; i--) {
+        const wr = waveRings[i];
+        wr.radius += dt * 200 * SCALE * 0.5;
+        wr.alpha *= 0.97;
+        if (wr.radius > wr.maxRadius || wr.alpha < 0.01) {
+          waveRings.splice(i, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(wr.x, wr.y, wr.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(state, wr.alpha);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // ════════════════════════════════════════════════════
+      // BURST PARTICLES (from state change)
+      // ════════════════════════════════════════════════════
+      for (let i = burstParticles.length - 1; i >= 0; i--) {
+        const bp = burstParticles[i];
+        bp.x += bp.vx;
+        bp.y += bp.vy;
+        bp.vx *= 0.97;
+        bp.vy *= 0.97;
+        bp.life -= dt / bp.maxLife;
+        if (bp.life <= 0) {
+          burstParticles.splice(i, 1);
+          continue;
+        }
+        const a = bp.life;
+        ctx.beginPath();
+        ctx.arc(bp.x, bp.y, bp.size * a, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(state, a * 0.8);
         ctx.fill();
       }
 
-      // Station markers with pulsing glow and connection lines to character
+      // ════════════════════════════════════════════════════
+      // STATION MARKERS (repositioned for bigger canvas)
+      // ════════════════════════════════════════════════════
       const stations = [
-        { x: cx - 80, y: cy - 60, label: 'LIBRARY', c: '#06b6d4' },
-        { x: cx + 80, y: cy - 60, label: 'OBSERV.', c: '#f97316' },
-        { x: cx, y: cy - 90, label: 'MAP', c: '#a855f7' },
-        { x: cx + 90, y: cy + 30, label: 'WORKSHOP', c: '#ef4444' },
-        { x: cx - 90, y: cy + 30, label: 'LAB', c: '#22c55e' },
-        { x: cx, y: cy + 70, label: 'PLAZA', c: '#eab308' },
+        { x: cx - 130 * SCALE * 0.5, y: cy - 100 * SCALE * 0.5, label: 'LIBRARY', c: '#06b6d4' },
+        { x: cx + 130 * SCALE * 0.5, y: cy - 100 * SCALE * 0.5, label: 'OBSERV.', c: '#f97316' },
+        { x: cx, y: cy - 150 * SCALE * 0.5, label: 'MAP', c: '#a855f7' },
+        { x: cx + 150 * SCALE * 0.5, y: cy + 50 * SCALE * 0.5, label: 'WORKSHOP', c: '#f43f5e' },
+        { x: cx - 150 * SCALE * 0.5, y: cy + 50 * SCALE * 0.5, label: 'LAB', c: '#22c55e' },
+        { x: cx, y: cy + 120 * SCALE * 0.5, label: 'PLAZA', c: '#eab308' },
       ];
 
-      // Connection lines from character center to each station (dashed, faint)
-      ctx.setLineDash([3, 5]);
+      ctx.setLineDash([3, 6]);
       ctx.lineWidth = 0.5;
       for (const s of stations) {
-        const lineAlpha = 0.08 + Math.sin(t * 0.002 + s.x * 0.01) * 0.04;
+        const lineAlpha = 0.06 + Math.sin(t * 0.002 + s.x * 0.01) * 0.03;
         ctx.strokeStyle = s.c + Math.round(lineAlpha * 255).toString(16).padStart(2, '0');
         ctx.beginPath();
         ctx.moveTo(cx, cy + 5);
@@ -150,105 +398,113 @@ export function AgentAvatarCanvas() {
       }
       ctx.setLineDash([]);
 
-      // Station dots with pulsing glow
       for (const s of stations) {
         const pulse = 1 + Math.sin(t * 0.004 + s.x * 0.02) * 0.3;
-        // Outer glow
-        const sgrd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 8 * pulse);
-        sgrd.addColorStop(0, s.c + '30');
+        const sgrd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 10 * pulse);
+        sgrd.addColorStop(0, s.c + '25');
         sgrd.addColorStop(1, 'transparent');
         ctx.fillStyle = sgrd;
-        ctx.fillRect(s.x - 10, s.y - 10, 20, 20);
-        // Core dot
-        ctx.fillStyle = s.c + '90';
-        ctx.beginPath(); ctx.arc(s.x, s.y, 2.5 * pulse, 0, Math.PI * 2); ctx.fill();
-        // Label (centered below the dot for better alignment)
-        ctx.fillStyle = s.c + '90';
-        ctx.font = '600 7px monospace';
+        ctx.fillRect(s.x - 12, s.y - 12, 24, 24);
+        ctx.fillStyle = s.c + '80';
+        ctx.beginPath(); ctx.arc(s.x, s.y, 3 * pulse, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = s.c + '80';
+        ctx.font = `600 ${Math.round(8 * SCALE * 0.6)}px monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText(s.label, s.x, s.y + 6);
+        ctx.fillText(s.label, s.x, s.y + 8);
       }
 
-      // Ground glow
-      const grd = ctx.createRadialGradient(cx, cy + 65, 5, cx, cy + 65, 50);
-      grd.addColorStop(0, color + '40');
-      grd.addColorStop(1, 'transparent');
-      ctx.fillStyle = grd;
-      ctx.fillRect(cx - 60, cy + 30, 120, 60);
+      // ════════════════════════════════════════════════════
+      // GROUND GLOW + ENERGY AURA
+      // ════════════════════════════════════════════════════
+      const groundGrd = ctx.createRadialGradient(cx, cy + 65 * SCALE * 0.5, 5, cx, cy + 65 * SCALE * 0.5, 60 * SCALE * 0.5);
+      groundGrd.addColorStop(0, rgba(state, 0.25));
+      groundGrd.addColorStop(1, 'transparent');
+      ctx.fillStyle = groundGrd;
+      ctx.fillRect(cx - 80 * SCALE * 0.5, cy + 20 * SCALE * 0.5, 160 * SCALE * 0.5, 100 * SCALE * 0.5);
 
-      // ── CHARACTER ──
-      const breathe = Math.sin(t * 0.003) * 2;
-      const headY = cy - 35 + breathe;
-      const bodyY = cy + 5 + breathe * 0.5;
+      // Energy aura around character (pulsing)
+      const auraSize = (50 + Math.sin(t * 0.002) * 10) * SCALE * 0.5;
+      const auraGrd = ctx.createRadialGradient(cx, cy, 10 * SCALE * 0.5, cx, cy, auraSize);
+      auraGrd.addColorStop(0, rgba(state, 0.08 + Math.sin(t * 0.003) * 0.04));
+      auraGrd.addColorStop(0.7, rgba(state, 0.02));
+      auraGrd.addColorStop(1, 'transparent');
+      ctx.fillStyle = auraGrd;
+      ctx.beginPath();
+      ctx.arc(cx, cy, auraSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ════════════════════════════════════════════════════
+      // CHARACTER (2.5x bigger)
+      // ════════════════════════════════════════════════════
+      const breathe = Math.sin(t * 0.003) * 2.5 * SCALE * 0.5;
+      const headY = cy - 35 * SCALE * 0.5 + breathe;
+      const bodyY = cy + 5 * SCALE * 0.5 + breathe * 0.5;
 
       // Body
       ctx.fillStyle = color;
-      roundRect(ctx, cx - 22, bodyY - 20, 44, 48, 8);
+      roundRect(ctx, cx - 22 * SCALE * 0.5, bodyY - 20 * SCALE * 0.5, 44 * SCALE * 0.5, 48 * SCALE * 0.5, 8 * SCALE * 0.5);
       ctx.fill();
 
       // Belt
       ctx.fillStyle = '#3a3a3a';
-      ctx.fillRect(cx - 23, bodyY + 18, 46, 4);
+      ctx.fillRect(cx - 23 * SCALE * 0.5, bodyY + 18 * SCALE * 0.5, 46 * SCALE * 0.5, 4 * SCALE * 0.5);
 
       // Scarf
       ctx.fillStyle = color + 'CC';
-      roundRect(ctx, cx - 16, bodyY - 26, 32, 8, 3);
+      roundRect(ctx, cx - 16 * SCALE * 0.5, bodyY - 26 * SCALE * 0.5, 32 * SCALE * 0.5, 8 * SCALE * 0.5, 3 * SCALE * 0.5);
       ctx.fill();
 
       // Arms
-      const armSwing = state === 'executing' ? Math.sin(t * 0.008) * 15 :
-                       state === 'celebrating' ? -40 + Math.sin(t * 0.012) * 10 :
-                       state === 'thinking' ? 5 :
-                       state === 'error' ? -30 + Math.sin(t * 0.02) * 5 :
-                       Math.sin(t * 0.002) * 3;
+      const armSwing = state === 'executing' ? Math.sin(t * 0.008) * 18 :
+                       state === 'celebrating' ? -45 + Math.sin(t * 0.012) * 12 :
+                       state === 'thinking' ? 8 :
+                       state === 'error' ? -35 + Math.sin(t * 0.02) * 8 :
+                       Math.sin(t * 0.002) * 4;
 
-      // Left arm
       ctx.save();
-      ctx.translate(cx - 25, bodyY - 14);
+      ctx.translate(cx - 25 * SCALE * 0.5, bodyY - 14 * SCALE * 0.5);
       ctx.rotate((15 + armSwing) * Math.PI / 180);
       ctx.fillStyle = '#FFD5B8';
-      roundRect(ctx, -5, 0, 10, 35, 5);
+      roundRect(ctx, -5 * SCALE * 0.5, 0, 10 * SCALE * 0.5, 35 * SCALE * 0.5, 5 * SCALE * 0.5);
       ctx.fill();
       ctx.restore();
 
-      // Right arm
       ctx.save();
-      ctx.translate(cx + 25, bodyY - 14);
+      ctx.translate(cx + 25 * SCALE * 0.5, bodyY - 14 * SCALE * 0.5);
       ctx.rotate((-15 - armSwing) * Math.PI / 180);
       ctx.fillStyle = '#FFD5B8';
-      roundRect(ctx, -5, 0, 10, 35, 5);
+      roundRect(ctx, -5 * SCALE * 0.5, 0, 10 * SCALE * 0.5, 35 * SCALE * 0.5, 5 * SCALE * 0.5);
       ctx.fill();
       ctx.restore();
 
       // Legs
-      const legSwing = Math.sin(t * 0.005) * 3;
+      const legSwing = Math.sin(t * 0.005) * 4;
       ctx.fillStyle = '#37474F';
-      roundRect(ctx, cx - 14 + legSwing, bodyY + 22, 12, 30, 4);
+      roundRect(ctx, cx - 14 * SCALE * 0.5 + legSwing, bodyY + 22 * SCALE * 0.5, 12 * SCALE * 0.5, 30 * SCALE * 0.5, 4 * SCALE * 0.5);
       ctx.fill();
-      roundRect(ctx, cx + 2 - legSwing, bodyY + 22, 12, 30, 4);
+      roundRect(ctx, cx + 2 * SCALE * 0.5 - legSwing, bodyY + 22 * SCALE * 0.5, 12 * SCALE * 0.5, 30 * SCALE * 0.5, 4 * SCALE * 0.5);
       ctx.fill();
 
       // Shoes
       ctx.fillStyle = '#5D4037';
-      ctx.fillRect(cx - 16 + legSwing, bodyY + 48, 16, 5);
-      ctx.fillRect(cx, bodyY + 48 - legSwing, 16, 5);
+      ctx.fillRect(cx - 16 * SCALE * 0.5 + legSwing, bodyY + 48 * SCALE * 0.5, 16 * SCALE * 0.5, 5 * SCALE * 0.5);
+      ctx.fillRect(cx, bodyY + 48 * SCALE * 0.5 - legSwing, 16 * SCALE * 0.5, 5 * SCALE * 0.5);
 
       // Head
       ctx.fillStyle = '#FFD5B8';
       ctx.beginPath();
-      ctx.arc(cx, headY, 32, 0, Math.PI * 2);
+      ctx.arc(cx, headY, 32 * SCALE * 0.5, 0, Math.PI * 2);
       ctx.fill();
 
       // Hair
       ctx.fillStyle = '#4A3728';
       ctx.beginPath();
-      ctx.arc(cx, headY - 5, 34, Math.PI, 0);
+      ctx.arc(cx, headY - 5 * SCALE * 0.5, 34 * SCALE * 0.5, Math.PI, 0);
       ctx.fill();
-      // Bangs
-      ctx.fillRect(cx - 25, headY - 18, 50, 10);
+      ctx.fillRect(cx - 25 * SCALE * 0.5, headY - 18 * SCALE * 0.5, 50 * SCALE * 0.5, 10 * SCALE * 0.5);
 
-      // Blink logic
+      // Blink
       blinkTimer.current += dt;
       if (blinkTimer.current > nextBlink.current) {
         isBlinking.current = true;
@@ -259,80 +515,89 @@ export function AgentAvatarCanvas() {
         }
       }
 
-      // Eyes
-      const mx = (mouseRef.current.x - 0.5) * 4;
-      const my = (mouseRef.current.y - 0.5) * 2;
+      // Eyes (with mouse tracking)
+      const mx = (mouseRef.current.x - 0.5) * 5;
+      const my = (mouseRef.current.y - 0.5) * 3;
 
+      const eyeScale = SCALE * 0.5;
       if (!isBlinking.current) {
-        // Eye whites
         ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.ellipse(cx - 12, headY + 2, 8, 9, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(cx + 12, headY + 2, 8, 9, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx - 12 * eyeScale, headY + 2 * eyeScale, 8 * eyeScale, 9 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx + 12 * eyeScale, headY + 2 * eyeScale, 8 * eyeScale, 9 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
         // Pupils
         ctx.fillStyle = '#1a1a2e';
-        ctx.beginPath(); ctx.arc(cx - 12 + mx, headY + 2 + my, 4.5, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + 12 + mx, headY + 2 + my, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx - 12 * eyeScale + mx, headY + 2 * eyeScale + my, 4.5 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + 12 * eyeScale + mx, headY + 2 * eyeScale + my, 4.5 * eyeScale, 0, Math.PI * 2); ctx.fill();
         // Highlights
         ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(cx - 10 + mx, headY - 1 + my, 2, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + 14 + mx, headY - 1 + my, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx - 10 * eyeScale + mx, headY - 1 * eyeScale + my, 2 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + 14 * eyeScale + mx, headY - 1 * eyeScale + my, 2 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        // State-tinted eye glow
+        const eyeGlow = ctx.createRadialGradient(cx, headY + 2 * eyeScale, 0, cx, headY + 2 * eyeScale, 20 * eyeScale);
+        eyeGlow.addColorStop(0, rgba(state, 0.06));
+        eyeGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = eyeGlow;
+        ctx.fillRect(cx - 25 * eyeScale, headY - 20 * eyeScale, 50 * eyeScale, 40 * eyeScale);
       } else {
-        // Closed eyes
         ctx.strokeStyle = '#1a1a2e';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(cx - 18, headY + 2); ctx.lineTo(cx - 6, headY + 2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cx + 6, headY + 2); ctx.lineTo(cx + 18, headY + 2); ctx.stroke();
+        ctx.lineWidth = 2 * eyeScale;
+        ctx.beginPath(); ctx.moveTo(cx - 18 * eyeScale, headY + 2 * eyeScale); ctx.lineTo(cx - 6 * eyeScale, headY + 2 * eyeScale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx + 6 * eyeScale, headY + 2 * eyeScale); ctx.lineTo(cx + 18 * eyeScale, headY + 2 * eyeScale); ctx.stroke();
       }
 
       // Blush
       if (state === 'celebrating' || state === 'thinking') {
         ctx.fillStyle = 'rgba(255, 153, 153, 0.35)';
-        ctx.beginPath(); ctx.ellipse(cx - 22, headY + 8, 6, 4, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(cx + 22, headY + 8, 6, 4, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx - 22 * eyeScale, headY + 8 * eyeScale, 6 * eyeScale, 4 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx + 22 * eyeScale, headY + 8 * eyeScale, 6 * eyeScale, 4 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
       }
 
       // Mouth
-      ctx.fillStyle = '#cc6666';
-      const mouthW = state === 'error' ? 6 : state === 'celebrating' ? 5 : 4;
-      const mouthH = state === 'error' ? 2 : state === 'celebrating' ? 5 : 3;
+      ctx.fillStyle = state === 'error' ? '#cc4444' : state === 'celebrating' ? '#dd8844' : '#cc6666';
+      const mouthW = (state === 'error' ? 6 : state === 'celebrating' ? 5 : 4) * eyeScale;
+      const mouthH = (state === 'error' ? 2 : state === 'celebrating' ? 5 : 3) * eyeScale;
       ctx.beginPath();
-      ctx.ellipse(cx, headY + 15, mouthW, mouthH, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, headY + 15 * eyeScale, mouthW, mouthH, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Floating orb with trail
+      // ════════════════════════════════════════════════════
+      // FLOATING ORB with trail
+      // ════════════════════════════════════════════════════
       const orbAngle = t * 0.002;
-      const orbX = cx + Math.sin(orbAngle) * 40;
-      const orbY = headY - 30 + Math.cos(t * 0.003) * 10;
-      const orbSize = 6 + Math.sin(t * 0.006) * 2;
+      const orbX = cx + Math.sin(orbAngle) * 50 * SCALE * 0.5;
+      const orbY = headY - 35 * SCALE * 0.5 + Math.cos(t * 0.003) * 12;
+      const orbSize = (7 + Math.sin(t * 0.006) * 2.5) * SCALE * 0.5;
 
-      // Trail (3 ghost orbs behind main)
-      for (let ti = 1; ti <= 3; ti++) {
-        const trailAngle = orbAngle - ti * 0.15;
-        const tx = cx + Math.sin(trailAngle) * 40;
-        const ty = headY - 30 + Math.cos(t * 0.003 - ti * 0.1) * 10;
-        const tAlpha = 0.15 / ti;
-        ctx.fillStyle = color + Math.round(tAlpha * 255).toString(16).padStart(2, '0');
-        ctx.beginPath(); ctx.arc(tx, ty, orbSize * (1 - ti * 0.15), 0, Math.PI * 2); ctx.fill();
+      // Trail (4 ghost orbs)
+      for (let ti = 1; ti <= 4; ti++) {
+        const trailAngle = orbAngle - ti * 0.18;
+        const tx = cx + Math.sin(trailAngle) * 50 * SCALE * 0.5;
+        const ty = headY - 35 * SCALE * 0.5 + Math.cos(t * 0.003 - ti * 0.12) * 12;
+        const tAlpha = 0.2 / ti;
+        ctx.fillStyle = rgba(state, tAlpha);
+        ctx.beginPath(); ctx.arc(tx, ty, orbSize * (1 - ti * 0.12), 0, Math.PI * 2); ctx.fill();
       }
 
       // Main orb glow
-      const orbGrd = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbSize * 3);
-      orbGrd.addColorStop(0, color + 'AA');
-      orbGrd.addColorStop(0.3, color + '44');
+      const orbGrd = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, orbSize * 4);
+      orbGrd.addColorStop(0, rgba(state, 0.7));
+      orbGrd.addColorStop(0.3, rgba(state, 0.25));
       orbGrd.addColorStop(1, 'transparent');
       ctx.fillStyle = orbGrd;
-      ctx.fillRect(orbX - orbSize * 3, orbY - orbSize * 3, orbSize * 6, orbSize * 6);
-      // Main orb
+      ctx.fillRect(orbX - orbSize * 4, orbY - orbSize * 4, orbSize * 8, orbSize * 8);
+      // Main orb core
       ctx.fillStyle = color;
       ctx.beginPath(); ctx.arc(orbX, orbY, orbSize, 0, Math.PI * 2); ctx.fill();
       // Highlight
       ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(orbX - 1, orbY - 1, orbSize * 0.3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(orbX - orbSize * 0.15, orbY - orbSize * 0.15, orbSize * 0.35, 0, Math.PI * 2); ctx.fill();
 
-      // Vignette overlay for depth
-      const vigGrd = ctx.createRadialGradient(W / 2, H / 2, W * 0.25, W / 2, H / 2, W * 0.7);
+      // ════════════════════════════════════════════════════
+      // VIGNETTE
+      // ════════════════════════════════════════════════════
+      const vigGrd = ctx.createRadialGradient(W / 2, H / 2, W * 0.2, W / 2, H / 2, W * 0.75);
       vigGrd.addColorStop(0, 'transparent');
-      vigGrd.addColorStop(1, 'rgba(0,0,0,0.4)');
+      vigGrd.addColorStop(1, 'rgba(0,0,0,0.5)');
       ctx.fillStyle = vigGrd;
       ctx.fillRect(0, 0, W, H);
 
@@ -347,13 +612,13 @@ export function AgentAvatarCanvas() {
     <canvas
       ref={canvasRef}
       onPointerMove={handlePointerMove}
-      className="w-full aspect-square max-w-[560px] mx-auto rounded-2xl cursor-crosshair"
+      className="absolute inset-0 w-full h-full cursor-crosshair"
       style={{ background: '#050a08' }}
     />
   );
 }
 
-/* ── Helper: rounded rectangle ── */
+/* ── Helpers ── */
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -366,4 +631,16 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+}
+
+function drawHex(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    const px = x + r * Math.cos(angle);
+    const py = y + r * Math.sin(angle);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
 }

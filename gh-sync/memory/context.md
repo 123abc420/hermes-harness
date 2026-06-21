@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 08:20 UTC+8
+2026-06-21 09:15 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 229)
-- **Waves in DB**: 158
+- **Phase**: Post-Compliance Evolution (Wave 228)
+- **Waves in DB**: 159
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -15,11 +15,11 @@
 |--------|-------|
 | API routes | 16 |
 | Dashboard tabs | 6 |
-| Skills | 9 (+ 1 template) |
+| Skills | 10 (+ 1 template) |
 | Components | 23 |
 | Exported components | 10 |
-| GitHub commits | ~404 |
-| Waves in DB | 158 |
+| GitHub commits | ~406 |
+| Waves in DB | 159 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
 | execSync calls | 0 |
@@ -30,15 +30,17 @@
 | Bare req.json() calls | 0 |
 | Ungated client console.warn | 0 |
 | Shared zod schemas | 8 |
-| Skills tracked in git | 9 (+ 1 template) |
+| Skills tracked in git | 10 (+ 1 template) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
-- Skills API, agent-status validation, demo auth, SSE cancel(), async execFile
-- Centralized logger (logError + logDebug) across all 14 API routes
-- ALL client-side fetch calls check .ok before .json()
-- Wave replay auto-stops, phase timeline labeled estimated
-- Shared zod schemas with 8 input validators + validationError helper
+- **Agent Live is now full-screen immersive "Mind's Eye"** (W228)
+- Full-bleed canvas (80vh) with HUD overlay panels
+- Character 2.5x bigger with state-reactive backgrounds (6 patterns)
+- Particle bursts + wave rings on state transitions
+- 60 floating particles, 12 orbiting with trails, dual rings
+- Energy aura around character, state-tinted effects
+- agent-live-broadcast skill for real-time wave updates
 - 2D Canvas avatar with orbiting ring, particle trails, station glow, vignette
 - Stat card sparklines with gradient area fill + end-dot indicator
 - Health score guarded against 0/0 NaN
@@ -48,6 +50,6 @@
 - Page compiles in <1s
 
 ## What's next
-1. Consider per-wave replay with real phase data (requires schema change)
-2. Consider adding more chart types to Analytics tab
-3. Consider keyboard shortcut overlay (Cmd+K palette)
+1. Use agent-live-broadcast skill in every wave to make Agent Live truly real-time
+2. Per-wave replay with real phase data (requires schema change)
+3. Consider adding more chart types to Analytics tab

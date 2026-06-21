@@ -136,3 +136,17 @@
 - `setTimeout` in API routes is unreliable — serverless/edge runtimes freeze the function after response is sent. The timer never fires.
 - For status machines (syncing → connected), perform the real work inline and update status in the same request lifecycle.
 - If simulating async work, use a polling pattern from the client instead of server-side setTimeout.
+## Agent Live Visual Design
+
+- Full-bleed canvas with HUD overlays > 2-column grid. The character should dominate the view.
+- Canvas `position: absolute; inset-0; w-full h-full` inside a relative container gives the panel full control over canvas sizing.
+- State-reactive backgrounds (brain waves, energy surges, spirals) make the avatar feel alive even when no data arrives.
+- Particle bursts on state transitions provide immediate visual feedback for status changes.
+- `rgba()` helper function with pre-computed RGB tuples per state is more efficient than string parsing in the draw loop.
+- Scale factor `Math.min(W/500, H/600) * 2.2` keeps character proportional across screen sizes.
+
+## Real-Time Broadcast Pattern
+
+- Agent Live is dead without POST updates to `/api/harness/agent-status` during waves.
+- The `agent-live-broadcast` skill provides a curl-based protocol for phase-by-phase updates.
+- State → visual mapping matters: thinking=brain waves, executing=energy surges, celebrating=golden rings, error=red pulse, evolving=spiral, planning=hex grid.
