@@ -280,6 +280,20 @@
   50% { transform: scaleY(0.3); }
 }
 
+/* Respect prefers-reduced-motion for Tailwind animation utilities and custom keyframes */
+@media (prefers-reduced-motion: reduce) {
+  .animate-ping,
+  .animate-pulse {
+    animation: none !important;
+  }
+  .hero-glow-border::before {
+    animation: none !important;
+  }
+  .shimmer-card::after {
+    animation: none !important;
+  }
+}
+
 /* Parallax dot pattern (set via JS inline style) */
 .dot-pattern-parallax {
   will-change: background-position;

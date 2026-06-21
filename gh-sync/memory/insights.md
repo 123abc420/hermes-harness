@@ -122,3 +122,17 @@
 - POST routes that create records MUST accept an ID/key for upsert — otherwise callers create duplicates when trying to update. The waves POST created phantom entries for years before W278 fixed it.
 - Zod schema strips unknown fields silently. If the wave protocol sends `waveNumber` and `status` but the schema only accepts `summary`, those fields vanish without error.
 - Use Prisma-generated types (`HarnessWaveUpdateInput`) for update data, not `Record<string, unknown>`. Prisma validates types at compile time.
+
+## Zustand Subscription Patterns
+
+- `useStore()` without a selector subscribes to the ENTIRE store — every field change triggers re-render. Always use `useStore(s => s.field)` for stable refs like functions, or `useShallow` for multiple fields.
+- Zustand actions (functions) are stable references — selecting `s => s.setStatus` never causes re-renders.
+
+## Accessibility — Layered Reduced-Motion
+
+- framer-motion components need JS-level `usePrefersReducedMotion()` (W277). But CSS `@keyframes` animations (animate-ping, animate-pulse, custom rotations) bypass React entirely.
+- The global CSS `@media (prefers-reduced-motion: reduce)` rule is the safety net for all non-framer-motion animations. Add it once in globals.css.
+
+## Spec Compliance Accuracy
+
+- Hardcoded `done: true` in checklists creates false compliance signals. Every checklist item should either be dynamically checked or honestly reflect what exists.

@@ -18,7 +18,7 @@ import { fetchJSON } from '@/lib/fetch-json';
 const API_BASE = '/api/harness';
 
 export function useHarnessDashboard() {
-  const { setStatus } = useAgentLiveStore();
+  const setStatus = useAgentLiveStore(s => s.setStatus);
 
   const query = useQuery<DashboardData>({
     queryKey: ['harness-dashboard'],

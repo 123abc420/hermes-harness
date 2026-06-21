@@ -6021,3 +6021,24 @@ Work Log:
 Stage Summary:
 - 2 files changed (wave_protocol.md, context.md). Protocol documentation now matches actual API behavior.
 - Lint: 0. TypeScript: 0.
+---
+Task ID: W282
+Agent: Wave Engine
+Task: Wave 282 — Performance + Accessibility + Spec Compliance
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0. Deep scan found 10 issues: 2 HIGH (Zustand whole-store sub, 17 framer-motion files w/o reduced-motion), 5 MEDIUM (SVG ARIA, native SVG animations, animate-ping/pulse, false spec claim, redundant fetch), 3 LOW.
+- PLAN: Selected 3 improvements (max 3 per guardrails):
+  1. HIGH — Fix Zustand whole-store subscription in useHarnessDashboard (selector pattern)
+  2. MEDIUM — Global CSS reduced-motion overrides for animate-ping, animate-pulse, hero-glow, shimmer
+  3. MEDIUM — Fix false "Agent Live 3D" spec compliance claim → actual feature name
+- EXECUTE:
+  1. use-harness-data.ts: `const { setStatus } = useAgentLiveStore()` → `const setStatus = useAgentLiveStore(s => s.setStatus)` — eliminates re-renders on every SSE activity.
+  2. globals.css: Added `@media (prefers-reduced-motion: reduce)` block disabling animate-ping, animate-pulse, hero-glow-border::before, shimmer-card::after animations.
+  3. spec-compliance-card.tsx: Changed "Agent Live 3D (VRM walk + Chibi gestures)" → "Agent Live Panel (SVG node graph + SSE)".
+- VERIFY: Lint 0, tsc 0, dev.log clean.
+- PERSIST: Wave #282 recorded (3 decisions), GitHub sync (commit 527), context.md + insights.md updated.
+
+Stage Summary:
+- 3 files changed. Zustand subscription perf fix, CSS-level reduced-motion safety net, spec compliance accuracy.
+- Lint: 0. TypeScript: 0. Health: 100/100.

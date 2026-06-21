@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 22:34 UTC+8
+2026-06-21 22:48 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 281)
-- **Spec compliance**: 100% (16/16)
+- **Phase**: Health-100 Era (Wave 282)
+- **Spec compliance**: 100% (16/16, corrected false 3D claim)
 
 ## Current Metrics
 | Metric | Value |
@@ -17,8 +17,8 @@
 | Skills | 11 (+ 1 template) |
 | Components | 20 |
 | Exported components | 13 |
-| GitHub commits | ~526 |
-| Waves in DB | 196 |
+| GitHub commits | ~527 |
+| Waves in DB | 197 |
 | TS errors | 0 (enforced, ignoreBuildErrors removed) |
 | Lint errors | 0 |
 | Health score | 100/100 |
@@ -31,9 +31,10 @@
 - Wave protocol v3.0: node graph broadcast format (node/node-remove/node-pulse/node-clear)
 - VERIFY phase: lint + tsc --noEmit (type errors caught early)
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
-- prefers-reduced-motion: usePrefersReducedMotion hook, AnimatedNumber + AnimatedSection respect it
+- prefers-reduced-motion: hook (AnimatedNumber/AnimatedSection) + global CSS overrides (ping/pulse/hero-glow/shimmer)
 
 ## What's next
 1. Persist wave activities to DB for cross-reload replay
 2. Live view — show wave execution in real-time (user deferred)
 3. More analytics charts
+4. 15 remaining framer-motion files for individual reduced-motion integration (W282 addressed CSS-level; JS-level optional)

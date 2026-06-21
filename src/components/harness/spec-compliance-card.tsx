@@ -16,7 +16,7 @@ const SPEC_CHECKLIST = (skillsCount?: number) => [
   { label: 'Memory & Context System', done: true },
   { label: `Skills System (${skillsCount ?? '...'} skills)`, done: (skillsCount ?? 0) > 0 },
   { label: 'Export Contract (src/index.ts)', done: true },
-  { label: 'Agent Live 3D (VRM walk + Chibi gestures)', done: true },
+  { label: 'Agent Live Panel (SVG node graph + SSE)', done: true },
   { label: 'Cron Jobs (2 active)', done: true },
   { label: 'user_profile.md', done: true },
   { label: 'wave_protocol.md', done: true },
