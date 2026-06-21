@@ -6211,3 +6211,19 @@ Stage Summary:
 - SVG pattern ID collision-safe via React useId()
 - 5th consecutive wave with 0 lint, 0 tsc — system at peak quality
 - Lint: 0. TypeScript: 0. Health: 100/100.
+
+---
+Task ID: 289
+Agent: Main Orchestrator
+Task: Wave 289 — Defensive DB hardening: add take limits to unbounded findMany queries
+
+Work Log:
+- ASSESS: Full codebase scan — 0 TODO/FIXME, 0 eslint-disable, 0 @ts-ignore, 0 console.warn in client code, 0 useStore() without selector, 19/19 framer-motion files with reduced-motion, 0 any types. Dev.log clean (only Prisma queries). Found 3 API routes with unbounded findMany.
+- PLAN: (1) Add `take: 50` to exports/route.ts findMany. (2) Add `take: 100` to config/route.ts findMany. (3) Add `take: 100` and `take: 50` to dashboard/route.ts config+exports findMany.
+- EXECUTE: Edited 3 files: exports/route.ts, config/route.ts, dashboard/route.ts — added defensive take limits.
+- VERIFY: `bun run lint` — 0 errors. `npx tsc --noEmit` — 0 errors. Dashboard API returns OK.
+
+Stage Summary:
+- 3 unbounded findMany queries now have explicit take limits
+- Defensive improvement: prevents potential OOM if tables grow unexpectedly
+- Lint: 0. TypeScript: 0. Health: 100/100.

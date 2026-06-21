@@ -5,7 +5,7 @@ import { updateConfigSchema, validationErrorFromResult } from '@/lib/schemas';
 
 export async function GET() {
   try {
-    const configs = await db.harnessConfig.findMany();
+    const configs = await db.harnessConfig.findMany({ take: 100 });
     const configMap: Record<string, string> = {};
     for (const c of configs) {
       configMap[c.key] = c.value;

@@ -77,8 +77,8 @@ export async function GET() {
         take: 100,
       }).catch((e) => { logDebug('DASHBOARD', 'Metrics query failed (bad row)', { error: String(e) }); return [] as HarnessMetric[]; }),
       db.gitHubSync.findFirst(),
-      db.harnessConfig.findMany(),
-      db.harnessExport.findMany({ orderBy: { createdAt: 'desc' } }),
+      db.harnessConfig.findMany({ take: 100 }),
+      db.harnessExport.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
       db.harnessDecision.findMany({
         orderBy: { createdAt: 'desc' },
         take: 50,

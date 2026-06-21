@@ -4,7 +4,10 @@ import { logError } from '@/lib/logger';
 
 export async function GET() {
   try {
-    const exports = await db.harnessExport.findMany({ orderBy: { createdAt: 'desc' } });
+    const exports = await db.harnessExport.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
     return NextResponse.json({ exports });
   } catch (error) {
     logError('EXPORTS', error);
