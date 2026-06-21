@@ -73,10 +73,9 @@ export function OverviewTab() {
     if (waves.length < 2 || !firstWave?.startedAt || !waves[0]?.startedAt) return null;
     const ms = (new Date(waves[0].startedAt).getTime() - new Date(firstWave.startedAt).getTime()) / 3_600_000;
     return ms > 0 ? (waves.length / ms).toFixed(1) : null;
-  }, [waves, firstWave?.startedAt, waves[0]?.startedAt]);
+  }, [waves, firstWave, waves[0]]);
 
-  // Compute dynamic error trend for spec compliance
-  const isErrorsDecreasing = isErrorsTrendingDown(dash?.errorTrend ?? []);
+  // Compute dynamic error trend for spec compliance (already memoized above)
 
   // Extract npm_dependencies from metrics
   const npmDep = dash?.metrics?.find(m => m.metricKey === 'npm_dependencies');
