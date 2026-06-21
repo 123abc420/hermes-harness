@@ -116,15 +116,18 @@ export async function GET() {
     const recentCommits = git.commits;
     const lastSha = git.lastSha ?? githubSync?.lastCommitSha ?? '';
 
-    // Wave success rate (overall)
+    // Wave success rate (overall) — exclude "interrupted" (infrastructure artifacts, not agent failures)
     const completedCount = waveCounts.find((w) => w.status === 'completed')?._count ?? 0;
-    const totalWaveCount = waveCounts.reduce((s, w) => s + w._count, 0);
-    const waveSuccessRate = totalWaveCount > 0 ? Math.round((completedCount / totalWaveCount) * 100) : 0;
+    const nonInterruptedTotal = waveCounts
+      .filter((w) => w.status !== 'interrupted')
+      .reduce((s, w) => s + w._count, 0);
+    const waveSuccessRate = nonInterruptedTotal > 0 ? Math.round((completedCount / nonInterruptedTotal) * 100) : 0;
 
-    // Recent success rate (last 5 waves) — already fetched in batch above
-    const recentCompleted = recentWavesForRate.filter((w) => w.status === 'completed').length;
-    const recentSuccessRate = recentWavesForRate.length > 0
-      ? Math.round((recentCompleted / recentWavesForRate.length) * 100)
+    // Recent success rate (last 5 waves) — exclude "interrupted" from denominator
+    const recentReal = recentWavesForRate.filter((w) => w.status !== 'interrupted');
+    const recentCompleted = recentReal.filter((w) => w.status === 'completed').length;
+    const recentSuccessRate = recentReal.length > 0
+      ? Math.round((recentCompleted / recentReal.length) * 100)
       : 0;
 
     // Skills count (md files in gh-sync/skills/, excluding _template.md)

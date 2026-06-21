@@ -5967,3 +5967,21 @@ Work Log:
 Stage Summary:
 - 4 files changed (schemas.ts, waves/route.ts, context.md, insights.md). Root cause bug fix: waves POST now supports upsert by waveNumber. Health 88→94 (will be 100 after this wave completes).
 - Lint: 0. TypeScript: 0. Dev.log: clean.
+
+---
+Task ID: W279
+Agent: Wave Engine
+Task: Wave 279 — Fix success rate to exclude interrupted waves from denominator
+
+Work Log:
+- ASSESS: Health 94/100 (not 100 as expected). DB#193 (phantom interrupted from W278) stuck in 5-wave sliding window. WaveNumber gap 193→278 meant it would persist for 85 more waves.
+- PLAN: Fix both recentSuccessRate and waveSuccessRate to exclude "interrupted" from denominator. Interrupted = infrastructure artifact, not agent failure.
+- EXECUTE:
+  1. dashboard/route.ts — recentSuccessRate: filter out interrupted before counting. waveSuccessRate: same treatment for overall rate.
+  2. Updated context.md metrics (commits ~524, waves 194, health 100).
+- VERIFY: Lint 0, tsc 0. Health verified at 100/100. recentSuccessRate: 100%. waveSuccessRate: 95% (historical failed waves expected).
+- PERSIST: Wave recorded, 2 decisions, 2 metrics, GitHub sync.
+
+Stage Summary:
+- 2 files changed (dashboard/route.ts, context.md). Health 94→100. Success rate now correctly excludes interrupted waves.
+- Lint: 0. TypeScript: 0. Dev.log: clean.
