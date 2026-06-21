@@ -1,5 +1,4 @@
-import { NextResponse } from 'next/server';
-import { formatArgentinaTime } from '@/lib/constants';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET /api/harness/agent-status/seed — return seed info
 export async function GET() {
@@ -7,12 +6,17 @@ export async function GET() {
 }
 
 // POST /api/harness/agent-status/seed — seeds demo live activity
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
+    // Derive base URL from request headers (works in any deployment environment)
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
+    const proto = req.headers.get('x-forwarded-proto') || 'http';
+    const baseUrl = `${proto}://${host}`;
+
     const demoActivities = [
       { agentState: 'thinking', message: 'Analyzing codebase structure...', phase: 'assess' },
       { agentState: 'searching', message: 'Scanning for potential improvements...', phase: 'assess' },
-      { agentState: 'thinking', message: 'Evaluating health metrics: 76/100', phase: 'assess' },
+      { agentState: 'thinking', message: 'Evaluating health metrics...', phase: 'assess' },
       { agentState: 'planning', message: 'Generating wave execution plan...', phase: 'plan' },
       { agentState: 'planning', message: 'Prioritizing: dashboard UX > API stability > docs', phase: 'plan' },
       { agentState: 'executing', message: 'Refactoring agent avatar canvas renderer...', phase: 'execute' },
@@ -20,25 +24,15 @@ export async function POST() {
       { agentState: 'executing', message: 'Implementing neural web visualization layer', phase: 'execute' },
       { agentState: 'verifying', message: 'Running lint checks... 0 errors found', phase: 'verify' },
       { agentState: 'verifying', message: 'Browser QA: all interactions verified', phase: 'verify' },
-      { agentState: 'celebrating', message: 'Wave W228 complete! 3 improvements applied.', phase: 'report' },
+      { agentState: 'celebrating', message: 'Wave complete! 3 improvements applied.', phase: 'report' },
     ];
 
-    const baseUrl = 'http://localhost:3000';
-
-    for (let i = 0; i < demoActivities.length; i++) {
-      const act = demoActivities[i];
-      const entry = {
-        type: 'activity',
-        ...act,
-      };
-
+    for (const act of demoActivities) {
       await fetch(`${baseUrl}/api/harness/agent-status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
+        body: JSON.stringify({ type: 'activity', ...act }),
       }).catch(() => {});
-
-      await new Promise(r => setTimeout(r, 50));
     }
 
     // Set final state
@@ -46,14 +40,14 @@ export async function POST() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        type: 'status',
+        type: 'full-update',
         agentState: 'idle',
-        message: 'Wave W228 complete. Standing by for next cycle.',
-        waveNumber: 228,
+        message: 'Demo seed complete. Standing by for next cycle.',
+        waveNumber: 0,
         progress: 1,
-        waveCount: 158,
-        totalImprovements: 452,
-        totalDecisions: 891,
+        waveCount: 0,
+        totalImprovements: 0,
+        totalDecisions: 0,
       }),
     }).catch(() => {});
 
