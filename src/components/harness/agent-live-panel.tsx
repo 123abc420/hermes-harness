@@ -13,10 +13,10 @@ import {
   CheckCircle2, FileCode2, Play, Pause, Activity, Circle, Terminal,
   ArrowRight, Clock, Network, X,
 } from 'lucide-react';
-import { HERMES_VERSION, STATE_ICONS } from '@/lib/constants';
+import { HERMES_VERSION } from '@/lib/constants';
 import { CATEGORY_TW } from '@/lib/category-colors';
 import { AgentNetworkCanvas } from './agent-network-canvas';
-import { PhaseTracker, STATE_COLORS } from './agent-live-subcomponents';
+import { PhaseTracker, STATE_COLORS, STATE_ICONS } from './agent-live-subcomponents';
 
 // ─── Activity Entry ──────────────────────────────────────────────────
 function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {

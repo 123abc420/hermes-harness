@@ -4617,3 +4617,26 @@ Stage Summary:
 - All 10 agent states have distinct visual behaviors and color palettes
 - Entity tracks mouse with "eyes", breathes, pulses, and reacts dramatically to state changes
 - 4 bugs fixed, lint passes clean, browser-verified zero errors
+---
+Task ID: W233
+Agent: HERMES Wave Engine
+Task: Multi-agent broadcast v2.0 skill + cron integration + node world visual foundation
+
+Work Log:
+- ASSESS: Read all state files, dev.log clean (only Prisma queries), server not reachable from sandbox (expected)
+- PLAN: Identified 3 improvements: (1) rewrite broadcast skill v2.0, (2) embed in wave protocol, (3) extend API for new payload types
+- EXECUTE: Rewrote agent-live-broadcast.md to v2.0 with 8 payload types, sub-agent color palette, full wave sequence
+- EXECUTE: Updated wave_protocol.md with broadcast steps at every phase (ASSESS→REPORT), including broadcast() helper function
+- EXECUTE: Extended agent-status API route with sub-agent-update, node-pulse, decision-count handlers
+- EXECUTE: Removed dead agent-avatar-canvas.tsx (old single character replaced by existing agent-network-canvas.tsx)
+- EXECUTE: Cleaned unused imports in agent-live-panel.tsx (MonitorDot, getLevelName)
+- VERIFY: bun run lint — 0 errors
+- PERSIST: Git commit + push successful
+
+Stage Summary:
+- agent-live-broadcast skill v2.0 deployed with multi-agent wave protocol
+- wave_protocol.md now includes embedded broadcast steps (cron integration complete)
+- API route supports 3 new v2.0 payload types (sub-agent-update, node-pulse, decision-count)
+- Dead code removed: agent-avatar-canvas.tsx (855 lines deleted), unused imports
+- Lint: 0 errors
+- Next wave will use the new broadcast protocol automatically

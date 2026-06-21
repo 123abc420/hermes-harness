@@ -185,3 +185,20 @@
 
 - When an external service is removed (e.g., port-3005 mini-service), ALL code that references it must be removed: the function, the constant, and every call site.
 - Best-effort forwarding with `.catch(() => logDebug(...))` seems harmless but creates persistent log noise. Remove entirely if the service is gone.
+
+## Multi-Agent Visual Design
+
+- A "world" of connected nodes > a single character. Nodes represent agents, connections represent data flow.
+- Each node should have: color (by role), size (by activity), glow intensity (by state), position (assigned on spawn, with organic drift).
+- The API should be the single source of truth for node state — the canvas reads from the store, which reads from SSE, which reads from the API's in-memory state.
+- Sub-agent creation should automatically create a network node with connection to orchestrator.
+- Clickable node popups show: name, type, current task, connections, spawn time.
+- The orchestrator node should always exist as a fallback (even without server data).
+- Energy particles flowing along connections make the network feel alive even between waves.
+
+## Skill ↔ Cron Integration
+
+- The broadcast skill must be embedded in the wave protocol itself, not just referenced.
+- Every phase transition should have explicit broadcast steps in wave_protocol.md.
+- Use `curl --max-time 3 || true` pattern — broadcasts should never block a wave.
+- The `broadcast()` shell function makes it trivial to include in every wave.

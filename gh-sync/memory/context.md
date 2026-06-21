@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 10:00 UTC+8
+2026-06-21 10:15 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 231)
+- **Phase**: Multi-Agent Visual Era (Wave 233)
 - **Waves in DB**: 162
 - **Spec compliance**: 100% (16/16)
 
@@ -16,13 +16,13 @@
 | API routes | 19 |
 | Dashboard tabs | 6 |
 | Skills | 10 (+ 1 template) |
-| Components | 23 |
+| Components | 22 (removed agent-avatar-canvas) |
 | Exported components | 10 |
-| GitHub commits | ~413 |
+| GitHub commits | ~415 |
 | Waves in DB | 162 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
-| Canvas state effects | 10 (all unique) |
+| Network nodes | Multi-agent (orchestrator + sub-agents) |
 | execSync calls | 0 |
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
@@ -35,23 +35,34 @@
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
-- **Agent Live full-screen immersive "Mind's Eye"** (W228→W229)
-- Full-bleed canvas (80vh) with HUD overlay panels
-- Character 2.5x bigger with **10 unique state-reactive backgrounds**
-- ResizeObserver keeps canvas pixel-perfect on window resize
-- CRT scanline overlay + intensified vignette (terminal feel)
-- Particle bursts + wave rings on state transitions
-- 60 floating particles, 12 orbiting with trails, dual rings
-- Energy aura around character, state-tinted effects
-- agent-live-broadcast skill v1.1 (documents sandbox limitation + pure in-memory SSE architecture)
-- Dead forwardToService code removed (W230) — no more dev.log noise
+- **Agent Live multi-agent node network canvas** (W233)
+  - Starfield background with nebula gradients
+  - Glowing nodes with energy particles flowing along connections
+  - Curved connection lines between nodes
+  - Wave progress ring around orchestrator
+  - Click-to-select nodes with detail popup (NodePopup)
+  - Organic drift animation for all nodes
+- **Agent Live HUD overlay** with:
+  - Wave overview bar: "WAVE N / X" + progress + phase badge
+  - Decision counter with per-wave increment (+N)
+  - Node count badge
+  - Phase tracker, health, XP, waves, improvements
+  - Sub-agent badges with color dots
+- **agent-live-broadcast skill v2.0** with multi-agent protocol
+  - 8 payload types: status, activity, sub-agent, sub-agent-update, sub-agent-remove, sub-agent-clear, node-pulse, decision-count, full-update
+  - Sub-agent color palette (6 roles)
+  - Full wave broadcast sequence (32 steps)
+  - Phase progress guidelines with typical sub-agents
+- **wave_protocol.md** now includes broadcast steps at every phase
+- **API route** supports all v2.0 payload types (sub-agent-update, node-pulse, decision-count)
+- Dead forwardToService code removed (W230)
 - Health score guarded against 0/0 NaN
 - Donut charts use percentage radii — no mobile clipping
 - GitHub sync does real git push inline, status correct
-- Dead 3D files removed (6 files, 907 lines deleted)
 - Page compiles in <1s
 
 ## What's next
-1. Per-wave replay with real phase data (requires schema change)
-2. Consider adding more chart types to Analytics tab
-3. Run agent-browser QA to catch any remaining visual issues
+1. Next cron wave will use v2.0 broadcast protocol (embedded in wave_protocol.md)
+2. Per-wave replay with real phase data (requires schema change)
+3. More analytics charts
+4. Consider removing VALID_NODE_TYPES dead constant in agent-status route
