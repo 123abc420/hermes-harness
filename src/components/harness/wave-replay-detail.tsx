@@ -69,20 +69,32 @@ function useTypingText(text: string, isActive: boolean, speed = 30) {
   useEffect(() => {
     if (!isActive) {
       idxRef.current = 0;
-      setDisplayed('');
-      return;
+      lastTimeRef.current = 0;
+      // Schedule reset via rAF to avoid synchronous setState in effect
+      rafRef.current = requestAnimationFrame(() => setDisplayed(''));
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
     }
     if (reducedMotion) {
-      setDisplayed(text);
-      return;
+      // Schedule via rAF to avoid synchronous setState in effect
+      rafRef.current = requestAnimationFrame(() => setDisplayed(text));
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
     }
 
     idxRef.current = 0;
-    setDisplayed('');
     lastTimeRef.current = 0;
 
     const animate = (time: number) => {
-      if (lastTimeRef.current === 0) lastTimeRef.current = time;
+      // First frame: reset display, then start timing from next frame
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = time;
+        setDisplayed('');
+        rafRef.current = requestAnimationFrame(animate);
+        return;
+      }
       if (time - lastTimeRef.current >= speed) {
         lastTimeRef.current = time;
         idxRef.current = Math.min(idxRef.current + 1, text.length);
@@ -268,12 +280,13 @@ export function WaveReplayDetail({ waveNumber, isMaintenance, onClose }: WaveRep
   useEffect(() => { currentIdxRef.current = currentIdx; }, [currentIdx]);
   useEffect(() => { isLoopingRef.current = isLooping; }, [isLooping]);
 
-  // Auto-expand the active step
-  useEffect(() => {
-    if (currentIdx >= 0) {
-      setExpandedSteps(prev => new Set(prev).add(currentIdx));
+  // Helper: advance to a step and auto-expand it
+  const advanceToStep = useCallback((idx: number) => {
+    setCurrentIdx(idx);
+    if (idx >= 0) {
+      setExpandedSteps(prev => new Set(prev).add(idx));
     }
-  }, [currentIdx]);
+  }, []);
 
   // Auto-scroll to active step
   useEffect(() => {
@@ -286,29 +299,29 @@ export function WaveReplayDetail({ waveNumber, isMaintenance, onClose }: WaveRep
 
   const startPlayback = useCallback(() => {
     setIsPlaying(true);
-    setCurrentIdx(0);
+    advanceToStep(0);
 
     const tick = () => {
       if (!isPlayingRef.current) return;
       const nextIdx = currentIdxRef.current + 1;
       if (nextIdx >= steps.length) {
         if (isLoopingRef.current) {
-          setCurrentIdx(0);
+          advanceToStep(0);
           currentIdxRef.current = -1; // will become 0
           timerRef.current = setTimeout(tick, 600);
         } else {
           setIsPlaying(false);
-          setCurrentIdx(-1);
+          advanceToStep(-1);
         }
         return;
       }
-      setCurrentIdx(nextIdx);
+      advanceToStep(nextIdx);
       const stepDuration = steps[nextIdx].duration / speed;
       timerRef.current = setTimeout(tick, Math.max(100, stepDuration));
     };
 
     timerRef.current = setTimeout(tick, 300);
-  }, [steps, speed]);
+  }, [steps, speed, advanceToStep]);
 
   const stopPlayback = useCallback(() => {
     if (timerRef.current) {
@@ -324,10 +337,10 @@ export function WaveReplayDetail({ waveNumber, isMaintenance, onClose }: WaveRep
 
   const skipToEnd = useCallback(() => {
     stopPlayback();
-    setCurrentIdx(steps.length - 1);
+    advanceToStep(steps.length - 1);
     // expand all
     setExpandedSteps(new Set(steps.map(s => s.id)));
-  }, [stopPlayback, steps]);
+  }, [stopPlayback, steps, advanceToStep]);
 
   const toggleExpand = useCallback((id: number) => {
     setExpandedSteps(prev => {

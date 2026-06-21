@@ -6828,3 +6828,23 @@ Work Log:
 
 Stage Summary:
 - Zero code changes. Health 100/100. Maintenance Era continues.
+
+---
+Task ID: 328
+Agent: wave-engine
+Task: W328 self-improvement wave — Lint Fix
+
+Work Log:
+- ASSESS: Read context.md, insights.md, SPEC.md, dev.log, dashboard API
+- PLAN: Initial assessment showed clean state, but VERIFY caught 2 (then 3) lint errors in wave-replay-detail.tsx
+- EXECUTE: Fixed 3 `react-hooks/set-state-in-effect` violations:
+  1. `setDisplayed('')` in !isActive branch → wrapped in requestAnimationFrame
+  2. `setDisplayed(text)` in reducedMotion branch → wrapped in requestAnimationFrame
+  3. `setExpandedSteps` in useEffect watching currentIdx → extracted `advanceToStep` callback, folded state updates together
+  4. Restructured typing animation to use single rAF chain with reset-on-first-frame pattern
+- VERIFY: lint 0, tsc 0
+
+Stage Summary:
+- 1 file modified: wave-replay-detail.tsx
+- All setState calls in effects now use rAF callbacks or event-handler patterns
+- Breaks maintenance streak at 44 — W326 introduced lint errors that W327 missed (only ran tsc)
