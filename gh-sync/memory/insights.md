@@ -130,3 +130,9 @@
 ## Recharts Mobile Safety
 
 - Recharts `Pie` with fixed pixel `innerRadius`/`outerRadius` clips when container is smaller than the radius. Use percentage strings (`"30%"`, `"46%"`) — they scale proportionally to the SVG viewport.
+
+## Async Status Transitions
+
+- `setTimeout` in API routes is unreliable — serverless/edge runtimes freeze the function after response is sent. The timer never fires.
+- For status machines (syncing → connected), perform the real work inline and update status in the same request lifecycle.
+- If simulating async work, use a polling pattern from the client instead of server-side setTimeout.
