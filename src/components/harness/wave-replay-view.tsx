@@ -12,15 +12,15 @@ import {
 } from 'lucide-react';
 
 /* ═════════════════════════════════════════════════════════════════════
-   WAVE REPLAY VIEW v2.0 — No-Scroll, Compact, Fit-to-Viewport
+   WAVE REPLAY VIEW v3.0 — Bigger Phase Bar, Legible Timeline, No-Scroll
 
-   - NO ScrollArea — timeline clips to available space
-   - Compact entries: single line, smaller text
-   - Phase bar fixed (p.key, not p.value)
+   - Phase bar: h-2 (8px) with labels inside completed segments
+   - Timeline entries: text-xs (12px) messages, larger icons, more padding
+   - NO ScrollArea — clips to available space
    - Graph + timeline share viewport height
    ═════════════════════════════════════════════════════════════════════ */
 
-// ─── Compact Timeline Entry (single line) ────────────────────
+// ─── Timeline Entry (legible, single line) ──────────────────
 function TimelineEntry({
   entry,
   isActive,
@@ -39,9 +39,9 @@ function TimelineEntry({
   return (
     <>
       {isFirstInPhase && entry.phase && (
-        <div className="flex items-center gap-1.5 pt-1 pb-0.5">
+        <div className="flex items-center gap-2 pt-1.5 pb-0.5">
           <div className="h-px flex-1 bg-white/[0.06]" />
-          <span className="text-[8px] font-bold tracking-widest text-zinc-500 uppercase">
+          <span className="text-[9px] font-bold tracking-widest text-zinc-500 uppercase">
             {entry.phase}
           </span>
           <div className="h-px flex-1 bg-white/[0.06]" />
@@ -49,23 +49,25 @@ function TimelineEntry({
       )}
       <div
         className={cn(
-          'flex items-center gap-1.5 px-1.5 py-[3px] rounded transition-colors duration-200',
-          isActive ? 'bg-white/[0.08]' : 'hover:bg-white/[0.02]',
+          'flex items-center gap-2 px-2 py-1 rounded-md transition-colors duration-200',
+          isActive ? 'bg-white/[0.08]' : 'hover:bg-white/[0.03]',
         )}
       >
-        <span className="shrink-0 text-[9px] font-mono text-zinc-600 w-8 text-right">
+        <span className="shrink-0 text-[10px] font-mono text-zinc-600 w-9 text-right">
           {timeStr}
         </span>
         <div
-          className="shrink-0 w-4 h-4 rounded flex items-center justify-center text-[8px]"
-          style={{ backgroundColor: stateColor + '15', color: stateColor }}
+          className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px]"
+          style={{ backgroundColor: stateColor + '18', color: stateColor }}
         >
           {STATE_ICONS[entry.state] || '·'}
         </div>
-        <p className={cn(
-          'text-[10px] leading-tight truncate min-w-0',
-          isActive ? 'text-zinc-200' : 'text-zinc-500',
-        )}>
+        <p
+          className={cn(
+            'text-xs leading-snug truncate min-w-0',
+            isActive ? 'text-zinc-200 font-medium' : 'text-zinc-400',
+          )}
+        >
           {entry.message}
         </p>
       </div>
@@ -108,7 +110,6 @@ export function WaveReplayView() {
 
   const durationSec = Math.max(1, Math.round((waveEnd - waveStart) / 1000));
 
-  // FIX: use p.key (not p.value which doesn't exist)
   const currentPhaseIdx = useMemo(() => {
     const idx = PHASE_STEPS.findIndex(p => p.key === phase);
     return idx >= 0 ? idx : 0;
@@ -167,16 +168,16 @@ export function WaveReplayView() {
   const isWaveActive = agentState !== 'idle' && agentState !== 'offline';
 
   return (
-    <div className="flex flex-col gap-1.5 h-full overflow-hidden">
+    <div className="flex flex-col gap-2 h-full overflow-hidden">
       {/* ═══ CONTROLS ROW ═══ */}
-      <div className="shrink-0 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-black/50 backdrop-blur-sm border border-white/[0.06]">
-        <Waves className="w-3 h-3 text-sky-400 shrink-0" />
-        <span className="text-[10px] font-bold text-white shrink-0">
+      <div className="shrink-0 flex items-center gap-2.5 px-3 py-2 rounded-xl bg-black/50 backdrop-blur-sm border border-white/[0.06]">
+        <Waves className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+        <span className="text-xs font-bold text-white shrink-0">
           {waveNumber > 0 ? `W${waveNumber}` : 'REPLAY'}
         </span>
         {isWaveActive && (
           <span
-            className="text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse shrink-0"
+            className="text-[10px] font-bold px-2 py-0.5 rounded-md animate-pulse shrink-0"
             style={{ backgroundColor: getStateHex(agentState) + '20', color: getStateHex(agentState) }}
           >
             {agentState.toUpperCase()}
@@ -185,62 +186,41 @@ export function WaveReplayView() {
 
         <div className="flex-1" />
 
-        {/* Phase labels inline */}
-        <div className="hidden md:flex items-center gap-0.5">
-          {PHASE_STEPS.map((p, i) => {
-            const isCompleted = i < currentPhaseIdx;
-            const isCurrent = i === currentPhaseIdx && isWaveActive;
-            return (
-              <span
-                key={p.key}
-                className={cn(
-                  'text-[7px] font-bold tracking-wider px-1',
-                  isCompleted ? 'text-emerald-400/70' : isCurrent ? 'text-white/60' : 'text-zinc-700',
-                )}
-              >
-                {p.label}
-              </span>
-            );
-          })}
-        </div>
-
-        <div className="flex-1 md:hidden" />
-
         {/* Speed */}
         <button
           onClick={() => {
             const next = (currentSpeedIdx + 1) % speedOptions.length;
             setSpeed(speedOptions[next].value);
           }}
-          className="text-[9px] font-mono text-zinc-500 hover:text-zinc-300 px-1 py-0.5 rounded border border-white/[0.06] hover:border-white/[0.12] transition-colors shrink-0"
+          className="text-[10px] font-mono text-zinc-500 hover:text-zinc-300 px-1.5 py-1 rounded-md border border-white/[0.08] hover:border-white/[0.15] transition-colors shrink-0"
         >
           {speedOptions[currentSpeedIdx >= 0 ? currentSpeedIdx : 1].label}
         </button>
 
         <Button variant="ghost" size="sm" onClick={togglePlay} disabled={!hasData}
-          className="h-6 w-6 p-0 rounded-md text-zinc-400 hover:text-white hover:bg-white/[0.08] shrink-0">
-          {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
+          className="h-7 w-7 p-0 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] shrink-0">
+          {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
         </Button>
         <Button variant="ghost" size="sm" onClick={skipToEnd} disabled={!hasData}
-          className="h-6 w-6 p-0 rounded-md text-zinc-400 hover:text-white hover:bg-white/[0.08] shrink-0">
-          <SkipForward className="w-3 h-3" />
+          className="h-7 w-7 p-0 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] shrink-0">
+          <SkipForward className="w-3.5 h-3.5" />
         </Button>
         <Button variant="ghost" size="sm" onClick={() => setIsLooping(!isLooping)}
-          className={cn('h-6 w-6 p-0 rounded-md transition-colors shrink-0',
+          className={cn('h-7 w-7 p-0 rounded-lg transition-colors shrink-0',
             isLooping ? 'text-sky-400 bg-sky-400/10' : 'text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.08]'
           )}>
-          <Repeat className="w-3 h-3" />
+          <Repeat className="w-3.5 h-3.5" />
         </Button>
 
         {hasData && (
-          <span className="text-[8px] font-mono text-zinc-600 shrink-0 w-14 text-right">
+          <span className="text-[10px] font-mono text-zinc-500 shrink-0 w-16 text-right">
             {durationSec}s · {meaningfulActivities.length}
           </span>
         )}
       </div>
 
-      {/* ═══ PHASE PROGRESS BAR ═══ */}
-      <div className="shrink-0 flex items-center gap-0.5">
+      {/* ═══ PHASE PROGRESS BAR (larger, with inline labels) ═══ */}
+      <div className="shrink-0 flex items-stretch gap-[2px]">
         {PHASE_STEPS.map((p, i) => {
           const isCompleted = i < currentPhaseIdx;
           const isCurrent = i === currentPhaseIdx && isWaveActive;
@@ -248,11 +228,32 @@ export function WaveReplayView() {
             <div
               key={p.key}
               className={cn(
-                'h-[3px] flex-1 rounded-full transition-colors duration-500',
-                isCompleted ? 'bg-emerald-500/50' : isCurrent ? 'bg-white/25' : 'bg-white/[0.03]',
+                'h-2 flex-1 rounded-full transition-colors duration-500 flex items-center justify-center',
+                isCompleted
+                  ? ''
+                  : isCurrent
+                    ? ''
+                    : '',
               )}
+              style={{
+                backgroundColor: isCompleted
+                  ? p.barColor + '60'
+                  : isCurrent
+                    ? 'rgba(255,255,255,0.15)'
+                    : 'rgba(255,255,255,0.04)',
+              }}
               title={p.label}
-            />
+            >
+              {/* Show label inside the bar for completed/current phases on wider screens */}
+              <span
+                className={cn(
+                  'hidden lg:inline text-[8px] font-bold tracking-wider',
+                  isCompleted ? 'text-white/70' : isCurrent ? 'text-white/50' : 'text-zinc-700',
+                )}
+              >
+                {p.label}
+              </span>
+            </div>
           );
         })}
       </div>
@@ -260,13 +261,13 @@ export function WaveReplayView() {
       {/* ═══ MAIN: Graph + Timeline (NO SCROLL) ═══ */}
       <div className="flex-1 min-h-0 flex gap-2 overflow-hidden">
         {/* LEFT: Node Graph */}
-        <div className="hidden sm:flex flex-col w-[40%] min-w-0">
-          <div className="relative flex-1 min-h-0 rounded-lg bg-black/40 border border-white/[0.06] overflow-hidden">
-            <div className="absolute top-1.5 left-2 z-10 pointer-events-none">
-              <span className="text-[7px] font-mono text-zinc-700 tracking-wider">NETWORK</span>
+        <div className="hidden sm:flex flex-col w-[38%] min-w-0">
+          <div className="relative flex-1 min-h-0 rounded-xl bg-black/40 border border-white/[0.06] overflow-hidden">
+            <div className="absolute top-2 left-2.5 z-10 pointer-events-none">
+              <span className="text-[9px] font-mono text-zinc-600 tracking-wider font-semibold">NETWORK</span>
             </div>
-            <div className="absolute top-1.5 right-2 z-10 pointer-events-none">
-              <span className="text-[7px] font-mono text-zinc-700 tracking-wider">
+            <div className="absolute top-2 right-2.5 z-10 pointer-events-none">
+              <span className="text-[9px] font-mono text-zinc-600 tracking-wider font-semibold">
                 {networkNodes.length} NODE{networkNodes.length !== 1 ? 'S' : ''}
               </span>
             </div>
@@ -275,11 +276,11 @@ export function WaveReplayView() {
         </div>
 
         {/* RIGHT: Timeline (NO ScrollArea — overflow-hidden) */}
-        <div className="flex-1 min-w-0 flex flex-col rounded-lg bg-black/40 border border-white/[0.06] overflow-hidden">
-          <div className="shrink-0 px-2.5 py-1.5 border-b border-white/[0.04] flex items-center gap-2">
-            <span className="text-[8px] font-bold text-zinc-500 tracking-wider uppercase">Timeline</span>
-            {isPlaying && <span className="text-[8px] font-mono text-sky-400 animate-pulse">▶ Playing</span>}
-            {!isPlaying && hasData && <span className="text-[8px] font-mono text-zinc-600">{meaningfulActivities.length} actions</span>}
+        <div className="flex-1 min-w-0 flex flex-col rounded-xl bg-black/40 border border-white/[0.06] overflow-hidden">
+          <div className="shrink-0 px-3 py-2 border-b border-white/[0.06] flex items-center gap-2">
+            <span className="text-[10px] font-bold text-zinc-500 tracking-wider uppercase">Timeline</span>
+            {isPlaying && <span className="text-[10px] font-mono text-sky-400 animate-pulse">▶ Playing</span>}
+            {!isPlaying && hasData && <span className="text-[10px] font-mono text-zinc-600">{meaningfulActivities.length} actions</span>}
           </div>
 
           {/* NO ScrollArea — content fits viewport, clips if overflow */}
@@ -309,11 +310,11 @@ export function WaveReplayView() {
                   })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-2">
-                <div className="w-8 h-8 rounded-full bg-white/[0.03] flex items-center justify-center">
-                  <Waves className="w-4 h-4 text-zinc-700" />
+              <div className="flex flex-col items-center justify-center h-full gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center border border-white/[0.04]">
+                  <Waves className="w-5 h-5 text-zinc-700" />
                 </div>
-                <p className="text-zinc-600 text-[10px] text-center">
+                <p className="text-zinc-600 text-xs text-center font-medium">
                   Waiting for the next wave...
                 </p>
               </div>

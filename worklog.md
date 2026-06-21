@@ -5539,3 +5539,26 @@ Stage Summary:
 - Phase progress bar now has inline labels (ASSESS PLAN EXECUTE VERIFY PERSIST REPORT)
 - VLM-verified: no scrollbar on desktop (1280x720), mobile (375x812) looks great
 - Total improvements: 3, Decisions: 2
+
+---
+Task ID: W259
+Agent: Main Orchestrator
+Task: UX clarity overhaul — bigger counters, larger phase bar, legible timeline
+
+Work Log:
+- ASSESS: Read worklog, context.md, insights.md, dashboard metrics (170 waves in DB, 93.5% success), dev.log (clean)
+- ASSESS: Read agent-live-panel.tsx, wave-replay-view.tsx, agent-network-graph.tsx, agent-live-store.ts, agent-live-subcomponents.tsx, agent-live-broadcast.md
+- ASSESS: Found counters and no-scroll layout already existed from prior wave (W258 context). Identified 3 clarity improvements.
+- PLAN: Decision 1 — Enlarge counter card values from text-base to text-xl with colored left accent bars
+- PLAN: Decision 2 — Increase phase bar from h-[3px] to h-2 (8px) with inline phase labels
+- PLAN: Decision 3 — Bump timeline text from text-[10px] to text-xs, icons from w-4 to w-5, add more padding
+- EXECUTE: Rewrote agent-live-panel.tsx (v6→v7.0) — bigger counter cards with colored accent borders, larger text
+- EXECUTE: Rewrote wave-replay-view.tsx (v2→v3.0) — larger phase bar, legible timeline entries, bigger controls
+- VERIFY: `bun run lint` — 0 errors. Dev log — all 200s, no errors.
+- PERSIST: Worklog updated, wave record + decisions recorded
+
+Stage Summary:
+- agent-live-panel.tsx: Counter values now text-xl (was text-base), labels text-[10px] (was text-[8px]), colored 3px left accent bars, larger status bar (py-2, text-xs)
+- wave-replay-view.tsx: Phase bar h-2 (was h-[3px]) with inline labels on lg, timeline text-xs (was text-[10px]), icons w-5 (was w-4), controls py-2 with h-7 buttons
+- No ScrollArea in any agent-live component — confirmed
+- Lint: 0 errors. No regressions.

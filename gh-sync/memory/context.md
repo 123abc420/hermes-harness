@@ -3,7 +3,7 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 17:45 UTC+8
+2026-06-21 18:28 UTC+8
 
 ## System Status
 - **Phase**: Replay-First Era (Wave 256)
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 19 (canvas removed, SVG graph + replay added) |
 | Exported components | 10 |
-| GitHub commits | ~480 |
-| Waves in DB | 166 (stuck waves patched W256) |
+| GitHub commits | ~501 |
+| Waves in DB | 171 (stuck waves patched W256) |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Network nodes | SVG node graph (replay-first design) |
@@ -56,10 +56,11 @@
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
-- **Agent Live Panel v5.0 — Replay-First Design** (W256)
-  - Compact status bar: LIVE/OFFLINE indicator, state+message, wave count, decisions, version badge
-  - `WaveReplayView`: timestamped timeline with play/pause/skip/loop/speed controls
-  - Phase progress bar (6 segments: ASSESS→PLAN→EXECUTE→VERIFY→PERSIST→REPORT)
+- **Agent Live Panel v7.0 — Bold Counters + Maximum Clarity** (W259)
+  - Bold counter cards: text-xl values, text-[10px] labels, 3px colored left accent bars
+  - Status bar: larger LIVE dot (w-2), text-xs state/message, bigger decision badge
+  - `WaveReplayView v3.0`: h-2 phase bar with inline labels on lg, text-xs timeline, w-5 icons
+  - Zero scrollbars — all content fits viewport (overflow-hidden everywhere)
   - `AgentNetworkGraph`: clean SVG node graph, zero animation frames
 - **agent-live-broadcast skill v3.0** with multi-agent protocol
 - **wave-engine skill v3.0** — full 6-phase protocol with broadcast sequences
