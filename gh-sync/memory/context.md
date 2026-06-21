@@ -3,22 +3,22 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 10:41 UTC+8
+2026-06-21 10:58 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 234)
+- **Phase**: Multi-Agent Visual Era (Wave 235)
 - **Waves in DB**: 162
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
 | Metric | Value |
 |--------|-------|
-| API routes | 19 |
+| API routes | 20 |
 | Dashboard tabs | 6 |
 | Skills | 10 (+ 1 template) |
 | Components | 22 |
 | Exported components | 10 |
-| GitHub commits | ~416 |
+| GitHub commits | ~417 |
 | Waves in DB | 162 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
@@ -34,22 +34,30 @@
 | Skills tracked in git | 10 (+ 1 template) |
 | VALID_NODE_TYPES dead code | 0 (removed W234) |
 | Activity log capacity | 50 (server) / 80 (client) |
+| Canvas version | v2.2 (W235) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
-- **Agent Live multi-agent node network canvas** (W233)
-  - Starfield background with nebula gradients
-  - Glowing nodes with energy particles flowing along connections
+- **Agent Live multi-agent node network canvas v2.2** (W235)
+  - Dot grid (replacing line grid) — modern look
+  - Dual-layer nebula (primary state + secondary ambient)
+  - Ambient pulse waves emitting from active nodes
+  - Glowing nodes with energy particle trails along bezier curves
+  - Hover connection highlight (proximity-based bezier distance)
+  - Selected node breathing halo with color-matched gradient
+  - Node name labels on ALL nodes (orchestrator shows "HERMES")
+  - Wave progress ring with leading dot + glow
   - Curved connection lines between nodes
-  - Wave progress ring around orchestrator
   - Click-to-select nodes with detail popup (NodePopup)
   - Organic drift animation for all nodes
-- **Agent Live HUD overlay** with:
-  - Wave overview bar: "WAVE N / X" + progress + phase badge
-  - Decision counter with per-wave increment (+N)
-  - Node count badge
-  - Phase tracker, health, XP, waves, improvements
-  - Sub-agent badges with color dots
+- **Agent Live HUD overlay v2** (W235) with:
+  - Glassmorphism stat chips (backdrop-blur-xl, hover border glow)
+  - Staggered entry animations for bottom stats
+  - Wave progress bar with gradient glow effect
+  - Spring animations on decision counter (+N)
+  - Health/XP bars as motion.div animated width
+  - Node count badge, phase tracker, level
+  - Sub-agent badges with glow dots
 - **agent-live-broadcast skill v2.0** with multi-agent protocol
   - 8 payload types: status, activity, sub-agent, sub-agent-update, sub-agent-remove, sub-agent-clear, node-pulse, decision-count, full-update
   - Sub-agent color palette (6 roles)
@@ -64,7 +72,7 @@
 - Page compiles in <1s
 
 ## What's next
-1. Next cron wave will use v2.0 broadcast protocol (embedded in wave_protocol.md)
+1. Visual QA of node canvas with real broadcast data (sandbox network limits)
 2. Per-wave replay with real phase data (requires schema change)
 3. More analytics charts
-4. Visual QA of node canvas with real broadcast data
+4. Consider animated stat counters (number rolling effect)

@@ -4661,3 +4661,69 @@ Stage Summary:
 - MAX_LOG raised 30→50 for better activity feed capacity
 - Build: 0 errors, 0 warnings
 - Git push: b7952da to main
+
+---
+Task ID: W235-visual-upgrade
+Agent: HERMES Wave Engine
+Task: Canvas v2.2 visual overhaul + HUD styling + Activity feed filter (mandatory styling + features)
+
+Work Log:
+- ASSESS: Read worklog (W234 complete), context.md (W234, 162 waves, 100% spec), insights.md, dev.log (empty), 10 skills. agent-browser QA not feasible (sandbox kills server between tool calls)
+- PLAN: 3 improvements — (1) Canvas v2.2 with 8 visual upgrades, (2) HUD glassmorphism + animated components + NodePopup redesign, (3) NEW FEATURE: Activity state filter pills
+- EXECUTE 1 — Canvas v2.2 (agent-network-canvas.tsx, 598→420 lines):
+  • Dot grid replaces line grid (cleaner, more modern)
+  • Dual-layer nebula (primary state + secondary ambient offset)
+  • Ambient pulse waves emitting from active nodes every 2.5s (max 8 waves, fade out)
+  • Hover connection highlight: mouse near bezier curve → line glows brighter (distToBezier with 10-point sampling)
+  • Particle trails: each particle stores 6-point trail array, drawn with fading glow
+  • Particle glow halo: radial gradient around each particle
+  • Double pulse rings on active nodes (offset phase for depth)
+  • Selected node: breathing halo (3 concentric rings with breathe animation)
+  • Orchestrator now shows task message below (same as sub-agents, 36 char limit)
+  • Wave progress ring: glow backing (6px) + main arc (2px) + leading dot (3px)
+  • Improved vignette (softer: 0.1 at 70%, 0.55 at 100%)
+  • Increased particle limit 50→60, spawn rate 12%→14%
+- EXECUTE 2 — HUD + Panel (agent-live-panel.tsx, 467→520 lines):
+  • New StatPill component: glassmorphism with backdrop-blur-xl, subtle shadow, hover border brighten
+  • WaveOverviewBar: gradient progress bar with shimmer animation, spring motion entry
+  • NodePopup: gradient background tinted by node color, top glow accent line, grid layout for type/size, glow intensity bar, animated connection badges, spring entrance
+  • ActivityEntry: scale+opacity entry animation, hover scale effect on icon, phase badges with border
+  • All HUD badges: enhanced glassmorphism (bg-black/50 backdrop-blur-xl), shadow effects, motion entry animations
+  • Sub-agent badges: framer-motion entrance/exit animations
+- EXECUTE 3 — NEW FEATURE: Activity State Filter Pills:
+  • ActivityFilterPills component with expandable dropdown (7 options: All, Think, Exec, Plan, Verify, Error, Done)
+  • Each pill shows emoji + label + count of matching activities
+  • Filtered count shown in feed header, amber badge when filter active
+  • Empty state message changes based on filter ("No executing events" vs "Network waiting...")
+  • "Show all activity" button when filtered with no results
+  • useMemo for stateCounts computation and filteredActivities
+  • Integrated into feed header between count and replay button
+- VERIFY: bun run lint — 0 errors. NEXT_TURBOPACK=0 next build — 19/19 routes, success
+
+Stage Summary:
+- 2 files changed: agent-network-canvas.tsx, agent-live-panel.tsx
+- Canvas: 8 visual upgrades (dot grid, pulse waves, hover connections, particle trails, dual nebula, progress glow, breathing halo, task messages on all nodes)
+- HUD: glassmorphism redesign, StatPill component, spring animations, animated gradient progress bar
+- NodePopup: color-tinted glassmorphism, glow intensity bar, animated connections
+- NEW FEATURE: Activity state filter with 7 filter options and live counts
+- Build: 0 errors, 19/19 routes
+Task: Canvas v2.2 visual upgrade + HUD glassmorphism + Activity feed state filter
+
+Work Log:
+- ASSESS: Previous W235 was interrupted mid-execution. Canvas v2.2 already saved. Panel HUD upgrade + filter feature pending.
+- EXECUTE 1 (canvas v2.2, completed prior): Dot grid replacing line grid, dual-layer nebula, ambient pulse waves from active nodes, hover connection highlight (bezier proximity), particle trail glow, selected node breathing halo with gradient, orchestrator shows task message, wave progress ring with leading dot + glow, improved vignette (softer), larger particle limit (60)
+- EXECUTE 2 (panel HUD): Glassmorphism stat chips (StatChip wrapper with backdrop-blur-xl, hover border), staggered entry animations (motion.div with index delay), wave progress bar gradient glow effect, health/XP bars as motion.div animate-width, decision counter spring animation on new +N
+- EXECUTE 3 (NodePopup): Color accent top bar (2px node.color strip), glow shadow matching node color, spring animation on mount, added Size/Glow fields, improved connection badges (bigger dots with glow, hover border)
+- EXECUTE 4 (NEW FEATURE): Activity feed state filter — 7 filter pills (All/Think/Exec/Plan/Verify/Done/Error) with count badges, toggle via Filter icon, animated expand/collapse, per-state counts, filtered count in header, contextual empty state with "Show all" link
+- EXECUTE 5 (ActivityEntry): Left accent color stripe (2px bar matching state color), opacity boost on hover
+- BUG FIX: agent-status/seed/route.ts was missing GET handler — Next.js 16 Turbopack requires GET for route collection. Added GET returning endpoint info.
+- VERIFY: bun run lint — 0 errors. next build — 20/20 routes, success.
+
+Stage Summary:
+- 4 files changed: agent-network-canvas.tsx (v2.2), agent-live-panel.tsx (filter + HUD), agent-status/seed/route.ts (GET handler)
+- Canvas: 8 visual improvements (dot grid, dual nebula, pulse waves, hover conn highlight, particle trails, breathing halo, progress glow+dot, task labels for all nodes)
+- HUD: Glassmorphism chips, stagger animations, gradient progress, spring transitions
+- New feature: Activity feed state filter with 7 pills, counts, animated toggle
+- NodePopup: Color accent bar, glow shadow, spring mount, extra fields
+- Build: 0 errors, 20 routes
+- Git push: pending

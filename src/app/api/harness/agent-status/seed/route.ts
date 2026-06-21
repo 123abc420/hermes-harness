@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { formatArgentinaTime } from '@/lib/constants';
 
+// GET /api/harness/agent-status/seed — return seed info
+export async function GET() {
+  return NextResponse.json({ endpoint: 'seed', method: 'POST', description: 'Seeds demo live activity data' });
+}
+
 // POST /api/harness/agent-status/seed — seeds demo live activity
 export async function POST() {
   try {

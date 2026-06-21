@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAgentLiveStore, type LiveActivityEntry } from '@/store/agent-live-store';
+import { useAgentLiveStore, type LiveActivityEntry, type AgentVisualState } from '@/store/agent-live-store';
 import { useWaves, useDecisions } from '@/hooks/use-harness-data';
 import { useWaveReplay } from '@/hooks/use-wave-replay';
 import { useNextWaveCountdown } from '@/hooks/use-next-wave-countdown';
@@ -10,30 +11,47 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   WifiOff, Zap, Brain, TrendingUp, Waves, Shield, Sparkles,
-  CheckCircle2, FileCode2, Play, Pause, Activity, Circle, Terminal,
-  ArrowRight, Clock, Network, X,
+  CheckCircle2, FileCode2, Play, Pause, Activity, Terminal,
+  Network, X, Clock, Filter,
 } from 'lucide-react';
 import { HERMES_VERSION } from '@/lib/constants';
 import { CATEGORY_TW } from '@/lib/category-colors';
 import { AgentNetworkCanvas } from './agent-network-canvas';
 import { PhaseTracker, STATE_COLORS, STATE_ICONS } from './agent-live-subcomponents';
 
-// ─── Activity Entry ──────────────────────────────────────────────────
+// ─── State filter options for activity feed (W235) ─────────────
+const ACTIVITY_FILTERS: Array<{ state: AgentVisualState | 'all'; label: string; icon: string }> = [
+  { state: 'all', label: 'All', icon: '•' },
+  { state: 'thinking', label: 'Think', icon: '🧠' },
+  { state: 'executing', label: 'Exec', icon: '⚡' },
+  { state: 'planning', label: 'Plan', icon: '📋' },
+  { state: 'verifying', label: 'Verify', icon: '✅' },
+  { state: 'celebrating', label: 'Done', icon: '🎉' },
+  { state: 'error', label: 'Error', icon: '💥' },
+];
+
+// ─── Activity Entry (W235: left accent stripe) ─────────────────
 function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {
+  const stateRgb = getStateRgb(entry.state);
   return (
     <motion.div
       initial={isNew ? { opacity: 0, x: -12 } : false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
-      className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.02] transition-colors"
+      className="flex items-start gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.03] transition-colors group"
     >
+      {/* Left accent stripe */}
+      <div
+        className="w-[2px] rounded-full shrink-0 mt-0.5 opacity-40 group-hover:opacity-80 transition-opacity"
+        style={{ backgroundColor: stateRgb, height: '28px' }}
+      />
       <span className="text-sm mt-0.5 shrink-0">{STATE_ICONS[entry.state] || '•'}</span>
       <div className="flex-1 min-w-0">
         <p className="text-[12px] text-zinc-200 leading-relaxed break-all">{entry.message}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-[10px] text-zinc-600 font-mono">{entry.timestampAR || '—'}</span>
           {entry.phase && (
-            <span className="text-[9px] text-zinc-600 font-mono uppercase bg-white/[0.03] px-1.5 py-0.5 rounded">
+            <span className="text-[9px] text-zinc-600 font-mono uppercase bg-white/[0.04] px-1.5 py-0.5 rounded">
               {entry.phase}
             </span>
           )}
@@ -43,7 +61,17 @@ function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: bool
   );
 }
 
-// ─── Node Popup ──────────────────────────────────────────────────────
+// Map state → CSS color string for accent stripe
+function getStateRgb(state: AgentVisualState): string {
+  const map: Record<string, string> = {
+    idle: '#f59e0b', thinking: '#06b6d4', searching: '#f97316', planning: '#a855f7',
+    executing: '#f43f5e', verifying: '#22c55e', celebrating: '#eab308', error: '#dc2626',
+    evolving: '#d946ef', offline: '#71717a',
+  };
+  return map[state] || '#71717a';
+}
+
+// ─── Node Popup (W235: color accent top bar, glow shadow) ───────
 function NodePopup() {
   const { selectedNodeId, networkNodes, selectNode } = useAgentLiveStore();
   const node = networkNodes.find(n => n.id === selectedNodeId);
@@ -52,16 +80,24 @@ function NodePopup() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9, y: 8 }}
+      initial={{ opacity: 0, scale: 0.92, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9, y: 8 }}
-      className="absolute top-4 left-4 z-20 w-72 rounded-xl bg-black/70 backdrop-blur-xl border border-white/[0.1] shadow-2xl overflow-hidden"
+      exit={{ opacity: 0, scale: 0.92, y: 10 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      className="absolute top-4 left-4 z-20 w-72 rounded-xl bg-black/75 backdrop-blur-2xl overflow-hidden"
+      style={{
+        border: `1px solid ${node.color}20`,
+        boxShadow: `0 0 30px ${node.color}15, 0 20px 60px rgba(0,0,0,0.5)`,
+      }}
     >
+      {/* Top accent bar matching node color */}
+      <div className="h-[2px]" style={{ backgroundColor: node.color }} />
+
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-2.5">
           <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: node.color, boxShadow: `0 0 10px ${node.color}` }}
+            className="w-3.5 h-3.5 rounded-full"
+            style={{ backgroundColor: node.color, boxShadow: `0 0 12px ${node.color}80` }}
           />
           <span className="text-sm font-semibold text-white font-mono">{node.name}</span>
           <Badge variant="outline" className={`${STATE_COLORS[node.state]} text-[9px] px-1.5 py-0`}>
@@ -70,15 +106,25 @@ function NodePopup() {
         </div>
         <button
           onClick={() => selectNode(null)}
-          className="p-1 rounded-md hover:bg-white/[0.06] transition-colors"
+          className="p-1.5 rounded-md hover:bg-white/[0.08] transition-colors"
         >
           <X className="h-3.5 w-3.5 text-zinc-400" />
         </button>
       </div>
-      <div className="px-4 py-3 space-y-2.5">
-        <div>
-          <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Type</span>
-          <p className="text-xs text-zinc-300 mt-0.5 font-mono">{node.type}</p>
+      <div className="px-4 py-3 space-y-3">
+        <div className="flex items-center gap-4">
+          <div>
+            <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Type</span>
+            <p className="text-xs text-zinc-300 mt-0.5 font-mono">{node.type}</p>
+          </div>
+          <div>
+            <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Size</span>
+            <p className="text-xs text-zinc-300 mt-0.5 font-mono">{node.size.toFixed(1)}x</p>
+          </div>
+          <div>
+            <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Glow</span>
+            <p className="text-xs text-zinc-300 mt-0.5 font-mono">{node.glowIntensity.toFixed(1)}</p>
+          </div>
         </div>
         <div>
           <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Current Task</span>
@@ -87,23 +133,26 @@ function NodePopup() {
         {node.connections.length > 0 && (
           <div>
             <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">Connected To</span>
-            <div className="flex flex-wrap gap-1 mt-1">
+            <div className="flex flex-wrap gap-1 mt-1.5">
               {node.connections.map(cId => {
                 const connected = networkNodes.find(n => n.id === cId);
                 return (
                   <span
                     key={cId}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06]"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] transition-colors"
                   >
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: connected?.color || '#666' }} />
-                    <span className="text-[9px] font-mono text-zinc-400">{connected?.name || cId}</span>
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: connected?.color || '#666', boxShadow: `0 0 6px ${connected?.color || '#666'}` }}
+                    />
+                    <span className="text-[9px] font-mono text-zinc-300">{connected?.name || cId}</span>
                   </span>
                 );
               })}
             </div>
           </div>
         )}
-        <div className="flex items-center gap-1.5 text-[9px] text-zinc-600 font-mono">
+        <div className="flex items-center gap-1.5 text-[9px] text-zinc-600 font-mono pt-1">
           <Clock className="h-2.5 w-2.5" />
           <span>Spawned {new Date(node.spawnTime).toLocaleTimeString('es-AR')}</span>
         </div>
@@ -112,32 +161,52 @@ function NodePopup() {
   );
 }
 
-// ─── Wave Overview Bar ───────────────────────────────────────────────
+// ─── Wave Overview Bar (W235: gradient glow on progress) ───────
 function WaveOverviewBar() {
   const { waveNumber, progress, phase } = useAgentLiveStore();
 
   if (waveNumber === 0) return null;
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-black/40 backdrop-blur-md border border-white/[0.06]">
+    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-xl border border-white/[0.08]">
       <div className="flex items-center gap-2">
         <Waves className="h-3.5 w-3.5 text-amber-400" />
-        <span className="text-xs font-mono text-amber-300 font-bold">WAVE {waveNumber}</span>
+        <span className="text-xs font-mono text-amber-300 font-bold tracking-wide">WAVE {waveNumber}</span>
       </div>
-      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+      <div className="flex-1 h-[5px] rounded-full bg-white/[0.06] overflow-hidden">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400"
+          className="h-full rounded-full"
+          style={{
+            background: 'linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b)',
+            boxShadow: '0 0 8px rgba(245,158,11,0.4)',
+          }}
           animate={{ width: `${progress * 100}%` }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         />
       </div>
-      <span className="text-xs font-mono text-zinc-400 tabular-nums">{Math.round(progress * 100)}%</span>
+      <span className="text-xs font-mono text-zinc-400 tabular-nums min-w-[30px] text-right">
+        {Math.round(progress * 100)}%
+      </span>
       {phase && (
-        <Badge variant="outline" className="text-[9px] px-2 py-0.5 text-cyan-300 border-cyan-500/20 bg-cyan-500/10">
+        <Badge variant="outline" className="text-[9px] px-2.5 py-0.5 text-cyan-300 border-cyan-500/20 bg-cyan-500/10 font-medium">
           {phase.toUpperCase()}
         </Badge>
       )}
     </div>
+  );
+}
+
+// ─── Stat Chip (W235: shared glassmorphism wrapper) ─────────────
+function StatChip({ children, index = 0 }: { children: React.ReactNode; index?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.04, duration: 0.3 }}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/45 backdrop-blur-xl border border-white/[0.07] hover:border-white/[0.12] transition-colors"
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -146,7 +215,7 @@ export function AgentLivePanel() {
   const {
     agentState, message, phase, waveNumber, progress, isConnected,
     waveCount, totalImprovements, totalDecisions, decisionCountThisWave,
-    recentSuccessRate, healthScore, healthScoreTrend, level, levelName, xp, xpToNext,
+    healthScore, healthScoreTrend, level, levelName, xp, xpToNext,
     activities, subAgents, networkNodes, selectedNodeId,
   } = useAgentLiveStore();
 
@@ -157,14 +226,31 @@ export function AgentLivePanel() {
   const recentDecisions = recentDecisionsData?.decisions ?? [];
   const countdownMin = useNextWaveCountdown(waveNumber, latestWave);
 
-  const hasData = isConnected || activities.length > 0 || waveCount > 0;
+  // W235: Activity feed state filter
+  const [activeFilter, setActiveFilter] = useState<AgentVisualState | 'all'>('all');
+  const [showFilter, setShowFilter] = useState(false);
+
+  const filteredActivities = useMemo(() => {
+    const list = isReplaying ? activities.slice(0, 30) : activities;
+    if (activeFilter === 'all') return list;
+    return list.filter(a => a.state === activeFilter);
+  }, [activities, activeFilter, isReplaying]);
+
+  // Count per state for filter badges
+  const stateCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const a of activities) {
+      counts[a.state] = (counts[a.state] || 0) + 1;
+    }
+    return counts;
+  }, [activities]);
+
   const xpPercent = Math.min((xp / xpToNext) * 100, 100);
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 -mx-4 -mt-1 sm:-mx-6 sm:-mt-2">
-      {/* ═══ LEFT: NETWORK CANVAS + HUD OVERLAYS (60% desktop, full mobile) ═══ */}
+      {/* ═══ LEFT: NETWORK CANVAS + HUD OVERLAYS ═══ */}
       <div className="relative flex-1 lg:flex-[3] min-h-[55vh] lg:min-h-0 lg:h-[calc(100vh-220px)] overflow-hidden rounded-none lg:rounded-l-xl">
-        {/* Network Canvas fills entire area */}
         <div className="absolute inset-0">
           <AgentNetworkCanvas />
         </div>
@@ -172,9 +258,8 @@ export function AgentLivePanel() {
         {/* ── HUD: Top Bar ── */}
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
-            {/* Live/Offline badge */}
             {isConnected ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-amber-500/20">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-amber-500/25">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
@@ -182,23 +267,21 @@ export function AgentLivePanel() {
                 <span className="text-xs font-mono text-amber-300 font-semibold tracking-wider">LIVE</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-zinc-700/30">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-zinc-700/30">
                 <WifiOff className="h-3.5 w-3.5 text-zinc-500" />
                 <span className="text-xs font-mono text-zinc-500 font-medium">OFFLINE</span>
               </div>
             )}
 
-            {/* State badge */}
             <Badge
               variant="outline"
-              className={`${STATE_COLORS[agentState]} text-xs px-3 py-1.5 font-semibold backdrop-blur-md bg-black/30 border-opacity-50`}
+              className={`${STATE_COLORS[agentState]} text-xs px-3 py-1.5 font-semibold backdrop-blur-xl bg-black/40 border-opacity-50`}
             >
               {STATE_ICONS[agentState]} {agentState.toUpperCase()}
             </Badge>
 
-            {/* Node count */}
             {networkNodes.length > 0 && (
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.06]">
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/[0.07]">
                 <Network className="h-3 w-3 text-cyan-400/70" />
                 <span className="text-[10px] font-mono text-zinc-300">{networkNodes.length} nodes</span>
               </div>
@@ -206,8 +289,7 @@ export function AgentLivePanel() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Level badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.06]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/[0.07]">
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
               <span className="text-xs font-mono text-amber-300 font-bold">LV.{level}</span>
               <span className="hidden sm:inline text-[10px] font-mono text-zinc-400">{levelName}</span>
@@ -215,21 +297,20 @@ export function AgentLivePanel() {
           </div>
         </div>
 
-        {/* ── HUD: Wave Overview Bar (below top bar) ── */}
+        {/* ── HUD: Wave Overview Bar ── */}
         {waveNumber > 0 && (
           <div className="absolute top-14 sm:top-16 left-4 right-4 sm:left-6 sm:right-6 z-10">
             <WaveOverviewBar />
           </div>
         )}
 
-        {/* ── Node Popup (click on node) ── */}
         <AnimatePresence>
           {selectedNodeId && <NodePopup />}
         </AnimatePresence>
 
         {/* ── HUD: Phase Tracker ── */}
         {waveNumber > 0 && (
-          <div className="absolute bottom-[72px] sm:bottom-20 left-1/2 -translate-x-1/2 z-10">
+          <div className="absolute bottom-[76px] sm:bottom-[84px] left-1/2 -translate-x-1/2 z-10">
             <PhaseTracker phase={phase} progress={progress} />
           </div>
         )}
@@ -244,8 +325,8 @@ export function AgentLivePanel() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.2 }}
-                className="px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/[0.06] max-w-xl"
+                transition={{ duration: 0.25, type: 'spring', damping: 30 }}
+                className="px-4 py-2.5 rounded-xl bg-black/55 backdrop-blur-xl border border-white/[0.08] max-w-xl"
               >
                 <p className="text-sm text-zinc-200 italic leading-relaxed truncate">
                   &ldquo;{message}&rdquo;
@@ -254,20 +335,21 @@ export function AgentLivePanel() {
             </AnimatePresence>
           </div>
 
-          {/* Compact stats strip */}
+          {/* W235: Glassmorphism stats strip with stagger animation */}
           <div className="px-4 sm:px-6 pb-3">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              {/* Health */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
               {healthScore >= 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/[0.06]">
+                <StatChip index={0}>
                   <Shield className="h-3 w-3 text-zinc-500" />
-                  <div className="w-14 h-1 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${
-                        healthScore >= 90 ? 'bg-emerald-500/70' :
-                        healthScore >= 70 ? 'bg-amber-500/70' : 'bg-red-500/70'
+                  <div className="w-14 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${
+                        healthScore >= 90 ? 'bg-emerald-500/80' :
+                        healthScore >= 70 ? 'bg-amber-500/80' : 'bg-red-500/80'
                       }`}
-                      style={{ width: `${healthScore}%` }}
+                      initial={false}
+                      animate={{ width: `${healthScore}%` }}
+                      transition={{ duration: 0.7, ease: 'easeOut' }}
                     />
                   </div>
                   <span className={`text-[10px] font-mono font-bold tabular-nums ${
@@ -278,41 +360,47 @@ export function AgentLivePanel() {
                     {healthScoreTrend === 'down' && <span className="text-[8px] opacity-70">&#9660;</span>}
                     {healthScore}
                   </span>
-                </div>
+                </StatChip>
               )}
 
-              {/* XP bar */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/[0.06]">
+              <StatChip index={1}>
                 <Zap className="h-3 w-3 text-amber-500/60" />
-                <div className="w-12 h-1 rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full rounded-full bg-amber-500/60 transition-all duration-500" style={{ width: `${xpPercent}%` }} />
+                <div className="w-12 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-amber-500/70"
+                    initial={false}
+                    animate={{ width: `${xpPercent}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
                 </div>
                 <span className="text-[10px] font-mono text-zinc-400 tabular-nums">{xp}/{xpToNext}</span>
-              </div>
+              </StatChip>
 
-              {/* Waves */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/[0.06]">
+              <StatChip index={2}>
                 <Waves className="h-3 w-3 text-cyan-500/60" />
                 <span className="text-[10px] font-mono text-zinc-300 font-bold tabular-nums">{waveCount}</span>
-                <span className="text-[10px] font-mono text-zinc-600">waves</span>
-              </div>
+                <span className="text-[10px] font-mono text-zinc-600 hidden sm:inline">waves</span>
+              </StatChip>
 
-              {/* Improvements */}
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/[0.06]">
+              <StatChip index={3}>
                 <TrendingUp className="h-3 w-3 text-emerald-500/60" />
                 <span className="text-[10px] font-mono text-zinc-300 font-bold tabular-nums">{totalImprovements}</span>
-              </div>
+              </StatChip>
 
-              {/* Decisions (with wave-specific counter) */}
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/[0.06]">
+              <StatChip index={4}>
                 <Brain className="h-3 w-3 text-violet-500/60" />
                 <span className="text-[10px] font-mono text-zinc-300 font-bold tabular-nums">{totalDecisions}</span>
                 {decisionCountThisWave > 0 && (
-                  <span className="text-[9px] font-mono text-violet-400/60">+{decisionCountThisWave}</span>
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-[9px] font-mono text-violet-400 font-bold"
+                  >
+                    +{decisionCountThisWave}
+                  </motion.span>
                 )}
-              </div>
+              </StatChip>
 
-              {/* Standby countdown */}
               {waveNumber === 0 && (
                 <div className="flex items-center gap-1.5 ml-auto">
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500/30 animate-ping" />
@@ -322,14 +410,18 @@ export function AgentLivePanel() {
                 </div>
               )}
 
-              {/* Active sub-agents */}
               {subAgents.length > 0 && (
                 <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
                   {subAgents.map(sa => (
-                    <div key={sa.id} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md border border-white/[0.06]">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: sa.color, boxShadow: `0 0 6px ${sa.color}` }} />
+                    <motion.div
+                      key={sa.id}
+                      initial={{ opacity: 0, scale: 0.7 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/[0.07]"
+                    >
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: sa.color, boxShadow: `0 0 8px ${sa.color}` }} />
                       <span className="text-[9px] font-mono text-zinc-300">{sa.name}</span>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               )}
@@ -340,14 +432,26 @@ export function AgentLivePanel() {
 
       {/* ═══ RIGHT: Activity Feed + Details ═══ */}
       <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0 flex flex-col border-l border-white/[0.06] bg-white/[0.015] backdrop-blur-sm rounded-none lg:rounded-r-xl">
-        {/* Feed header */}
+        {/* Feed header with W235 filter toggle */}
         <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <Activity className="h-4 w-4 text-amber-400" />
             <span className="text-sm font-medium text-zinc-200">Activity</span>
-            <span className="text-xs text-zinc-500 font-mono">{activities.length}</span>
+            <span className="text-xs text-zinc-500 font-mono bg-white/[0.04] px-1.5 py-0.5 rounded">
+              {filteredActivities.length}
+            </span>
           </div>
           <div className="flex items-center gap-2">
+            {/* W235: Filter toggle */}
+            <button
+              onClick={() => setShowFilter(f => !f)}
+              className={`p-1.5 rounded-md transition-colors ${
+                showFilter ? 'bg-white/[0.08] text-zinc-300' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/[0.04]'
+              }`}
+              aria-label="Toggle activity filter"
+            >
+              <Filter className="h-3.5 w-3.5" />
+            </button>
             {isConnected && (
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
@@ -372,21 +476,77 @@ export function AgentLivePanel() {
           </div>
         </div>
 
+        {/* W235: Filter pills row */}
+        <AnimatePresence>
+          {showFilter && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden border-b border-white/[0.04]"
+            >
+              <div className="px-3 py-2 flex flex-wrap gap-1.5">
+                {ACTIVITY_FILTERS.map(f => {
+                  const count = f.state === 'all' ? activities.length : (stateCounts[f.state] || 0);
+                  const isActive = activeFilter === f.state;
+                  return (
+                    <button
+                      key={f.state}
+                      onClick={() => setActiveFilter(f.state)}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-mono transition-all ${
+                        isActive
+                          ? 'bg-white/[0.1] text-white border border-white/[0.15]'
+                          : 'bg-white/[0.03] text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-white/[0.06]'
+                      }`}
+                    >
+                      <span>{f.icon}</span>
+                      <span>{f.label}</span>
+                      {count > 0 && (
+                        <span className={`text-[9px] ${isActive ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Feed list */}
         <ScrollArea className="flex-1 h-[250px] sm:h-[350px] lg:h-auto">
           <div className="p-2 space-y-0.5" role="list" aria-label="Agent activity feed">
             <AnimatePresence initial={false}>
-              {activities.length === 0 ? (
+              {filteredActivities.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-                  <Network className="h-12 w-12 text-zinc-800 mb-4" />
-                  <p className="text-sm text-zinc-500 mb-1">Network waiting for agents...</p>
-                  <p className="text-xs text-zinc-600 max-w-[260px]">
-                    Nodes appear and connect when the agent executes evolution waves
+                  <motion.div
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <Network className="h-12 w-12 text-zinc-800 mb-4" />
+                  </motion.div>
+                  <p className="text-sm text-zinc-500 mb-1">
+                    {activeFilter !== 'all' ? `No ${activeFilter} activities` : 'Network waiting for agents...'}
                   </p>
+                  <p className="text-xs text-zinc-600 max-w-[260px]">
+                    {activeFilter !== 'all'
+                      ? 'Try a different filter or wait for new events'
+                      : 'Nodes appear and connect when the agent executes evolution waves'}
+                  </p>
+                  {activeFilter !== 'all' && (
+                    <button
+                      onClick={() => setActiveFilter('all')}
+                      className="mt-3 text-[10px] font-mono text-amber-400/60 hover:text-amber-400 transition-colors"
+                    >
+                      Show all activities
+                    </button>
+                  )}
                 </div>
               ) : (
-                (isReplaying ? activities.slice(0, 30) : activities).map((entry, i) => (
-                  <ActivityEntry key={entry.id} entry={entry} isNew={i === 0} />
+                filteredActivities.map((entry, i) => (
+                  <ActivityEntry key={entry.id} entry={entry} isNew={i === 0 && activeFilter === 'all'} />
                 ))
               )}
             </AnimatePresence>
@@ -395,7 +555,6 @@ export function AgentLivePanel() {
 
         {/* Bottom details */}
         <div className="border-t border-white/[0.06] shrink-0">
-          {/* Last Wave */}
           {wavesError ? (
             <div className="px-4 py-3 flex items-center gap-2">
               <WifiOff className="h-3.5 w-3.5 text-red-400/70 shrink-0" />
@@ -427,7 +586,6 @@ export function AgentLivePanel() {
             </div>
           ) : null}
 
-          {/* Recent Decisions */}
           {!decisionsError && recentDecisions.length > 0 && (
             <div className="px-4 py-3 border-t border-white/[0.06]">
               <div className="flex items-center gap-2 mb-2">
