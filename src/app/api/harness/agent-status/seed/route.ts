@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { logDebug } from '@/lib/logger';
+
 // GET /api/harness/agent-status/seed — return seed info
 export async function GET() {
   return NextResponse.json({ endpoint: 'seed', method: 'POST', description: 'Seeds demo live activity data' });
@@ -27,12 +29,13 @@ export async function POST(req: NextRequest) {
       { agentState: 'celebrating', message: 'Wave complete! 3 improvements applied.', phase: 'report' },
     ];
 
+    let seeded = 0;
     for (const act of demoActivities) {
       await fetch(`${baseUrl}/api/harness/agent-status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'activity', ...act }),
-      }).catch(() => {});
+      }).then(() => { seeded++; }).catch((e) => { logDebug('SEED', `Failed to seed activity: ${act.message}`, { error: String(e) }); });
     }
 
     // Set final state
@@ -49,9 +52,9 @@ export async function POST(req: NextRequest) {
         totalImprovements: 0,
         totalDecisions: 0,
       }),
-    }).catch(() => {});
+    }).catch((e) => { logDebug('SEED', 'Failed to set final demo state', { error: String(e) }); });
 
-    return NextResponse.json({ ok: true, seeded: demoActivities.length });
+    return NextResponse.json({ ok: true, seeded });
   } catch {
     return NextResponse.json({ error: 'Seed failed' }, { status: 500 });
   }

@@ -6,12 +6,14 @@ import { getGitData } from '@/lib/git';
 import { logError, logDebug } from '@/lib/logger';
 
 // ── Build health cache (module-level, survives between requests) ────
-let buildHealthCache: {
-  lintPassed: boolean;
+interface BuildHealth {
+  lintPassed: boolean | null;
   lintErrors: number;
   lintWarnings: number;
   checkedAt: string;
-} | null = null;
+}
+
+let buildHealthCache: BuildHealth | null = null;
 let buildHealthCheckedAt = 0;
 const BUILD_HEALTH_TTL = 5 * 60 * 1000; // 5 minutes
 
@@ -28,7 +30,7 @@ async function getBuildHealth() {
   // dev server in this sandbox environment. Build health is checked externally
   // via `bun run lint` in the terminal. Return "not checked" by default.
   buildHealthCache = {
-    lintPassed: null as unknown as boolean,
+    lintPassed: null,
     lintErrors: 0,
     lintWarnings: 0,
     checkedAt: new Date().toISOString(),
