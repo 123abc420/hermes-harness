@@ -100,11 +100,14 @@ BROADCAST:
 ### 5. PERSIST (save)
 ```
 1. Update /home/z/my-project/worklog.md (append wave results)
-2. POST /api/harness/waves (create wave record)
+2. POST /api/harness/waves with { waveNumber: N, summary: "...", status: "running", decisionsCount, improvementsCount, errorsCount }
+   — If a wave with that waveNumber exists, it UPDATES it (upsert). Otherwise creates new.
+   — This avoids phantom duplicate waves (W278 fix).
 3. POST /api/harness/decisions (for each decision)
-4. POST /api/harness/metrics (for key metrics)
-5. Git add + commit + push to GitHub
-6. Update /home/z/my-project/gh-sync/memory/context.md
+4. POST /api/harness/metrics (for each metric — one at a time, not array)
+5. POST /api/harness/waves with { waveNumber: N, status: "completed" } to mark wave done
+6. POST /api/harness/github/sync to commit + push to GitHub
+7. Update /home/z/my-project/gh-sync/memory/context.md
 
 BROADCAST:
   broadcast '{"type":"activity","agentState":"executing","message":"Persisting to GitHub...","phase":"persist","waveNumber":N,"progress":0.9}'

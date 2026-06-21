@@ -6003,3 +6003,21 @@ Work Log:
 Stage Summary:
 - 2 files changed (index.ts, context.md). SPEC Section 5 export contract now complete for all W277+ additions.
 - Lint: 0. TypeScript: 0. Dev.log: clean.
+
+---
+Task ID: W281
+Agent: Wave Engine
+Task: Wave 281 — Maintenance: wave_protocol PERSIST docs updated
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0. Deep scan: all 17 API routes checked, zod validation appropriate (9 POST routes validated, 8 GET-only routes need none). Codebase fully polished.
+- PLAN: Maintenance — update wave_protocol.md PERSIST section to document the upsert-by-waveNumber pattern from W278.
+- EXECUTE:
+  1. wave_protocol.md — PERSIST section: documented upsert behavior, two-step create-then-complete flow, metrics one-at-a-time constraint.
+  2. Updated context.md metrics.
+- VERIFY: Lint 0, tsc 0.
+- PERSIST: Wave recorded, GitHub sync.
+
+Stage Summary:
+- 2 files changed (wave_protocol.md, context.md). Protocol documentation now matches actual API behavior.
+- Lint: 0. TypeScript: 0.
