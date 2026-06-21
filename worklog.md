@@ -4861,3 +4861,23 @@ Stage Summary:
 - SVG gradient ID collision fixed with React useId()
 - Removed unused Clock import, dead StaggerContainer code (-22 lines)
 - Git push successful: fb3d95c..3337eef
+---
+Task ID: W239
+Agent: Wave Engine (orchestrator)
+Task: Patch stuck interrupted waves + fix seed route hardcoded URL
+
+Work Log:
+- ASSESS: Read context, insights, checked DB for stuck waves
+- Found 10 "interrupted" waves (W4,W5,W7-W11,W155-W157) dragging metrics
+- Found seed/route.ts hardcoded localhost:3000
+- PLAN: 2 improvements — patch DB data, fix seed route
+- EXECUTE: Patched 10 waves interrupted→failed via Prisma updateMany
+- Rewrote seed/route.ts: request-header-based URL, removed setTimeout, fixed payload type
+- VERIFY: lint 0 errors, build 19/19 routes
+- PERSIST: Committed and pushed (e406099)
+
+Stage Summary:
+- DB: 144 completed, 10 failed (was 144 completed, 10 interrupted)
+- Success rate now accurately 93.5% (was misleadingly low)
+- seed/route.ts: exportable (no hardcoded URL), cleaner payload
+- Git push: 9b54a8c..e406099
