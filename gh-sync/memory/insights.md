@@ -136,43 +136,48 @@
 - `setTimeout` in API routes is unreliable — serverless/edge runtimes freeze the function after response is sent. The timer never fires.
 - For status machines (syncing → connected), perform the real work inline and update status in the same request lifecycle.
 - If simulating async work, use a polling pattern from the client instead of server-side setTimeout.
-## Agent Live Visual Design
+## Agent Live Visual Design (Replay-First, W256)
 
-- Full-bleed canvas with HUD overlays > 2-column grid. The character should dominate the view.
-- Canvas `position: absolute; inset-0; w-full h-full` inside a relative container gives the panel full control over canvas sizing.
-- State-reactive backgrounds (brain waves, energy surges, spirals) make the avatar feel alive even when no data arrives.
-- Particle bursts on state transitions provide immediate visual feedback for status changes.
-- `rgba()` helper function with pre-computed RGB tuples per state is more efficient than string parsing in the draw loop.
-- Scale factor `Math.min(W/500, H/600) * 2.2` keeps character proportional across screen sizes.
+- SVG node graph + timeline replay replaced the canvas avatar system (W256).
+- `AgentNetworkGraph` uses pure SVG with ResizeObserver — zero requestAnimationFrame, zero particles.
+- Replay timeline shows timestamped activities with play/pause/loop/speed controls.
+- Compact status bar (LIVE/OFFLINE, state, message, wave count, version) above the replay view.
+- Nodes receive state-reactive glow via SVG `<animate>` — no JS animation loop needed.
 
 ## Real-Time Broadcast Pattern
 
 - Agent Live is dead without POST updates to `/api/harness/agent-status` during waves.
 - The `agent-live-broadcast` skill provides a curl-based protocol for phase-by-phase updates.
-- State → visual mapping matters: thinking=brain waves, executing=energy surges, celebrating=golden rings, error=red pulse, evolving=spiral, planning=hex grid.
+- State → color mapping matters: thinking=cyan, executing=rose, verifying=green, planning=violet, celebrating=amber, error=red. Consistent via `getStateHex()`.
 
-## Canvas ResizeObserver Pattern
+## SVG Graph ResizeObserver Pattern (W256)
 
-- Canvas with `absolute inset-0 w-full h-full` needs ResizeObserver — `useEffect([], [])` with `getBoundingClientRect()` captures stale dimensions after window resize.
-- Store layout values in a `useRef` object. The draw loop reads from the ref each frame, so ResizeObserver updates are picked up on the next animation frame without re-creating the entire effect.
-- Use `ctx.setTransform(dpr, 0, 0, dpr, 0, 0)` instead of `ctx.scale(dpr, dpr)` in resize — `setTransform` is absolute (not cumulative), so it's safe to call repeatedly.
-- Don't forget `ro.disconnect()` in the effect cleanup.
+- SVG uses `useCallback` ref + `ResizeObserver` to track container dimensions.
+- No `useMemo` for ResizeObserver (causes React child error) — use `useRef<ResizeObserver>` + `useCallback`.
+- No DPR scaling needed — SVG is resolution-independent.
+- Always disconnect observer in the callback ref when a new element arrives.
 
-## Canvas State Effect Completeness
+## SVG Node State Visuals (W256)
 
-- Each agent state should have a unique visual pattern. If a state has no effect, the canvas looks "dead" during that phase.
-- 10 states = 10 unique effects. Missing any makes the "mind reflection" concept incomplete.
+- Each node state maps to a color via `getStateHex()` — consistent across graph, timeline, and status bar.
+- Active nodes (executing, thinking, verifying) get a pulsing glow ring via SVG `<animate>`.
+- Idle/offline nodes render dimmer — inner dot is hollow, state indicator at 30% opacity.
+- No per-state animation effects needed — the timeline provides the "alive" feeling.
 
-## Hooks Inside useEffect
+## Multi-Agent Visual Design (Replay-First, W256)
 
-- Never call `useRef()` inside a `useEffect` callback — React's rules-of-hooks linter catches this.
-- For mutable draw-loop state (timers, targets), declare refs at the component level, not inside the effect. The draw loop reads them via closure over the ref's `.current`.
+- SVG node graph shows agent world — nodes for roles, edges for data flow, animated dots for active connections.
+- Store is single source of truth for node state — graph reads from Zustand store.
+- Hover shows message tooltip. Click selects node with dashed selection ring (AnimatePresence).
+- Orchestrator node is always visible as fallback.
 
-## Ambient Canvas Layers
+## Replay System Design (W256)
 
-- Three independent ambient layers (data rain, heartbeat pulses, character personality) make the canvas feel alive 24/7 without any wave activity.
-- Data rain at 3-6% opacity is perceptible but not distracting. State-tinted so it matches the current mood.
-- Character look-around every 5-8s with smooth interpolation breaks the "staring" effect. Mouse overrides auto-look.
+- Activities stored newest-first in Zustand; reversed for oldest-to-newest display.
+- Phase grouping dividers inserted when phase changes between consecutive entries.
+- Auto-scroll via `scrollIntoView({ block: 'nearest' })` during playback.
+- Speed options: 0.5x (3s), 1x (1.5s), 2x (750ms), 4x (375ms) per step.
+- Loop mode replays automatically from oldest when reaching newest.
 
 ## Sandbox Network Isolation
 

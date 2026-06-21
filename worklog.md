@@ -5469,3 +5469,20 @@ Stage Summary:
 - Total dead code removed: 836 lines
 - Replay-first Agent Live panel confirmed working via agent-browser
 - Total improvements: 2, Decisions: 2
+
+---
+Task ID: W256
+Agent: Wave Engine (cron)
+Task: Data quality wave — patch stuck waves, clean stale insights, update context
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dashboard API, dev.log. Found: W165+W166 stuck running, insights.md has 5 stale canvas sections, context.md references removed canvas/HUD.
+- PLAN: (1) Patch stuck waves via API, (2) Replace 5 stale canvas insight sections with SVG/replay patterns, (3) Rewrite context.md for Replay-First Era.
+- EXECUTE: Patched W165 and W166 to interrupted. Replaced 5 insight sections: Agent Live Visual Design, Canvas ResizeObserver, Canvas State Effect, Multi-Agent Visual Design, Ambient Canvas Layers. Updated broadcast state-visual mapping. Rewrote context.md: Replay-First Era, SVG graph, 0 stuck waves, ignoreBuildErrors=true.
+- VERIFY: 0 lint errors, 0 running waves in DB, clean dev.log.
+
+Stage Summary:
+- 2 stuck waves patched (W165, W166)
+- 5 stale canvas sections replaced with SVG/replay insights
+- context.md rewritten for post-replay-redesign state
+- Total improvements: 3, Decisions: 2
