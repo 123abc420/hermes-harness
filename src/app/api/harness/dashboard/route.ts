@@ -8,7 +8,7 @@ import type { HarnessWave, HarnessMetric, HarnessDecision, HarnessExport, GitHub
 
 // ── Dashboard response cache (typed with Prisma output shapes) ────
 interface DashboardResponse {
-  waves: (HarnessWave & { decisions: HarnessDecision[]; _count: { decisions: number } })[];
+  waves: (HarnessWave & { _count: { decisions: number } })[];
   totalStats: { totalWaves: number; totalDecisions: number; totalImprovements: number; totalErrors: number; githubCommits: number; waveSuccessRate: number; recentSuccessRate: number };
   metrics: (HarnessMetric | { metricKey: string; metricValue: number })[];
   latestMetrics: Record<string, number>;
@@ -50,11 +50,13 @@ export async function GET() {
       recentDecisions,
       errorTrend,
       waveCounts,
+      recentWavesForRate,
     ] = await Promise.all([
+      // Fetch count-only instead of full decision objects (perf: avoids loading N decision rows per wave)
       db.harnessWave.findMany({
         orderBy: { waveNumber: 'desc' },
         take: 10,
-        include: { decisions: true },
+        include: { _count: { select: { decisions: true } } },
       }),
       Promise.all([
         db.harnessWave.count(),
@@ -86,12 +88,15 @@ export async function GET() {
         by: ['status'],
         _count: true,
       }),
+      // Recent 5 waves for success rate (merged into batch — eliminates extra round-trip)
+      db.harnessWave.findMany({
+        orderBy: { waveNumber: 'desc' },
+        take: 5,
+        select: { status: true },
+      }),
     ]);
 
-    const waves = recentWaves.map((w) => ({
-      ...w,
-      _count: { decisions: w.decisions.length },
-    }));
+    const waves = recentWaves as (HarnessWave & { _count: { decisions: number } })[];
 
     const configMap: Record<string, string> = {};
     for (const c of configs) {
@@ -109,12 +114,7 @@ export async function GET() {
     const totalWaveCount = waveCounts.reduce((s, w) => s + w._count, 0);
     const waveSuccessRate = totalWaveCount > 0 ? Math.round((completedCount / totalWaveCount) * 100) : 0;
 
-    // Recent success rate (last 5 waves)
-    const recentWavesForRate = await db.harnessWave.findMany({
-      orderBy: { waveNumber: 'desc' },
-      take: 5,
-      select: { status: true },
-    });
+    // Recent success rate (last 5 waves) — already fetched in batch above
     const recentCompleted = recentWavesForRate.filter((w) => w.status === 'completed').length;
     const recentSuccessRate = recentWavesForRate.length > 0
       ? Math.round((recentCompleted / recentWavesForRate.length) * 100)

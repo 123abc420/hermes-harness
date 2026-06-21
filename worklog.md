@@ -5410,3 +5410,23 @@ Stage Summary:
 - next.config.ts now resilient: ignores TS errors, allows cross-origin dev requests
 - New skill: `gh-sync/skills/wave-engine.md` — reusable protocol for cron-triggered self-improvement waves
 - Total skills: 11 (was 10 + template)
+
+---
+Task ID: W254
+Agent: Wave Engine (HERMES)
+Task: Dashboard query optimization — merge batch + count-only fetch
+
+Work Log:
+- ASSESS: 0 lint, 0 TS errors, 0 `as any`. Found: dashboard fetches full decision objects (N rows per wave) but only uses count. Extra DB round-trip for recentWavesForRate. Empty catch in agent-demo POST.
+- PLAN: (1) Merge recentWavesForRate into Promise.all batch, (2) Replace include:{decisions:true} with _count:{select:{decisions:true}}, (3) Add logError to agent-demo empty catch.
+- EXECUTE:
+  1. dashboard/route.ts: Added recentWavesForRate to Promise.all (10→11 parallel queries). Replaced `include: { decisions: true }` with `include: { _count: { select: { decisions: true } } }`. Updated DashboardResponse interface to remove `decisions: HarnessDecision[]`.
+  2. agent-demo/route.ts: `catch {}` → `catch (error) { logError('AGENT_DEMO_POST', error); }`
+- VERIFY: 0 lint errors, 0 dev.log errors. Dashboard API verified: waves have `_count:{decisions:N}`, no `decisions` array, recentSuccessRate computed correctly.
+
+Stage Summary:
+- 2 files modified: dashboard/route.ts, agent-demo/route.ts
+- DB round-trips per dashboard load: 11 → 11 (but now all parallel, was 11+1 sequential)
+- Decision objects fetched per dashboard: N×10 → 0 (count-only)
+- Empty catch with logError in API POST: fixed 1 (agent-demo)
+- Total improvements: 3, Decisions: 3

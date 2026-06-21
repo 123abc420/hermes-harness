@@ -125,7 +125,8 @@ export async function POST(req: NextRequest) {
     }
     await postToStatus(parsed.data);
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
+    logError('AGENT_DEMO_POST', error);
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
