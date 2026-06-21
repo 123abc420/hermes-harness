@@ -30,17 +30,6 @@ interface ServerActivityEntry {
   timestampAR: string;
 }
 
-/** Mirrors the in-memory SubAgentEntry shape from agent-status/route.ts */
-interface ServerSubAgentEntry {
-  id: string;
-  name: string;
-  state: string;
-  message: string;
-  color: string;
-  spawnTime: number;
-  timestampAR: string;
-}
-
 interface HealthData {
   status: string;
   clients: number;
@@ -48,7 +37,6 @@ interface HealthData {
   activities: ServerActivityEntry[];
   activityCount: number;
   activityTimestamp: number;
-  subAgents?: ServerSubAgentEntry[];
   networkNodes?: NetworkNode[];
   nodeTimestamp?: number;
 }

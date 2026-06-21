@@ -5678,3 +5678,20 @@ Stage Summary:
 - Replay loop toggle now works in real-time (no restart needed). Used ref pattern to avoid stale closure.
 - 4 icon-only buttons now have accessible names. WCAG 2.1 AA compliant.
 - Lint: 0 errors.
+
+---
+Task ID: W266
+Agent: Main Orchestrator
+Task: Dead legacy state cleanup — SubAgent, lastTurn, isReplaying
+
+Work Log:
+- ASSESS: Dev log clean. Explorer confirmed: zero console.log, zero TODOs, all exports valid. Found dead state in agent-live-store: SubAgent interface, subAgents field, lastTurnActivities, isReplaying — all pre-v2.0 legacy, never written/read by any component.
+- PLAN: Remove all dead state from store, hook, and index.ts exports. Also remove unused _improvements param from getLevel.
+- EXECUTE: Removed SubAgent interface (7 lines), subAgents from state type + initial value, lastTurnActivities + isReplaying + setLastTurn + setIsReplaying from store. Removed ServerSubAgentEntry from hook, subAgents from HealthData. Removed SubAgent from index.ts re-export. Cleaned _improvements param.
+- VERIFY: bun run lint — 0 errors.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- Removed 6 dead store fields/actions, 2 dead interfaces, 1 dead re-export, 1 unused param.
+- Store now only contains state that is actually written and read. No legacy cruft.
+- Lint: 0 errors.

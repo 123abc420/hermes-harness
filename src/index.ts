@@ -42,7 +42,7 @@ export { useAgentLive } from './hooks/use-agent-live';
 
 // ─── Agent Live Store (replay + node graph) ──────────────────────────
 export { useAgentLiveStore } from './store/agent-live-store';
-export type { LiveActivityEntry, SubAgent, NetworkNode } from './store/agent-live-store';
+export type { LiveActivityEntry, NetworkNode } from './store/agent-live-store';
 
 // ─── Store (Dashboard) ────────────────────────────────────────────────────
 export { useHarnessStore } from './store/harness-store';

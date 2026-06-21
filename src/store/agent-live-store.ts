@@ -14,15 +14,6 @@ export interface LiveActivityEntry {
   phase?: string;
 }
 
-export interface SubAgent {
-  id: string;
-  name: string;
-  state: AgentVisualState;
-  message: string;
-  spawnTime: number;
-  color: string;
-}
-
 // ─── Network Node (v2.0) ──────────────────────────────────────────────
 export interface NetworkNode {
   id: string;
@@ -65,15 +56,8 @@ export interface AgentLiveState {
   activities: LiveActivityEntry[];
   maxActivities: number;
 
-  // Sub-agents (legacy)
-  subAgents: SubAgent[];
-
   // Network nodes (v2.0)
   networkNodes: NetworkNode[];
-
-  // Last turn replay
-  lastTurnActivities: LiveActivityEntry[];
-  isReplaying: boolean;
 
   // Selected node (for popup)
   selectedNodeId: string | null;
@@ -82,8 +66,6 @@ export interface AgentLiveState {
   setStatus: (update: Partial<Pick<AgentLiveState, 'agentState' | 'message' | 'phase' | 'waveNumber' | 'progress' | 'waveCount' | 'totalImprovements' | 'totalDecisions' | 'decisionCountThisWave' | 'recentSuccessRate' | 'healthScore' | 'healthScoreTrend'>>) => void;
   addActivity: (entry: Omit<LiveActivityEntry, 'id' | 'timestamp' | 'timestampAR'>) => void;
   setConnected: (connected: boolean) => void;
-  setLastTurn: (activities: LiveActivityEntry[]) => void;
-  setIsReplaying: (replaying: boolean) => void;
   setNetworkNodes: (nodes: NetworkNode[]) => void;
   selectNode: (nodeId: string | null) => void;
 }
@@ -93,7 +75,7 @@ const LEVEL_THRESHOLDS = [
   0, 5, 12, 22, 35, 50, 70, 95, 125, 160, 200, 250, 300,
 ];
 
-function getLevel(waves: number, _improvements: number) {
+function getLevel(waves: number) {
   let lvl = 1;
   for (const threshold of LEVEL_THRESHOLDS) {
     if (waves >= threshold) lvl++;
@@ -136,11 +118,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   activities: [],
   maxActivities: 80,
 
-  subAgents: [],
   networkNodes: [],
-
-  lastTurnActivities: [],
-  isReplaying: false,
 
   selectedNodeId: null,
 
@@ -149,7 +127,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
     const newWaves = update.waveCount ?? state.waveCount;
     const newImprovements = update.totalImprovements ?? state.totalImprovements;
     const newDecisions = update.totalDecisions ?? state.totalDecisions;
-    const newLevel = getLevel(newWaves, newImprovements);
+    const newLevel = getLevel(newWaves);
 
     const xpInCurrentLevel = getXpInLevel(newWaves, newLevel);
 
@@ -183,9 +161,6 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   },
 
   setConnected: (connected) => set({ isConnected: connected }),
-
-  setLastTurn: (activities) => set({ lastTurnActivities: activities }),
-  setIsReplaying: (replaying) => set({ isReplaying: replaying }),
 
   setNetworkNodes: (nodes) => set({ networkNodes: nodes }),
 
