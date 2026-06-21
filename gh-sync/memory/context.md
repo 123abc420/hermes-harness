@@ -3,11 +3,11 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 09:35 UTC+8
+2026-06-21 09:45 UTC+8
 
 ## System Status
 - **Phase**: Post-Compliance Evolution (Wave 230)
-- **Waves in DB**: 160
+- **Waves in DB**: 161
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -18,8 +18,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 23 |
 | Exported components | 10 |
-| GitHub commits | ~408 |
-| Waves in DB | 160 |
+| GitHub commits | ~410 |
+| Waves in DB | 161 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
 | Canvas state effects | 10 (all unique) |
@@ -43,7 +43,8 @@
 - Particle bursts + wave rings on state transitions
 - 60 floating particles, 12 orbiting with trails, dual rings
 - Energy aura around character, state-tinted effects
-- agent-live-broadcast skill for real-time wave updates
+- agent-live-broadcast skill v1.1 (documents sandbox limitation + pure in-memory SSE architecture)
+- Dead forwardToService code removed (W230) — no more dev.log noise
 - Health score guarded against 0/0 NaN
 - Donut charts use percentage radii — no mobile clipping
 - GitHub sync does real git push inline, status correct
@@ -51,6 +52,6 @@
 - Page compiles in <1s
 
 ## What's next
-1. Use agent-live-broadcast skill in every wave to make Agent Live truly real-time
-2. Per-wave replay with real phase data (requires schema change)
-3. Consider adding more chart types to Analytics tab
+1. Per-wave replay with real phase data (requires schema change)
+2. Consider adding more chart types to Analytics tab
+3. Run agent-browser QA to catch any remaining visual issues
