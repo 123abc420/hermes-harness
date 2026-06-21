@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 13:00 UTC+8
+2026-06-21 13:10 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 241)
+- **Phase**: Multi-Agent Visual Era (Wave 242)
 - **Waves in DB**: 154
 - **Spec compliance**: 100% (16/16)
 
@@ -46,6 +46,8 @@
 | ACTIVITY_FILTERS icon duplication | 0 (derived from STATE_ICONS, W240) |
 | Dead exports in schemas.ts | 0 (KNOWN_ACTIONS + safeParse removed, W241) |
 | Unused imports | 0 (React removed from canvas, W241) |
+| Dead hooks | 0 (useMetrics + useSpec removed, W242) |
+| Record<string,unknown> in agent-status | 0 (typed interfaces, W242) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable

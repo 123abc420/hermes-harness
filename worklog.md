@@ -4920,3 +4920,25 @@ Stage Summary:
 - dashboard/route.ts: Metrics query fallback catch now logs via logDebug
 - agent-network-canvas.tsx: Removed unused React named import
 - Git push: 098405e..155b139
+
+---
+Task ID: W242
+Agent: Wave Engine (orchestrator)
+Task: Remove dead hooks + strongly type agent-status in-memory state
+
+Work Log:
+- ASSESS: Read context, insights, worklog, dev.log — clean state from W241
+- Sub-agent scan found: 3 dead hooks (useMetrics, useGithubStatus, useSpec), Record<string,unknown> in agent-status
+- PLAN: 2 improvements — (1) remove dead hooks, (2) add typed interfaces
+- EXECUTE: Removed useMetrics + useSpec (truly dead). Restored useGithubStatus after build caught it as used by github-tab.tsx
+- Added AgentStatus, ActivityEntry, SubAgentEntry interfaces replacing 3 Record<string,unknown>
+- Eliminated 5 unsafe 'as' casts, removed redundant String() wrappers
+- VERIFY: lint 0 errors, build 19/19 (caught useGithubStatus false positive, fixed)
+- PERSIST: Committed and pushed (7f4aabb)
+
+Stage Summary:
+- use-harness-data.ts: -12 lines (removed useMetrics + useSpec)
+- index.ts: -2 re-exports (kept useGithubStatus)
+- agent-status/route.ts: +22 lines interfaces, -4 lines casts/wrappers (net type safety gain)
+- Lesson: always verify dead-code claims with build, not just grep
+- Git push: b0c505e..7f4aabb
