@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 10:15 UTC+8
+2026-06-21 10:41 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 233)
+- **Phase**: Multi-Agent Visual Era (Wave 234)
 - **Waves in DB**: 162
 - **Spec compliance**: 100% (16/16)
 
@@ -16,9 +16,9 @@
 | API routes | 19 |
 | Dashboard tabs | 6 |
 | Skills | 10 (+ 1 template) |
-| Components | 22 (removed agent-avatar-canvas) |
+| Components | 22 |
 | Exported components | 10 |
-| GitHub commits | ~415 |
+| GitHub commits | ~416 |
 | Waves in DB | 162 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
@@ -32,6 +32,8 @@
 | Ungated client console.warn | 0 |
 | Shared zod schemas | 8 |
 | Skills tracked in git | 10 (+ 1 template) |
+| VALID_NODE_TYPES dead code | 0 (removed W234) |
+| Activity log capacity | 50 (server) / 80 (client) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
@@ -65,4 +67,4 @@
 1. Next cron wave will use v2.0 broadcast protocol (embedded in wave_protocol.md)
 2. Per-wave replay with real phase data (requires schema change)
 3. More analytics charts
-4. Consider removing VALID_NODE_TYPES dead constant in agent-status route
+4. Visual QA of node canvas with real broadcast data

@@ -11,12 +11,6 @@ const VALID_PHASES = new Set([
   'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
 ]);
 
-// Node type validation for future use
-const VALID_NODE_TYPES = new Set([
-  'orchestrator', 'assessor', 'planner', 'executor', 'verifier',
-  'git-agent', 'custom',
-]);
-
 function validateAgentState(value: unknown): string | null {
   if (value === undefined || value === null) return null;
   const s = String(value);
@@ -53,7 +47,7 @@ let latestStatus: Record<string, unknown> = {
 };
 
 let activityLog: Array<Record<string, unknown>> = [];
-const MAX_LOG = 30;
+const MAX_LOG = 50;
 const SSE_POLL_INTERVAL = 2000;
 const SSE_KEEP_ALIVE = 30_000;
 
