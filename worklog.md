@@ -5604,3 +5604,21 @@ Stage Summary:
 - New: animated-number.tsx — reusable spring-physics countup (0 new deps, direct DOM write via ref)
 - 6 stat cards + health ring now animate from 0 to target value on mount/update
 - Lint: 0 errors.
+
+---
+Task ID: W262
+Agent: Main Orchestrator
+Task: Memory token budget compliance — trim context.md and insights.md
+
+Work Log:
+- ASSESS: context.md was 653 words (~870 tokens, over 800 cap). insights.md was 1604 words (~2138 tokens, over 2000 cap).
+- PLAN: Consolidate 20+ zero-metric rows in context.md into summary. Merge/trim insights.md sections.
+- EXECUTE: Rewrote context.md — 263 words (~350 tokens). Merged 20+ individual quality gate rows into one "Quality gates: all clear" row. Consolidated "What exists" from 14 bullets to 5.
+- EXECUTE: Rewrote insights.md — 828 words (~1100 tokens). Merged 4 SVG sections into 1 "Agent Live" section. Merged "Data Hygiene" + "Dead Code Hygiene". Shortened "Stale Component Duplication" (fully fixed). Removed "Async Status Transitions" (folded into Event Loop). Consolidated Platform + Sandbox into 2 sections.
+- VERIFY: bun run lint — 0 errors.
+- PERSIST: Worklog, wave record, decisions, GitHub sync
+
+Stage Summary:
+- context.md: 870 → 350 tokens (60% reduction). Still has all essential metrics.
+- insights.md: 2138 → 1100 tokens (48% reduction). All patterns preserved, consolidated where redundant.
+- Lint: 0 errors.
