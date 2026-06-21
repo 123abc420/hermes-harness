@@ -4,17 +4,18 @@ import { join } from 'path';
 import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
 import { logError, logDebug } from '@/lib/logger';
+import type { HarnessWave, HarnessMetric, HarnessDecision, HarnessExport, GitHubSync } from '@prisma/client';
 
-// ── Dashboard response cache ────
+// ── Dashboard response cache (typed with Prisma output shapes) ────
 interface DashboardResponse {
-  waves: unknown[];
-  totalStats: Record<string, unknown>;
-  metrics: unknown[];
+  waves: (HarnessWave & { decisions: HarnessDecision[]; _count: { decisions: number } })[];
+  totalStats: { totalWaves: number; totalDecisions: number; totalImprovements: number; totalErrors: number; githubCommits: number; waveSuccessRate: number; recentSuccessRate: number };
+  metrics: HarnessMetric[];
   latestMetrics: Record<string, number>;
-  githubStatus: Record<string, unknown>;
+  githubStatus: GitHubSync | null;
   config: Record<string, string>;
-  exports: unknown[];
-  recentDecisions: unknown[];
+  exports: HarnessExport[];
+  recentDecisions: (HarnessDecision & { wave: { waveNumber: number; status: string; id: string } | null })[];
   errorTrend: { wave: number; errors: number; status: string }[];
   skillsCount: number;
   healthScore: number;
@@ -22,8 +23,7 @@ interface DashboardResponse {
   healthBreakdown: { spec: number; success: number; errors: number; github: number };
 }
 
-let dashboardCache: { data: DashboardResponse; timestamp: number } | null = null;
-const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
+let dashboardCache: { data: DashboardResponse; timestamp: number } | null = null;const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
 
 export async function GET() {
   try {

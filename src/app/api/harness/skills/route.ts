@@ -17,15 +17,23 @@ function parseFrontmatter(content: string): { meta: SkillMeta; body: string } {
   const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!match) return { meta: { name: 'unknown' }, body: content };
 
-  const meta: SkillMeta = { name: 'unknown' };
+  // Build raw key-value map, then map to typed SkillMeta
+  const raw: Record<string, string> = {};
   for (const line of match[1].split('\n')) {
     const m = line.match(/^(\w+)\s*:\s*(.+)$/);
-    if (m) {
-      const key = m[1] as keyof SkillMeta;
-      (meta as unknown as Record<string, unknown>)[key] = m[2].trim().replace(/^['"]|['"]$/g, '');
-    }
+    if (m) raw[m[1]] = m[2].trim().replace(/^['"]|['"]$/g, '');
   }
-  return { meta, body: match[2] };
+
+  return {
+    meta: {
+      name: raw.name ?? 'unknown',
+      version: raw.version,
+      category: raw.category,
+      trigger: raw.trigger,
+      created: raw.created,
+    },
+    body: match[2],
+  };
 }
 
 export async function GET(req: NextRequest) {

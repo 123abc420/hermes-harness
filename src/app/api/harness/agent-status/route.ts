@@ -535,13 +535,34 @@ export async function POST(req: NextRequest) {
       }
       latestStatus = { ...latestStatus, ...safeFullUpdate, timestamp: Date.now() };
       if (body.activities) {
-        activityLog = (body.activities as unknown as ActivityEntry[]).map(a => ({
-          ...a,
-          timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp),
-        }));
+        // Runtime validation: filter to entries with required ActivityEntry fields
+        activityLog = body.activities
+          .filter((a): a is ActivityEntry =>
+            a != null &&
+            typeof a === 'object' &&
+            typeof (a as Record<string, unknown>).id === 'string' &&
+            typeof (a as Record<string, unknown>).state === 'string' &&
+            typeof (a as Record<string, unknown>).message === 'string' &&
+            typeof (a as Record<string, unknown>).timestamp === 'number'
+          )
+          .map(a => ({
+            ...a,
+            agentState: a.agentState ?? a.state,
+            phase: a.phase ?? '',
+            timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp),
+          }));
       }
       if (body.subAgents) {
-        subAgents = body.subAgents as unknown as SubAgentEntry[];
+        // Runtime validation: filter to entries with required SubAgentEntry fields
+        subAgents = body.subAgents
+          .filter((a): a is SubAgentEntry =>
+            a != null &&
+            typeof a === 'object' &&
+            typeof (a as Record<string, unknown>).id === 'string' &&
+            typeof (a as Record<string, unknown>).name === 'string' &&
+            typeof (a as Record<string, unknown>).state === 'string' &&
+            typeof (a as Record<string, unknown>).spawnTime === 'number'
+          );
       }
 
       // Update orchestrator node to celebrating state
