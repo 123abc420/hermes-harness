@@ -5486,3 +5486,19 @@ Stage Summary:
 - 5 stale canvas sections replaced with SVG/replay insights
 - context.md rewritten for post-replay-redesign state
 - Total improvements: 3, Decisions: 2
+
+---
+Task ID: W257
+Agent: Wave Engine (cron)
+Task: Final canvas reference cleanup — insights.md + src/index.ts
+
+Work Log:
+- ASSESS: Found 3 more stale canvas-era insight sections (Multi-Agent Visual Design, Color Single-Source-of-Truth, Bezier Curve Aesthetics) referencing canvas/RGB/particles. Found stale "canvas avatar" comment in src/index.ts public API. Missing NetworkNode type export.
+- PLAN: (1) Remove 3 stale insight sections, (2) Fix index.ts comment + add NetworkNode export.
+- EXECUTE: Deleted 21 lines of stale insights. Fixed comment: "canvas avatar" → "replay + node graph". Added NetworkNode to public type exports.
+- VERIFY: 0 lint errors, clean dev.log, 0 canvas refs in src/ (only seed data in agent-demo).
+
+Stage Summary:
+- 3 stale canvas sections removed from insights.md
+- src/index.ts comment fixed + NetworkNode type exported
+- Total improvements: 2, Decisions: 2
