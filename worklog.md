@@ -5502,3 +5502,19 @@ Stage Summary:
 - 3 stale canvas sections removed from insights.md
 - src/index.ts comment fixed + NetworkNode type exported
 - Total improvements: 2, Decisions: 2
+
+---
+Task ID: W258
+Agent: Wave Engine (cron)
+Task: Dead export cleanup — STATE_COLORS + PhaseTracker from subcomponents
+
+Work Log:
+- ASSESS: 0 as any, 0 @ts-ignore, 0 stuck waves, health=76, clean dev.log. Found STATE_COLORS (12 lines) and PhaseTracker (50 lines) exported from agent-live-subcomponents.tsx but never imported. Also 2 unused imports (cn, motion).
+- PLAN: Remove all dead exports + unused imports.
+- EXECUTE: Rewrote agent-live-subcomponents.tsx from 86 to 16 lines. Removed STATE_COLORS, PhaseTracker, cn import, motion import. Only STATE_ICONS + PHASE_STEPS remain (used by wave-replay-view.tsx).
+- VERIFY: 0 lint errors, clean dev.log.
+
+Stage Summary:
+- 70 lines of dead code removed (STATE_COLORS, PhaseTracker, 2 imports)
+- File reduced from 86 to 16 lines
+- Total improvements: 1, Decisions: 1
