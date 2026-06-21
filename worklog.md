@@ -5013,3 +5013,29 @@ Stage Summary:
 - tsconfig.json: excluded skills/ from TS compilation
 - 18 files changed, net +37/-28 lines
 - Git push: 4674372..3a28f15
+
+---
+Task ID: W246
+Agent: Main Orchestrator
+Task: Fix color drift, strongly type HealthData, type PRIORITY_STYLES
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, guardrails, dev.log (no errors)
+- Identified 3 improvements: color drift in header, weak types in use-agent-live, untyped PRIORITY_STYLES
+- PLAN: Prioritized all 3 as code_quality (type safety + visual consistency)
+- EXECUTE:
+  1. Replaced STATE_COLORS_MAP in harness-header.tsx with getStateHex() from constants.ts
+     - 6 colors were drifted: searching #fb923c→#f97316, planning #c084fc→#a855f7, verifying #34d399→#22c55e, celebrating #fde047→#eab308, error #f87171→#dc2626, evolving #e879f9→#d946ef
+  2. Added ServerAgentStatus, ServerActivityEntry, ServerSubAgentEntry interfaces to use-agent-live.ts
+     - Eliminated 'as unknown as Record<string,unknown>' cast
+     - Removed 8 redundant 'as string'/'as number' casts
+     - Replaced Record<string,unknown> stateUpdate with inferred type
+  3. Typed PRIORITY_STYLES as Record<DecisionPriority, string> in decision-card.tsx
+- VERIFY: bun run lint (0 errors), rm -rf .next && npx next build (clean, 19 routes)
+- PERSIST: Committed and pushed to GitHub
+
+Stage Summary:
+- 3 files changed, 53 insertions, 22 deletions
+- Eliminated single-source-of-truth color drift (header vs canvas/badges)
+- Eliminated unsafe double-cast pattern in use-agent-live.ts
+- PRIORITY_STYLES now catches missing priority values at compile time
