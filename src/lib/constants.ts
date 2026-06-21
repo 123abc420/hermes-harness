@@ -5,8 +5,8 @@ export const HERMES_VERSION = typeof process !== 'undefined' && process.env.NEXT
   ? `v${process.env.NEXT_PUBLIC_VERSION}`
   : 'v0.4.0';
 
-// Agent evolution stages — single source of truth (names + visual params)
-export const EVOLUTION_STAGES = [
+// Agent evolution stages — internal to getLevelName
+const EVOLUTION_STAGES = [
   { level: 1,    name: 'Nascent',        particles: 15, nodes: 3,   rings: 1, description: 'First spark of consciousness' },
   { level: 5,    name: 'Apprentice',     particles: 25, nodes: 6,   rings: 2, description: 'Learning from every wave' },
   { level: 15,   name: 'Operational',    particles: 35, nodes: 10,  rings: 3, description: 'Stable operational system' },
@@ -19,13 +19,13 @@ export const EVOLUTION_STAGES = [
 ] as const;
 
 // Derived from EVOLUTION_STAGES for quick level→name lookups
-export const LEVEL_NAMES: Record<number, string> = Object.fromEntries(
+const LEVEL_NAMES: Record<number, string> = Object.fromEntries(
   EVOLUTION_STAGES.map(s => [s.level, s.name])
 );
 
 export function getLevelName(level: number): string {
   let name = 'Nascent';
-  for (const [lvl, n] of Object.entries(LEVEL_NAMES).map(([k, v]) => [Number(k), v])) {
+  for (const [lvl, n] of Object.entries(LEVEL_NAMES).map(([k, v]) => [Number(k), v] as const)) {
     if (level >= lvl) name = n;
   }
   return name;

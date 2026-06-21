@@ -64,7 +64,6 @@ export const updateDecisionSchema = z
     targetModule: z.string().nullable().optional(),
     outcome: z.string().nullable().optional(),
   })
-  .partial()
   .refine((obj) => Object.keys(obj).length > 0, {
     message: 'At least one field must be provided',
   });
@@ -81,7 +80,6 @@ export const patchWaveSchema = z
     errorsCount: z.number().int().min(0).optional(),
     metricsSnapshot: z.record(z.unknown()).nullable().optional(),
   })
-  .partial()
   .refine((obj) => Object.keys(obj).length > 0, {
     message: 'At least one field must be provided',
   });
