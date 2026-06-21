@@ -5165,3 +5165,21 @@ Stage Summary:
 - Dynamic Tailwind class construction eliminated (dotColorInactive)
 - 24 className template literals migrated to cn() (twMerge conflict safety)
 - cn() adoption: 1 file → 4 files
+
+---
+Task ID: fix-dead-app
+Agent: Main
+Task: Fix dead dev server - app was always down when user entered chat
+
+Work Log:
+- Diagnosed: dev server was not running, Turbopack crashes in sandbox environment
+- Updated package.json dev script to use `--webpack` flag (Turbopack unstable in sandbox)
+- Created `keep-alive.sh` wrapper that auto-restarts server on crash
+- Verified: server responds HTTP 200, all 6 tabs work, 160 waves of data, 0 JS errors
+- Confirmed via agent-browser: Agent Live, Overview, Waves tabs all render correctly
+
+Stage Summary:
+- Root cause: Turbopack (Next.js 16 default) crashes in sandbox; webpack mode is stable
+- Fix: `package.json` dev script changed to `next dev -p 3000 --webpack`
+- Added `keep-alive.sh` for auto-restart on crash
+- Server running on PID 14711, port 3000, health score 82/100
