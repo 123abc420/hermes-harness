@@ -4899,4 +4899,4 @@ Stage Summary:
 - agent-live-panel.tsx: getStateRgb→getStateColor (accurate naming, 7 call sites)
 - ACTIVITY_FILTERS icons now derived from STATE_ICONS (eliminates emoji duplication)
 - 0 net line change (semantic cleanup only)
-- Git push: abc5e34..<pending>
+- Git push: abc5e34..78b0e14
