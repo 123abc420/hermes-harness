@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
 import { STATE_RGB } from '@/lib/constants';
 

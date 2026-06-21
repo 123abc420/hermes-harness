@@ -79,7 +79,7 @@ export async function GET() {
       db.harnessMetric.findMany({
         orderBy: { recordedAt: 'desc' },
         take: 100,
-      }).catch(() => [] as unknown[]),
+      }).catch((e) => { logDebug('DASHBOARD', 'Metrics query failed (bad row)', { error: String(e) }); return [] as unknown[]; }),
       db.gitHubSync.findFirst(),
       db.harnessConfig.findMany(),
       db.harnessExport.findMany({ orderBy: { createdAt: 'desc' } }),

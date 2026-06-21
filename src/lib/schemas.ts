@@ -37,19 +37,6 @@ export const DECISION_OUTCOMES = [
 ] as const;
 export type DecisionOutcome = (typeof DECISION_OUTCOMES)[number];
 
-/** Valid decision actions (open set — validated as non-empty string). */
-export const KNOWN_ACTIONS = [
-  'executed',
-  'planned',
-  'skipped',
-  'failed',
-  'refactoring',
-  'extract',
-  'maintenance',
-  'performance',
-  'skill',
-] as const;
-
 // ── Input schemas (request body validation) ───────────────────────
 
 export const createDecisionSchema = z.object({
@@ -148,30 +135,6 @@ export const agentDemoPostSchema = z.object({
 }).strict();
 
 export type AgentDemoPostInput = z.infer<typeof agentDemoPostSchema>;
-
-// ── Helper: parse with 400 fallback ───────────────────────────────
-
-/**
- * Validates `body` against `schema`. Returns the parsed data on success,
- * or a NextResponse 400 with human-readable errors on failure.
- * Usage: const data = await safeParse(req, mySchema); if (!data) return;
- */
-export async function safeParse<T extends z.ZodType>(
-  req: Request,
-  schema: T,
-): Promise<z.infer<T> | null> {
-  try {
-    const body = await req.json();
-    const result = schema.safeParse(body);
-    if (!result.success) {
-      const first = result.error.issues[0];
-      return null; // caller must return 400
-    }
-    return result.data as z.infer<T>;
-  } catch {
-    return null; // invalid JSON
-  }
-}
 
 /**
  * Returns a 400 response from a Zod parse failure.

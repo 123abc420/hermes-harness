@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { agentDemoPostSchema, validationError } from '@/lib/schemas';
+import { logDebug } from '@/lib/logger';
 
 const DEMO_SECRET = process.env.DEMO_SECRET;
 
@@ -38,8 +39,8 @@ async function postToStatus(data: Record<string, unknown>) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-  } catch {
-    // Ignore
+  } catch (e) {
+    logDebug('AGENT_DEMO', 'postToStatus fetch failed', { error: String(e) });
   }
 }
 
