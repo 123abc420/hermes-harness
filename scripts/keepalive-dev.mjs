@@ -1,20 +1,16 @@
 #!/usr/bin/env node
 /**
  * Keepalive dev server wrapper.
- * Starts the Next.js dev server and agent-live-service,
- * restarting them if they crash. Runs indefinitely.
+ * Starts the Next.js dev server only (agent-live-service removed in W233).
+ * Runs indefinitely, restarting on crash.
  */
 import { spawn } from 'child_process';
-import { existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, '..');
+const __dirname = dirname(import.meta.url);
 
 function startService(cmd, args, label) {
   const child = spawn(cmd, args, {
-    cwd: ROOT,
+    cwd: __dirname,
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env },
   });
@@ -27,10 +23,6 @@ function startService(cmd, args, label) {
   return child;
 }
 
-console.log('[keepalive] Starting services...');
-startService('node', ['scripts/agent-live-service.mjs'], 'agent-live');
+console.log('[keepalive] Starting dev server...');
 startService('npx', ['next', 'dev', '-p', '3000'], 'next-dev');
-console.log('[keepalive] All services started.');
-
-// Keep this process alive forever
 setInterval(() => {}, 60000);

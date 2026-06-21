@@ -11,6 +11,7 @@ const VALID_PHASES = new Set([
   'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
 ]);
 
+// Node type validation for future use
 const VALID_NODE_TYPES = new Set([
   'orchestrator', 'assessor', 'planner', 'executor', 'verifier',
   'git-agent', 'custom',
