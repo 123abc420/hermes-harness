@@ -18,7 +18,7 @@ import {
   FileText, ListTree, Mic, Check,
 } from 'lucide-react';
 import { HERMES_VERSION, getStateHex } from '@/lib/constants';
-import { AgentNetworkCanvas } from './agent-network-canvas';
+import { AgentNetworkGraph } from './agent-network-graph';
 import { STATE_ICONS, PHASE_STEPS } from './agent-live-subcomponents';
 
 // ─── State Visual Config ──────────────────────────────────────
@@ -541,7 +541,7 @@ export function AgentLivePanel() {
           </span>
         </div>
 
-        <AgentNetworkCanvas />
+        <AgentNetworkGraph />
 
         {/* Node Popup */}
         <AnimatePresence>
