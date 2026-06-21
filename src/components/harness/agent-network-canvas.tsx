@@ -5,877 +5,753 @@ import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
 import { STATE_RGB } from '@/lib/constants';
 
 /* ═════════════════════════════════════════════════════════════════════
-   AGENT NETWORK CANVAS v3.0 — Multi-Agent "Living World"
+   AGENT NETWORK CANVAS v4.0 — "Neural Mesh" Red de Nodos
 
-   W235 visual upgrades:
-   - Dot grid (not line grid) — modern look
-   - Ambient pulse waves emitting from nodes
-   - Node name labels on ALL nodes (orchestrator shows "HERMES")
-   - Hover connection highlight (proximity to connection boosts line)
-   - Selected node breathing halo effect
-   - Orchestrator shows current task text below
-   - Improved particle trail (glow + fade)
-   - Secondary nebula (dual-layer atmosphere)
-
-   W237 visual upgrades ("un mundo para los agentes"):
-   - Mesh connections: sub-nodes connect to each other, not just orchestrator
-   - Grid dot interaction: dots near active nodes glow with node color
-   - Spawn flash: bright expanding ring when a node is born
-   - Energy dashes: animated flow on active connections
-   - Node repulsion: nodes push apart to avoid overlap
-   - Mouse attraction: nodes subtly pulled toward cursor
-   - Third nebula layer: dynamic per-node ambient glow
+   Complete rewrite: from character-based to pure animated node network.
+   Every node is a living entity in a shared world.
+   
+   Features:
+   - Organic node movement with drift and orbital motion
+   - Animated connections with flowing energy particles
+   - Nodes glow, breathe, pulse based on state
+   - Size changes dynamically with activity
+   - Mouse interaction: hover glow + gentle attraction
+   - Mesh network: all nearby nodes connect, not just to orchestrator
+   - Deep space atmosphere with nebula and particles
+   - Spawn/destroy animations
    ═════════════════════════════════════════════════════════════════════ */
 
-// STATE_COLORS now imported from constants.ts as STATE_RGB (single source of truth)
-
-const NODE_TYPE_LABELS: Record<string, string> = {
-  orchestrator: 'HERMES',
-  assessor: 'ASSESSOR',
-  planner: 'PLANNER',
-  executor: 'EXECUTOR',
-  verifier: 'VERIFIER',
-  'git-agent': 'GIT',
-  custom: 'AGENT',
-};
-
-// ─── Animated node (internal canvas state) ────────────────────────
+// ─── Internal animated node ────────────────────────────────────
 interface AnimNode {
   id: string;
-  name: string;
   type: string;
+  name: string;
   state: string;
   message: string;
   color: string;
-  rgb: [number, number, number]; // parsed once on creation — avoids per-frame hexToRgb
   connections: string[];
   spawnTime: number;
-  tx: number;
-  ty: number;
-  ax: number;
-  ay: number;
+  
+  // Animation state (normalized 0-1)
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  vx: number;
+  vy: number;
   size: number;
-  glow: number;
-  tGlow: number;
+  targetSize: number;
+  glowIntensity: number;
+  targetGlow: number;
+  opacity: number;
+  
+  // Per-node animation phase (for breathing/pulsing)
+  phase: number;
   orbitAngle: number;
-  orbitSpeed: number;
   orbitRadius: number;
+  orbitSpeed: number;
+  
+  // Spawn animation
   spawnProgress: number;
 }
 
-// ─── Energy particle flowing along a bezier connection ───────────
-interface FlowParticle {
+// Energy particle flowing along a connection
+interface EnergyParticle {
   fromId: string;
   toId: string;
-  t: number;
+  t: number; // 0-1 position along the line
   speed: number;
-  color: [number, number, number];
   size: number;
-  trail: Array<{ x: number; y: number }>;
+  alpha: number;
 }
 
-// ─── Ambient pulse wave ──────────────────────────────────────────
-interface PulseWave {
+// Pulse ring emanating from a node
+interface PulseRing {
   x: number;
   y: number;
   radius: number;
   maxRadius: number;
-  color: [number, number, number];
   alpha: number;
-  speed: number;
+  color: [number, number, number];
 }
 
-// ─── Star in the background ──────────────────────────────────────
+// Background star
 interface Star {
   x: number;
   y: number;
   size: number;
   brightness: number;
   twinkleSpeed: number;
-  twinkleOffset: number;
+  twinklePhase: number;
 }
 
-// ─── Constants ───────────────────────────────────────────────────
-const LERP_SPEED = 0.04;
-const MAX_PARTICLES = 60;
-const MOUSE_GLOW_RADIUS = 120;
-const GRID_DOT_SIZE = 1;
-const GRID_DOT_SPACING = 60;
-const GRID_DOT_ALPHA = 0.04;
-const MAX_PULSE_WAVES = 8;
-const GRID_INTERACT_RADIUS = 90;    // W237: dots within this px of a node glow
-const MESH_CONN_ALPHA = 0.06;       // W237: alpha for sub-node mesh connections
-const MESH_CONN_THRESHOLD = 0.22;   // W237: normalized dist for mesh connection
-const NODE_REPULSE_DIST = 0.1;      // W237: normalized dist for repulsion
-const MOUSE_ATTRACT_STRENGTH = 0.0004; // W237: how strongly mouse pulls nodes
+// ─── Constants ─────────────────────────────────────────────────
+const LERP_SPEED = 0.035;
+const SIZE_LERP = 0.06;
+const GLOW_LERP = 0.05;
+const NODE_REPULSE_DIST = 0.12;
+const NODE_REPULSE_FORCE = 0.0008;
+const MOUSE_ATTRACT_STRENGTH = 0.0003;
+const MESH_CONN_DIST = 0.30;
+const ORCHESTRATOR_CONN_DIST = 0.60;
+const MAX_ENERGY_PARTICLES = 80;
+const MAX_PULSE_RINGS = 12;
+const ENERGY_SPAWN_RATE = 0.015;
+const EPS = 0.001;
 
+// State → visual properties
+const STATE_SIZE_MULT: Record<string, number> = {
+  idle: 1.0, thinking: 1.15, searching: 1.1, planning: 1.2,
+  executing: 1.3, verifying: 1.1, celebrating: 1.4, error: 1.25,
+  evolving: 1.35, offline: 0.8,
+};
+
+const STATE_GLOW_MULT: Record<string, number> = {
+  idle: 0.5, thinking: 0.8, searching: 0.7, planning: 0.9,
+  executing: 1.0, verifying: 0.7, celebrating: 1.2, error: 1.1,
+  evolving: 1.3, offline: 0.2,
+};
+
+const STATE_BREATH_SPEED: Record<string, number> = {
+  idle: 0.5, thinking: 1.5, searching: 1.2, planning: 0.8,
+  executing: 2.0, verifying: 1.0, celebrating: 2.5, error: 3.0,
+  evolving: 1.8, offline: 0.2,
+};
+
+function hexToRgb(hex: string): [number, number, number] {
+  const m = hex.replace('#', '').match(/.{2}/g);
+  if (!m) return [150, 150, 150];
+  return m.map(c => parseInt(c, 16)) as [number, number, number];
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * Math.min(1, t);
+}
+
+function dist(x1: number, y1: number, x2: number, y2: number) {
+  return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
+
+// ─── Component ─────────────────────────────────────────────────
 export function AgentNetworkCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sizeRef = useRef({ w: 0, h: 0, dpr: 1 });
-  const animFrameRef = useRef<number>(0);
-  const timeRef = useRef(0);
-  const prevNodeKeyRef = useRef('');
-  const nodesMapRef = useRef<Map<string, AnimNode>>(new Map());
-  const particlesRef = useRef<FlowParticle[]>([]);
+  const animNodesRef = useRef(new Map<string, AnimNode>());
+  const particlesRef = useRef<EnergyParticle[]>([]);
+  const pulsesRef = useRef<PulseRing[]>([]);
   const starsRef = useRef<Star[]>([]);
-  const pulseWavesRef = useRef<PulseWave[]>([]);
-  const mouseRef = useRef({ x: -1000, y: -1000 });
-  const lastPulseTimeRef = useRef(0);
+  const mouseRef = useRef({ x: 0.5, y: 0.5, active: false });
+  const rafRef = useRef<number>(0);
+  const frameRef = useRef(0);
+  const sizeRef = useRef({ w: 0, h: 0 });
 
-  const agentState = useAgentLiveStore(s => s.agentState);
-  const agentStateRef = useRef(agentState);
   const networkNodes = useAgentLiveStore(s => s.networkNodes);
   const selectedNodeId = useAgentLiveStore(s => s.selectedNodeId);
   const selectNode = useAgentLiveStore(s => s.selectNode);
-  const waveNumber = useAgentLiveStore(s => s.waveNumber);
-  const progress = useAgentLiveStore(s => s.progress);
 
-  // Sync reactive store values into refs for stable draw-loop reads
-  useEffect(() => { agentStateRef.current = agentState; }, [agentState]);
-  const selectedIdRef = useRef(selectedNodeId);
-  useEffect(() => { selectedIdRef.current = selectedNodeId; }, [selectedNodeId]);
-  const waveNumRef = useRef(waveNumber);
-  useEffect(() => { waveNumRef.current = waveNumber; }, [waveNumber]);
-  const progressRef = useRef(progress);
-  useEffect(() => { progressRef.current = progress; }, [progress]);
-
-  const hexToRgb = useCallback((hex: string): [number, number, number] => {
-    const h = hex.replace('#', '');
-    return [
-      parseInt(h.substring(0, 2), 16),
-      parseInt(h.substring(2, 4), 16),
-      parseInt(h.substring(4, 6), 16),
-    ];
-  }, []);
-
-  // Stable function — reads agentState from ref, safe to call inside draw loop
-  // Not a useCallback to avoid re-creating the animation loop on state changes
-  const ensureOrchestrator = (): AnimNode => {
-    const existing = nodesMapRef.current.get('orchestrator');
-    if (existing) return existing;
-    const fallback: AnimNode = {
-      id: 'orchestrator', type: 'orchestrator', name: 'HERMES',
-      state: agentStateRef.current, message: '', color: '#f59e0b', rgb: [245, 158, 11], connections: [],
-      spawnTime: Date.now(), tx: 0.5, ty: 0.45, ax: 0.5, ay: 0.45,
-      size: 1, glow: 0.5, tGlow: 0.5,
-      orbitAngle: 0, orbitSpeed: 0, orbitRadius: 0, spawnProgress: 1,
-    };
-    nodesMapRef.current.set('orchestrator', fallback);
-    return fallback;
-  };
-
-  useEffect(() => {
-    const nodeMap = nodesMapRef.current;
-    const currentIds = new Set<string>();
-    const key = networkNodes.map(n => `${n.id}:${n.state}:${n.size}:${n.glowIntensity}`).join('|');
-    if (key === prevNodeKeyRef.current) return;
-    prevNodeKeyRef.current = key;
-
-    for (const node of networkNodes) {
-      currentIds.add(node.id);
-      const existing = nodeMap.get(node.id);
-      if (existing) {
-        existing.tx = node.x;
-        existing.ty = node.y;
-        existing.tGlow = node.glowIntensity;
-        existing.size = node.size;
-        existing.state = node.state;
-        existing.message = node.message;
-        existing.color = node.color;
-        existing.rgb = hexToRgb(node.color);
-        existing.connections = node.connections;
-      } else {
-        const isOrch = node.type === 'orchestrator';
-        const nonOrchCount = [...nodeMap.values()].filter(n => n.type !== 'orchestrator').length;
-        const total = Math.max(nonOrchCount + 1, 1);
-        const angle = (2 * Math.PI / total) * nonOrchCount + (Math.random() - 0.5) * 0.3;
-        // Two-tier radius: first 4 agents closer, rest in outer ring
-        const baseRadius = nonOrchCount < 4 ? 0.18 : 0.28;
-        const radius = baseRadius + Math.random() * 0.06;
-        const targetX = isOrch ? 0.5 : 0.5 + radius * Math.cos(angle);
-        const targetY = isOrch ? 0.45 : 0.45 + radius * Math.sin(angle);
-        nodeMap.set(node.id, {
-          id: node.id, name: node.name, type: node.type,
-          state: node.state, message: node.message, color: node.color,
-          rgb: hexToRgb(node.color),
-          connections: node.connections, spawnTime: node.spawnTime,
-          tx: targetX, ty: targetY,
-          ax: isOrch ? 0.5 : 0.5, ay: isOrch ? 0.45 : 0.45,
-          size: node.size, glow: node.glowIntensity, tGlow: node.glowIntensity,
-          orbitAngle: Math.random() * Math.PI * 2,
-          orbitSpeed: 0.0003 + Math.random() * 0.0005,
-          orbitRadius: 0.008 + Math.random() * 0.015,
-          spawnProgress: 0,
-        });
-      }
-    }
-
-    for (const [id] of nodeMap) {
-      if (!currentIds.has(id) && id !== 'orchestrator') {
-        nodeMap.delete(id);
-      }
-    }
-  }, [networkNodes]);
-
+  // Initialize stars
   useEffect(() => {
     const stars: Star[] = [];
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 200; i++) {
       stars.push({
-        x: Math.random(), y: Math.random(),
-        size: Math.random() * 1.2 + 0.3,
+        x: Math.random(),
+        y: Math.random(),
+        size: Math.random() * 1.5 + 0.3,
         brightness: Math.random() * 0.4 + 0.1,
-        twinkleSpeed: Math.random() * 2 + 0.8,
-        twinkleOffset: Math.random() * Math.PI * 2,
+        twinkleSpeed: Math.random() * 2 + 0.5,
+        twinklePhase: Math.random() * Math.PI * 2,
       });
     }
     starsRef.current = stars;
   }, []);
 
+  // Sync store nodes to animation nodes
+  const syncNodes = useCallback(() => {
+    const animNodes = animNodesRef.current;
+    const now = Date.now();
+
+    for (const node of networkNodes) {
+      const existing = animNodes.get(node.id);
+      const rgb = hexToRgb(node.color);
+      const stateRgb = STATE_RGB[node.state] || [150, 150, 150];
+      const isActive = node.state !== 'idle' && node.state !== 'offline';
+      const sizeMult = STATE_SIZE_MULT[node.state] || 1.0;
+      const glowMult = STATE_GLOW_MULT[node.state] || 0.5;
+      const baseSize = node.type === 'orchestrator' ? 1.8 : 1.0;
+
+      if (existing) {
+        // Update existing node
+        existing.name = node.name;
+        existing.state = node.state;
+        existing.message = node.message;
+        existing.color = node.color;
+        existing.connections = node.connections;
+        existing.targetSize = baseSize * sizeMult * (node.size || 1.0);
+        existing.targetGlow = glowMult * (node.glowIntensity || 1.0);
+      } else {
+        // Spawn new node
+        const angle = Math.random() * Math.PI * 2;
+        const radius = node.type === 'orchestrator' ? 0 : (Math.random() * 0.3 + 0.15);
+        const cx = node.type === 'orchestrator' ? 0.5 : 0.5 + Math.cos(angle) * radius;
+        const cy = node.type === 'orchestrator' ? 0.45 : 0.45 + Math.sin(angle) * radius;
+
+        animNodes.set(node.id, {
+          id: node.id,
+          type: node.type,
+          name: node.name,
+          state: node.state,
+          message: node.message,
+          color: node.color,
+          connections: node.connections,
+          spawnTime: node.spawnTime || now,
+          x: cx, y: cy,
+          targetX: node.x ?? cx, targetY: node.y ?? cy,
+          vx: 0, vy: 0,
+          size: 0.01,
+          targetSize: baseSize * sizeMult * (node.size || 1.0),
+          glowIntensity: 0,
+          targetGlow: glowMult * (node.glowIntensity || 1.0),
+          opacity: 0,
+          phase: Math.random() * Math.PI * 2,
+          orbitAngle: angle,
+          orbitRadius: radius,
+          orbitSpeed: (Math.random() - 0.5) * 0.003,
+          spawnProgress: 0,
+        });
+
+        // Add spawn pulse
+        if (pulsesRef.current.length < MAX_PULSE_RINGS) {
+          pulsesRef.current.push({
+            x: cx, y: cy,
+            radius: 0, maxRadius: 0.12,
+            alpha: 0.8,
+            color: stateRgb,
+          });
+        }
+      }
+    }
+
+    // Remove nodes that no longer exist (keep orchestrator)
+    for (const [id, node] of animNodes) {
+      if (!networkNodes.find(n => n.id === id) && node.type !== 'orchestrator') {
+        animNodes.delete(id);
+      }
+    }
+  }, [networkNodes]);
+
+  // Canvas resize
+  const handleResize = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    sizeRef.current = { w: rect.width, h: rect.height };
+  }, []);
+
+  // Mouse tracking
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    mouseRef.current = {
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+      active: true,
+    };
+  }, []);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / rect.width;
+    const my = (e.clientY - rect.top) / rect.height;
+
+    let closestId: string | null = null;
+    let closestDist = 0.06;
+
+    for (const [, node] of animNodesRef.current) {
+      const d = dist(node.x, node.y, mx, my);
+      if (d < closestDist) {
+        closestDist = d;
+        closestId = node.id;
+      }
+    }
+
+    selectNode(closestId === selectedNodeId ? null : closestId);
+  }, [selectNode, selectedNodeId]);
+
+  // ─── Draw loop ──────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const resize = () => {
-      const rect = container.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      sizeRef.current = { w: rect.width, h: rect.height, dpr };
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(container);
-
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    };
-
-    const onClick = () => {
-      const { w, h } = sizeRef.current;
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-      let clicked: string | null = null;
-
-      ensureOrchestrator();
-      for (const [, n] of nodesMapRef.current) {
-        const nx = n.ax * w;
-        const ny = n.ay * h;
-        const baseR = (n.type === 'orchestrator' ? 32 : 22) * n.size;
-        const dist = Math.sqrt((mx - nx) ** 2 + (my - ny) ** 2);
-        if (dist < baseR + 12) {
-          clicked = selectedIdRef.current === n.id ? null : n.id;
-          break;
-        }
-      }
-      selectNode(clicked);
-    };
-
-    canvas.addEventListener('mousemove', onMouseMove);
-    canvas.addEventListener('click', onClick);
-
-    const bezierPoint = (
-      x0: number, y0: number, cx: number, cy: number, x1: number, y1: number, t: number,
-    ): [number, number] => {
-      const u = 1 - t;
-      return [u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1];
-    };
-
-    // Smart bezier control point: curves perpendicular to the line, scaled by distance
-    // Gives organic-looking arcs instead of always-bending-up
-    const smartCP = (sx: number, sy: number, ex: number, ey: number, seed: number): [number, number] => {
-      const mx = (sx + ex) / 2;
-      const my = (sy + ey) / 2;
-      const dx = ex - sx;
-      const dy = ey - sy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      // Normal vector (perpendicular)
-      const nx = -dy / (dist || 1);
-      const ny = dx / (dist || 1);
-      // Curve amount: 20% of distance, direction based on seed
-      const curve = dist * 0.18 * (seed > 0.5 ? 1 : -1);
-      return [mx + nx * curve, my + ny * curve];
-    };
-
-    // Distance from point to quadratic bezier (approximate: sample 10 points)
-    const distToBezier = (
-      px: number, py: number,
-      x0: number, y0: number, cx: number, cy: number, x1: number, y1: number,
-    ): number => {
-      let minD = Infinity;
-      for (let i = 0; i <= 10; i++) {
-        const [bx, by] = bezierPoint(x0, y0, cx, cy, x1, y1, i / 10);
-        const d = Math.sqrt((px - bx) ** 2 + (py - by) ** 2);
-        if (d < minD) minD = d;
-      }
-      return minD;
-    };
-
-    const spawnParticles = (nodes: AnimNode[]) => {
-      const particles = particlesRef.current;
-      if (Math.random() < 0.14 && particles.length < MAX_PARTICLES) {
-        const candidates = nodes.filter(n => n.connections.length > 0);
-        if (candidates.length === 0) return;
-        const src = candidates[Math.floor(Math.random() * candidates.length)];
-        const connId = src.connections[Math.floor(Math.random() * src.connections.length)];
-        const dst = nodes.find(n => n.id === connId);
-        if (!dst) return;
-
-        const forward = Math.random() > 0.5;
-        const from = forward ? src : dst;
-        const to = forward ? dst : src;
-        particles.push({
-          fromId: from.id, toId: to.id,
-          t: 0, speed: 0.003 + Math.random() * 0.007,
-          color: from.rgb, size: 1.2 + Math.random() * 1.5,
-          trail: [],
-        });
-      }
-      for (let i = particles.length - 1; i >= 0; i--) {
-        particles[i].t += particles[i].speed;
-        if (particles[i].t > 1) particles.splice(i, 1);
-      }
-    };
-
-    // Spawn ambient pulse waves from active nodes
-    const spawnPulseWaves = (nodes: AnimNode[], w: number, h: number) => {
-      const now = Date.now();
-      const waves = pulseWavesRef.current;
-      if (now - lastPulseTimeRef.current > 2500 && waves.length < MAX_PULSE_WAVES) {
-        const active = nodes.filter(n => n.state !== 'idle' && n.state !== 'offline' && n.spawnProgress >= 1);
-        if (active.length > 0) {
-          const src = active[Math.floor(Math.random() * active.length)];
-          waves.push({
-            x: src.ax * w, y: src.ay * h,
-            radius: (src.type === 'orchestrator' ? 32 : 22) * src.size,
-            maxRadius: 120 + Math.random() * 80,
-            color: src.rgb,
-            alpha: 0.15,
-            speed: 0.6 + Math.random() * 0.4,
-          });
-          lastPulseTimeRef.current = now;
-        }
-      }
-      for (let i = waves.length - 1; i >= 0; i--) {
-        waves[i].radius += waves[i].speed;
-        waves[i].alpha *= 0.985;
-        if (waves[i].alpha < 0.005 || waves[i].radius > waves[i].maxRadius) {
-          waves.splice(i, 1);
-        }
-      }
-    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
 
     const draw = () => {
       const { w, h } = sizeRef.current;
-      if (w === 0 || h === 0) { animFrameRef.current = requestAnimationFrame(draw); return; }
-
-      timeRef.current += 0.016;
-      const t = timeRef.current;
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-
-      // ── Background ──
-      ctx.fillStyle = '#07070a';
-      ctx.fillRect(0, 0, w, h);
-
-      // ── Ensure nodes exist (needed for grid + nebula interaction) ──
-      ensureOrchestrator();
-      const allNodes = [...nodesMapRef.current.values()];
-
-      // ── Dot grid with node interaction (W237: dots glow near active nodes) ──
-      // Pre-compute active node screen positions for grid interaction
-      const activeNodePositions: Array<{ x: number; y: number; rgb: [number, number, number]; intensity: number }> = [];
-      for (const n of allNodes) {
-        if (n.state !== 'idle' && n.state !== 'offline' && n.spawnProgress >= 0.8) {
-          activeNodePositions.push({
-            x: n.ax * w, y: n.ay * h,
-            rgb: n.state !== 'idle' ? (STATE_RGB[n.state] || n.rgb) : n.rgb,
-            intensity: n.glow,
-          });
-        }
-      }
-      for (let gx = GRID_DOT_SPACING; gx < w; gx += GRID_DOT_SPACING) {
-        for (let gy = GRID_DOT_SPACING; gy < h; gy += GRID_DOT_SPACING) {
-          // Check proximity to active nodes
-          let dotR = 255, dotG = 255, dotB = 255;
-          let dotAlpha = GRID_DOT_ALPHA;
-          for (const an of activeNodePositions) {
-            const dx = gx - an.x;
-            const dy = gy - an.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < GRID_INTERACT_RADIUS) {
-              const influence = (1 - dist / GRID_INTERACT_RADIUS) * an.intensity;
-              const blend = Math.min(influence * 0.6, 0.9);
-              dotR = Math.round(dotR * (1 - blend) + an.rgb[0] * blend);
-              dotG = Math.round(dotG * (1 - blend) + an.rgb[1] * blend);
-              dotB = Math.round(dotB * (1 - blend) + an.rgb[2] * blend);
-              dotAlpha = Math.min(dotAlpha + influence * 0.12, 0.18);
-            }
-          }
-          ctx.fillStyle = `rgba(${dotR},${dotG},${dotB},${dotAlpha})`;
-          ctx.beginPath();
-          ctx.arc(gx, gy, GRID_DOT_SIZE + (dotAlpha > GRID_DOT_ALPHA + 0.02 ? 0.3 : 0), 0, Math.PI * 2);
-          ctx.fill();
-        }
+      if (w === 0 || h === 0) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
       }
 
-      // ── Dual-layer nebula (primary state + secondary ambient) ──
-      const stateRgb = STATE_RGB[agentStateRef.current] || STATE_RGB.idle;
-      const nebula1 = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, w * 0.7);
-      nebula1.addColorStop(0, `rgba(${stateRgb[0]},${stateRgb[1]},${stateRgb[2]},0.05)`);
-      nebula1.addColorStop(0.4, `rgba(${stateRgb[0]},${stateRgb[1]},${stateRgb[2]},0.015)`);
-      nebula1.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = nebula1;
+      const dpr = window.devicePixelRatio || 1;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const time = performance.now() * 0.001;
+      frameRef.current++;
+
+      // Sync node data from store
+      syncNodes();
+
+      const nodes = Array.from(animNodesRef.current.values());
+      const mouse = mouseRef.current;
+
+      // ── 1. Background gradient ──
+      const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, w * 0.8);
+      bgGrad.addColorStop(0, '#0a0e1a');
+      bgGrad.addColorStop(0.5, '#060a14');
+      bgGrad.addColorStop(1, '#020408');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // Secondary nebula — offset, different color, very subtle
-      const neb2Rgb = STATE_RGB.thinking;
-      const nebula2 = ctx.createRadialGradient(w * 0.3, h * 0.6, 0, w * 0.3, h * 0.6, w * 0.5);
-      nebula2.addColorStop(0, `rgba(${neb2Rgb[0]},${neb2Rgb[1]},${neb2Rgb[2]},0.015)`);
-      nebula2.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = nebula2;
-      ctx.fillRect(0, 0, w, h);
-
-      // W237: Third nebula layer — dynamic per-node ambient glow (faint colored halos)
-      for (const n of allNodes) {
-        if (n.state === 'idle' || n.state === 'offline' || n.spawnProgress < 0.5) continue;
-        const nx = n.ax * w;
-        const ny = n.ay * h;
-        const nebRgb = STATE_RGB[n.state] || n.rgb;
-        const nebR = 100 + n.glow * 60;
-        const nodeNeb = ctx.createRadialGradient(nx, ny, 0, nx, ny, nebR);
-        nodeNeb.addColorStop(0, `rgba(${nebRgb[0]},${nebRgb[1]},${nebRgb[2]},${0.025 * n.glow})`);
-        nodeNeb.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = nodeNeb;
-        ctx.beginPath();
-        ctx.arc(nx, ny, nebR, 0, Math.PI * 2);
-        ctx.fill();
+      // ── 2. Nebula layers ──
+      for (let i = 0; i < 3; i++) {
+        const nx = w * (0.3 + i * 0.2 + Math.sin(time * 0.1 + i) * 0.05);
+        const ny = h * (0.3 + i * 0.15 + Math.cos(time * 0.08 + i * 2) * 0.05);
+        const nr = w * (0.25 + i * 0.05);
+        const nebGrad = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+        const hue = (time * 5 + i * 40) % 360;
+        nebGrad.addColorStop(0, `hsla(${hue}, 60%, 20%, 0.04)`);
+        nebGrad.addColorStop(0.5, `hsla(${hue + 20}, 50%, 15%, 0.02)`);
+        nebGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = nebGrad;
+        ctx.fillRect(0, 0, w, h);
       }
 
-      // ── Stars ──
-      const stars = starsRef.current;
-      for (const star of stars) {
-        const twinkle = Math.sin(t * star.twinkleSpeed + star.twinkleOffset) * 0.5 + 0.5;
+      // Dynamic per-node nebula glow
+      for (const node of nodes) {
+        if (node.glowIntensity < 0.3 || node.type === 'orchestrator') continue;
+        const rgb = STATE_RGB[node.state] || [150, 150, 150];
+        const nx = node.x * w;
+        const ny = node.y * h;
+        const nr = w * 0.15 * node.glowIntensity;
+        const nGrad = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+        nGrad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.03 * node.glowIntensity})`);
+        nGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = nGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // ── 3. Stars ──
+      for (const star of starsRef.current) {
+        const twinkle = 0.5 + 0.5 * Math.sin(time * star.twinkleSpeed + star.twinklePhase);
         const alpha = star.brightness * twinkle;
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fillStyle = `rgba(200, 210, 255, ${alpha})`;
         ctx.beginPath();
         ctx.arc(star.x * w, star.y * h, star.size, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // ── Update animated positions with repulsion + mouse attraction (W237) ──
-      for (const n of allNodes) {
-        if (n.spawnProgress < 1) n.spawnProgress = Math.min(n.spawnProgress + 0.02, 1);
-        if (n.type !== 'orchestrator') {
-          n.orbitAngle += n.orbitSpeed;
-          n.ax += Math.cos(n.orbitAngle) * n.orbitRadius * 0.02;
-          n.ay += Math.sin(n.orbitAngle) * n.orbitRadius * 0.02;
+      // ── 4. Dot grid ──
+      const gridSpacing = 50;
+      const gridAlpha = 0.035;
+      for (let gx = gridSpacing; gx < w; gx += gridSpacing) {
+        for (let gy = gridSpacing; gy < h; gy += gridSpacing) {
+          const gnx = gx / w;
+          const gny = gy / h;
+          let dotColor = `rgba(255, 255, 255, ${gridAlpha})`;
+          let dotSize = 0.8;
+
+          // Dots near active nodes glow with node color
+          for (const node of nodes) {
+            const d = dist(gnx, gny, node.x, node.y);
+            if (d < 0.15) {
+              const rgb = STATE_RGB[node.state] || [150, 150, 150];
+              const influence = (1 - d / 0.15) * node.glowIntensity;
+              dotColor = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${gridAlpha + influence * 0.15})`;
+              dotSize = 0.8 + influence * 1.2;
+              break;
+            }
+          }
+
+          ctx.fillStyle = dotColor;
+          ctx.beginPath();
+          ctx.arc(gx, gy, dotSize, 0, Math.PI * 2);
+          ctx.fill();
         }
-        n.ax += (n.tx - n.ax) * LERP_SPEED;
-        n.ay += (n.ty - n.ay) * LERP_SPEED;
-        n.glow += (n.tGlow - n.glow) * 0.05;
       }
-      // W237: Node proximity repulsion — push apart overlapping non-orchestrator nodes
-      const subNodes = allNodes.filter(n => n.type !== 'orchestrator' && n.spawnProgress > 0.5);
-      for (let i = 0; i < subNodes.length; i++) {
-        for (let j = i + 1; j < subNodes.length; j++) {
-          const a = subNodes[i], b = subNodes[j];
-          const dx = b.ax - a.ax;
-          const dy = b.ay - a.ay;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          if (dist < NODE_REPULSE_DIST) {
-            const force = (NODE_REPULSE_DIST - dist) * 0.003;
-            const nx = dx / dist;
-            const ny = dy / dist;
-            a.ax -= nx * force;
-            a.ay -= ny * force;
-            b.ax += nx * force;
-            b.ay += ny * force;
+
+      // ── 5. Physics: repulsion + mouse attraction + drift ──
+      const nodeArr = nodes;
+      for (let i = 0; i < nodeArr.length; i++) {
+        const a = nodeArr[i];
+        // Repulsion from other nodes
+        for (let j = i + 1; j < nodeArr.length; j++) {
+          const b = nodeArr[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const d = Math.max(EPS, Math.sqrt(dx * dx + dy * dy));
+          if (d < NODE_REPULSE_DIST) {
+            const force = (NODE_REPULSE_DIST - d) * NODE_REPULSE_FORCE;
+            const nx = dx / d;
+            const ny = dy / d;
+            a.vx -= nx * force;
+            a.vy -= ny * force;
+            b.vx += nx * force;
+            b.vy += ny * force;
           }
         }
-      }
-      // W237: Mouse attraction — subtly pull non-orchestrator nodes toward cursor
-      if (mx > 0 && my > 0) {
-        const mxNorm = mx / w;
-        const myNorm = my / h;
-        for (const n of subNodes) {
-          const dx = mxNorm - n.ax;
-          const dy = myNorm - n.ay;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          if (dist < 0.25) {
-            const attract = (1 - dist / 0.25) * MOUSE_ATTRACT_STRENGTH;
-            n.ax += (dx / dist) * attract;
-            n.ay += (dy / dist) * attract;
+
+        // Mouse attraction
+        if (mouse.active) {
+          const dx = mouse.x - a.x;
+          const dy = mouse.y - a.y;
+          const d = Math.max(EPS, Math.sqrt(dx * dx + dy * dy));
+          if (d < 0.4) {
+            a.vx += (dx / d) * MOUSE_ATTRACT_STRENGTH * (1 - d / 0.4);
+            a.vy += (dy / d) * MOUSE_ATTRACT_STRENGTH * (1 - d / 0.4);
           }
         }
+
+        // Organic drift (orbit + noise)
+        a.orbitAngle += a.orbitSpeed;
+        if (a.type !== 'orchestrator') {
+          a.vx += Math.cos(a.orbitAngle) * 0.00005;
+          a.vy += Math.sin(a.orbitAngle * 1.3) * 0.00005;
+        }
+
+        // Damping
+        a.vx *= 0.95;
+        a.vy *= 0.95;
+
+        // Update position
+        a.x += a.vx;
+        a.y += a.vy;
+
+        // Soft bounds
+        const margin = 0.05;
+        if (a.x < margin) a.vx += 0.0002;
+        if (a.x > 1 - margin) a.vx -= 0.0002;
+        if (a.y < margin) a.vy += 0.0002;
+        if (a.y > 1 - margin) a.vy -= 0.0002;
+
+        // Lerp size and glow
+        a.size = lerp(a.size, a.targetSize, SIZE_LERP);
+        a.glowIntensity = lerp(a.glowIntensity, a.targetGlow, GLOW_LERP);
+        a.opacity = Math.min(1, a.opacity + 0.03);
+        a.spawnProgress = Math.min(1, a.spawnProgress + 0.02);
+
+        // Breathing
+        a.phase += STATE_BREATH_SPEED[a.state] || 0.5;
       }
 
-      // ── Screen positions ──
-      const screen = new Map<string, { x: number; y: number; node: AnimNode }>();
-      for (const n of allNodes) {
-        screen.set(n.id, { x: n.ax * w, y: n.ay * h, node: n });
-      }
-
-      // ── Ambient pulse waves ──
-      spawnPulseWaves(allNodes, w, h);
-      for (const pw of pulseWavesRef.current) {
-        ctx.strokeStyle = `rgba(${pw.color[0]},${pw.color[1]},${pw.color[2]},${pw.alpha})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(pw.x, pw.y, pw.radius, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      // ── Draw Connections (quadratic bezier) with hover highlight + energy dashes ──
-      const drawnPairs = new Set<string>();
-      for (const n of allNodes) {
-        for (const connId of n.connections) {
-          const pairKey = [n.id, connId].sort().join(':');
-          if (drawnPairs.has(pairKey)) continue;
-          drawnPairs.add(pairKey);
-
-          const target = screen.get(connId);
+      // ── 6. Connections ──
+      const connections = new Set<string>();
+      for (const node of nodes) {
+        for (const connId of node.connections) {
+          const target = animNodesRef.current.get(connId);
           if (!target) continue;
+          const key = [node.id, connId].sort().join('→');
+          if (connections.has(key)) continue;
+          connections.add(key);
 
-          const fromRgb = n.rgb;
-          const isOrchConn = n.type === 'orchestrator' || target.node.type === 'orchestrator';
-          const isActive = n.state !== 'idle' && n.state !== 'offline';
-          let alpha = (isActive ? 0.2 : 0.07) + Math.sin(t * 2 + n.spawnTime * 0.001) * 0.06;
+          const x1 = node.x * w;
+          const y1 = node.y * h;
+          const x2 = target.x * w;
+          const y2 = target.y * h;
+          const d = dist(node.x, node.y, target.x, target.y);
 
-          // W235: Hover connection highlight
-          const sx = n.ax * w;
-          const sy = n.ay * h;
-          const ex = target.x;
-          const ey = target.y;
-          const [cpx, cpy] = smartCP(sx, sy, ex, ey, n.spawnTime);
-          const distToConn = distToBezier(mx, my, sx, sy, cpx, cpy, ex, ey);
-          if (distToConn < 30) {
-            alpha += (1 - distToConn / 30) * 0.35;
+          const isActive = node.state !== 'idle' && node.state !== 'offline' &&
+                           target.state !== 'idle' && target.state !== 'offline';
+          const baseAlpha = isActive ? 0.25 : 0.06;
+          const lineWidth = isActive ? 1.5 : 0.5;
+
+          // Mouse proximity boost
+          let mouseBoost = 0;
+          if (mouse.active) {
+            const mx = mouse.x * w;
+            const my = mouse.y * h;
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            const mDist = dist(midX / w, midY / h, mouse.x, mouse.y);
+            if (mDist < 0.2) mouseBoost = (1 - mDist / 0.2) * 0.3;
           }
 
-          ctx.strokeStyle = `rgba(${fromRgb[0]},${fromRgb[1]},${fromRgb[2]},${Math.max(0, alpha)})`;
-          ctx.lineWidth = isOrchConn ? 1.5 : 0.8;
+          // Bezier curve for organic connection
+          const cpx = (x1 + x2) / 2 + (y2 - y1) * 0.15;
+          const cpy = (y1 + y2) / 2 + (x1 - x2) * 0.15;
 
-          // W237: Animated energy dashes on active orchestrator connections
-          if (isOrchConn && isActive) {
-            ctx.setLineDash([4, 8]);
-            ctx.lineDashOffset = -t * 30;
-          }
+          const rgb1 = STATE_RGB[node.state] || [150, 150, 150];
+          const rgb2 = STATE_RGB[target.state] || [150, 150, 150];
+
+          const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+          const alpha = baseAlpha + mouseBoost;
+          grad.addColorStop(0, `rgba(${rgb1[0]},${rgb1[1]},${rgb1[2]},${alpha})`);
+          grad.addColorStop(1, `rgba(${rgb2[0]},${rgb2[1]},${rgb2[2]},${alpha})`);
 
           ctx.beginPath();
-          ctx.moveTo(sx, sy);
-          ctx.quadraticCurveTo(cpx, cpy, ex, ey);
+          ctx.moveTo(x1, y1);
+          ctx.quadraticCurveTo(cpx, cpy, x2, y2);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = lineWidth;
           ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.lineDashOffset = 0;
+
+          // Spawn energy particles on active connections
+          if (isActive && Math.random() < ENERGY_SPAWN_RATE && particlesRef.current.length < MAX_ENERGY_PARTICLES) {
+            const dir = Math.random() > 0.5 ? 1 : -1;
+            particlesRef.current.push({
+              fromId: node.id,
+              toId: connId,
+              t: dir > 0 ? 0 : 1,
+              speed: (Math.random() * 0.005 + 0.003) * dir,
+              size: Math.random() * 2 + 1.5,
+              alpha: 0.9,
+            });
+          }
         }
       }
 
-      // W237: Mesh connections between sub-nodes (not just to orchestrator)
-      for (let i = 0; i < subNodes.length; i++) {
-        for (let j = i + 1; j < subNodes.length; j++) {
-          const a = subNodes[i], b = subNodes[j];
-          const dx = (b.ax - a.ax);
-          const dy = (b.ay - a.ay);
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < MESH_CONN_THRESHOLD) {
-            const proximity = 1 - dist / MESH_CONN_THRESHOLD;
-            const meshAlpha = MESH_CONN_ALPHA * proximity;
-            // Blend colors of both nodes
-            const mr = Math.round((a.rgb[0] + b.rgb[0]) / 2);
-            const mg = Math.round((a.rgb[1] + b.rgb[1]) / 2);
-            const mb = Math.round((a.rgb[2] + b.rgb[2]) / 2);
-            ctx.strokeStyle = `rgba(${mr},${mg},${mb},${meshAlpha})`;
-            ctx.lineWidth = 0.5;
-            const ax2 = a.ax * w, ay2 = a.ay * h;
-            const bx2 = b.ax * w, by2 = b.ay * h;
-            const seed = ((a.spawnTime + b.spawnTime) % 1000) / 1000;
-            const [mcpx, mcpy] = smartCP(ax2, ay2, bx2, by2, seed);
+      // Mesh connections (nearby non-connected nodes)
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i];
+          const b = nodes[j];
+          const d = dist(a.x, a.y, b.x, b.y);
+          if (d < MESH_CONN_DIST && !a.connections.includes(b.id)) {
+            const x1 = a.x * w;
+            const y1 = a.y * h;
+            const x2 = b.x * w;
+            const y2 = b.y * h;
+            const fade = (1 - d / MESH_CONN_DIST);
+            const alpha = fade * 0.08;
+
             ctx.beginPath();
-            ctx.moveTo(ax2, ay2);
-            ctx.quadraticCurveTo(mcpx, mcpy, bx2, by2);
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = `rgba(100, 120, 180, ${alpha})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
       }
 
-      // ── Spawn & draw flow particles with glow trail ──
-      spawnParticles(allNodes);
-      const particles = particlesRef.current;
-      for (const p of particles) {
-        const fromScreen = screen.get(p.fromId);
-        const toScreen = screen.get(p.toId);
-        if (!fromScreen || !toScreen) continue;
+      // ── 7. Energy particles ──
+      const aliveParticles: EnergyParticle[] = [];
+      for (const p of particlesRef.current) {
+        p.t += p.speed;
+        if (p.t < 0 || p.t > 1) continue;
+        p.alpha *= 0.997;
 
-        // Use the same smartCP as connections (seed from particle fromId hash)
-        const seed = (parseInt(p.fromId.slice(-4), 36) || 0.5) % 1;
-        const [cpx, cpy] = smartCP(
-          fromScreen.x, fromScreen.y, toScreen.x, toScreen.y, seed,
-        );
-        const [px, py] = bezierPoint(
-          fromScreen.x, fromScreen.y, cpx, cpy, toScreen.x, toScreen.y, p.t,
-        );
+        const from = animNodesRef.current.get(p.fromId);
+        const to = animNodesRef.current.get(p.toId);
+        if (!from || !to) continue;
 
-        // Store trail position
-        p.trail.push({ x: px, y: py });
-        if (p.trail.length > 6) p.trail.shift();
+        // Quadratic bezier position
+        const x1 = from.x * w;
+        const y1 = from.y * h;
+        const x2 = to.x * w;
+        const y2 = to.y * h;
+        const cpx = (x1 + x2) / 2 + (y2 - y1) * 0.15;
+        const cpy = (y1 + y2) / 2 + (x1 - x2) * 0.15;
+        const t = p.t;
+        const px = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cpx + t * t * x2;
+        const py = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cpy + t * t * y2;
 
-        // Draw trail (fading glow)
-        for (let ti = 0; ti < p.trail.length; ti++) {
-          const trailAlpha = (ti / p.trail.length) * Math.sin(p.t * Math.PI) * 0.3;
-          const trailSize = p.size * (ti / p.trail.length) * 0.6;
-          ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${trailAlpha})`;
-          ctx.beginPath();
-          ctx.arc(p.trail[ti].x, p.trail[ti].y, trailSize, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const rgb = STATE_RGB[from.state] || [150, 150, 150];
 
-        // Draw main particle with glow
-        const alpha = Math.sin(p.t * Math.PI) * 0.9;
-        // Glow halo
+        // Glow
         const glowGrad = ctx.createRadialGradient(px, py, 0, px, py, p.size * 4);
-        glowGrad.addColorStop(0, `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${alpha * 0.3})`);
-        glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        glowGrad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${p.alpha * 0.6})`);
+        glowGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(px, py, p.size * 4, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(px - p.size * 4, py - p.size * 4, p.size * 8, p.size * 8);
+
         // Core
-        ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${alpha})`;
+        ctx.fillStyle = `rgba(${Math.min(255, rgb[0] + 80)},${Math.min(255, rgb[1] + 80)},${Math.min(255, rgb[2] + 80)},${p.alpha})`;
         ctx.beginPath();
         ctx.arc(px, py, p.size, 0, Math.PI * 2);
         ctx.fill();
+
+        aliveParticles.push(p);
+      }
+      particlesRef.current = aliveParticles;
+
+      // ── 8. Pulse rings ──
+      const alivePulses: PulseRing[] = [];
+      for (const pulse of pulsesRef.current) {
+        pulse.radius += 0.002;
+        pulse.alpha *= 0.97;
+        if (pulse.alpha < 0.01) continue;
+
+        const px = pulse.x * w;
+        const py = pulse.y * h;
+        const pr = pulse.radius * w;
+
+        ctx.beginPath();
+        ctx.arc(px, py, pr, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${pulse.color[0]},${pulse.color[1]},${pulse.color[2]},${pulse.alpha})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        alivePulses.push(pulse);
+      }
+      pulsesRef.current = alivePulses;
+
+      // Periodic ambient pulses from active nodes
+      if (frameRef.current % 120 === 0) {
+        for (const node of nodes) {
+          if (node.state !== 'idle' && node.state !== 'offline' && node.glowIntensity > 0.5) {
+            if (pulsesRef.current.length < MAX_PULSE_RINGS) {
+              const rgb = STATE_RGB[node.state] || [150, 150, 150];
+              pulsesRef.current.push({
+                x: node.x, y: node.y,
+                radius: node.size * 0.015,
+                maxRadius: 0.08 + node.glowIntensity * 0.05,
+                alpha: 0.3 * node.glowIntensity,
+                color: rgb,
+              });
+            }
+          }
+        }
       }
 
-      // ── Draw Nodes ──
-      for (const n of allNodes) {
-        const sx = n.ax * w;
-        const sy = n.ay * h;
-        const rgb = n.rgb;
+      // ── 9. Nodes ──
+      for (const node of nodes) {
+        const nx = node.x * w;
+        const ny = node.y * h;
+        const baseRadius = Math.max(EPS, node.size * 14);
+        const breath = 1 + Math.sin(node.phase) * 0.12;
+        const radius = baseRadius * breath * node.spawnProgress;
+        const rgb = STATE_RGB[node.state] || [150, 150, 150];
+        const isSelected = node.id === selectedNodeId;
+        const isOrchestrator = node.type === 'orchestrator';
 
-        // Mouse proximity → extra glow boost
-        const mouseDist = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2);
-        const mouseBoost = mouseDist < MOUSE_GLOW_RADIUS
-          ? (1 - mouseDist / MOUSE_GLOW_RADIUS) * 0.4
-          : 0;
-        const effectiveGlow = Math.min(1, n.glow + mouseBoost);
-
-        const baseRadius = (n.type === 'orchestrator' ? 32 : 22) * n.size
-          * (1 + Math.sin(t * 1.2 + n.spawnTime * 0.001) * 0.03)
-          * n.spawnProgress;
-        const radius = Math.max(6, baseRadius);
-
-        // Outer glow (larger, more diffuse)
-        const glowR = radius * (2.2 + effectiveGlow * 1.0);
-        const outerGlow = ctx.createRadialGradient(sx, sy, radius * 0.3, sx, sy, glowR);
-        outerGlow.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.14 * effectiveGlow})`);
-        outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = outerGlow;
+        // Outer glow halo
+        const glowRadius = radius * (2.5 + node.glowIntensity);
+        const haloGrad = ctx.createRadialGradient(nx, ny, radius * 0.5, nx, ny, glowRadius);
+        const haloAlpha = 0.15 * node.glowIntensity * node.opacity;
+        haloGrad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${haloAlpha})`);
+        haloGrad.addColorStop(0.5, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${haloAlpha * 0.3})`);
+        haloGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = haloGrad;
         ctx.beginPath();
-        ctx.arc(sx, sy, glowR, 0, Math.PI * 2);
+        ctx.arc(nx, ny, glowRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // State-based secondary glow (active nodes)
-        if (n.state !== 'idle' && n.state !== 'offline') {
-          const stRgb = STATE_RGB[n.state] || STATE_RGB.idle;
-          const stateGlowR = radius * (2.0 + effectiveGlow * 0.6);
-          const stateGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, stateGlowR);
-          stateGlow.addColorStop(0, `rgba(${stRgb[0]},${stRgb[1]},${stRgb[2]},${0.2 * effectiveGlow})`);
-          stateGlow.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = stateGlow;
+        // Selected breathing ring
+        if (isSelected) {
+          const selBreath = 1 + Math.sin(time * 2) * 0.3;
           ctx.beginPath();
-          ctx.arc(sx, sy, stateGlowR, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Pulsing ring (active nodes) — double ring for more visual interest
-        if (n.state !== 'idle' && n.state !== 'offline') {
-          const ringPulse = (Math.sin(t * 2.5 + n.spawnTime * 0.001) + 1) / 2;
-          const ringR = radius * (1.3 + ringPulse * 0.4);
-          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.2 - ringPulse * 0.15})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.arc(sx, sy, ringR, 0, Math.PI * 2);
-          ctx.stroke();
-
-          // Second outer pulse ring (offset phase)
-          const ring2Pulse = (Math.sin(t * 1.8 + n.spawnTime * 0.001 + 1.5) + 1) / 2;
-          const ring2R = radius * (1.6 + ring2Pulse * 0.5);
-          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.08 - ring2Pulse * 0.06})`;
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.arc(sx, sy, ring2R, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // W237: Spawn flash — bright expanding ring when node is being born
-        if (n.spawnProgress < 0.4) {
-          const flashProgress = n.spawnProgress / 0.4;
-          const flashRadius = radius * (1 + flashProgress * 3);
-          const flashAlpha = (1 - flashProgress) * 0.5;
-          const flashGrad = ctx.createRadialGradient(sx, sy, radius, sx, sy, flashRadius);
-          flashGrad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashAlpha})`);
-          flashGrad.addColorStop(0.5, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashAlpha * 0.3})`);
-          flashGrad.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = flashGrad;
-          ctx.beginPath();
-          ctx.arc(sx, sy, flashRadius, 0, Math.PI * 2);
-          ctx.fill();
-          // Flash ring
-          ctx.strokeStyle = `rgba(${Math.min(255, rgb[0] + 80)},${Math.min(255, rgb[1] + 80)},${Math.min(255, rgb[2] + 80)},${(1 - flashProgress) * 0.6})`;
-          ctx.lineWidth = 1.5 * (1 - flashProgress);
-          ctx.beginPath();
-          ctx.arc(sx, sy, flashRadius * 0.8, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // W235: Selected node — breathing halo with gradient
-        if (selectedIdRef.current === n.id) {
-          const breathe = (Math.sin(t * 2) + 1) / 2;
-          // Inner ring
-          ctx.strokeStyle = `rgba(255,255,255,${0.3 + breathe * 0.15})`;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.arc(sx, sy, radius + 8, 0, Math.PI * 2);
-          ctx.stroke();
-
-          // Breathing halo
-          const haloR = radius + 14 + breathe * 6;
-          const haloGrad = ctx.createRadialGradient(sx, sy, haloR - 4, sx, sy, haloR + 4);
-          haloGrad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.12 + breathe * 0.08})`);
-          haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.2 + breathe * 0.1})`;
+          ctx.arc(nx, ny, radius * 2 * selBreath, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.4 + Math.sin(time * 2) * 0.2})`;
           ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(sx, sy, haloR, 0, Math.PI * 2);
+          ctx.setLineDash([4, 4]);
+          ctx.lineDashOffset = -time * 20;
           ctx.stroke();
-
-          // Outer faint ring
-          const outerR = radius + 22 + breathe * 8;
-          ctx.strokeStyle = `rgba(255,255,255,${0.04 + breathe * 0.04})`;
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.arc(sx, sy, outerR, 0, Math.PI * 2);
-          ctx.stroke();
+          ctx.setLineDash([]);
         }
 
-        // Core circle gradient (improved lighting)
+        // Core gradient
         const coreGrad = ctx.createRadialGradient(
-          sx - radius * 0.2, sy - radius * 0.2, 0,
-          sx, sy, radius,
+          nx - radius * 0.2, ny - radius * 0.2, 0,
+          nx, ny, radius
         );
-        coreGrad.addColorStop(0, `rgba(${Math.min(255, rgb[0] + 90)},${Math.min(255, rgb[1] + 90)},${Math.min(255, rgb[2] + 90)},0.97)`);
-        coreGrad.addColorStop(0.5, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.9)`);
-        coreGrad.addColorStop(1, `rgba(${Math.floor(rgb[0] * 0.5)},${Math.floor(rgb[1] * 0.5)},${Math.floor(rgb[2] * 0.5)},0.85)`);
+        const bright = isOrchestrator ? 40 : 20;
+        coreGrad.addColorStop(0, `rgba(${Math.min(255, rgb[0] + bright)},${Math.min(255, rgb[1] + bright)},${Math.min(255, rgb[2] + bright)},${0.95 * node.opacity})`);
+        coreGrad.addColorStop(0.7, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.85 * node.opacity})`);
+        coreGrad.addColorStop(1, `rgba(${Math.floor(rgb[0] * 0.6)},${Math.floor(rgb[1] * 0.6)},${Math.floor(rgb[2] * 0.6)},${0.6 * node.opacity})`);
+
         ctx.fillStyle = coreGrad;
         ctx.beginPath();
-        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx.arc(nx, ny, radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Specular highlight
-        const brightAlpha = 0.2 + effectiveGlow * 0.15;
-        ctx.fillStyle = `rgba(255,255,255,${brightAlpha})`;
+        // Inner bright spot (specular)
+        const specGrad = ctx.createRadialGradient(
+          nx - radius * 0.3, ny - radius * 0.3, 0,
+          nx - radius * 0.3, ny - radius * 0.3, radius * 0.5
+        );
+        specGrad.addColorStop(0, `rgba(255,255,255,${0.35 * node.opacity})`);
+        specGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = specGrad;
         ctx.beginPath();
-        ctx.arc(sx - radius * 0.18, sy - radius * 0.18, radius * 0.28, 0, Math.PI * 2);
+        ctx.arc(nx, ny, radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // W235: Node label for ALL nodes
-        const isOrch = n.type === 'orchestrator';
-        const label = NODE_TYPE_LABELS[n.type] || n.name.toUpperCase().slice(0, 10);
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.font = `${isOrch ? 'bold 10px' : 'bold 8px'} monospace`;
+        // Ring outline
+        ctx.beginPath();
+        ctx.arc(nx, ny, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.5 * node.opacity})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Name label
+        const labelAlpha = node.opacity * 0.9;
+        const labelSize = isOrchestrator ? 12 : 10;
+        const label = isOrchestrator ? 'HERMES' : node.name.toUpperCase();
+        ctx.fillStyle = `rgba(255, 255, 255, ${labelAlpha})`;
+        ctx.font = `${isOrchestrator ? '700' : '600'} ${labelSize}px "Inter", system-ui, sans-serif`;
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label, sx, sy);
+        ctx.fillText(label, nx, ny + radius + 16);
 
-        // W235: Task message for ALL nodes with messages (not just non-orchestrator)
-        if (n.message) {
-          const msgAlpha = isOrch ? 0.5 : 0.55;
-          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${msgAlpha})`;
-          ctx.font = `${isOrch ? '7.5px' : '7px'} monospace`;
-          const maxLen = isOrch ? 36 : 28;
-          const msg = n.message.length > maxLen ? n.message.slice(0, maxLen) + '...' : n.message;
-          ctx.fillText(msg, sx, sy + radius + 13);
-        }
-      }
-
-      // ── Wave Progress Ring (around orchestrator) — with glow ──
-      if (waveNumRef.current > 0 && progressRef.current > 0) {
-        const orch = nodesMapRef.current.get('orchestrator');
-        if (orch) {
-          const sx = orch.ax * w;
-          const sy = orch.ay * h;
-          const ringRadius = 44 * orch.size;
-          const startAngle = -Math.PI / 2;
-          const endAngle = startAngle + Math.PI * 2 * progressRef.current;
-          const progRgb = STATE_RGB[agentStateRef.current] || STATE_RGB.idle;
-
-          // Glow behind the arc
-          ctx.strokeStyle = `rgba(${progRgb[0]},${progRgb[1]},${progRgb[2]},0.15)`;
-          ctx.lineWidth = 6;
-          ctx.lineCap = 'round';
+        // State indicator (small dot below name)
+        if (!isOrchestrator) {
+          const stateDotY = ny + radius + 26;
+          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${labelAlpha * 0.7})`;
           ctx.beginPath();
-          ctx.arc(sx, sy, ringRadius, startAngle, endAngle);
-          ctx.stroke();
-
-          // Main arc
-          ctx.strokeStyle = `rgba(${progRgb[0]},${progRgb[1]},${progRgb[2]},0.6)`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(sx, sy, ringRadius, startAngle, endAngle);
-          ctx.stroke();
-
-          // Leading dot
-          const dotX = sx + Math.cos(endAngle) * ringRadius;
-          const dotY = sy + Math.sin(endAngle) * ringRadius;
-          ctx.fillStyle = `rgba(${progRgb[0]},${progRgb[1]},${progRgb[2]},0.8)`;
-          ctx.beginPath();
-          ctx.arc(dotX, dotY, 3, 0, Math.PI * 2);
+          ctx.arc(nx, stateDotY, 2, 0, Math.PI * 2);
           ctx.fill();
+        }
 
-          ctx.lineCap = 'butt';
+        // Orchestrator message
+        if (isOrchestrator && node.message) {
+          ctx.fillStyle = `rgba(200, 200, 220, ${labelAlpha * 0.6})`;
+          ctx.font = '400 10px "Inter", system-ui, sans-serif';
+          const maxMsgWidth = w * 0.3;
+          let msg = node.message;
+          if (ctx.measureText(msg).width > maxMsgWidth) {
+            while (msg.length > 0 && ctx.measureText(msg + '...').width > maxMsgWidth) {
+              msg = msg.slice(0, -1);
+            }
+            msg += '...';
+          }
+          ctx.fillText(msg, nx, ny + radius + 30);
         }
       }
 
-      // ── Subtle CRT scanlines ──
-      ctx.fillStyle = 'rgba(0,0,0,0.02)';
-      for (let y = 0; y < h; y += 3) {
-        ctx.fillRect(0, y, w, 1);
+      // ── 10. Mouse glow ──
+      if (mouse.active) {
+        const mx = mouse.x * w;
+        const my = mouse.y * h;
+        const mouseGlow = ctx.createRadialGradient(mx, my, 0, mx, my, 100);
+        mouseGlow.addColorStop(0, 'rgba(100, 140, 255, 0.04)');
+        mouseGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = mouseGlow;
+        ctx.fillRect(0, 0, w, h);
       }
 
-      // ── Vignette (improved: softer edges) ──
-      const vigR = Math.max(w, h) * 0.85;
-      const vignette = ctx.createRadialGradient(w / 2, h / 2, w * 0.25, w / 2, h / 2, vigR);
-      vignette.addColorStop(0, 'rgba(0,0,0,0)');
-      vignette.addColorStop(0.7, 'rgba(0,0,0,0.1)');
-      vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
-      ctx.fillStyle = vignette;
-      ctx.fillRect(0, 0, w, h);
-
-      animFrameRef.current = requestAnimationFrame(draw);
+      rafRef.current = requestAnimationFrame(draw);
     };
 
-    animFrameRef.current = requestAnimationFrame(draw);
+    rafRef.current = requestAnimationFrame(draw);
 
     return () => {
-      ro.disconnect();
-      cancelAnimationFrame(animFrameRef.current);
-      canvas.removeEventListener('mousemove', onMouseMove);
-      canvas.removeEventListener('click', onClick);
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [networkNodes, selectNode]); // stable: agentState/selectedNodeId/waveNumber/progress read via refs
+  }, [syncNodes, handleResize]);
 
   return (
-    <div ref={containerRef} className="absolute inset-0">
-      <canvas ref={canvasRef} className="w-full h-full" />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="w-full h-full cursor-crosshair"
+      onMouseMove={handleMouseMove}
+      onClick={handleClick}
+      onMouseLeave={() => { mouseRef.current.active = false; }}
+    />
   );
 }
