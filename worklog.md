@@ -5770,3 +5770,23 @@ Stage Summary:
 - Dead code: unused TrendRow export removed.
 - A11y: 3 filter groups now have toolbar semantics for screen readers.
 - Lint: 0 errors. All quality gates clear.
+---
+Task ID: W271
+Agent: HERMES Harness Wave Engine (cron job 221210)
+Task: Wave 271 — STATE_RGB narrow typing + clipboard toast + backdrop a11y
+
+Work Log:
+- ASSESS: Read context.md (182 waves, 512 commits), dev.log (clean). Leveraging W269 deep scan residuals for final medium-severity findings.
+- PLAN: Selected 3 improvements — (1) type STATE_RGB with AgentVisualState keys (type safety), (2) clipboard failure toast (error handling), (3) backdrop role=presentation (a11y).
+- EXECUTE Decision 1 (type_safety/medium): Changed STATE_RGB from Record<string, ...> to Record<AgentVisualState, ...> in constants.ts. Narrowed getStateHex parameter to AgentVisualState. Missing states now caught at compile time.
+- EXECUTE Decision 2 (error_handling/medium): Replaced empty catch block in CopyButton with toast.error('Failed to copy — clipboard not available'). User gets feedback instead of silent failure.
+- EXECUTE Decision 3 (accessibility/medium): Added role="presentation" to shortcuts popup backdrop div. Screen readers now ignore the backdrop and focus on the popup content.
+- VERIFY: bun run lint = 0 errors. Dev.log clean.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- 3 files edited, 0 files deleted.
+- Type safety: STATE_RGB + getStateHex now use AgentVisualState — invalid state strings caught at compile time.
+- Error handling: clipboard failure shows user-facing toast instead of silent swallow.
+- A11y: backdrop div marked as presentation — screen readers skip it.
+- Lint: 0 errors. All quality gates clear.

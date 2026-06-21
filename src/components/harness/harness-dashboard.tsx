@@ -286,7 +286,7 @@ export function HarnessDashboard() {
         <AnimatePresence>
           {showShortcuts && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
+              <div role="presentation" className="fixed inset-0 z-40" onClick={() => setShowShortcuts(false)} />
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

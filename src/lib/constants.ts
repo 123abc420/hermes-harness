@@ -1,5 +1,7 @@
 // Shared constants for the HERMES Harness dashboard
 
+import { type AgentVisualState } from '@/lib/schemas';
+
 // Read version from package.json at build time; fallback for non-Next.js contexts
 export const HERMES_VERSION = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERSION
   ? `v${process.env.NEXT_PUBLIC_VERSION}`
@@ -73,7 +75,7 @@ export function formatArgentinaTime(ts: number): string {
 // ─── Agent Visual State RGB Colors — SINGLE SOURCE OF TRUTH ──────────
 // Used by canvas (rgba strings), HUD badges (hex), and filter pills (hex).
 // Every state maps to a unique [R, G, B] tuple.
-export const STATE_RGB: Record<string, [number, number, number]> = {
+export const STATE_RGB: Record<AgentVisualState, [number, number, number]> = {
   idle: [245, 158, 11],
   thinking: [6, 182, 212],
   searching: [249, 115, 22],
@@ -92,7 +94,7 @@ export function rgbToHex(rgb: [number, number, number]): string {
 }
 
 // Get hex color for a state (derived from STATE_RGB)
-export function getStateHex(state: string): string {
+export function getStateHex(state: AgentVisualState): string {
   const rgb = STATE_RGB[state];
   return rgb ? rgbToHex(rgb) : '#71717a';
 }

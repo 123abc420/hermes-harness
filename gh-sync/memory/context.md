@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 20:25 UTC+8
+2026-06-21 20:34 UTC+8
 
 ## System Status
-- **Phase**: Polish Era (Wave 270)
+- **Phase**: Polish Era (Wave 271)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~512 |
-| Waves in DB | 182 |
+| GitHub commits | ~513 |
+| Waves in DB | 183 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Shared zod schemas | 11 |
@@ -40,6 +40,9 @@
 - **Native a11y** (W269): div[role=button] → button in decision-timeline
 - **TabValue union** (W270): activeTab typed as narrow union — compile-time typo protection
 - **Filter a11y** (W270): role=toolbar + aria-label on 3 filter groups (skills, waves, decisions)
+- **STATE_RGB narrow typing** (W271): Record<AgentVisualState, ...> + getStateHex(AgentVisualState)
+- **Clipboard toast** (W271): user feedback on copy failure instead of silent swallow
+- **Backdrop a11y** (W271): role=presentation on shortcuts overlay backdrop
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 
 ## What's next
