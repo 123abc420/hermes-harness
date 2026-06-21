@@ -132,6 +132,7 @@
 
 - framer-motion components need JS-level `usePrefersReducedMotion()` (W277). But CSS `@keyframes` animations (animate-ping, animate-pulse, custom rotations) bypass React entirely.
 - The global CSS `@media (prefers-reduced-motion: reduce)` rule is the safety net for all non-framer-motion animations. Add it once in globals.css.
+- **SVG SMIL animations (`<animate>`, `<animateMotion>`) bypass BOTH framer-motion AND CSS media queries.** They must be gated at the JSX level via a `reducedMotion` prop (W288).
 
 ## Spec Compliance Accuracy
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef, useCallback, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
@@ -39,12 +39,13 @@ function truncate(str: string, max: number): string {
 
 // ─── Edge Component ──────────────────────────────────────────
 function Edge({
-  x1, y1, x2, y2, color, animated,
+  x1, y1, x2, y2, color, animated, reducedMotion,
 }: {
   x1: number; y1: number;
   x2: number; y2: number;
   color: string;
   animated: boolean;
+  reducedMotion: boolean;
 }) {
   const id = `edge-${x1.toFixed(0)}-${y1.toFixed(0)}-${x2.toFixed(0)}-${y2.toFixed(0)}`;
 
@@ -64,8 +65,8 @@ function Edge({
         strokeOpacity={animated ? 0.6 : 0.2}
         strokeDasharray={animated ? '6 4' : 'none'}
       />
-      {/* Animated dot for active connections */}
-      {animated && (
+      {/* Animated dot for active connections — SMIL gated behind reduced-motion */}
+      {animated && !reducedMotion && (
         <circle r={2.5} fill={color}>
           <animateMotion
             dur="2s"
@@ -87,6 +88,7 @@ function GraphNode({
   onHover,
   svgW,
   svgH,
+  reducedMotion,
 }: {
   node: NetworkNode;
   isHovered: boolean;
@@ -95,6 +97,7 @@ function GraphNode({
   onHover: (h: boolean) => void;
   svgW: number;
   svgH: number;
+  reducedMotion: boolean;
 }) {
   // Convert 0-1 position to SVG coordinates with padding
   const cx = PADDING + node.x * (svgW - 2 * PADDING);
@@ -111,21 +114,23 @@ function GraphNode({
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
     >
-      {/* Glow ring for active nodes */}
+      {/* Glow ring for active nodes — SMIL gated behind reduced-motion */}
       {isActive && (
         <circle cx={cx} cy={cy} r={r + 6} fill="none" stroke={strokeColor} strokeWidth={1} strokeOpacity={0.3}>
-          <animate
-            attributeName="r"
-            values={`${r + 4};${r + 10};${r + 4}`}
-            dur="2.5s"
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="stroke-opacity"
-            values="0.3;0.1;0.3"
-            dur="2.5s"
-            repeatCount="indefinite"
-          />
+          {!reducedMotion && <>
+            <animate
+              attributeName="r"
+              values={`${r + 4};${r + 10};${r + 4}`}
+              dur="2.5s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="stroke-opacity"
+              values="0.3;0.1;0.3"
+              dur="2.5s"
+              repeatCount="indefinite"
+            />
+          </>}
         </circle>
       )}
 
@@ -190,6 +195,7 @@ export function AgentNetworkGraph() {
   const selectedNodeId = useAgentLiveStore(s => s.selectedNodeId);
   const selectNode = useAgentLiveStore(s => s.selectNode);
   const reduced = usePrefersReducedMotion();
+  const gridId = useId();
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -266,11 +272,11 @@ export function AgentNetworkGraph() {
       >
         {/* Subtle grid background */}
         <defs>
-          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+          <pattern id={gridId} width="30" height="30" patternUnits="userSpaceOnUse">
             <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="0.5" />
           </pattern>
         </defs>
-        <rect width={w} height={h} fill="url(#grid)" />
+        <rect width={w} height={h} fill={`url(#${gridId})`} />
 
         {/* Edges */}
         {edges.map((edge, i) => (
@@ -282,6 +288,7 @@ export function AgentNetworkGraph() {
             y2={toSvgY(edge.to.y)}
             color={edge.fromActive ? edge.from.color : 'rgba(255,255,255,0.1)'}
             animated={edge.fromActive}
+            reducedMotion={reduced}
           />
         ))}
 
@@ -318,6 +325,7 @@ export function AgentNetworkGraph() {
                 onHover={(h) => setHoveredId(h ? node.id : null)}
                 svgW={w}
                 svgH={h}
+                reducedMotion={reduced}
               />
             </g>
           );

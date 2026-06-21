@@ -6194,3 +6194,20 @@ Stage Summary:
 - Removed redundant useMemo dependency — no behavioral change, cleaner code
 - 4th consecutive wave with 0 lint, 0 tsc — system at peak quality
 - Lint: 0. TypeScript: 0. Health: 100/100.
+---
+Task ID: W288 (cron)
+Agent: Wave Engine
+Task: Wave 288 — Accessibility: gate SVG SMIL animations behind reduced-motion + useId() for SVG pattern
+
+Work Log:
+- ASSESS: Dev.log clean, lint 0, tsc 0. Deep scan: no `catch (err: any)`, no TODO/FIXME, no `@ts-ignore`, all guards correct. Found 2 issues in agent-network-graph.tsx.
+- PLAN: (1) SVG SMIL animations (animate, animateMotion) bypass both framer-motion usePrefersReducedMotion AND CSS @media reduced-motion — must gate via reducedMotion prop. (2) Hardcoded `id="grid"` on SVG pattern — per insights.md, SVG IDs must be unique per instance via useId().
+- EXECUTE: Added `reducedMotion` prop to Edge and GraphNode components. Gated `<animate>` (glow ring) and `<animateMotion>` (edge dot) behind `!reducedMotion`. Replaced hardcoded `id="grid"` with `useId()` generated ID. Passed `reduced` from parent to all child components.
+- VERIFY: `bun run lint` — 0. `npx tsc --noEmit` — 0. Dev.log clean.
+- PERSIST: Wave #288 recorded, 2 decisions, 2 metrics, GitHub synced.
+
+Stage Summary:
+- SMIL animations (3 total: 2 on glow ring, 1 on edge dots) now respect prefers-reduced-motion
+- SVG pattern ID collision-safe via React useId()
+- 5th consecutive wave with 0 lint, 0 tsc — system at peak quality
+- Lint: 0. TypeScript: 0. Health: 100/100.

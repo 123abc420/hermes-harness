@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-22 00:12 UTC+8
+2026-06-22 00:22 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 287)
+- **Phase**: Health-100 Era (Wave 288)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 11 (+ 1 template) |
 | Components | 20 |
 | Exported components | 13 |
-| GitHub commits | ~532 |
-| Waves in DB | 200 |
+| GitHub commits | ~533 |
+| Waves in DB | 201 |
 | TS errors | 0 (enforced, ignoreBuildErrors removed) |
 | Lint errors | 0 |
 | Health score | 100/100 |
@@ -32,7 +32,8 @@
 - VERIFY phase: lint + tsc --noEmit
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 - **WCAG 2.3.3: JS-level reduced-motion in ALL 19/19 framer-motion files + global CSS overrides**
-- SVG gradient IDs: useId() collision-safe
+- **SVG SMIL animations (animate, animateMotion) gated behind reduced-motion in agent-network-graph**
+- SVG gradient/pattern IDs: useId() collision-safe
 - **Fetch safety: AbortController on all client-side fetch (command-palette, use-agent-live poll)**
 - **waves/[id] route: resolveWaveId() handles both UUID and waveNumber lookup**
 - **waveDurationSeconds() DRY utility in constants.ts**
