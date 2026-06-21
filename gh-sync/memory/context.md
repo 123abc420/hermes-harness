@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 15:05 UTC+8
+2026-06-21 15:33 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 251)
+- **Phase**: Multi-Agent Visual Era (Wave 250)
 - **Waves in DB**: 161
 - **Spec compliance**: 100% (16/16)
 
@@ -63,8 +63,9 @@
 | SSE duplication | 0 (createSSEConnection factory, W247) |
 | Prisma-typed query params | 4 routes (W248) |
 | useState for non-rendering values | 0 (scrollY+debounceRef→useRef, W249) |
-| Dynamic Tailwind class construction | 0 (dotColorInactive, W250) |
-| cn() adoption | 4 files (W250) |
+| as AgentVisualState[] assertions | 0 (AgentSkill interface, W250) |
+| cn() adoption | 6 harness files (W250) |
+| Template-literal className in harness | 42 across 17 files (W250) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
