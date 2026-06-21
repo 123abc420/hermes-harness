@@ -153,6 +153,7 @@ export const activityEntrySchema = z.object({
   agentState: z.string().optional(),
   message: z.string(),
   phase: z.string().optional(),
+  toolType: z.string().optional(),
   timestamp: z.number(),
   timestampAR: z.string().optional(),
 });

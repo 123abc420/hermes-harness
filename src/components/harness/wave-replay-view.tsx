@@ -2,14 +2,16 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { useAgentLiveStore, type LiveActivityEntry } from '@/store/agent-live-store';
+import { useAgentLiveStore, type LiveActivityEntry, TOOL_ICONS } from '@/store/agent-live-store';
 import { AgentNetworkGraph } from './agent-network-graph';
 import { PHASE_STEPS, STATE_ICONS } from './agent-live-subcomponents';
 import { getStateHex } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Play, Pause, Repeat, SkipForward, Waves,
+  Play, Pause, Repeat, SkipForward, Waves, Clapperboard,
 } from 'lucide-react';
+import { WaveReplayDetail } from './wave-replay-detail';
 
 /* ═════════════════════════════════════════════════════════════════════
    WAVE REPLAY VIEW v3.0 — Bigger Phase Bar, Legible Timeline, No-Scroll
@@ -59,8 +61,9 @@ function TimelineEntry({
         <div
           className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px]"
           style={{ backgroundColor: stateColor + '18', color: stateColor }}
+          title={entry.toolType || entry.state}
         >
-          {STATE_ICONS[entry.state] || '·'}
+          {entry.toolType ? TOOL_ICONS[entry.toolType] : (STATE_ICONS[entry.state] || '·')}
         </div>
         <p
           className={cn(
@@ -88,12 +91,13 @@ export function WaveReplayView() {
   const [isLooping, setIsLooping] = useState(true);
   const [playbackIndex, setPlaybackIndex] = useState(-1);
   const [speed, setSpeed] = useState(1500);
+  const [showDetailReplay, setShowDetailReplay] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isLoopingRef = useRef(isLooping);
   useEffect(() => { isLoopingRef.current = isLooping; }, [isLooping]);
 
   // Show last N entries that fit — no scroll needed
-  const maxVisible = 20;
+  const maxVisible = 50;
   const meaningfulActivities = useMemo(() => {
     return activities
       .filter(a => a.state !== 'idle' || (a.phase && a.phase.length > 0))
@@ -185,6 +189,16 @@ export function WaveReplayView() {
             {agentState.toUpperCase()}
           </span>
         )}
+
+        {/* Detail Replay button — opens Sims-style step-by-step view */}
+        <button
+          aria-label="Open detailed wave replay showing all agent steps"
+          onClick={() => setShowDetailReplay(true)}
+          className="shrink-0 flex items-center gap-1 text-[10px] font-semibold text-sky-400 hover:text-sky-300 px-2 py-1 rounded-md border border-sky-400/20 hover:border-sky-400/40 hover:bg-sky-400/10 transition-colors"
+        >
+          <Clapperboard className="w-3 h-3" />
+          <span className="hidden sm:inline">DETAIL</span>
+        </button>
 
         <div className="flex-1" />
 
@@ -289,10 +303,11 @@ export function WaveReplayView() {
             {!isPlaying && hasData && <span className="text-[10px] font-mono text-zinc-600">{meaningfulActivities.length} actions</span>}
           </div>
 
-          {/* NO ScrollArea — content fits viewport, clips if overflow */}
+          {/* ScrollArea for rich timeline with 50 entries */}
           <div className="flex-1 min-h-0 overflow-hidden">
             {hasData ? (
-              <div className="p-1.5 flex flex-col gap-0 h-full overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="p-1.5 flex flex-col gap-0">
                 {meaningfulActivities
                   .slice()
                   .reverse()
@@ -314,7 +329,8 @@ export function WaveReplayView() {
                       </div>
                     );
                   })}
-              </div>
+                </div>
+              </ScrollArea>
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center border border-white/[0.04]">
@@ -328,6 +344,15 @@ export function WaveReplayView() {
           </div>
         </div>
       </div>
+
+      {/* ═══ DETAIL REPLAY OVERLAY ═══ */}
+      {showDetailReplay && (
+        <WaveReplayDetail
+          waveNumber={waveNumber > 0 ? waveNumber : 325}
+          isMaintenance={true}
+          onClose={() => setShowDetailReplay(false)}
+        />
+      )}
     </div>
   );
 }

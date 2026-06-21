@@ -26,6 +26,7 @@ interface ServerActivityEntry {
   agentState: string;
   message: string;
   phase: string;
+  toolType?: string;
   id: string;
   timestamp: number;
   timestampAR: string;
@@ -120,6 +121,7 @@ export function useAgentLive() {
             state: (act.state || act.agentState) as AgentVisualState || 'idle',
             message: act.message,
             phase: act.phase,
+            toolType: act.toolType as LiveActivityEntry['toolType'],
           };
           newActivities.push(entry);
           hasNew = true;

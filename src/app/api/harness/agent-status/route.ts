@@ -30,6 +30,7 @@ interface ActivityEntry {
   agentState: string;
   message: string;
   phase: string;
+  toolType?: string;
   id: string;
   timestamp: number;
   timestampAR: string;
@@ -49,7 +50,7 @@ let latestStatus: AgentStatus = {
 };
 
 let activityLog: ActivityEntry[] = [];
-const MAX_LOG = 50;
+const MAX_LOG = 200;
 const MAX_SUB_AGENTS = 20;
 
 // ─── Sub-agents (legacy) ─
@@ -264,11 +265,12 @@ export async function POST(req: NextRequest) {
     if (type === 'activity') {
       const now = Date.now();
       const state = agentState || 'idle';
-      const entry = {
+      const entry: ActivityEntry = {
         state,
         agentState: state,
         message: message || '',
         phase: phase || '',
+        toolType: (body as Record<string, unknown>).toolType as string | undefined,
         id: `act_${now}_${Math.random().toString(36).slice(2, 6)}`,
         timestamp: now,
         timestampAR: formatArgentinaTime(now),

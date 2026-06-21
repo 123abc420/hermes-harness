@@ -5,6 +5,21 @@ import type { AgentVisualState } from '@/lib/schemas';
 // Re-export so existing consumers keep working without changes.
 export type { AgentVisualState };
 
+export type ToolType = 'thought' | 'read' | 'edit' | 'write' | 'bash' | 'grep' | 'glob' | 'broadcast' | 'api' | 'other';
+
+export const TOOL_ICONS: Record<ToolType, string> = {
+  thought: '💭',
+  read: '📖',
+  edit: '✏️',
+  write: '📝',
+  bash: '⌨️',
+  grep: '🔍',
+  glob: '📁',
+  broadcast: '📡',
+  api: '🌐',
+  other: '·',
+};
+
 export interface LiveActivityEntry {
   id: string;
   timestamp: number;
@@ -12,6 +27,7 @@ export interface LiveActivityEntry {
   state: AgentVisualState;
   message: string;
   phase?: string;
+  toolType?: ToolType;
 }
 
 // ─── Network Node (v2.0) ──────────────────────────────────────────────
@@ -116,7 +132,7 @@ export const useAgentLiveStore = create<AgentLiveState>((set, get) => ({
   xpToNext: 15,
 
   activities: [],
-  maxActivities: 80,
+  maxActivities: 200,
 
   networkNodes: [],
 

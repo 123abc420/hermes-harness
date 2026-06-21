@@ -6763,3 +6763,53 @@ Work Log:
 
 Stage Summary:
 - Zero code changes. Health 100/100. Maintenance Era continues.
+
+---
+Task ID: 326
+Agent: wave-engine
+Task: W326 self-improvement wave — Rich Replay Enhancement
+
+Work Log:
+- ASSESS: Read context.md, insights.md, SPEC.md, dev.log, dashboard API
+- PLAN: User feedback — replay too vague. Need granular broadcasts per tool call
+- EXECUTE:
+  - Added ToolType union + TOOL_ICONS to agent-live-store.ts
+  - Added toolType field to LiveActivityEntry interface
+  - Increased maxActivities 80→200 (store) and MAX_LOG 50→200 (API)
+  - Updated wave-replay-view.tsx: import TOOL_ICONS, use in TimelineEntry, maxVisible 20→50
+  - Added ScrollArea to timeline for 50 entries
+  - Updated agent-status route.ts: toolType in ActivityEntry, MAX_LOG 200
+  - Updated use-agent-live.ts: toolType in ServerActivityEntry + entry creation
+  - Updated schemas.ts: toolType in activityEntrySchema
+- VERIFY: tsc 0
+- PERSIST: Worklog, wave, decisions, GitHub sync
+
+Stage Summary:
+- 3 improvements: Rich replay with tool icons, scrollable 50-entry timeline, 200-activity buffer
+- Breaks 42-wave maintenance streak with meaningful UX improvement.
+
+---
+Task ID: 326
+Agent: fullstack-developer
+Task: Build Wave Replay Detail — Sims-style step-by-step visual replay
+
+Work Log:
+- Analyzed current wave-replay-view.tsx (vague broadcast-only timeline)
+- Created /src/lib/wave-replay-simulator.ts — generates ~35 realistic granular steps per wave
+- Created /src/components/harness/wave-replay-detail.tsx — full overlay component with:
+  - Per-step typing animations
+  - Phase-colored progress bar with segments
+  - Play/pause/skip/loop/speed controls (0.5×–4×)
+  - Expandable detail rows showing actual commands, file paths, API payloads
+  - Color-coded step types (think, broadcast, read, write, command, api, grep, git-sync)
+  - Phase divider markers (ASSESS, PLAN, EXECUTE, VERIFY, PERSIST, REPORT)
+  - Footer showing current step type badge
+  - Reduced-motion support
+- Integrated "DETAIL" button into WaveReplayView controls row
+- Verified with agent-browser: overlay renders all steps correctly
+- tsc 0 errors, dev.log clean
+
+Stage Summary:
+- New files: wave-replay-simulator.ts, wave-replay-detail.tsx
+- Modified: wave-replay-view.tsx (import + state + button + overlay)
+- Feature: Click "DETAIL" in Agent Live tab → full-screen Sims-style replay of all agent steps
