@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge } from './shared-footer-components';
-import { useHarnessStore } from '@/store/harness-store';
+import { useHarnessStore, type TabValue } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { useAgentLive } from '@/hooks/use-agent-live';
 import { HERMES_VERSION } from '@/lib/constants';
@@ -123,7 +123,7 @@ export function HarnessDashboard() {
     <CommandPalette
       open={showPalette}
       onClose={() => setShowPalette(false)}
-      onNavigate={(tab) => setActiveTab(tab)}
+      onNavigate={(tab) => setActiveTab(tab as TabValue)}
     />
 
     <div

@@ -79,6 +79,8 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                     type="button"
                     className="flex flex-wrap cursor-pointer items-center gap-2 bg-transparent border-0 p-0 text-left w-full"
                     onClick={() => toggle(d.id)}
+                    aria-expanded={isOpen}
+                    aria-controls={`decision-detail-${d.id}`}
                   >
                     <span className="text-[10px] font-mono text-zinc-500">
                       W{d.wave?.waveNumber ?? '?'}
@@ -108,6 +110,7 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                   <AnimatePresence>
                     {isOpen && d.reasoning && (
                       <motion.div
+                        id={`decision-detail-${d.id}`}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}

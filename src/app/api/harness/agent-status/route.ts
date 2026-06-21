@@ -277,7 +277,7 @@ export async function POST(req: NextRequest) {
       };
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = now;
-      latestStatus = { ...latestStatus, agentState: state, message: entry.message, phase: entry.phase, timestamp: now };
+      latestStatus = { ...latestStatus, agentState: state, message: entry.message, phase: (entry.phase || '') as AgentPhase, timestamp: now };
 
       // Also update orchestrator node if it exists
       const orch = networkNodes.find(n => n.type === 'orchestrator');

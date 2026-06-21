@@ -82,7 +82,7 @@ function createSSEConnection(handlers: {
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sseRetryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sseRetryRef = useRef<number | null>(null);
   /** Ref-based self-reference to break recursive useCallback ordering. */
   const scheduleReconnectRef = useRef<(delayMs: number) => void>(() => {});
   const { setStatus, setConnected, setNetworkNodes } = useAgentLiveStore();

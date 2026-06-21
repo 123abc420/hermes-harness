@@ -174,9 +174,10 @@ export function WavesTab() {
             totalKey="total"
             filename="harness-waves"
             columns={["waveNumber","status","decisionsCount","improvementsCount","errorsCount","summary","startedAt","completedAt"]}
-            transform={(r) => ({
+            transform={(r: Record<string, unknown>) => ({
               ...r,
-              decisions: r._count?.decisions ?? r.decisionsCount ?? 0,
+              decisions: (r as { _count?: { decisions?: number }; decisionsCount?: number })._count?.decisions
+                ?? (r as { decisionsCount?: number }).decisionsCount ?? 0,
             })}
           />
         </div>

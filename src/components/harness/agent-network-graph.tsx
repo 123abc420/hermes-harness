@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
 import { getStateHex } from '@/lib/constants';
+import type { AgentVisualState } from '@/lib/schemas';
 
 /* ═════════════════════════════════════════════════════════════════════
    AGENT NETWORK GRAPH — Clean SVG Node Graph
@@ -22,11 +23,11 @@ const MSG_OFFSET_Y = 50;      // px below node center for message
 
 // ─── Helpers ─────────────────────────────────────────────────
 function stateToStroke(state: string): string {
-  return getStateHex(state);
+  return getStateHex(state as AgentVisualState);
 }
 
 function stateToFill(state: string): string {
-  const hex = getStateHex(state);
+  const hex = getStateHex(state as AgentVisualState);
   // Return a very translucent version for fill
   return hex + '15'; // ~8% opacity
 }

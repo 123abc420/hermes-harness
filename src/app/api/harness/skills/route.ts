@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { logError } from '@/lib/logger';
+import { logError, logDebug } from '@/lib/logger';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
     try {
       files = readdirSync(SKILLS_DIR).filter(f => f.endsWith('.md') && !f.startsWith('_'));
     } catch {
+      logDebug('SKILLS', 'Skills directory not found, returning empty list');
       files = [];
     }
 

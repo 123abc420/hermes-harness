@@ -112,9 +112,9 @@ export function DecisionsTab() {
             totalKey="total"
             filename="harness-decisions"
             columns={["category","priority","action","description","reasoning","targetFile","createdAt"]}
-            transform={(r) => ({
+            transform={(r: Record<string, unknown>) => ({
               ...r,
-              waveNumber: r.wave?.waveNumber ?? null,
+              waveNumber: (r as { wave?: { waveNumber?: number } }).wave?.waveNumber ?? null,
             })}
           />
         </div>
