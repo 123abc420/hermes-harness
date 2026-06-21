@@ -35,10 +35,17 @@ export async function GET() {
     }
 
     // Fire-and-forget: cleanup stale running waves (>15 min old)
+    const staleCutoff = new Date(Date.now() - 15 * 60 * 1000);
     db.harnessWave.updateMany({
-      where: { status: 'running', startedAt: { lt: new Date(Date.now() - 15 * 60 * 1000) } },
-      data: { status: 'interrupted', completedAt: new Date(Date.now() - 15 * 60 * 1000) },
-    }).catch((e) => { logDebug('DASHBOARD', 'Stale wave cleanup failed', { error: String(e) }); });
+      where: { status: 'running', startedAt: { lt: staleCutoff } },
+      data: { status: 'interrupted', completedAt: staleCutoff },
+    }).catch((e) => { logError('DASHBOARD', 'Stale wave cleanup failed', { error: String(e) }); });
+
+    // Also fix waves that have completedAt set but status still "running"
+    db.harnessWave.updateMany({
+      where: { status: 'running', completedAt: { not: null } },
+      data: { status: 'completed' },
+    }).catch((e) => { logError('DASHBOARD', 'CompletedAt cleanup failed', { error: String(e) }); });
 
     const [
       recentWaves,

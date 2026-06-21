@@ -50,6 +50,7 @@ let latestStatus: AgentStatus = {
 
 let activityLog: ActivityEntry[] = [];
 const MAX_LOG = 50;
+const MAX_SUB_AGENTS = 20;
 const SSE_POLL_INTERVAL = 2000;
 const SSE_KEEP_ALIVE = 30_000;
 
@@ -388,7 +389,7 @@ export async function POST(req: NextRequest) {
         spawnTime: Date.now(),
         timestampAR: formatArgentinaTime(Date.now()),
       };
-      subAgents = [...subAgents, subAgent];
+      subAgents = [...subAgents, subAgent].slice(-MAX_SUB_AGENTS);
 
       // Also create a network node for the sub-agent
       const nodeId = subAgent.id;

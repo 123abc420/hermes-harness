@@ -5641,3 +5641,22 @@ Stage Summary:
 - validationErrorFromResult: accepts ZodError directly, eliminating redundant re-parse on every 400 response. 9 routes updated.
 - Dead exports removed: FULL_UPDATE_KEYS (unused Set), BroadcastType (unused type alias).
 - Lint: 0 errors.
+
+---
+Task ID: W264
+Agent: Main Orchestrator
+Task: SubAgents memory leak fix + stale wave cleanup hardening
+
+Work Log:
+- ASSESS: Read context, insights, dev.log (clean). Explorer found: (1) subAgents array unbounded, (2) stale cleanup swallows errors at logDebug, (3) no completedAt-based cleanup.
+- PLAN: Cap subAgents at 20. Fix cleanup: logDebug→logError, add completedAt-running fix.
+- EXECUTE: Added MAX_SUB_AGENTS=20 constant, .slice(-MAX_SUB_AGENTS) on push in agent-status/route.ts.
+- EXECUTE: Added second cleanup query in dashboard/route.ts: waves with completedAt set but status still "running" → completed. Changed logDebug→logError for both cleanup queries.
+- VERIFY: bun run lint — 0 errors. Dev log confirmed completedAt cleanup ran and auto-fixed stuck W262 (#174).
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- subAgents array now capped at 20 (was unbounded — real memory leak on long-running servers).
+- Stale wave cleanup: logDebug→logError (errors now visible). Added completedAt-based fix (catches waves patched to completed but with stale status).
+- The completedAt cleanup immediately fixed stuck W262 (#174) on first dashboard load.
+- Lint: 0 errors.

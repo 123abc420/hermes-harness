@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 19:19 UTC+8
+2026-06-21 19:28 UTC+8
 
 ## System Status
-- **Phase**: Replay-First Era (Wave 263)
+- **Phase**: Replay-First Era (Wave 264)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~505 |
-| Waves in DB | 175 |
+| GitHub commits | ~506 |
+| Waves in DB | 176 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Shared zod schemas | 11 |
