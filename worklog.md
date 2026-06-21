@@ -5927,3 +5927,23 @@ Work Log:
 Stage Summary:
 - 2 files changed (dashboard/route.ts, wave_protocol.md). Health score: 94→100.
 - Lint: 0. TypeScript: 0. All quality gates clear.
+
+---
+Task ID: W277
+Agent: Wave Engine
+Task: Wave 277 — Accessibility: prefers-reduced-motion support
+
+Work Log:
+- ASSESS: Health 100/100, lint 0, tsc 0, dev.log clean. Deep scan: 0 silent catches, 0 suppressions, 19 files use framer-motion but NONE check prefers-reduced-motion.
+- PLAN: 2 improvements — (1) Create usePrefersReducedMotion hook + integrate into AnimatedNumber/AnimatedSection, (2) Update stale context.md metrics.
+- EXECUTE:
+  1. Created src/hooks/use-prefers-reduced-motion.ts — uses useSyncExternalStore (no effect, no conditional setState, SSR-safe)
+  2. Updated animated-number.tsx — spring duration → 0 when reduced, skip display subscription
+  3. Updated animated-section.tsx — static variant (opacity:1, y:0, duration:0) when reduced
+  4. Updated context.md — wave 277, commits ~522, skills 11, exported components 11, added reduced-motion line
+- VERIFY: Initial lint caught 6 errors (conditional hooks in AnimatedNumber, setState-in-effect in hook). Fixed: restructured AnimatedNumber to always call hooks, rewrote hook with useSyncExternalStore. Re-lint: 0 errors. tsc: 0 errors.
+- PERSIST: Wave recorded, decisions + metrics saved, GitHub sync
+
+Stage Summary:
+- 4 files changed (1 new hook, 2 components updated, 1 memory file). Added prefers-reduced-motion accessibility to 2 core animation components.
+- Lint: 0. TypeScript: 0. Dev.log: clean.

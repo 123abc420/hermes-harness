@@ -2,6 +2,7 @@
 
 import { type ReactNode } from 'react';
 import { motion, type TargetAndTransition } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
 type AnimatedVariant = 'default' | 'header';
 
@@ -26,18 +27,26 @@ const VARIANTS: Record<AnimatedVariant, { initial: TargetAndTransition; animate:
   },
 };
 
+/** Static variant — same as above but with no-op initial/animate for reduced-motion. */
+const STATIC: { initial: TargetAndTransition; animate: TargetAndTransition } = {
+  initial: { opacity: 1, y: 0 },
+  animate: { opacity: 1, y: 0 },
+};
+
 /**
  * Reusable staggered fade-in wrapper.
  * Replaces the repeated motion.div pattern across tab components.
  * Supports 'default' (fade-up) and 'header' (fade-down) variants.
+ * Respects prefers-reduced-motion: renders content instantly without fade.
  */
 export function AnimatedSection({ variant = 'default', delay = 0, className, children }: AnimatedSectionProps) {
-  const v = VARIANTS[variant];
+  const reduced = usePrefersReducedMotion();
+  const v = reduced ? STATIC : VARIANTS[variant];
   return (
     <motion.div
       initial={v.initial}
       animate={v.animate}
-      transition={{ duration: 0.4, delay }}
+      transition={reduced ? { duration: 0 } : { duration: 0.4, delay }}
       className={className}
     >
       {children}
