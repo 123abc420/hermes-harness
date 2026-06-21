@@ -1,11 +1,11 @@
 import { create } from 'zustand';
+import type { WaveStatus, DecisionPriority } from '@/lib/schemas';
 
-export type WaveStatus = 'pending' | 'running' | 'completed' | 'failed' | 'interrupted';
+export type { WaveStatus, DecisionPriority };
 export type DecisionCategory =
   | 'code_quality' | 'feature' | 'fix' | 'refactor' | 'performance' | 'architecture'
   | 'style' | 'skill' | 'insight' | 'i18n' | 'ux' | 'automation'
   | 'data' | 'maintenance' | 'reliability' | 'code';
-export type DecisionPriority = 'low' | 'medium' | 'high' | 'critical';
 export type DecisionAction = 'planned' | 'executed' | 'skipped' | 'failed';
 
 export interface Wave {
