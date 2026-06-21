@@ -28,23 +28,6 @@ const TAB_CONFIG = [
   { value: 'github', label: 'GitHub & Export', icon: Github, dotColor: 'bg-amber-500' },
 ] as const;
 
-/* ── Stagger Container for tab content ── */
-function StaggerContainer({ children }: { children: React.ReactNode }) {
-  return (
-    <motion.div
-      key="stagger"
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.04 } },
-      }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 /* ── Main Dashboard ────────────────────────────────────── */
 export function HarnessDashboard() {
   const activeTab = useHarnessStore(s => s.activeTab);
@@ -213,7 +196,12 @@ export function HarnessDashboard() {
             </TabsList>
           </div>
 
-          <StaggerContainer>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
             <TabsContent value="agent" className="mt-0">
               <HarnessErrorBoundary inline label="Agent Live">
                 <AgentLivePanel />
@@ -244,7 +232,7 @@ export function HarnessDashboard() {
                 <GithubTab />
               </HarnessErrorBoundary>
             </TabsContent>
-          </StaggerContainer>
+          </motion.div>
         </Tabs>
       </main>
 

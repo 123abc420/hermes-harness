@@ -1,10 +1,12 @@
 'use client';
 
+import { useId } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Activity, Clock } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 /* ── Wave Activity Sparkline (inline SVG, no Recharts) ─────────── */
 export function WaveSparkline({ waves }: { waves: { status: string }[] }) {
+  const gradId = useId();
   const last10 = waves.slice(0, 10).reverse();
   if (last10.length < 2) return null;
   // Encode status as height: completed=1, failed=0.3, others=0.5
@@ -19,12 +21,12 @@ export function WaveSparkline({ waves }: { waves: { status: string }[] }) {
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0" aria-label="Wave activity sparkline">
       <defs>
-        <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3" />
           <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <polygon fill="url(#spark-grad)" points={areaPoints} />
+      <polygon fill={`url(#${gradId})`} points={areaPoints} />
       <polyline fill="none" stroke="#f59e0b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" points={points} opacity="0.7" />
       <circle cx={(heights.length - 1) * step} cy={H - ((heights[heights.length - 1] - 0.3) / (Math.max(...heights) - Math.min(...heights) || 1)) * (H - 2) - 1} r="1.5" fill="#f59e0b" opacity="0.9" />
     </svg>
