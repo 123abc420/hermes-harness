@@ -4721,3 +4721,25 @@ Stage Summary:
 - NodePopup: color accent top bar, glow shadow, spring entrance
 - NEW FEATURE: Activity state filter with 7 color-coded dot pills, ping animation on active, live counts
 - Build: 0 errors, 19/19 routes
+
+---
+Task ID: 236
+Agent: HERMES Wave Engine (cron)
+Task: Wave 236 — Page premium upgrade, shared STATE_RGB, smart bezier curves
+
+Work Log:
+- ASSESS: Read worklog (4723 lines), context.md (W235, 162 waves, 100% spec), insights.md (205 lines), 10 skills, dev.log (clean). Explored page.tsx vs harness-dashboard.tsx — found page.tsx was a stale duplicate missing premium features.
+- PLAN: 3 improvements — (1) page.tsx missing premium features (parallax, sliding indicator, sparkline, pulse health, uptime), (2) STATE_COLORS duplicated in 3 files with divergent formats, (3) Canvas bezier control points always bend -20px regardless of geometry.
+- EXECUTE 1: Rewrote page.tsx with: parallax dot-pattern background (scrollY * 0.08), sliding tab indicator (motion.div spring), wave activity sparkline (inline SVG), SuccessRatePulse with animated health bar, system uptime from first wave, gradient footer separator, per-tab dot color indicators.
+- EXECUTE 2: Added STATE_RGB to constants.ts (canonical [R,G,B] tuples for all 10 states), rgbToHex() and getStateHex() utilities. Updated agent-network-canvas.tsx to import STATE_RGB (removed local copy). Updated agent-live-panel.tsx to import getStateHex (replaced local getStateRgb() map).
+- EXECUTE 3: Added smartCP() function to canvas — computes bezier control point perpendicular to line, scaled 18% of distance, direction seeded by node.spawnTime. Updated both connection drawing and particle flow to use smartCP. Fixed missing rgb sync on existing node color update. Improved node spawn layout with two-tier radius (first 4 agents at 0.18, rest at 0.28).
+- VERIFY: bun run lint — 0 errors. dev.log clean.
+- PERSIST: Wave + 3 decisions recorded. Git push: 1142d92.
+
+Stage Summary:
+- page.tsx now matches harness-dashboard.tsx premium quality (parallax, spring indicator, sparkline, pulse health, uptime)
+- STATE_RGB is the single source of truth in constants.ts — consumed by canvas (rgba) and HUD (hex)
+- Canvas connections now curve organically based on geometry, not always upward
+- Node layout uses two-tier spacing to avoid overlap with many sub-agents
+- Fixed latent bug: existing node rgb not synced on color update
+- 4 files changed, +265 -95 lines, 0 lint errors

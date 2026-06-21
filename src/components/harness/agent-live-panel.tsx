@@ -30,7 +30,10 @@ const ACTIVITY_FILTERS: Array<{ state: AgentVisualState | 'all'; label: string; 
   { state: 'error', label: 'Error', icon: '💥' },
 ];
 
-// ─── Activity Entry (W235: left accent stripe) ─────────────────
+// State → hex color (single source of truth from constants.ts)
+const getStateRgb = getStateHex;
+
+// ─── Activity Entry (W235: left accent stripe, memoized) ─────────────────
 const ActivityEntry = memo(function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {
   const stateRgb = getStateRgb(entry.state);
   return (
@@ -59,12 +62,9 @@ const ActivityEntry = memo(function ActivityEntry({ entry, isNew }: { entry: Liv
       </div>
     </motion.div>
   );
-}
+});
 
-// State → hex color (single source of truth from constants.ts)
-const getStateRgb = getStateHex;
-
-// ─── Node Popup (W235: color accent top bar, glow shadow) ───────
+// ─── Node Popup (W235: color accent top bar, glow shadow, memoized) ───────
 const NodePopup = memo(function NodePopup() {
   const { selectedNodeId, networkNodes, selectNode } = useAgentLiveStore();
   const node = networkNodes.find(n => n.id === selectedNodeId);
@@ -152,7 +152,7 @@ const NodePopup = memo(function NodePopup() {
       </div>
     </motion.div>
   );
-}
+});
 
 // ─── Wave Overview Bar (W235: gradient glow on progress) ───────
 function WaveOverviewBar() {

@@ -202,3 +202,20 @@
 - Every phase transition should have explicit broadcast steps in wave_protocol.md.
 - Use `curl --max-time 3 || true` pattern — broadcasts should never block a wave.
 - The `broadcast()` shell function makes it trivial to include in every wave.
+
+## Color Single-Source-of-Truth
+
+- When the same color palette is needed in canvas (RGB tuples), HUD (hex strings), and CSS (Tailwind classes), define ONE canonical source (e.g., STATE_RGB in constants.ts) and derive the rest.
+- Canvas needs `[R, G, B]` tuples for `rgba()`. UI needs hex for `style={{ backgroundColor }}`. CSS needs class strings. Derive hex from RGB, not the reverse.
+- If a cached value (like `rgb` on AnimNode) depends on a mutable field (`color`), always sync both on update — stale caches cause invisible bugs.
+
+## Bezier Curve Aesthetics
+
+- Fixed-offset control points (`midY - 20`) make all curves bend the same direction regardless of node geometry. Use perpendicular-to-line offset scaled by distance for organic arcs.
+- The `seed` parameter (from spawnTime or node ID hash) determines curve direction — prevents adjacent connections from overlapping.
+- Particle trails must use the SAME control point function as the connection line, otherwise particles fly outside their bezier.
+
+## Stale Component Duplication
+
+- When `page.tsx` and `harness-dashboard.tsx` both render the same dashboard, improvements to one silently miss the other. The one actually rendered (page.tsx) gets stale.
+- The harness-dashboard.tsx was the "premium" version with more features, but page.tsx is what users see. This is the #1 feature gap risk in exportable module architectures.
