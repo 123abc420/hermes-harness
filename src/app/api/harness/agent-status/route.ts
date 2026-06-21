@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { logError } from '@/lib/logger';
 import { formatArgentinaTime } from '@/lib/constants';
 import {
   agentStatusPostSchema,
   validationError,
-  FULL_UPDATE_KEYS,
+  activityEntrySchema,
+  subAgentEntrySchema,
+  type AgentVisualState,
+  type AgentPhase,
 } from '@/lib/schemas';
 
 // ─── In-memory state ─
 interface AgentStatus {
-  agentState: string;
+  agentState: AgentVisualState;
   message: string;
-  phase: string;
+  phase: AgentPhase;
   waveNumber: number;
   progress: number;
   waveCount: number;
@@ -526,51 +530,43 @@ export async function POST(req: NextRequest) {
 
     // ─── Full Update ──────────────────────────────────────────────
     if (type === 'full-update') {
-      // Only spread known-safe keys (prevents prototype pollution / injection)
-      const safeFullUpdate: Partial<AgentStatus> = {};
-      for (const key of FULL_UPDATE_KEYS) {
-        if (key in body && body[key] !== undefined) {
-          (safeFullUpdate as Record<string, unknown>)[key] = body[key];
-        }
-      }
-      latestStatus = { ...latestStatus, ...safeFullUpdate, timestamp: Date.now() };
+      // Spread only known-safe scalar keys (prevents prototype pollution / injection)
+      const patch: Partial<AgentStatus> = {};
+      if (body.agentState) patch.agentState = body.agentState;
+      if (body.phase !== undefined) patch.phase = body.phase;
+      if (body.message !== undefined) patch.message = body.message;
+      if (body.waveNumber !== undefined) patch.waveNumber = body.waveNumber;
+      if (body.progress !== undefined) patch.progress = body.progress;
+      if (body.waveCount !== undefined) patch.waveCount = body.waveCount;
+      if (body.totalImprovements !== undefined) patch.totalImprovements = body.totalImprovements;
+      if (body.totalDecisions !== undefined) patch.totalDecisions = body.totalDecisions;
+      if (body.decisionCountThisWave !== undefined) patch.decisionCountThisWave = body.decisionCountThisWave;
+      latestStatus = { ...latestStatus, ...patch, timestamp: Date.now() };
+
+      // Validate activities array with Zod (replaces manual field-by-field checks)
       if (body.activities && Array.isArray(body.activities)) {
-        const valid: ActivityEntry[] = [];
-        for (const raw of body.activities) {
-          if (raw == null || typeof raw !== 'object') continue;
-          const r = raw as Record<string, unknown>;
-          if (typeof r.id !== 'string' || typeof r.state !== 'string' ||
-              typeof r.message !== 'string' || typeof r.timestamp !== 'number') continue;
-          valid.push({
-            state: r.state,
-            agentState: String(r.agentState ?? r.state),
-            message: r.message,
-            phase: String(r.phase ?? ''),
-            id: r.id,
-            timestamp: r.timestamp,
-            timestampAR: typeof r.timestampAR === 'string' ? r.timestampAR : formatArgentinaTime(r.timestamp),
-          });
+        const result = z.array(activityEntrySchema).safeParse(body.activities);
+        if (result.success) {
+          activityLog = result.data.map(a => ({
+            ...a,
+            agentState: a.agentState ?? a.state,
+            phase: a.phase ?? '',
+            timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp),
+          }));
         }
-        activityLog = valid;
       }
+
+      // Validate subAgents array with Zod (replaces manual field-by-field checks)
       if (body.subAgents && Array.isArray(body.subAgents)) {
-        const valid: SubAgentEntry[] = [];
-        for (const raw of body.subAgents) {
-          if (raw == null || typeof raw !== 'object') continue;
-          const r = raw as Record<string, unknown>;
-          if (typeof r.id !== 'string' || typeof r.name !== 'string' ||
-              typeof r.state !== 'string' || typeof r.spawnTime !== 'number') continue;
-          valid.push({
-            id: r.id,
-            name: r.name,
-            state: r.state,
-            message: typeof r.message === 'string' ? r.message : '',
-            color: typeof r.color === 'string' ? r.color : '#8b5cf6',
-            spawnTime: r.spawnTime,
-            timestampAR: typeof r.timestampAR === 'string' ? r.timestampAR : formatArgentinaTime(r.spawnTime),
-          });
+        const result = z.array(subAgentEntrySchema).safeParse(body.subAgents);
+        if (result.success) {
+          subAgents = result.data.map(a => ({
+            ...a,
+            message: a.message ?? '',
+            color: a.color ?? '#8b5cf6',
+            timestampAR: a.timestampAR || formatArgentinaTime(a.spawnTime),
+          }));
         }
-        subAgents = valid;
       }
 
       // Update orchestrator node to celebrating state

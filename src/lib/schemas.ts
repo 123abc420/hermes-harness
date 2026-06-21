@@ -123,10 +123,16 @@ export const VALID_AGENT_STATES_Z = [
   'verifying', 'celebrating', 'error', 'evolving', 'offline',
 ] as const;
 
+/** Canonical agent visual state type — single source, imported everywhere. */
+export type AgentVisualState = (typeof VALID_AGENT_STATES_Z)[number];
+
 /** Valid wave phase values. */
 export const VALID_PHASES_Z = [
   'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
 ] as const;
+
+/** Canonical wave phase type. */
+export type AgentPhase = (typeof VALID_PHASES_Z)[number];
 
 /** Valid broadcast type values. */
 export const VALID_BROADCAST_TYPES = [
@@ -135,6 +141,28 @@ export const VALID_BROADCAST_TYPES = [
   'node-pulse', 'decision-count', 'full-update',
 ] as const;
 export type BroadcastType = (typeof VALID_BROADCAST_TYPES)[number];
+
+/** Zod schema for activity entries in full-update broadcasts. */
+export const activityEntrySchema = z.object({
+  id: z.string(),
+  state: z.string(),
+  agentState: z.string().optional(),
+  message: z.string(),
+  phase: z.string().optional(),
+  timestamp: z.number(),
+  timestampAR: z.string().optional(),
+});
+
+/** Zod schema for sub-agent entries in full-update broadcasts. */
+export const subAgentEntrySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  state: z.string(),
+  message: z.string().optional(),
+  color: z.string().optional(),
+  spawnTime: z.number(),
+  timestampAR: z.string().optional(),
+});
 
 /** Allowed keys for the full-update spread (prevents injection). */
 export const FULL_UPDATE_KEYS = new Set([

@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 16:10 UTC+8
+2026-06-21 16:20 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 250)
+- **Phase**: Multi-Agent Visual Era (Wave 251)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -29,7 +29,7 @@
 | Routes with zod validation | 9 of 9 (agent-status added W249) |
 | Bare req.json() calls | 0 |
 | Ungated client console.warn | 0 |
-| Shared zod schemas | 9 (agentStatusPostSchema, W249) |
+| Shared zod schemas | 11 (activityEntry + subAgent added W250) |
 | Skills tracked in git | 10 (+ 1 template) |
 | VALID_NODE_TYPES dead code | 0 (removed W234) |
 | Activity log capacity | 50 (server) / 80 (client) |
@@ -51,8 +51,8 @@
 | Duplicated types (WaveStatus, DecisionPriority) | 0 (single-sourced from schemas, W243) |
 | Dead directories (examples/, mini-services/) | 0 (deleted W244) |
 | Unvalidated POST routes | 0 (agent-status Zod-validated, W249) |
-| Full-update injection risk | 0 (FULL_UPDATE_KEYS whitelist, W249) |
-| Record<string,unknown> in API routes | 4 (all justified: YAML parser, forwarder, loose shape fields) |
+| Full-update injection risk | 0 (typed field extraction + Zod arrays, W250) |
+| Record<string,unknown> in agent-status | 0 (typed extraction + Zod, W250) |
 | ignoreBuildErrors | false (strict TS enforced, W245) |
 | Header color drift | 0 (uses getStateHex, W246) |
 | Record<string,unknown> in use-agent-live | 0 (typed ServerXxx interfaces, W246) |
@@ -62,9 +62,9 @@
 | SSE duplication | 0 (createSSEConnection factory, W247) |
 | Prisma-typed query params | 4 routes (W248) |
 | useState for non-rendering values | 0 (scrollY+debounceRef→useRef, W249) |
-| as AgentVisualState[] assertions | 0 (AgentSkill interface, W250) |
+| as AgentVisualState casts | 1 (JSON boundary in use-agent-live, W250) |
 | cn() adoption | 17 harness files (W250) |
-| Template-literal className in harness | 0 (W250) |
+| Canonical types from schemas.ts | 2 (AgentVisualState + AgentPhase, W250) |
 | ARIA label gaps | 0 (W250) |
 | Duplicate fetchTrends | 0 (useDecisionTrends shared hook, W250) |
 | Per-hook staleTime | 3 tuned (W250) |
@@ -81,8 +81,7 @@
 - GitHub sync does real git push inline
 - **SSE reconnection via createSSEConnection factory** (W247)
 - **Zod-validated agent-status POST** with .strict() (W249)
-- **FULL_UPDATE_KEYS whitelist** prevents body injection (W249)
-- **Typed DEMO_SEQUENCE** as discriminated union (W249)
+- **Typed full-update extraction + Zod arrays** replaces FULL_UPDATE_KEYS (W250)
 - **Generic csv-export** preserves type safety at call sites (W249)
 - **DecisionCategory derived from VALID_CATEGORIES** (W247, 20 categories)
 - **useDecisionTrends shared hook** with fetchJSON reuse (W250)

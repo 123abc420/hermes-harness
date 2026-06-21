@@ -1,17 +1,9 @@
 import { create } from 'zustand';
 import { getLevelName, formatArgentinaTime } from '@/lib/constants';
+import type { AgentVisualState } from '@/lib/schemas';
 
-export type AgentVisualState =
-  | 'idle'
-  | 'thinking'
-  | 'searching'
-  | 'planning'
-  | 'executing'
-  | 'verifying'
-  | 'celebrating'
-  | 'error'
-  | 'evolving'
-  | 'offline';
+// Re-export so existing consumers keep working without changes.
+export type { AgentVisualState };
 
 export interface LiveActivityEntry {
   id: string;

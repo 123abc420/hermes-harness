@@ -5300,3 +5300,32 @@ Stage Summary:
 - 1 file modified: export-menu.tsx (transform type fix)
 - Total improvements: 4, Decisions: 4, Metrics: 4
 - TS errors: 0, Lint errors: 0
+---
+Task ID: W250
+Agent: Wave Engine (HERMES)
+Task: Single-source AgentVisualState, type server interfaces, Zod-validate full-update arrays
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, dev.log. 0 lint errors, 0 TS errors, app running webpack mode.
+- PLAN: Identified 3 improvements: (1) single-source AgentVisualState from schemas.ts, (2) Zod-validate full-update arrays, (3) gate client console.warn (already done).
+- EXECUTE:
+  1. Added AgentVisualState + AgentPhase canonical types to schemas.ts (derived from VALID_AGENT_STATES_Z / VALID_PHASES_Z)
+  2. Added activityEntrySchema + subAgentEntrySchema Zod schemas to schemas.ts
+  3. Typed AgentStatus.agentState as AgentVisualState, AgentStatus.phase as AgentPhase
+  4. Replaced FULL_UPDATE_KEYS loop + Record<string,unknown> cast with explicit typed field extraction
+  5. Replaced manual field-by-field activity/subAgent array validation with z.array().safeParse()
+  6. Removed FULL_UPDATE_KEYS import (no longer needed)
+  7. Added z import to agent-status/route.ts for z.array()
+  8. Changed agent-live-store.ts to import+re-export AgentVisualState from schemas.ts (eliminated duplicate definition)
+  9. Updated use-agent-live.ts ServerAgentStatus.agentState to AgentVisualState, removed 1 `as AgentVisualState` cast
+- VERIFY: 0 lint errors, 0 TS errors, 0 dev.log errors
+- PERSIST: Wave + decisions + metrics recorded, worklog + context updated
+
+Stage Summary:
+- 3 files modified: schemas.ts, agent-status/route.ts, agent-live-store.ts, use-agent-live.ts
+- AgentVisualState single-sourced: 1 definition (schemas.ts), re-exported from store
+- Record<string,unknown> casts in agent-status: 3 → 0
+- as AgentVisualState casts: 2 → 1 (remaining is JSON boundary cast, legitimate)
+- Manual array validation: replaced with Zod safeParse (activities + subAgents)
+- FULL_UPDATE_KEYS Set: removed (replaced by explicit typed field extraction)
+- Total improvements: 3, Decisions: 3

@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry, type NetworkNode } from '@/store/agent-live-store';
+import { useAgentLiveStore, type LiveActivityEntry, type NetworkNode } from '@/store/agent-live-store';
 import { formatArgentinaTime } from '@/lib/constants';
+import type { AgentVisualState } from '@/lib/schemas';
 
 /** Mirrors the in-memory AgentStatus shape from agent-status/route.ts */
 interface ServerAgentStatus {
-  agentState: string;
+  agentState: AgentVisualState;
   message: string;
   phase: string;
   waveNumber: number;
@@ -95,7 +96,7 @@ export function useAgentLive() {
     const s = data.latestStatus;
     if (s) {
       const update: Parameters<typeof setStatus>[0] = {};
-      if (s.agentState) update.agentState = s.agentState as AgentVisualState;
+      if (s.agentState) update.agentState = s.agentState;
       if (s.message) update.message = s.message;
       if (s.phase) update.phase = s.phase;
       if (s.waveNumber !== undefined) update.waveNumber = s.waveNumber;
