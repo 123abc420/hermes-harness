@@ -8,7 +8,7 @@ export const HERMES_VERSION = typeof process !== 'undefined' && process.env.NEXT
 // Internal service URLs (server-to-server, not client-facing)
 export const AGENT_LIVE_SERVICE_URL = process.env.AGENT_LIVE_PORT
   ? `http://localhost:${process.env.AGENT_LIVE_PORT}/broadcast`
-  : 'http://localhost:3004/broadcast';
+  : 'http://localhost:3005/broadcast';
 
 export const APP_INTERNAL_URL = process.env.APP_PORT
   ? `http://localhost:${process.env.APP_PORT}`
