@@ -4291,3 +4291,37 @@ Stage Summary:
 - 2D canvas avatar significantly more detailed (ring, trails, glow, vignette)
 - Full QA pass: 6 tabs + mobile, all verified via agent-browser + VLM
 - 10 QA screenshots saved to /home/z/my-project/download/qa-*.png
+
+---
+Task ID: 229
+Agent: Wave Engine (W229)
+Task: Remove dead code, enhance stat card visuals
+
+Work Log:
+- ASSESS: Context fresh from W228 (5 min ago), no new errors in dev.log
+- Identified 6 dead 3D component files still in tree (~29KB, 907 lines)
+  - agent-3d-chibi.tsx, agent-3d-sandbox.tsx, agent-3d-scene.tsx,
+    agent-3d-shared.ts, agent-3d-vrm.tsx, agent-3d-world.tsx
+  - These import three/@react-three/fiber which are not installed
+  - Only reference was removed from src/index.ts in W227
+- Removed all 6 files via git rm
+- Investigated agent-status POST for zod validation: found it already has
+  thorough manual validation (validateAgentState, validateProgress,
+  validateWaveNumber, phase check). No conversion needed.
+- Enhanced Overview stat card sparklines:
+  - Added gradient area fill (polygon + linearGradient) under the line
+  - Added end-dot indicator on the latest data point
+  - Increased line opacity from 0.7 to 0.8
+- Enhanced stat card container:
+  - Added top accent gradient line (uses icon color via text-current)
+  - Added hover:shadow-lg with black shadow for depth
+  - Icon container now scales up on hover (group-hover:scale-110)
+  - Added overflow-hidden for clean accent line clipping
+- Lint: 0 errors
+- Git push: 691811d (7 changed, +19, -907)
+
+Stage Summary:
+- Codebase reduced by 907 lines of dead code
+- Stat cards now have premium sparkline area charts with gradient fill
+- All 9 unvalidated routes: agent-status uses manual validation (sufficient)
+- Component count: 29 → 23 (6 dead 3D files removed)

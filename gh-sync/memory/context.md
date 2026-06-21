@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 08:15 UTC+8
+2026-06-21 08:20 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 228)
+- **Phase**: Post-Compliance Evolution (Wave 229)
 - **Waves in DB**: 158
 - **Spec compliance**: 100% (16/16)
 
@@ -16,9 +16,9 @@
 | API routes | 16 |
 | Dashboard tabs | 6 |
 | Skills | 9 (+ 1 template) |
-| Components | 29 |
+| Components | 23 |
 | Exported components | 10 |
-| GitHub commits | ~403 |
+| GitHub commits | ~404 |
 | Waves in DB | 158 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
@@ -38,24 +38,16 @@
 - Centralized logger (logError + logDebug) across all 14 API routes
 - ALL client-side fetch calls check .ok before .json()
 - Wave replay auto-stops, phase timeline labeled estimated
-- Shared zod schemas (src/lib/schemas.ts) with 8 input validators + validationError helper
-- 2D Canvas avatar with orbiting ring, particle trails, station glow, vignette (W228)
-- Health score guarded against 0/0 NaN (W227)
-- Donut charts use percentage radii — no mobile clipping (W227)
-- GitHub sync does real git push inline, status correct (W228)
-- Dead deps removed: postprocessing, @types/three (W227)
+- Shared zod schemas with 8 input validators + validationError helper
+- 2D Canvas avatar with orbiting ring, particle trails, station glow, vignette
+- Stat card sparklines with gradient area fill + end-dot indicator
+- Health score guarded against 0/0 NaN
+- Donut charts use percentage radii — no mobile clipping
+- GitHub sync does real git push inline, status correct
+- Dead 3D files removed (6 files, 907 lines deleted W229)
 - Page compiles in <1s
 
-## QA Status (W228)
-- Agent Live: ✅ avatar visible, health score correct, no layout issues
-- Overview: ✅ stat cards, charts, no truncation
-- Waves: ✅ no duplicates, proper status colors
-- Decisions: ✅ renders correctly
-- Analytics: ✅ charts render (donut, timeline, breakdown)
-- GitHub: ✅ shows connected status (fixed from "syncing")
-- Mobile (375px): ✅ responsive, no overflow, tabs shortened
-
 ## What's next
-1. Consider removing dead 3D component files (agent-3d-*.tsx)
-2. Consider zod for agent-status POST (low priority)
-3. Consider per-wave replay with real phase data (requires schema change)
+1. Consider per-wave replay with real phase data (requires schema change)
+2. Consider adding more chart types to Analytics tab
+3. Consider keyboard shortcut overlay (Cmd+K palette)
