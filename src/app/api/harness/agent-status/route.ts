@@ -53,7 +53,7 @@ let latestStatus: Record<string, unknown> = {
 };
 
 let activityLog: Array<Record<string, unknown>> = [];
-const MAX_LOG = 80;
+const MAX_LOG = 30;
 const SSE_POLL_INTERVAL = 2000;
 const SSE_KEEP_ALIVE = 30_000;
 
