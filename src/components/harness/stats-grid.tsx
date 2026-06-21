@@ -20,9 +20,21 @@ function Sparkline({ data, color = 'currentColor', label = 'Trend chart' }: {
     const y = H - ((v - min) / range) * (H - 2) - 1;
     return `${x},${y}`;
   }).join(' ');
+  // Area fill polygon (line points + bottom corners)
+  const areaPoints = `${points} ${W},${H} 0,${H}`;
   return (
     <svg width="100%" height={H} className="shrink-0" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={label}>
       <title>{label}</title>
+      <defs>
+        <linearGradient id={`grad-${label.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon
+        fill={`url(#grad-${label.replace(/\s/g, '')})`}
+        points={areaPoints}
+      />
       <polyline
         fill="none"
         stroke={color}
@@ -30,8 +42,10 @@ function Sparkline({ data, color = 'currentColor', label = 'Trend chart' }: {
         strokeLinecap="round"
         strokeLinejoin="round"
         points={points}
-        opacity={0.7}
+        opacity={0.8}
       />
+      {/* End dot */}
+      <circle cx={W} cy={data[data.length - 1] !== undefined ? (H - ((data[data.length - 1] - min) / range) * (H - 2) - 1) : H / 2} r={2} fill={color} opacity={0.9} />
     </svg>
   );
 }
@@ -76,7 +90,9 @@ function StatCard({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, delay }}
     >
-      <Card className="glass-card group transition-all hover:border-white/10">
+      <Card className="glass-card group relative overflow-hidden transition-all duration-300 hover:border-white/10 hover:shadow-lg hover:shadow-black/20">
+        {/* Top accent line — color matches the stat icon */}
+        <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-30 ${color.split(' ')[1] ?? 'text-zinc-400'}`} />
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -87,9 +103,7 @@ function StatCard({
                 {value ?? 0}{suffix ?? ''}
               </p>
             </div>
-            <div
-              className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}
-            >
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${color}`}>
               <Icon className="h-5 w-5" />
             </div>
           </div>
