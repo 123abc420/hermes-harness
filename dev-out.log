@@ -1,0 +1,19 @@
+▲ Next.js 16.1.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://21.0.4.51:3000
+- Environments: .env
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 742ms
+ POST /api/harness/agent-status 200 in 409ms (compile: 374ms, render: 34ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"full-update"}
+prisma:query SELECT `main`.`GitHubSync`.`id`, `main`.`GitHubSync`.`status`, `main`.`GitHubSync`.`username`, `main`.`GitHubSync`.`repoName`, `main`.`GitHubSync`.`lastSyncAt`, `main`.`GitHubSync`.`lastCommitSha`, `main`.`GitHubSync`.`branch`, `main`.`GitHubSync`.`totalCommits`, `main`.`GitHubSync`.`errorMessage`, `main`.`GitHubSync`.`updatedAt`, `main`.`GitHubSync`.`createdAt` FROM `main`.`GitHubSync` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query UPDATE `main`.`GitHubSync` SET `status` = ?, `lastSyncAt` = ?, `totalCommits` = ?, `lastCommitSha` = ?, `errorMessage` = ?, `updatedAt` = ? WHERE (`main`.`GitHubSync`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `status` AS `status`, `username` AS `username`, `repoName` AS `repoName`, `lastSyncAt` AS `lastSyncAt`, `lastCommitSha` AS `lastCommitSha`, `branch` AS `branch`, `totalCommits` AS `totalCommits`, `errorMessage` AS `errorMessage`, `updatedAt` AS `updatedAt`, `createdAt` AS `createdAt`
+ POST /api/harness/github/sync 200 in 972ms (compile: 135ms, render: 837ms)
+○ Compiling / ...
+ GET / 200 in 5.5s (compile: 5.1s, render: 395ms)

@@ -162,3 +162,14 @@
 
 - Each agent state should have a unique visual pattern. If a state has no effect, the canvas looks "dead" during that phase.
 - 10 states = 10 unique effects. Missing any makes the "mind reflection" concept incomplete.
+
+## Hooks Inside useEffect
+
+- Never call `useRef()` inside a `useEffect` callback — React's rules-of-hooks linter catches this.
+- For mutable draw-loop state (timers, targets), declare refs at the component level, not inside the effect. The draw loop reads them via closure over the ref's `.current`.
+
+## Ambient Canvas Layers
+
+- Three independent ambient layers (data rain, heartbeat pulses, character personality) make the canvas feel alive 24/7 without any wave activity.
+- Data rain at 3-6% opacity is perceptible but not distracting. State-tinted so it matches the current mood.
+- Character look-around every 5-8s with smooth interpolation breaks the "staring" effect. Mouse overrides auto-look.
