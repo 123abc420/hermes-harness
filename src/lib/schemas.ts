@@ -87,7 +87,12 @@ export const patchWaveSchema = z
 export type PatchWaveInput = z.infer<typeof patchWaveSchema>;
 
 export const createWaveSchema = z.object({
+  waveNumber: z.number().int().positive().optional(),
+  status: z.enum(WAVE_STATUSES).optional(),
   summary: z.string().optional(),
+  decisionsCount: z.number().int().min(0).optional(),
+  improvementsCount: z.number().int().min(0).optional(),
+  errorsCount: z.number().int().min(0).optional(),
 });
 
 export type CreateWaveInput = z.infer<typeof createWaveSchema>;

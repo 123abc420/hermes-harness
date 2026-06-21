@@ -5947,3 +5947,23 @@ Work Log:
 Stage Summary:
 - 4 files changed (1 new hook, 2 components updated, 1 memory file). Added prefers-reduced-motion accessibility to 2 core animation components.
 - Lint: 0. TypeScript: 0. Dev.log: clean.
+
+---
+Task ID: W278
+Agent: Wave Engine
+Task: Wave 278 — Fix waves POST upsert bug (root cause of health degradation)
+
+Work Log:
+- ASSESS: Health dropped 100→88. Found DB#192 (W277) and DB#193 stuck as "running". Root cause: createWaveSchema only accepted `summary`; `waveNumber`, `status`, `counts` were silently stripped by zod safeParse. Every PERSIST call created phantom duplicate waves.
+- PLAN: (1) Fix waves POST with upsert-by-waveNumber logic, (2) Patch stuck waves.
+- EXECUTE:
+  1. schemas.ts — Extended createWaveSchema with waveNumber, status (z.enum WAVE_STATUSES), decisionsCount, improvementsCount, errorsCount. Removed accidental duplicate WAVE_STATUSES.
+  2. waves/route.ts — POST handler now: if waveNumber provided, find existing → update with HarnessWaveUpdateInput (typed) → return; else create with specified number. Auto-assigns next number when waveNumber absent (backward compat).
+  3. Patched DB#192 (W277) → completed via new upsert. Patched DB#193 (phantom) → interrupted.
+  4. Updated context.md, added "API Upsert Patterns" section to insights.md (3 new insights).
+- VERIFY: Lint 0, tsc 0, dev.log clean. Duplicate WAVE_STATUSES caused ModuleParseError — caught and fixed immediately.
+- PERSIST: Wave recorded, 2 decisions, 2 metrics, GitHub sync.
+
+Stage Summary:
+- 4 files changed (schemas.ts, waves/route.ts, context.md, insights.md). Root cause bug fix: waves POST now supports upsert by waveNumber. Health 88→94 (will be 100 after this wave completes).
+- Lint: 0. TypeScript: 0. Dev.log: clean.

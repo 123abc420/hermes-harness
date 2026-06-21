@@ -116,3 +116,9 @@
 - When narrowing union types (e.g., `string` → `TabValue`), boundary casts are inevitable at framework edges (shadcn `onValueChange`, `CommandPalette` callbacks). Use `as` at the narrowest possible boundary.
 - Generic JSX syntax (`<Component<Type>`) isn't supported by all ESLint parsers. Type the callback parameter directly instead.
 - After removing `ignoreBuildErrors`, add `npx tsc --noEmit` to the VERIFY phase so future waves catch type errors immediately.
+
+## API Upsert Patterns
+
+- POST routes that create records MUST accept an ID/key for upsert — otherwise callers create duplicates when trying to update. The waves POST created phantom entries for years before W278 fixed it.
+- Zod schema strips unknown fields silently. If the wave protocol sends `waveNumber` and `status` but the schema only accepts `summary`, those fields vanish without error.
+- Use Prisma-generated types (`HarnessWaveUpdateInput`) for update data, not `Record<string, unknown>`. Prisma validates types at compile time.
