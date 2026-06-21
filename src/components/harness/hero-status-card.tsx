@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Github, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { AnimatedNumber } from './animated-number';
 import { formatDistanceToNow } from 'date-fns';
 import type { TotalStats, GithubStatus } from '@/store/harness-store';
 import { useAgentLiveStore } from '@/store/agent-live-store';
@@ -35,7 +36,9 @@ function HealthRing({ score, trend }: { score: number; trend?: 'up' | 'down' | '
       </svg>
       {/* Score number centered */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-lg font-bold font-mono tabular-nums" style={{ color }}>{score}</span>
+        <span className="text-lg font-bold font-mono tabular-nums" style={{ color }}>
+          <AnimatedNumber value={score} />
+        </span>
         {trend && (
           <span className="text-[8px] leading-none" style={{ color: trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#71717a' }}>
             {trend === 'up' ? '▲' : trend === 'down' ? '▼' : '●'}

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, Brain, TrendingUp, AlertTriangle, Target, GitBranch, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedNumber } from './animated-number';
 import type { Wave, TotalStats, Metric } from '@/store/harness-store';
 
 /* ── Tiny Sparkline ──────────────────────────────────── */
@@ -199,7 +200,7 @@ function StatCard({
                 {label}
               </p>
               <p className="mt-1.5 text-2xl font-bold tabular-nums text-white">
-                {value ?? 0}{suffix ?? ''}
+                <AnimatedNumber value={value ?? 0} decimals={suffix === '%' ? 1 : 0} />{suffix ?? ''}
               </p>
             </div>
             <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110', color)}>

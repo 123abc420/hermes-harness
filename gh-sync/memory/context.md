@@ -3,7 +3,7 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 18:35 UTC+8
+2026-06-21 18:48 UTC+8
 
 ## System Status
 - **Phase**: Replay-First Era (Wave 256)
@@ -15,10 +15,10 @@
 | API routes | 20 |
 | Dashboard tabs | 6 |
 | Skills | 10 (+ 1 template) |
-| Components | 19 (canvas removed, SVG graph + replay added) |
+| Components | 20 (canvas removed, SVG graph + replay + animated-number added) |
 | Exported components | 10 |
-| GitHub commits | ~502 |
-| Waves in DB | 172 (stuck waves patched W256) |
+| GitHub commits | ~503 |
+| Waves in DB | 173 (stuck waves patched W256) |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Network nodes | SVG node graph (replay-first design) |
@@ -81,4 +81,4 @@
 1. Persist wave activities to DB for cross-reload replay
 2. Live view — show wave execution in real-time (user deferred: "mas dificil")
 3. More analytics charts
-4. Consider animated stat counters (number rolling effect)
+4. ~~Consider animated stat counters~~ DONE (W261)

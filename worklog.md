@@ -5583,3 +5583,24 @@ Stage Summary:
 - insights.md: Fixed "Replay System Design" — "Auto-scroll via scrollIntoView" → "No auto-scroll — timeline clips to viewport via overflow-hidden (W258/W259)"
 - Recovered ~200 tokens of insight budget. No future wave will be misled by dead 3D patterns.
 - Lint: 0 errors.
+
+---
+Task ID: W261
+Agent: Main Orchestrator
+Task: Animated stat counters — spring-physics countup for overview numbers
+
+Work Log:
+- ASSESS: Read context.md (100% spec compliance, all metrics zero), dev.log (clean)
+- ASSESS: Explored stats-grid.tsx (6 stat cards, static numbers) and hero-status-card.tsx (health ring, static score)
+- ASSESS: Confirmed framer-motion already imported in both files — zero new deps needed
+- PLAN: Create AnimatedNumber using useMotionValue + useSpring + useTransform (no re-renders)
+- EXECUTE: Created src/components/harness/animated-number.tsx (55 lines)
+- EXECUTE: Wired into stats-grid.tsx — all 6 stat cards now animate (Success Rate uses decimals=1)
+- EXECUTE: Wired into hero-status-card.tsx — health ring score animates
+- VERIFY: bun run lint — 0 errors. Dev log — all 200s.
+- PERSIST: Worklog, wave record, decisions, GitHub sync
+
+Stage Summary:
+- New: animated-number.tsx — reusable spring-physics countup (0 new deps, direct DOM write via ref)
+- 6 stat cards + health ring now animate from 0 to target value on mount/update
+- Lint: 0 errors.
