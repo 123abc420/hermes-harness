@@ -3,7 +3,7 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 10:58 UTC+8
+2026-06-21 11:00 UTC+8
 
 ## System Status
 - **Phase**: Multi-Agent Visual Era (Wave 235)
@@ -50,10 +50,12 @@
   - Curved connection lines between nodes
   - Click-to-select nodes with detail popup (NodePopup)
   - Organic drift animation for all nodes
-- **Agent Live HUD overlay v2** (W235) with:
+- **Agent Live HUD overlay v2.2** (W235 polished) with:
   - Glassmorphism stat chips (backdrop-blur-xl, hover border glow)
   - Staggered entry animations for bottom stats
   - Wave progress bar with gradient glow effect
+  - Breathing glow on state badge (animated box-shadow, 2.5s cycle)
+  - Shimmer sweep on health + XP progress bars
   - Spring animations on decision counter (+N)
   - Health/XP bars as motion.div animated width
   - Node count badge, phase tracker, level

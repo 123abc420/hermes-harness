@@ -273,12 +273,24 @@ export function AgentLivePanel() {
               </div>
             )}
 
-            <Badge
-              variant="outline"
-              className={`${STATE_COLORS[agentState]} text-xs px-3 py-1.5 font-semibold backdrop-blur-xl bg-black/40 border-opacity-50`}
+            <motion.div
+              animate={{
+                boxShadow: [
+                  `0 0 8px ${getStateRgb(agentState)}25, 0 0 16px ${getStateRgb(agentState)}10`,
+                  `0 0 14px ${getStateRgb(agentState)}45, 0 0 28px ${getStateRgb(agentState)}20`,
+                  `0 0 8px ${getStateRgb(agentState)}25, 0 0 16px ${getStateRgb(agentState)}10`,
+                ]
+              }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="rounded-lg"
             >
-              {STATE_ICONS[agentState]} {agentState.toUpperCase()}
-            </Badge>
+              <Badge
+                variant="outline"
+                className={`${STATE_COLORS[agentState]} text-xs px-3 py-1.5 font-semibold backdrop-blur-xl bg-black/40 border-opacity-50`}
+              >
+                {STATE_ICONS[agentState]} {agentState.toUpperCase()}
+              </Badge>
+            </motion.div>
 
             {networkNodes.length > 0 && (
               <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/[0.07]">
@@ -341,7 +353,7 @@ export function AgentLivePanel() {
               {healthScore >= 0 && (
                 <StatChip index={0}>
                   <Shield className="h-3 w-3 text-zinc-500" />
-                  <div className="w-14 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                  <div className="w-14 h-1.5 rounded-full bg-white/[0.08] overflow-hidden relative">
                     <motion.div
                       className={`h-full rounded-full ${
                         healthScore >= 90 ? 'bg-emerald-500/80' :
@@ -350,6 +362,12 @@ export function AgentLivePanel() {
                       initial={false}
                       animate={{ width: `${healthScore}%` }}
                       transition={{ duration: 0.7, ease: 'easeOut' }}
+                    />
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      animate={{ x: ['-100%', '250%'] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
+                      style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)' }}
                     />
                   </div>
                   <span className={`text-[10px] font-mono font-bold tabular-nums ${
@@ -365,12 +383,18 @@ export function AgentLivePanel() {
 
               <StatChip index={1}>
                 <Zap className="h-3 w-3 text-amber-500/60" />
-                <div className="w-12 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                <div className="w-12 h-1.5 rounded-full bg-white/[0.08] overflow-hidden relative">
                   <motion.div
                     className="h-full rounded-full bg-amber-500/70"
                     initial={false}
                     animate={{ width: `${xpPercent}%` }}
                     transition={{ duration: 0.5 }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full"
+                    animate={{ x: ['-100%', '250%'] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
+                    style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)' }}
                   />
                 </div>
                 <span className="text-[10px] font-mono text-zinc-400 tabular-nums">{xp}/{xpToNext}</span>
@@ -494,13 +518,24 @@ export function AgentLivePanel() {
                     <button
                       key={f.state}
                       onClick={() => setActiveFilter(f.state)}
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-mono transition-all ${
+                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-mono transition-all ${
                         isActive
                           ? 'bg-white/[0.1] text-white border border-white/[0.15]'
                           : 'bg-white/[0.03] text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-white/[0.06]'
                       }`}
                     >
-                      <span>{f.icon}</span>
+                      <span className="relative flex h-2 w-2 shrink-0">
+                        {isActive && f.state !== 'all' && (
+                          <span
+                            className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-40"
+                            style={{ backgroundColor: getStateRgb(f.state) }}
+                          />
+                        )}
+                        <span
+                          className="relative inline-flex rounded-full h-2 w-2"
+                          style={{ backgroundColor: f.state === 'all' ? '#71717a' : getStateRgb(f.state) }}
+                        />
+                      </span>
                       <span>{f.label}</span>
                       {count > 0 && (
                         <span className={`text-[9px] ${isActive ? 'text-zinc-300' : 'text-zinc-600'}`}>
