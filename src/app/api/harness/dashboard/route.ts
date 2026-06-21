@@ -10,12 +10,12 @@ import type { HarnessWave, HarnessMetric, HarnessDecision, HarnessExport, GitHub
 interface DashboardResponse {
   waves: (HarnessWave & { decisions: HarnessDecision[]; _count: { decisions: number } })[];
   totalStats: { totalWaves: number; totalDecisions: number; totalImprovements: number; totalErrors: number; githubCommits: number; waveSuccessRate: number; recentSuccessRate: number };
-  metrics: HarnessMetric[];
+  metrics: (HarnessMetric | { metricKey: string; metricValue: number })[];
   latestMetrics: Record<string, number>;
-  githubStatus: GitHubSync | null;
+  githubStatus: Omit<GitHubSync, 'id' | 'createdAt' | 'updatedAt'> | null;
   config: Record<string, string>;
   exports: HarnessExport[];
-  recentDecisions: (HarnessDecision & { wave: { waveNumber: number; status: string; id: string } | null })[];
+  recentDecisions: (HarnessDecision & { wave: { waveNumber: number; status: string } })[];
   errorTrend: { wave: number; errors: number; status: string }[];
   skillsCount: number;
   healthScore: number;
@@ -65,7 +65,7 @@ export async function GET() {
       db.harnessMetric.findMany({
         orderBy: { recordedAt: 'desc' },
         take: 100,
-      }).catch((e) => { logDebug('DASHBOARD', 'Metrics query failed (bad row)', { error: String(e) }); return [] as { metricKey: string; metricValue: number }[]; }),
+      }).catch((e) => { logDebug('DASHBOARD', 'Metrics query failed (bad row)', { error: String(e) }); return [] as unknown as HarnessMetric[]; }),
       db.gitHubSync.findFirst(),
       db.harnessConfig.findMany(),
       db.harnessExport.findMany({ orderBy: { createdAt: 'desc' } }),

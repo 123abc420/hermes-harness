@@ -534,35 +534,43 @@ export async function POST(req: NextRequest) {
         }
       }
       latestStatus = { ...latestStatus, ...safeFullUpdate, timestamp: Date.now() };
-      if (body.activities) {
-        // Runtime validation: filter to entries with required ActivityEntry fields
-        activityLog = body.activities
-          .filter((a): a is ActivityEntry =>
-            a != null &&
-            typeof a === 'object' &&
-            typeof (a as Record<string, unknown>).id === 'string' &&
-            typeof (a as Record<string, unknown>).state === 'string' &&
-            typeof (a as Record<string, unknown>).message === 'string' &&
-            typeof (a as Record<string, unknown>).timestamp === 'number'
-          )
-          .map(a => ({
-            ...a,
-            agentState: a.agentState ?? a.state,
-            phase: a.phase ?? '',
-            timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp),
-          }));
+      if (body.activities && Array.isArray(body.activities)) {
+        const valid: ActivityEntry[] = [];
+        for (const raw of body.activities) {
+          if (raw == null || typeof raw !== 'object') continue;
+          const r = raw as Record<string, unknown>;
+          if (typeof r.id !== 'string' || typeof r.state !== 'string' ||
+              typeof r.message !== 'string' || typeof r.timestamp !== 'number') continue;
+          valid.push({
+            state: r.state,
+            agentState: String(r.agentState ?? r.state),
+            message: r.message,
+            phase: String(r.phase ?? ''),
+            id: r.id,
+            timestamp: r.timestamp,
+            timestampAR: typeof r.timestampAR === 'string' ? r.timestampAR : formatArgentinaTime(r.timestamp),
+          });
+        }
+        activityLog = valid;
       }
-      if (body.subAgents) {
-        // Runtime validation: filter to entries with required SubAgentEntry fields
-        subAgents = body.subAgents
-          .filter((a): a is SubAgentEntry =>
-            a != null &&
-            typeof a === 'object' &&
-            typeof (a as Record<string, unknown>).id === 'string' &&
-            typeof (a as Record<string, unknown>).name === 'string' &&
-            typeof (a as Record<string, unknown>).state === 'string' &&
-            typeof (a as Record<string, unknown>).spawnTime === 'number'
-          );
+      if (body.subAgents && Array.isArray(body.subAgents)) {
+        const valid: SubAgentEntry[] = [];
+        for (const raw of body.subAgents) {
+          if (raw == null || typeof raw !== 'object') continue;
+          const r = raw as Record<string, unknown>;
+          if (typeof r.id !== 'string' || typeof r.name !== 'string' ||
+              typeof r.state !== 'string' || typeof r.spawnTime !== 'number') continue;
+          valid.push({
+            id: r.id,
+            name: r.name,
+            state: r.state,
+            message: typeof r.message === 'string' ? r.message : '',
+            color: typeof r.color === 'string' ? r.color : '#8b5cf6',
+            spawnTime: r.spawnTime,
+            timestampAR: typeof r.timestampAR === 'string' ? r.timestampAR : formatArgentinaTime(r.spawnTime),
+          });
+        }
+        subAgents = valid;
       }
 
       // Update orchestrator node to celebrating state
