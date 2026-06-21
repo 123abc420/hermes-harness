@@ -5128,3 +5128,21 @@ Stage Summary:
 - Dashboard cache typed with server-side DashboardResponse interface
 - DEMO_SEQUENCE typed, eliminated 3 unsafe `as` casts
 - Record<string,unknown> reduced from 7 to 4 in API routes (all justified)
+
+---
+Task ID: W249
+Agent: Main Orchestrator
+Task: Fix React performance anti-patterns — useState for non-rendering values
+
+Work Log:
+- ASSESS: Sub-agent scan found 3 issues: scrollY useState in dashboard, debounceRef useState in command-palette, dead useMemo in activity-heatmap
+- EXECUTE Task 1: Changed scrollY from useState to useRef+direct DOM mutation. Parallax effect now works without triggering a full dashboard re-render per scroll pixel.
+- EXECUTE Task 2: Changed debounceRef from useState to useRef in command-palette. Eliminates 3 unnecessary re-renders per keystroke (setState + useCallback recreation + cleanup effect re-fire).
+- EXECUTE Task 3: Removed dead `startDate` useMemo in activity-heatmap.tsx (declared but never referenced).
+- VERIFY: lint 0 errors, tsc 0 errors
+- PERSIST: Committed 3 files, pushed to GitHub
+
+Stage Summary:
+- Dashboard no longer re-renders on every scroll event (ref+DOM mutation vs state)
+- Command palette debounce no longer causes cascade re-renders per keystroke
+- Dead code removed (1 unused useMemo)
