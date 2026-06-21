@@ -33,10 +33,8 @@ export {
   useWave,
   useCreateWave,
   useDecisions,
-  useMetrics,
   useGithubStatus,
   useGithubSync,
-  useSpec,
   useSkills,
   useMemory,
 } from './hooks/use-harness-data';

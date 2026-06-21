@@ -33,7 +33,30 @@ function validateWaveNumber(value: unknown): string | null {
 }
 
 // ─── In-memory state ─
-let latestStatus: Record<string, unknown> = {
+interface AgentStatus {
+  agentState: string;
+  message: string;
+  phase: string;
+  waveNumber: number;
+  progress: number;
+  waveCount: number;
+  totalImprovements: number;
+  totalDecisions: number;
+  decisionCountThisWave: number;
+  timestamp: number;
+}
+
+interface ActivityEntry {
+  state: string;
+  agentState: string;
+  message: string;
+  phase: string;
+  id: string;
+  timestamp: number;
+  timestampAR: string;
+}
+
+let latestStatus: AgentStatus = {
   agentState: 'idle',
   message: 'Waiting for activity...',
   phase: '',
@@ -46,13 +69,23 @@ let latestStatus: Record<string, unknown> = {
   timestamp: Date.now(),
 };
 
-let activityLog: Array<Record<string, unknown>> = [];
+let activityLog: ActivityEntry[] = [];
 const MAX_LOG = 50;
 const SSE_POLL_INTERVAL = 2000;
 const SSE_KEEP_ALIVE = 30_000;
 
 // ─── Sub-agents (legacy) ─
-let subAgents: Array<Record<string, unknown>> = [];
+interface SubAgentEntry {
+  id: string;
+  name: string;
+  state: string;
+  message: string;
+  color: string;
+  spawnTime: number;
+  timestampAR: string;
+}
+
+let subAgents: SubAgentEntry[] = [];
 let activityTimestamp = 0;
 
 // ─── Network nodes (v2.0) ─
@@ -82,8 +115,8 @@ function ensureOrchestrator(): void {
       id: 'orchestrator',
       type: 'orchestrator',
       name: 'HERMES',
-      state: String(latestStatus.agentState || 'idle'),
-      message: String(latestStatus.message || ''),
+      state: latestStatus.agentState || 'idle',
+      message: latestStatus.message || '',
       color: '#f59e0b',
       connections: [],
       spawnTime: Date.now(),
@@ -395,7 +428,7 @@ export async function POST(req: NextRequest) {
 
     if (type === 'sub-agent-remove') {
       const agentId = body.agentId;
-      subAgents = subAgents.filter((a: Record<string, unknown>) => a.id !== agentId);
+      subAgents = subAgents.filter(a => a.id !== agentId);
       // Also remove corresponding node
       networkNodes = networkNodes.filter(n => n.id !== agentId);
       for (const node of networkNodes) {
@@ -417,7 +450,7 @@ export async function POST(req: NextRequest) {
     if (type === 'sub-agent-update') {
       const agentId = body.agentId;
       if (!agentId) return NextResponse.json({ error: 'Missing agentId for sub-agent-update' }, { status: 400 });
-      subAgents = subAgents.map((a: Record<string, unknown>) =>
+      subAgents = subAgents.map(a =>
         a.id === agentId
           ? { ...a, state: body.state || a.state, message: body.message || a.message, timestampAR: formatArgentinaTime(Date.now()) }
           : a
@@ -471,8 +504,8 @@ export async function POST(req: NextRequest) {
     if (type === 'decision-count') {
       latestStatus = {
         ...latestStatus,
-        totalDecisions: (latestStatus.totalDecisions as number) + 1,
-        decisionCountThisWave: (latestStatus.decisionCountThisWave as number) + 1,
+        totalDecisions: latestStatus.totalDecisions + 1,
+        decisionCountThisWave: latestStatus.decisionCountThisWave + 1,
         timestamp: Date.now(),
       };
       // Boost orchestrator glow briefly
@@ -509,20 +542,20 @@ export async function POST(req: NextRequest) {
       }
       latestStatus = { ...latestStatus, ...body, timestamp: Date.now() };
       if (body.activities) {
-        activityLog = (body.activities as Array<Record<string, unknown>>).map(a => ({
+        activityLog = (body.activities as ActivityEntry[]).map(a => ({
           ...a,
-          timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp as number),
+          timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp),
         }));
       }
       if (body.subAgents) {
-        subAgents = body.subAgents as Array<Record<string, unknown>>;
+        subAgents = body.subAgents as SubAgentEntry[];
       }
 
       // Update orchestrator node to celebrating state
       const orch = networkNodes.find(n => n.type === 'orchestrator');
       if (orch && body.agentState) {
-        orch.state = body.agentState as string;
-        orch.message = (body.message as string) || '';
+        orch.state = body.agentState;
+        orch.message = body.message || '';
         orch.glowIntensity = body.agentState === 'celebrating' ? 1.5 : 0.5;
         orch.size = body.agentState === 'celebrating' ? 1.4 : 1.0;
         nodeTimestamp = Date.now();
@@ -550,8 +583,8 @@ export async function POST(req: NextRequest) {
     ensureOrchestrator();
     const orch = networkNodes.find(n => n.type === 'orchestrator');
     if (orch) {
-      orch.state = String(latestStatus.agentState);
-      orch.message = String(latestStatus.message);
+      orch.state = latestStatus.agentState;
+      orch.message = latestStatus.message;
       orch.glowIntensity = latestStatus.agentState === 'executing' ? 1.0
         : latestStatus.agentState === 'thinking' ? 0.7
         : latestStatus.agentState === 'celebrating' ? 1.5

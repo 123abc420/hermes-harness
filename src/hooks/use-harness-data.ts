@@ -100,14 +100,6 @@ export function useDecisions(page = 1, limit = 50, category = '', search = '') {
   });
 }
 
-export function useMetrics(metricKey = '') {
-  const params = metricKey ? `?metricKey=${metricKey}` : '';
-  return useQuery<{ metrics: Metric[] }>({
-    queryKey: ['harness-metrics', metricKey],
-    queryFn: () => fetchJSON<{ metrics: Metric[] }>(`${API_BASE}/metrics${params}`),
-  });
-}
-
 export function useGithubStatus() {
   return useQuery<GithubStatus>({
     queryKey: ['harness-github-status'],
@@ -126,13 +118,6 @@ export function useGithubSync() {
       toast.success('Sync triggered to GitHub');
     },
     onError: (err: Error) => toast.error(err.message),
-  });
-}
-
-export function useSpec() {
-  return useQuery<SpecData>({
-    queryKey: ['harness-spec'],
-    queryFn: () => fetchJSON<SpecData>(`${API_BASE}/spec`),
   });
 }
 
