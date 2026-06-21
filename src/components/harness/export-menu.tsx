@@ -16,7 +16,7 @@ const OPTIONS: ExportOption[] = [
   { format: 'json', label: 'JSON' },
 ];
 
-export function ExportMenu({
+export function ExportMenu<T extends Record<string, unknown>>({
   baseUrl,
   dataKey,
   totalKey,
@@ -29,7 +29,7 @@ export function ExportMenu({
   totalKey: string;
   filename: string;
   columns?: string[];
-  transform?: (row: Record<string, unknown>) => Record<string, unknown>;
+  transform?: (row: T) => Record<string, unknown>;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

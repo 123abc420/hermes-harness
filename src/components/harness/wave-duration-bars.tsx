@@ -38,7 +38,7 @@ export function WaveDurationBars({ waves }: { waves: Wave[] }) {
       const ms = new Date(w.completedAt).getTime() - new Date(w.startedAt).getTime();
       return { wave: w.waveNumber, seconds: Math.max(0, Math.round(ms / 1000)), status: w.status };
     })
-    .filter(Boolean) as { wave: number; seconds: number; status: string }[];
+    .filter((d): d is NonNullable<typeof d> => d !== null);
 
   if (durationData.length < 2) return <DurationEmptyState />;
 

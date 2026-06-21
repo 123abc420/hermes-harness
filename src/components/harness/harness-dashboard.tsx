@@ -258,7 +258,7 @@ export function HarnessDashboard() {
               </div>
             )}
 
-            <LastWaveBadge wave={dash?.waves?.[0] as { waveNumber: number; status: string; completedAt?: string } | undefined} />
+            <LastWaveBadge wave={dash?.waves?.[0]} />
 
             {/* System uptime */}
             <UptimeDisplay firstWaveStart={firstWave?.startedAt} />

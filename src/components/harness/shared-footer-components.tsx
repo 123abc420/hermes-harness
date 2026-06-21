@@ -69,7 +69,7 @@ export function UptimeDisplay({ firstWaveStart }: { firstWaveStart?: string }) {
 }
 
 /* ── Last Wave Badge ── */
-export function LastWaveBadge({ wave }: { wave?: { waveNumber: number; status: string; completedAt?: string } }) {
+export function LastWaveBadge({ wave }: { wave?: { waveNumber: number; status: string; completedAt?: string | null } }) {
   if (!wave) return null;
   return (
     <span className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
