@@ -4533,3 +4533,24 @@ Stage Summary:
 - Data rain gives terminal/matrix atmosphere at very low opacity
 - Heartbeat pulses create a breathing rhythm from the character
 - Files changed: agent-avatar-canvas.tsx
+
+---
+Task ID: W230
+Agent: HERMES HARNESS Wave Engine
+Task: Remove dead forwardToService code, update skill, document sandbox limitation
+
+Work Log:
+- ASSESS: Read worklog, SPEC, context, insights, skills, dev.log, dashboard. Found `forwardToService failed` noise in every agent-status POST. Port-3005 mini-service was removed in W226 but forwarding code remained.
+- PLAN: 3 improvements — (1) remove dead forwardToService code + constants, (2) update agent-live-broadcast skill with architecture docs + sandbox limitation, (3) add sandbox network + dead code insights.
+- EXECUTE 1: Removed `forwardToService()` function, all 4 call sites, `logDebug` import from agent-status/route.ts. Removed `AGENT_LIVE_SERVICE_URL` and `APP_INTERNAL_URL` from constants.ts.
+- EXECUTE 2: Updated agent-live-broadcast skill v1.0→1.1. Added Architecture section (pure in-memory + SSE). Added Sandbox limitation section (curl unreliable from sandbox). Renamed "How to broadcast" with caveat note.
+- EXECUTE 3: Added "Sandbox Network Isolation" and "Dead Code Hygiene" insights to insights.md.
+- VERIFY: `bun run lint` — 0 errors, 0 warnings. dev.log clean (no new errors).
+- PERSIST: Worklog updated. Wave + decisions recorded. GitHub sync.
+
+Stage Summary:
+- Dead forwardToService code removed (~25 lines across 2 files)
+- dev.log noise eliminated — no more `forwardToService failed` on every agent-status POST
+- agent-live-broadcast skill now documents pure in-memory architecture and sandbox curl limitation
+- New insights: Sandbox Network Isolation, Dead Code Hygiene
+- Files changed: agent-status/route.ts, constants.ts, agent-live-broadcast.md, insights.md

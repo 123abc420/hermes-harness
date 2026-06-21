@@ -4,16 +4,37 @@
 - Environments: .env
 
 ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
-✓ Ready in 742ms
- POST /api/harness/agent-status 200 in 409ms (compile: 374ms, render: 34ms)
-{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"full-update"}
+✓ Ready in 760ms
+ POST /api/harness/agent-status 200 in 211ms (compile: 169ms, render: 42ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 9ms (compile: 3ms, render: 7ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+prisma:query BEGIN IMMEDIATE
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`HarnessWave`.`id` FROM `main`.`HarnessWave` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`HarnessDecision`.`id` FROM `main`.`HarnessDecision` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query UPDATE `main`.`HarnessWave` SET `status` = ?, `completedAt` = ? WHERE (`main`.`HarnessWave`.`status` = ? AND `main`.`HarnessWave`.`startedAt` < ?)
+prisma:query COMMIT
+prisma:query SELECT `main`.`HarnessWave`.`id`, `main`.`HarnessWave`.`waveNumber`, `main`.`HarnessWave`.`status`, `main`.`HarnessWave`.`startedAt`, `main`.`HarnessWave`.`completedAt`, `main`.`HarnessWave`.`summary`, `main`.`HarnessWave`.`decisionsCount`, `main`.`HarnessWave`.`improvementsCount`, `main`.`HarnessWave`.`errorsCount`, `main`.`HarnessWave`.`metricsSnapshot`, `main`.`HarnessWave`.`createdAt` FROM `main`.`HarnessWave` WHERE 1=1 ORDER BY `main`.`HarnessWave`.`waveNumber` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`HarnessConfig`.`id`, `main`.`HarnessConfig`.`key`, `main`.`HarnessConfig`.`value`, `main`.`HarnessConfig`.`description`, `main`.`HarnessConfig`.`updatedAt`, `main`.`HarnessConfig`.`createdAt` FROM `main`.`HarnessConfig` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`HarnessExport`.`id`, `main`.`HarnessExport`.`moduleName`, `main`.`HarnessExport`.`version`, `main`.`HarnessExport`.`description`, `main`.`HarnessExport`.`exportedFiles`, `main`.`HarnessExport`.`dependencies`, `main`.`HarnessExport`.`isReady`, `main`.`HarnessExport`.`lastExportedAt`, `main`.`HarnessExport`.`createdAt`, `main`.`HarnessExport`.`updatedAt` FROM `main`.`HarnessExport` WHERE 1=1 ORDER BY `main`.`HarnessExport`.`createdAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`HarnessMetric`.`id`, `main`.`HarnessMetric`.`waveId`, `main`.`HarnessMetric`.`metricKey`, `main`.`HarnessMetric`.`metricValue`, `main`.`HarnessMetric`.`previousValue`, `main`.`HarnessMetric`.`change`, `main`.`HarnessMetric`.`changePercent`, `main`.`HarnessMetric`.`recordedAt`, `main`.`HarnessMetric`.`createdAt` FROM `main`.`HarnessMetric` WHERE 1=1 ORDER BY `main`.`HarnessMetric`.`recordedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`HarnessWave`.`id`, `main`.`HarnessWave`.`waveNumber`, `main`.`HarnessWave`.`errorsCount`, `main`.`HarnessWave`.`status` FROM `main`.`HarnessWave` WHERE 1=1 ORDER BY `main`.`HarnessWave`.`waveNumber` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`HarnessDecision`.`id`, `main`.`HarnessDecision`.`waveId`, `main`.`HarnessDecision`.`category`, `main`.`HarnessDecision`.`priority`, `main`.`HarnessDecision`.`action`, `main`.`HarnessDecision`.`description`, `main`.`HarnessDecision`.`reasoning`, `main`.`HarnessDecision`.`targetFile`, `main`.`HarnessDecision`.`targetModule`, `main`.`HarnessDecision`.`outcome`, `main`.`HarnessDecision`.`createdAt`, `main`.`HarnessDecision`.`executedAt` FROM `main`.`HarnessDecision` WHERE 1=1 ORDER BY `main`.`HarnessDecision`.`createdAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all`, `main`.`HarnessWave`.`status` FROM `main`.`HarnessWave` WHERE 1=1 GROUP BY `main`.`HarnessWave`.`status` LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`HarnessWave`.`id`, `main`.`HarnessWave`.`waveNumber`, `main`.`HarnessWave`.`status` FROM `main`.`HarnessWave` WHERE `main`.`HarnessWave`.`id` IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`HarnessDecision`.`id` FROM `main`.`HarnessDecision` WHERE `main`.`HarnessDecision`.`action` = ? LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT `main`.`GitHubSync`.`id`, `main`.`GitHubSync`.`status`, `main`.`GitHubSync`.`username`, `main`.`GitHubSync`.`repoName`, `main`.`GitHubSync`.`lastSyncAt`, `main`.`GitHubSync`.`lastCommitSha`, `main`.`GitHubSync`.`branch`, `main`.`GitHubSync`.`totalCommits`, `main`.`GitHubSync`.`errorMessage`, `main`.`GitHubSync`.`updatedAt`, `main`.`GitHubSync`.`createdAt` FROM `main`.`GitHubSync` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query UPDATE `main`.`GitHubSync` SET `status` = ?, `lastSyncAt` = ?, `totalCommits` = ?, `lastCommitSha` = ?, `errorMessage` = ?, `updatedAt` = ? WHERE (`main`.`GitHubSync`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `status` AS `status`, `username` AS `username`, `repoName` AS `repoName`, `lastSyncAt` AS `lastSyncAt`, `lastCommitSha` AS `lastCommitSha`, `branch` AS `branch`, `totalCommits` AS `totalCommits`, `errorMessage` AS `errorMessage`, `updatedAt` AS `updatedAt`, `createdAt` AS `createdAt`
- POST /api/harness/github/sync 200 in 972ms (compile: 135ms, render: 837ms)
-○ Compiling / ...
- GET / 200 in 5.5s (compile: 5.1s, render: 395ms)
+prisma:query SELECT `main`.`HarnessDecision`.`id`, `main`.`HarnessDecision`.`waveId`, `main`.`HarnessDecision`.`category`, `main`.`HarnessDecision`.`priority`, `main`.`HarnessDecision`.`action`, `main`.`HarnessDecision`.`description`, `main`.`HarnessDecision`.`reasoning`, `main`.`HarnessDecision`.`targetFile`, `main`.`HarnessDecision`.`targetModule`, `main`.`HarnessDecision`.`outcome`, `main`.`HarnessDecision`.`createdAt`, `main`.`HarnessDecision`.`executedAt` FROM `main`.`HarnessDecision` WHERE `main`.`HarnessDecision`.`waveId` IN (?,?,?,?,?,?,?,?,?,?) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`HarnessDecision`.`id` FROM `main`.`HarnessDecision` WHERE `main`.`HarnessDecision`.`action` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT `main`.`HarnessWave`.`id`, `main`.`HarnessWave`.`status` FROM `main`.`HarnessWave` WHERE 1=1 ORDER BY `main`.`HarnessWave`.`waveNumber` DESC LIMIT ? OFFSET ?
+ GET /api/harness/dashboard 200 in 186ms (compile: 150ms, render: 36ms)
+ POST /api/harness/agent-status 200 in 8ms (compile: 2ms, render: 6ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 8ms (compile: 3ms, render: 6ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 8ms (compile: 2ms, render: 6ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 7ms (compile: 1914µs, render: 5ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 7ms (compile: 1700µs, render: 5ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"status"}

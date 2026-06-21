@@ -1,6 +1,6 @@
 ---
 name: agent-live-broadcast
-version: 1.0.0
+version: 1.1.0
 created: 2026-06-21
 updated: 2026-06-21
 category: automation
@@ -25,9 +25,20 @@ The Agent Live view on the dashboard is designed to be a real-time mirror of wha
 - The activity feed to show new events
 - State transitions to trigger particle bursts and wave rings
 
-## How to broadcast
+## Architecture
 
-Use `curl` to POST to the agent-status API endpoint:
+The Agent Live system uses **pure in-memory state** + **Server-Sent Events (SSE)**. No external service is needed.
+- `POST /api/harness/agent-status` updates in-memory state
+- `GET /api/harness/agent-status?stream=true` pushes updates to connected browsers via SSE
+- The old port-3005 mini-service was removed in W230 — all forwarding code deleted
+
+## Sandbox limitation (IMPORTANT)
+
+The chat.z.ai sandbox uses cgroup network isolation. `curl`/`fetch` from within the sandbox to `localhost:3000` is **unreliable** — calls frequently time out. Do NOT rely on curl broadcasts during wave execution. The Agent Live view still works for browser-connected users via SSE polling.
+
+## How to broadcast (when curl works)
+
+> **Note**: In sandbox environments, curl may time out. Skip broadcasts if they fail — the SSE system still functions for browser clients.
 
 ```bash
 # Status update (changes agent state + message)

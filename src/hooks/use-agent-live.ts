@@ -15,8 +15,8 @@ interface HealthData {
 
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval>>();
-  const sseRetryRef = useRef<ReturnType<typeof setInterval>>();
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sseRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { setStatus, setConnected } = useAgentLiveStore();
 
   const processData = useCallback((data: HealthData) => {
@@ -42,10 +42,15 @@ export function useAgentLive() {
       const newActivities: LiveActivityEntry[] = [];
       for (const act of data.activities) {
         if (!localIds.has(act.id)) {
-          // Add Argentina timestamp if missing
-          const entry = {
-            ...act,
+          // Normalize: server may send `agentState` or `state`
+          const raw = act as unknown as Record<string, unknown>;
+          const entry: LiveActivityEntry = {
+            id: act.id,
+            timestamp: act.timestamp,
             timestampAR: act.timestampAR || formatArgentinaTime(act.timestamp),
+            state: (raw.state as AgentVisualState) || (raw.agentState as AgentVisualState) || 'idle',
+            message: act.message,
+            phase: act.phase,
           };
           newActivities.push(entry);
           hasNew = true;
@@ -123,11 +128,11 @@ export function useAgentLive() {
             }
             if (pollRef.current) {
               clearInterval(pollRef.current);
-              pollRef.current = undefined;
+              pollRef.current = null;
             }
             if (sseRetryRef.current) {
               clearInterval(sseRetryRef.current);
-              sseRetryRef.current = undefined;
+              sseRetryRef.current = null;
             }
             // Inline SSE reconnect to avoid circular callback reference
             try {
@@ -137,7 +142,7 @@ export function useAgentLive() {
                 setConnected(true);
                 if (sseRetryRef.current) {
                   clearInterval(sseRetryRef.current);
-                  sseRetryRef.current = undefined;
+                  sseRetryRef.current = null;
                 }
               };
               retryEs.onmessage = (event) => {
@@ -178,11 +183,11 @@ export function useAgentLive() {
       }
       if (pollRef.current) {
         clearInterval(pollRef.current);
-        pollRef.current = undefined;
+        pollRef.current = null;
       }
       if (sseRetryRef.current) {
         clearInterval(sseRetryRef.current);
-        sseRetryRef.current = undefined;
+        sseRetryRef.current = null;
       }
       setConnected(false);
     };

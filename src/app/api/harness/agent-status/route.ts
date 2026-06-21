@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { logError, logDebug } from '@/lib/logger';
-import { formatArgentinaTime, AGENT_LIVE_SERVICE_URL } from '@/lib/constants';
+import { logError } from '@/lib/logger';
+import { formatArgentinaTime } from '@/lib/constants';
 
 const VALID_AGENT_STATES = new Set([
   'idle', 'thinking', 'searching', 'planning', 'executing',
@@ -54,18 +54,7 @@ const SSE_KEEP_ALIVE = 30_000;
 let subAgents: Array<Record<string, unknown>> = [];
 let activityTimestamp = 0;
 
-// Also try to forward to the agent-live service (best-effort)
-async function forwardToService(data: { type: string; payload: Record<string, unknown> }) {
-  try {
-    await fetch(AGENT_LIVE_SERVICE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-  } catch {
-    logDebug('AGENT_STATUS', 'forwardToService failed', { type: data.type });
-  }
-}
+
 
 // GET: Return latest state + activities (also supports SSE stream)
 export async function GET(req: NextRequest) {
@@ -190,8 +179,10 @@ export async function POST(req: NextRequest) {
 
     if (type === 'activity') {
       const now = Date.now();
+      const state = agentState || 'idle';
       const entry = {
-        agentState: agentState || 'idle',
+        state,
+        agentState: state, // keep for backward compat
         message: message || '',
         phase: phase || '',
         id: `act_${now}_${Math.random().toString(36).slice(2, 6)}`,
@@ -202,10 +193,7 @@ export async function POST(req: NextRequest) {
       activityTimestamp = now;
 
       // Also update latest status
-      latestStatus = { ...latestStatus, agentState: entry.agentState, message: entry.message, phase: entry.phase, timestamp: now };
-
-      // Best-effort forward to service
-      forwardToService({ type: 'activity', payload: entry }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
+      latestStatus = { ...latestStatus, agentState: state, message: entry.message, phase: entry.phase, timestamp: now };
 
       return NextResponse.json({ ok: true, activities: activityLog.length });
     }
@@ -224,8 +212,10 @@ export async function POST(req: NextRequest) {
       subAgents = [...subAgents, subAgent];
 
       // Also add as activity
+      const subState = body.state || 'executing';
       const entry = {
-        agentState: body.state || 'executing',
+        state: subState,
+        agentState: subState,
         message: `🚀 Sub-agent deployed: ${subAgent.name}`,
         phase: phase || '',
         id: `act_${Date.now()}_sub`,
@@ -235,7 +225,6 @@ export async function POST(req: NextRequest) {
       activityLog = [entry, ...activityLog].slice(0, MAX_LOG);
       activityTimestamp = Date.now();
 
-      forwardToService({ type: 'activity', payload: entry }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
       return NextResponse.json({ ok: true, subAgents: subAgents.length });
     }
 
@@ -271,7 +260,6 @@ export async function POST(req: NextRequest) {
       if (body.subAgents) {
         subAgents = body.subAgents as Array<Record<string, unknown>>;
       }
-      forwardToService({ type: 'full-update', payload: body }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
       return NextResponse.json({ ok: true });
     }
 
@@ -288,11 +276,6 @@ export async function POST(req: NextRequest) {
       totalDecisions: body.totalDecisions || latestStatus.totalDecisions || 0,
       timestamp: Date.now(),
     };
-
-    forwardToService({
-      type: 'status',
-      payload: latestStatus,
-    }).catch(() => { logDebug('AGENT_STATUS', 'forwardToService failed'); });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

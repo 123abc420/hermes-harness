@@ -5,15 +5,6 @@ export const HERMES_VERSION = typeof process !== 'undefined' && process.env.NEXT
   ? `v${process.env.NEXT_PUBLIC_VERSION}`
   : 'v0.4.0';
 
-// Internal service URLs (server-to-server, not client-facing)
-export const AGENT_LIVE_SERVICE_URL = process.env.AGENT_LIVE_PORT
-  ? `http://localhost:${process.env.AGENT_LIVE_PORT}/broadcast`
-  : 'http://localhost:3005/broadcast';
-
-export const APP_INTERNAL_URL = process.env.APP_PORT
-  ? `http://localhost:${process.env.APP_PORT}`
-  : 'http://localhost:3000';
-
 // Agent evolution stages — single source of truth (names + visual params)
 export const EVOLUTION_STAGES = [
   { level: 1,    name: 'Nascent',        particles: 15, nodes: 3,   rings: 1, description: 'First spark of consciousness' },

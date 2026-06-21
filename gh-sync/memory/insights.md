@@ -173,3 +173,15 @@
 - Three independent ambient layers (data rain, heartbeat pulses, character personality) make the canvas feel alive 24/7 without any wave activity.
 - Data rain at 3-6% opacity is perceptible but not distracting. State-tinted so it matches the current mood.
 - Character look-around every 5-8s with smooth interpolation breaks the "staring" effect. Mouse overrides auto-look.
+
+## Sandbox Network Isolation
+
+- chat.z.ai sandbox uses cgroup network restrictions — `curl`/`fetch` from within the sandbox to `localhost:3000` frequently times out.
+- Server binds to `0.0.0.0:3000` but self-referencing HTTP calls from within the same sandbox are unreliable.
+- The Agent Live SSE system works fine for browser clients (they connect from outside the sandbox). The issue is only with server-to-self calls.
+- When removing a dependency on an external service, also remove all forwarding/retry code — dead forwarding code generates log noise on every request.
+
+## Dead Code Hygiene
+
+- When an external service is removed (e.g., port-3005 mini-service), ALL code that references it must be removed: the function, the constant, and every call site.
+- Best-effort forwarding with `.catch(() => logDebug(...))` seems harmless but creates persistent log noise. Remove entirely if the service is gone.

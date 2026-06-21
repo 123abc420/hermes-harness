@@ -1,0 +1,24 @@
+▲ Next.js 16.1.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://21.0.4.51:3000
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 726ms
+ POST /api/harness/agent-status 200 in 231ms (compile: 185ms, render: 46ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 11ms (compile: 4ms, render: 8ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 9ms (compile: 3ms, render: 7ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 9ms (compile: 2ms, render: 6ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 10ms (compile: 3ms, render: 7ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 9ms (compile: 2ms, render: 6ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"activity"}
+ POST /api/harness/agent-status 200 in 7ms (compile: 2ms, render: 5ms)
+{"tag":"AGENT_STATUS","level":"debug","message":"forwardToService failed","type":"status"}
+○ Compiling / ...
+ GET / 200 in 5.7s (compile: 5.3s, render: 357ms)
+ GET / 200 in 2.6s (compile: 2.2s, render: 399ms)

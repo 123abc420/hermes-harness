@@ -83,10 +83,10 @@ export function AgentAvatarCanvas() {
   const pulseTimer = useRef(0);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current!;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')!;
+    // ctx is asserted non-null; getContext('2d') only returns null for unsupported contexts
 
     // ─── ResizeObserver: keep canvas pixel-perfect on resize ───
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
