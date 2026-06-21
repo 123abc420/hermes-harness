@@ -97,6 +97,7 @@
 - Replay: activities newest-first in Zustand, reversed for display. Phase grouping dividers. No auto-scroll — clips to viewport (W258/W259).
 - Multi-agent: nodes for roles, edges for data flow, animated dots for active connections. Store is single source of truth.
 - Broadcast skill: POST to `/api/harness/agent-status` at every phase transition. `curl --max-time 3 || true`.
+- Replay loop: isLooping captured by setInterval — use ref pattern (isLoopingRef + useEffect sync) for real-time toggle (W265).
 
 ## Sandbox Network
 

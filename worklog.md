@@ -5695,3 +5695,20 @@ Stage Summary:
 - Removed 6 dead store fields/actions, 2 dead interfaces, 1 dead re-export, 1 unused param.
 - Store now only contains state that is actually written and read. No legacy cruft.
 - Lint: 0 errors.
+
+---
+Task ID: W267
+Agent: Main Orchestrator
+Task: Knowledge base sync — reflect W263-W266 improvements in context + insights
+
+Work Log:
+- ASSESS: Dev log clean, lint 0 errors. Codebase extremely polished after 5 consecutive cleanup waves. No code issues found.
+- PLAN: Update context.md with accurate post-cleanup metrics (508 commits, 178 waves, W265/W266 entries). Update insights with replay loop ref pattern.
+- EXECUTE: Rewrote context.md — phase "Polish Era", updated metrics, added W265 loop fix + W266 dead-state-free store to "What exists".
+- EXECUTE: Added replay loop ref pattern insight to Agent Live section in insights.md.
+- PERSIST: Worklog, wave record, GitHub sync.
+
+Stage Summary:
+- Knowledge base now accurately reflects post-W266 state.
+- No code changes — knowledge maintenance wave.
+- Lint: 0 errors.
