@@ -204,7 +204,7 @@ export function HarnessDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
-            <TabsContent value="agent" className="mt-0">
+            <TabsContent value="agent" className="mt-0" style={{ height: 'calc(100vh - 220px)' }}>
               <HarnessErrorBoundary inline label="Agent Live">
                 <AgentLivePanel />
               </HarnessErrorBoundary>

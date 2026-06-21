@@ -5518,3 +5518,24 @@ Stage Summary:
 - 70 lines of dead code removed (STATE_COLORS, PhaseTracker, 2 imports)
 - File reduced from 86 to 16 lines
 - Total improvements: 1, Decisions: 1
+
+---
+Task ID: W259
+Agent: Wave Engine (user request + cron)
+Task: UX overhaul — counters, no scroll, compact layout, fix phase bar bug
+
+Work Log:
+- ASSESS: User requested: "agrega CONTADORES, no barra para deslizar, pantalla debe ocupar toda la informacion, mejorar UX UI". Found bug: phase bar used p.value (undefined) instead of p.key.
+- PLAN: (1) Fix phase bar bug, (2) Remove ScrollArea, make timeline fit viewport, (3) Compact entries + prominent counters.
+- EXECUTE: Rewrote wave-replay-view.tsx — removed ScrollArea, capped at 20 visible entries, compact single-line entries (9px text), added inline phase labels on desktop. Rewrote agent-live-panel.tsx v6.0 — 5 counter cards (Waves/Decisions/Improved/Health/Success) with large bold numbers, current-wave decision badge, tighter spacing (gap-1.5), overflow-hidden everywhere.
+- VERIFY: 0 lint errors, clean dev.log.
+
+Stage Summary:
+- Phase bar bug fixed (p.value → p.key)
+- ScrollArea removed — timeline fits viewport, overflow-hidden everywhere
+- 5 prominent counter cards: Waves (sky), Decisions (amber), Improved (violet), Health (green/amber/red), Success (cyan)
+- Agent Live tab constrained to calc(100vh - 220px) — zero page scroll on Agent Live
+- Compact single-line timeline entries (10px), 20-entry cap, "+N more" hint
+- Phase progress bar now has inline labels (ASSESS PLAN EXECUTE VERIFY PERSIST REPORT)
+- VLM-verified: no scrollbar on desktop (1280x720), mobile (375x812) looks great
+- Total improvements: 3, Decisions: 2
