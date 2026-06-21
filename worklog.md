@@ -4966,3 +4966,28 @@ Stage Summary:
 - harness-store.ts: WaveStatus + DecisionPriority now imported from schemas.ts (single source of truth, fixes missing 'error' status)
 - Net: -871 lines deleted
 - Git push: 0c5f38b..c408a7f
+
+---
+Task ID: W244
+Agent: Wave Engine (orchestrator)
+Task: Delete dead dirs, audit TS errors, tighten exports
+
+Work Log:
+- ASSESS: Clean from W243, no dev.log errors
+- Flipped ignoreBuildErrors to false — build failed on 3 dead directories (examples/, mini-services/)
+- npx tsc --noEmit revealed 31 pre-existing TS errors in src/ (hidden by ignoreBuildErrors:true)
+- Fixed 3 errors: dashboard metrics catch type, schemas.ts redundant .partial(), constants tuple
+- PLAN: 2 improvements — delete dead dirs + tighten exports, audit+document TS errors
+- EXECUTE: Deleted examples/ + mini-services/, made EVOLUTION_STAGES/LEVEL_NAMES private
+- Kept ignoreBuildErrors:true with TODO comment (31 errors need incremental fixing)
+- VERIFY: lint 0, build 19/19
+- PERSIST: Committed and pushed (b52917c)
+
+Stage Summary:
+- Deleted: examples/ (2 files), mini-services/ (1 file) — dead code referencing removed deps
+- constants.ts: EVOLUTION_STAGES + LEVEL_NAMES now private (unexported)
+- schemas.ts: Removed redundant .partial() on already-optional schemas
+- dashboard/route.ts: Typed metrics catch from unknown[] to proper type
+- next.config.ts: Documented 31 TS errors for incremental future fixing
+- Net: -341 lines deleted
+- Git push: 4f28f16..b52917c
