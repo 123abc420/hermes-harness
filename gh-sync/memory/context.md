@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 16:41 UTC+8
+2026-06-21 16:50 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 253)
+- **Phase**: Multi-Agent Visual Era (Wave 254)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -67,6 +67,8 @@
 | Inline .then(r =>) fetch chains | 0 (fetchJSON shared lib, W251) |
 | Component-level Record casts | 0 (removed in W252) |
 | Sync fs calls in API routes | 0 (async readdir/stat, W252) |
+| Missing color map keys | 0 (error+success added, W253) |
+| Loose Record color maps | 0 (typed with union keys, W253) |
 | Duplicate fetchTrends | 0 (useDecisionTrends shared hook, W250) |
 | Per-hook staleTime | 3 tuned (W250) |
 | TS errors | 0 (export-menu generic fix, W250) |

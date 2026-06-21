@@ -34,7 +34,7 @@ function WaveColumn({ wave, label }: { wave: Wave; label: string }) {
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-mono text-zinc-600">{label}</span>
         <span className="font-mono text-sm font-bold text-white">#{String(wave.waveNumber).padStart(3, '0')}</span>
-        <span className={cn('inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-mono font-medium', STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending)}>
+        <span className={cn('inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-mono font-medium', STATUS_COLORS[wave.status])}>
           {wave.status.toUpperCase()}
         </span>
       </div>

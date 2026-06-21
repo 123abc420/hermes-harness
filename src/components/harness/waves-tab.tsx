@@ -351,7 +351,7 @@ export function WavesTab() {
                         <TableCell>
                           <span className={cn(
                             'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium',
-                            STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending,
+                            STATUS_COLORS[wave.status],
                           )}>
                             {wave.status.toUpperCase()}
                           </span>

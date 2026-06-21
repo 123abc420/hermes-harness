@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { WaveStatus } from '@/lib/schemas';
 import {
   Dialog,
   DialogContent,
@@ -16,11 +17,12 @@ import { CATEGORY_TW } from '@/lib/category-colors';
 import { formatDuration } from '@/lib/constants';
 import { Copy, Check, ChevronDown, Eye, Lightbulb, Play, ShieldCheck, Save, FileText } from 'lucide-react';
 
-const STATUS_COLORS: Record<string, string> = {
+const STATUS_COLORS: Record<WaveStatus, string> = {
   running: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   interrupted: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   failed: 'bg-red-500/10 text-red-400 border-red-500/20',
+  error: 'bg-red-600/10 text-red-500 border-red-600/20',
   pending: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
 };
 
@@ -229,7 +231,7 @@ export function WaveDetailDialog({
               <div className="flex flex-wrap items-center gap-2">
                 <span className={cn(
                     'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium',
-                    STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending,
+                    STATUS_COLORS[wave.status],
                   )}>
                   {wave.status.toUpperCase()}
                 </span>

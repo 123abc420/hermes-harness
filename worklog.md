@@ -5371,3 +5371,23 @@ Stage Summary:
 - Component-level Record<string,unknown> casts: 2 → 0
 - Sync fs calls in API routes: 0 (was 3: readdirSync×2 + statSync×1)
 - Total improvements: 3, Decisions: 3
+---
+Task ID: W253
+Agent: Wave Engine (HERMES)
+Task: Fix missing status/outcome color bugs, type color maps with union keys
+
+Work Log:
+- ASSESS: 0 lint, 0 TS errors. Deep-scan found: STATUS_COLORS missing 'error' key (bug), OUTCOME_COLORS missing 'success' key (bug), both using loose Record<string,string>.
+- PLAN: (1) Add missing error/success colors, (2) Type maps with WaveStatus/DecisionOutcome from schemas.ts.
+- EXECUTE:
+  1. wave-detail-dialog.tsx: Added `error` key to STATUS_COLORS, typed as Record<WaveStatus, string>
+  2. waves-tab.tsx + wave-comparison-card.tsx: Removed dead `?? STATUS_COLORS.pending` fallbacks (all keys now covered)
+  3. distribution-charts.tsx: Added `success` key to OUTCOME_COLORS, typed as Record<DecisionOutcome, string>
+- VERIFY: 0 lint errors
+
+Stage Summary:
+- 4 files modified: wave-detail-dialog, waves-tab, wave-comparison-card, distribution-charts
+- Missing color keys fixed: 2 (error status, success outcome)
+- Loose Record<string,string> color maps → typed with union keys: 2
+- Dead fallback patterns removed: 3 (`?? STATUS_COLORS.pending`)
+- Total improvements: 2, Decisions: 2
