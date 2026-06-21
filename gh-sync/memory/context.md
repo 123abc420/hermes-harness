@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 16:20 UTC+8
+2026-06-21 16:32 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 251)
+- **Phase**: Multi-Agent Visual Era (Wave 252)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -64,7 +64,7 @@
 | useState for non-rendering values | 0 (scrollY+debounceRef→useRef, W249) |
 | as AgentVisualState casts | 1 (JSON boundary in use-agent-live, W250) |
 | cn() adoption | 17 harness files (W250) |
-| Canonical types from schemas.ts | 2 (AgentVisualState + AgentPhase, W250) |
+| Inline .then(r =>) fetch chains | 0 (fetchJSON shared lib, W251) |
 | ARIA label gaps | 0 (W250) |
 | Duplicate fetchTrends | 0 (useDecisionTrends shared hook, W250) |
 | Per-hook staleTime | 3 tuned (W250) |
@@ -81,6 +81,7 @@
 - GitHub sync does real git push inline
 - **SSE reconnection via createSSEConnection factory** (W247)
 - **Zod-validated agent-status POST** with .strict() (W249)
+- **Shared `fetchJSON` in lib/fetch-json.ts** — 3 consumers (W251)
 - **Typed full-update extraction + Zod arrays** replaces FULL_UPDATE_KEYS (W250)
 - **Generic csv-export** preserves type safety at call sites (W249)
 - **DecisionCategory derived from VALID_CATEGORIES** (W247, 20 categories)

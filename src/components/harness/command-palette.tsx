@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Waves, Brain, Loader2, ArrowRight, Eye, Zap, BookOpen, Github, Sparkles, Clock, Trash2 } from 'lucide-react';
+import { fetchJSON } from '@/lib/fetch-json';
 
 /* ── Types ─────────────────────────────────────────────── */
 interface WaveResult {
@@ -112,9 +113,9 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
     setLoading(true);
     try {
       const [wRes, dRes, sRes] = await Promise.all([
-        fetch(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
-        fetch(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
-        fetch(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }).catch(() => ({ skills: [] })),
+        fetchJSON<{ waves: WaveResult[] }>(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`),
+        fetchJSON<{ decisions: DecisionResult[] }>(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`),
+        fetchJSON<{ skills: SkillResult[] }>(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`).catch(() => ({ skills: [] })),
       ]);
       setWaves(wRes.waves ?? []);
       setDecisions(dRes.decisions ?? []);

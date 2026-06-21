@@ -5329,3 +5329,25 @@ Stage Summary:
 - Manual array validation: replaced with Zod safeParse (activities + subAgents)
 - FULL_UPDATE_KEYS Set: removed (replaced by explicit typed field extraction)
 - Total improvements: 3, Decisions: 3
+---
+Task ID: W251
+Agent: Wave Engine (HERMES)
+Task: Extract fetchJSON to shared lib, deduplicate client fetch patterns
+
+Work Log:
+- ASSESS: 0 lint errors, 0 TS errors, app running. Found 4 inline `.then(r =>)` fetch chains in command-palette.tsx and csv-export.ts duplicating the fetchJSON pattern from use-harness-data.ts.
+- PLAN: (1) Extract fetchJSON to lib/fetch-json.ts, (2) Replace command-palette chains, (3) Replace csv-export chains.
+- EXECUTE:
+  1. Created src/lib/fetch-json.ts with the shared typed fetch helper
+  2. Updated use-harness-data.ts to import fetchJSON from lib (removed local definition)
+  3. Updated command-palette.tsx to import fetchJSON, replaced 3 inline .then() chains
+  4. Updated csv-export.ts to import fetchJSON, replaced raw fetch + .then() chain in fetchAllPages
+- VERIFY: 0 lint errors, 0 dev.log errors, 0 remaining `.then(r =>)` chains in client code
+- PERSIST: Committed + pushed, wave + 3 decisions + metrics recorded
+
+Stage Summary:
+- 1 new file: src/lib/fetch-json.ts
+- 3 files modified: use-harness-data.ts, command-palette.tsx, csv-export.ts
+- Inline .then(r =>) fetch chains: 4 → 0
+- fetchJSON definitions: 1 (shared lib) — was 1 local + 3 inline duplications
+- Total improvements: 3, Decisions: 3

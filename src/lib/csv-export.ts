@@ -3,6 +3,8 @@
  * Client-side: fetches all records, converts, triggers browser download.
  */
 
+import { fetchJSON } from './fetch-json';
+
 export function downloadBlob(content: string, filename: string, mime: string) {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -43,9 +45,7 @@ export async function fetchAllPages<T extends Record<string, unknown>>(
   totalKey: string,
   pageSize = 100
 ): Promise<T[]> {
-  const firstRes = await fetch(`${baseUrl}?page=1&limit=${pageSize}`);
-  if (!firstRes.ok) throw new Error(`Fetch failed: ${firstRes.status} ${firstRes.statusText}`);
-  const first = await firstRes.json();
+  const first = await fetchJSON<Record<string, unknown>>(`${baseUrl}?page=1&limit=${pageSize}`);
   const total = first[totalKey] as number;
   const results: T[] = (first[dataKey] as T[]);
   const remaining = total - results.length;
@@ -55,10 +55,7 @@ export async function fetchAllPages<T extends Record<string, unknown>>(
   const pages = Math.ceil(remaining / pageSize);
   const extra = await Promise.all(
     Array.from({ length: pages }, (_, i) =>
-      fetch(`${baseUrl}?page=${i + 2}&limit=${pageSize}`).then(r => {
-        if (!r.ok) throw new Error(`Fetch failed: ${r.status} ${r.statusText}`);
-        return r.json();
-      })
+      fetchJSON<Record<string, unknown>>(`${baseUrl}?page=${i + 2}&limit=${pageSize}`)
     )
   );
 
