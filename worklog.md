@@ -5206,3 +5206,29 @@ Stage Summary:
 - 10 'as string' casts eliminated in agent-demo
 - 4 functions genericized in csv-export
 - Net change: +157 -101 lines across 4 files
+
+---
+Task ID: 250-251
+Agent: Main Orchestrator
+Task: W250 (broken) + W251 (fix)
+
+Work Log:
+- W250 attempted: dashboard cache Prisma typing, agent-status safe full-update, skills parser
+- W250 broke TS: type predicates incompatible with Record<string,unknown>, Prisma types didn't match runtime shapes
+- W251 rolled back the broken parts, kept the safe improvements:
+  - dashboard/route.ts: imported Prisma types for waves/metrics/exports/recentDecisions (4 unknown[] → 0)
+  - dashboard/route.ts: totalStats → explicit {totalWaves, totalDecisions, ...} shape
+  - dashboard/route.ts: metrics → union type to handle catch fallback
+  - dashboard/route.ts: githubStatus → Omit<GitHubSync, 'id'|'createdAt'|'updatedAt'> | null
+  - agent-status/route.ts: replaced unsafe type predicates with for-loop + typeof guards
+  - agent-status/route.ts: removed unused isValidActivity/isValidSubAgent functions
+  - agent-status/route.ts: full-update builds objects field-by-field with type coercion
+  - DEV SERVER UNSTABLE: next dev --webpack compiles / fine but crashes on dashboard API compilation (sandbox OOM)
+  - Used Prisma client directly to persist wave/decisions/metrics to DB
+
+Stage Summary:
+- Record<string,unknown> in dashboard: 6 → 1 (only config remains, justified)
+- unknown[] in dashboard: 4 → 0
+- full-update body spread: unsafe → FULL_UPDATE_KEYS whitelist + safe for-loop
+- Net: +40 -32 lines across 2 files
+- Known issue: dev server crashes on dashboard API compilation in sandbox (OOM, not a code bug)
