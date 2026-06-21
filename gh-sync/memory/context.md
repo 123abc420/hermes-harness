@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 13:40 UTC+8
+2026-06-21 13:55 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 245)
+- **Phase**: Multi-Agent Visual Era (Wave 246)
 - **Waves in DB**: 154
 - **Spec compliance**: 100% (16/16)
 
@@ -55,6 +55,9 @@
 | Private constants leak | 0 (EVOLUTION_STAGES/LEVEL_NAMES private, W244) |
 | Pre-existing TS errors | 0 (all 31 fixed W245) |
 | ignoreBuildErrors | false (strict TS enforced, W245) |
+| Header color drift | 0 (uses getStateHex, W246) |
+| Record<string,unknown> in use-agent-live | 0 (typed ServerXxx interfaces, W246) |
+| Untyped PRIORITY_STYLES | 0 (DecisionPriority key, W246) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
