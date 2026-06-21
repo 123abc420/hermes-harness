@@ -6111,3 +6111,21 @@ Stage Summary:
 - 6 files changed. ALL 19/19 framer-motion files now have JS-level usePrefersReducedMotion() integration.
 - Combined with global CSS @media (prefers-reduced-motion: reduce) overrides, the entire dashboard is now WCAG 2.3.3 compliant for motion.
 - Lint: 0. TypeScript: 0. Health: 100/100.
+---
+Task ID: W286
+Agent: Main Orchestrator
+Task: AbortController leak fixes — command-palette + use-agent-live
+
+Work Log:
+- ASSESS: Health 100, lint 0, tsc 0, 200 waves in DB. Scanned for code quality improvements.
+- PLAN: 2 improvements — (1) AbortController for command-palette doSearch race condition, (2) AbortController for use-agent-live poll + DRY URL constant.
+- EXECUTE:
+  1. command-palette.tsx: Added abortRef, abort previous in-flight search on each doSearch call, check signal.aborted before state setters, abort on unmount.
+  2. use-agent-live.ts: Extracted AGENT_STATUS_URL constant, derived SSE_URL from it. Added pollAbortRef, abort in-flight poll on each cycle, abort in stopPolling.
+- VERIFY: Lint 0, tsc 0.
+- PERSIST: Wave 286 recorded, 2 decisions recorded, GitHub synced.
+
+Stage Summary:
+- 2 files changed. Eliminated 2 fetch race conditions where stale responses could overwrite fresh state.
+- DRY improvement: agent-status URL now single source of truth in use-agent-live.ts.
+- Lint: 0. TypeScript: 0. Health: 100/100.

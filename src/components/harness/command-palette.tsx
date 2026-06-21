@@ -58,6 +58,7 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -108,23 +109,32 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
     }
   }, [open]);
 
-  // Debounced search
+  // Debounced search (with AbortController to cancel stale in-flight requests)
   const doSearch = useCallback(async (q: string) => {
     if (!q.trim()) { setWaves([]); setDecisions([]); setSkills([]); return; }
+    // Cancel any in-flight search from a previous keystroke
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+    const { signal } = ac;
     setLoading(true);
     try {
       const [wRes, dRes, sRes] = await Promise.all([
-        fetchJSON<{ waves: WaveResult[] }>(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`),
-        fetchJSON<{ decisions: DecisionResult[] }>(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`),
-        fetchJSON<{ skills: SkillResult[] }>(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`).catch(() => ({ skills: [] })),
+        fetchJSON<{ waves: WaveResult[] }>(`/api/harness/waves?search=${encodeURIComponent(q)}&limit=5`, { signal }),
+        fetchJSON<{ decisions: DecisionResult[] }>(`/api/harness/decisions?search=${encodeURIComponent(q)}&limit=5`, { signal }),
+        fetchJSON<{ skills: SkillResult[] }>(`/api/harness/skills?search=${encodeURIComponent(q)}&limit=5`, { signal }).catch(() => ({ skills: [] } as { skills: SkillResult[] })),
       ]);
+      if (signal.aborted) return;
       setWaves(wRes.waves ?? []);
       setDecisions(dRes.decisions ?? []);
       setSkills(sRes.skills ?? []);
       setActiveIdx(0);
       addRecentSearch(q);
-    } catch { /* search errors are non-critical — results stay empty */ }
-    setLoading(false);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      /* search errors are non-critical — results stay empty */
+    }
+    if (!signal.aborted) setLoading(false);
   }, [addRecentSearch]);
 
   const handleQueryChange = useCallback((val: string) => {
@@ -151,8 +161,11 @@ export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProp
     el?.scrollIntoView({ block: 'nearest' });
   }, [activeIdx]);
 
-  // Cleanup debounce on unmount
-  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+  // Cleanup debounce + abort on unmount
+  useEffect(() => () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    abortRef.current?.abort();
+  }, []);
 
   // Compute nav items including recent searches
   const showRecentSearches = !query.trim() && recentSearches.length > 0;

@@ -42,7 +42,8 @@ interface HealthData {
   nodeTimestamp?: number;
 }
 
-const SSE_URL = '/api/harness/agent-status?stream=true';
+const AGENT_STATUS_URL = '/api/harness/agent-status';
+const SSE_URL = `${AGENT_STATUS_URL}?stream=true`;
 
 /**
  * Creates an EventSource connection with standardized message/error handling.
@@ -82,6 +83,7 @@ function createSSEConnection(handlers: {
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollAbortRef = useRef<AbortController | null>(null);
   const sseRetryRef = useRef<number | null>(null);
   /** Ref-based self-reference to break recursive useCallback ordering. */
   const scheduleReconnectRef = useRef<(delayMs: number) => void>(() => {});
@@ -143,8 +145,13 @@ export function useAgentLive() {
   const startPolling = useCallback(() => {
     if (pollRef.current) return;
     const poll = async () => {
+      // Abort any previous in-flight poll request
+      pollAbortRef.current?.abort();
+      const ac = new AbortController();
+      pollAbortRef.current = ac;
       try {
-        const res = await fetch('/api/harness/agent-status');
+        const res = await fetch(AGENT_STATUS_URL, { signal: ac.signal });
+        if (ac.signal.aborted) return;
         if (res.ok) {
           const data: HealthData = await res.json();
           if (data.status === 'ok') {
@@ -156,7 +163,8 @@ export function useAgentLive() {
         } else {
           setConnected(false);
         }
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setConnected(false);
       }
     };
@@ -169,6 +177,8 @@ export function useAgentLive() {
       clearInterval(pollRef.current);
       pollRef.current = null;
     }
+    pollAbortRef.current?.abort();
+    pollAbortRef.current = null;
   }, []);
 
   const stopSSE = useCallback(() => {

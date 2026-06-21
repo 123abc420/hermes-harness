@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 23:19 UTC+8
+2026-06-21 23:35 UTC+8
 
 ## System Status
-- **Phase**: Health-100 Era (Wave 285)
+- **Phase**: Health-100 Era (Wave 286)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 11 (+ 1 template) |
 | Components | 20 |
 | Exported components | 13 |
-| GitHub commits | ~530 |
-| Waves in DB | 199 |
+| GitHub commits | ~531 |
+| Waves in DB | 200 |
 | TS errors | 0 (enforced, ignoreBuildErrors removed) |
 | Lint errors | 0 |
 | Health score | 100/100 |
@@ -33,6 +33,7 @@
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 - **WCAG 2.3.3: JS-level reduced-motion in ALL 19/19 framer-motion files + global CSS overrides**
 - SVG gradient IDs: useId() collision-safe
+- **Fetch safety: AbortController on all client-side fetch (command-palette, use-agent-live poll)**
 
 ## What's next
 1. Persist wave activities to DB for cross-reload replay
