@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 14:18 UTC+8
+2026-06-21 14:25 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 248)
+- **Phase**: Multi-Agent Visual Era (Wave 249)
 - **Waves in DB**: 155
 - **Spec compliance**: 100% (16/16)
 
@@ -61,6 +61,7 @@
 | DecisionCategory sync gap | 0 (derived from VALID_CATEGORIES, W247) |
 | SSE duplication | 0 (createSSEConnection factory, W247) |
 | Prisma-typed query params | 4 routes (W248) |
+| useState for non-rendering values | 0 (scrollY+debounceRef→useRef, W249) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
