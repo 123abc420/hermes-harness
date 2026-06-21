@@ -52,6 +52,39 @@ interface HealthData {
   nodeTimestamp?: number;
 }
 
+const SSE_URL = '/api/harness/agent-status?stream=true';
+
+/**
+ * Creates an EventSource connection with standardized message/error handling.
+ * Eliminates duplication between initial connect and retry logic.
+ */
+function createSSEConnection(handlers: {
+  onMessage: (data: HealthData) => void;
+  onOpen: () => void;
+  onError: () => void;
+}): EventSource {
+  const es = new EventSource(SSE_URL);
+
+  es.onopen = () => {
+    handlers.onOpen();
+  };
+
+  es.onmessage = (event) => {
+    try {
+      const data: HealthData = JSON.parse(event.data);
+      handlers.onMessage(data);
+    } catch {
+      // Malformed SSE event — skip silently
+    }
+  };
+
+  es.onerror = () => {
+    handlers.onError();
+  };
+
+  return es;
+}
+
 export function useAgentLive() {
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -135,77 +168,72 @@ export function useAgentLive() {
     pollRef.current = setInterval(poll, 3000);
   }, [processData, setConnected]);
 
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  const stopSSE = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+    if (sseRetryRef.current) {
+      clearInterval(sseRetryRef.current);
+      sseRetryRef.current = null;
+    }
+  }, []);
+
   const connectSSE = useCallback(() => {
     try {
-      const es = new EventSource('/api/harness/agent-status?stream=true');
-      eventSourceRef.current = es;
-
-      es.onopen = () => {
-        setConnected(true);
-      };
-
-      es.onmessage = (event) => {
-        try {
-          const data: HealthData = JSON.parse(event.data);
+      const es = createSSEConnection({
+        onMessage: (data) => {
           processData(data);
-        } catch {
-          // Malformed SSE event — skip silently
-        }
-      };
-
-      es.onerror = () => {
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('[AgentLive] SSE error, falling back to polling');
-        }
-        es.close();
-        eventSourceRef.current = null;
-        setConnected(false);
-        useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
-        startPolling();
-        if (!sseRetryRef.current) {
-          sseRetryRef.current = setInterval(() => {
-            if (eventSourceRef.current) return;
-            if (process.env.NODE_ENV !== 'production') {
-              console.warn('[AgentLive] Attempting SSE reconnection...');
-            }
-            if (pollRef.current) {
-              clearInterval(pollRef.current);
-              pollRef.current = null;
-            }
-            if (sseRetryRef.current) {
-              clearInterval(sseRetryRef.current);
-              sseRetryRef.current = null;
-            }
-            try {
-              const retryEs = new EventSource('/api/harness/agent-status?stream=true');
+        },
+        onOpen: () => {
+          setConnected(true);
+        },
+        onError: () => {
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[AgentLive] SSE error, falling back to polling');
+          }
+          stopSSE();
+          setConnected(false);
+          useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
+          startPolling();
+          // Schedule reconnection attempt
+          if (!sseRetryRef.current) {
+            sseRetryRef.current = setInterval(() => {
+              if (eventSourceRef.current) return;
+              if (process.env.NODE_ENV !== 'production') {
+                console.warn('[AgentLive] Attempting SSE reconnection...');
+              }
+              stopPolling();
+              // Clear retry timer on successful reconnect
+              const retryTimer = sseRetryRef.current;
+              const retryEs = createSSEConnection({
+                onMessage: (data) => processData(data),
+                onOpen: () => {
+                  setConnected(true);
+                  if (retryTimer) {
+                    clearInterval(retryTimer);
+                    sseRetryRef.current = null;
+                  }
+                },
+                onError: () => {
+                  stopSSE();
+                  setConnected(false);
+                  startPolling();
+                },
+              });
               eventSourceRef.current = retryEs;
-              retryEs.onopen = () => {
-                setConnected(true);
-                if (sseRetryRef.current) {
-                  clearInterval(sseRetryRef.current);
-                  sseRetryRef.current = null;
-                }
-              };
-              retryEs.onmessage = (event) => {
-                try {
-                  const data: HealthData = JSON.parse(event.data);
-                  processData(data);
-                } catch {
-                  // skip
-                }
-              };
-              retryEs.onerror = () => {
-                retryEs.close();
-                eventSourceRef.current = null;
-                setConnected(false);
-                startPolling();
-              };
-            } catch {
-              startPolling();
-            }
-          }, 30_000);
-        }
-      };
+            }, 30_000);
+          }
+        },
+      });
+      eventSourceRef.current = es;
     } catch {
       if (process.env.NODE_ENV !== 'production') {
         console.warn('[AgentLive] SSE not supported, using polling');
@@ -213,24 +241,14 @@ export function useAgentLive() {
       useAgentLiveStore.getState().setStatus({ agentState: 'offline' });
       startPolling();
     }
-  }, [processData, setConnected, startPolling]);
+  }, [processData, setConnected, startPolling, stopPolling, stopSSE]);
 
   useEffect(() => {
     connectSSE();
     return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
-      }
-      if (sseRetryRef.current) {
-        clearInterval(sseRetryRef.current);
-        sseRetryRef.current = null;
-      }
+      stopSSE();
+      stopPolling();
       setConnected(false);
     };
-  }, [connectSSE, setConnected]);
+  }, [connectSSE, setConnected, stopSSE, stopPolling]);
 }

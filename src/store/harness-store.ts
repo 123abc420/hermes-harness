@@ -1,11 +1,10 @@
 import { create } from 'zustand';
 import type { WaveStatus, DecisionPriority } from '@/lib/schemas';
+import { VALID_CATEGORIES } from '@/lib/category-colors';
 
 export type { WaveStatus, DecisionPriority };
-export type DecisionCategory =
-  | 'code_quality' | 'feature' | 'fix' | 'refactor' | 'performance' | 'architecture'
-  | 'style' | 'skill' | 'insight' | 'i18n' | 'ux' | 'automation'
-  | 'data' | 'maintenance' | 'reliability' | 'code';
+/** Derived from VALID_CATEGORIES — single source of truth for category names */
+export type DecisionCategory = (typeof VALID_CATEGORIES)[number];
 export type DecisionAction = 'planned' | 'executed' | 'skipped' | 'failed';
 
 export interface Wave {
@@ -110,12 +109,6 @@ export interface DashboardData {
   healthScore: number;
   healthScoreTrend: 'up' | 'down' | 'stable';
   healthBreakdown?: { spec: number; success: number; errors: number; github: number };
-  buildHealth: {
-    lintPassed: boolean;
-    lintErrors: number;
-    lintWarnings: number;
-    checkedAt: string;
-  };
 }
 
 interface HarnessState {

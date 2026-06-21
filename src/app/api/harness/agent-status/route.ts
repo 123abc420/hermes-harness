@@ -107,25 +107,55 @@ interface NetworkNode {
 let networkNodes: NetworkNode[] = [];
 let nodeTimestamp = 0;
 
-// Default orchestrator node
-function ensureOrchestrator(): void {
-  const has = networkNodes.some(n => n.type === 'orchestrator');
-  if (!has) {
-    networkNodes.push({
-      id: 'orchestrator',
-      type: 'orchestrator',
-      name: 'HERMES',
-      state: latestStatus.agentState || 'idle',
-      message: latestStatus.message || '',
+// Seed a default network so the canvas is never empty on first load
+function ensureDefaultNetwork(): void {
+  if (networkNodes.length > 0) return;
+  const now = Date.now();
+  networkNodes = [
+    {
+      id: 'orchestrator', type: 'orchestrator', name: 'HERMES',
+      state: 'idle', message: 'System ready — awaiting next wave',
       color: '#f59e0b',
-      connections: [],
-      spawnTime: Date.now(),
-      x: 0.5,
-      y: 0.5,
-      size: 1,
-      glowIntensity: 0.5,
-    });
-  }
+      connections: ['assessor', 'planner', 'executor', 'verifier'],
+      spawnTime: now, x: 0.5, y: 0.42, size: 1.8, glowIntensity: 0.6,
+    },
+    {
+      id: 'assessor', type: 'assessor', name: 'ASSESSOR',
+      state: 'idle', message: 'Codebase scanner',
+      color: '#06b6d4',
+      connections: ['orchestrator'],
+      spawnTime: now, x: 0.22, y: 0.28, size: 1.0, glowIntensity: 0.4,
+    },
+    {
+      id: 'planner', type: 'planner', name: 'PLANNER',
+      state: 'idle', message: 'Architecture designer',
+      color: '#a855f7',
+      connections: ['orchestrator', 'executor'],
+      spawnTime: now, x: 0.78, y: 0.28, size: 1.0, glowIntensity: 0.4,
+    },
+    {
+      id: 'executor', type: 'executor', name: 'EXECUTOR',
+      state: 'idle', message: 'Code writer',
+      color: '#f43f5e',
+      connections: ['orchestrator', 'planner', 'verifier'],
+      spawnTime: now, x: 0.72, y: 0.65, size: 1.0, glowIntensity: 0.4,
+    },
+    {
+      id: 'verifier', type: 'verifier', name: 'VERIFIER',
+      state: 'idle', message: 'Quality gate',
+      color: '#22c55e',
+      connections: ['orchestrator', 'executor'],
+      spawnTime: now, x: 0.28, y: 0.65, size: 1.0, glowIntensity: 0.4,
+    },
+    {
+      id: 'git-agent', type: 'git-agent', name: 'GIT SYNC',
+      state: 'idle', message: 'Version control',
+      color: '#ea580c',
+      connections: ['orchestrator'],
+      spawnTime: now, x: 0.12, y: 0.48, size: 0.85, glowIntensity: 0.3,
+    },
+  ];
+  nodeTimestamp = now;
 }
 
 // Position new nodes in a circle/orbit around center
@@ -509,7 +539,7 @@ export async function POST(req: NextRequest) {
         timestamp: Date.now(),
       };
       // Boost orchestrator glow briefly
-      ensureOrchestrator();
+      ensureDefaultNetwork();
       const orch = networkNodes.find(n => n.type === 'orchestrator');
       if (orch) {
         orch.glowIntensity = Math.min(orch.glowIntensity + 0.2, 2.0);
@@ -580,7 +610,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Keep orchestrator in sync
-    ensureOrchestrator();
+    ensureDefaultNetwork();
     const orch = networkNodes.find(n => n.type === 'orchestrator');
     if (orch) {
       orch.state = latestStatus.agentState;

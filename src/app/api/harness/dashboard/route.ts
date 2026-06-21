@@ -5,39 +5,9 @@ import { db } from '@/lib/db';
 import { getGitData } from '@/lib/git';
 import { logError, logDebug } from '@/lib/logger';
 
-// ── Build health cache (module-level, survives between requests) ────
-interface BuildHealth {
-  lintPassed: boolean | null;
-  lintErrors: number;
-  lintWarnings: number;
-  checkedAt: string;
-}
-
-let buildHealthCache: BuildHealth | null = null;
-let buildHealthCheckedAt = 0;
-const BUILD_HEALTH_TTL = 5 * 60 * 1000; // 5 minutes
-
-// ── Full dashboard response cache ────
-let dashboardCache: { data: unknown; timestamp: number } | null = null;
+// ── Dashboard response cache ────
+let dashboardCache: { data: Record<string, unknown>; timestamp: number } | null = null;
 const DASHBOARD_TTL = 12 * 1000; // 12 seconds — fast enough for live feel, reduces DB load
-
-async function getBuildHealth() {
-  const now = Date.now();
-  if (buildHealthCache && now - buildHealthCheckedAt < BUILD_HEALTH_TTL) {
-    return buildHealthCache;
-  }
-  // NOTE: Running `bun run lint` as a child process crashes the Turbopack
-  // dev server in this sandbox environment. Build health is checked externally
-  // via `bun run lint` in the terminal. Return "not checked" by default.
-  buildHealthCache = {
-    lintPassed: null,
-    lintErrors: 0,
-    lintWarnings: 0,
-    checkedAt: new Date().toISOString(),
-  };
-  buildHealthCheckedAt = now;
-  return buildHealthCache;
-}
 
 export async function GET() {
   try {
@@ -244,7 +214,7 @@ export async function GET() {
         errors: Math.round(errorScore * 20),
         github: Math.round(githubScore * 10),
       },
-      buildHealth: await getBuildHealth(),
+
     };
 
     // Cache the response

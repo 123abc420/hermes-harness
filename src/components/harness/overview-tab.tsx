@@ -14,7 +14,6 @@ import { StatsGrid } from './stats-grid';
 import { MiniWaveTimeline } from './mini-wave-timeline';
 import { ErrorTrendChart } from './error-trend-chart';
 import { RecentCommitsCard } from './recent-commits-card';
-import { BuildHealthCard } from './build-health-card';
 import { WaveComparisonCard } from './wave-comparison-card';
 import { CategoryTrendsChart } from './category-trends-chart';
 import { AnimatedSection } from './animated-section';
@@ -225,7 +224,6 @@ export function OverviewTab() {
               <MiniWaveTimeline waves={waves} />
             )}
 
-            <BuildHealthCard health={dash?.buildHealth} isLoading={isLoading} />
           </div>
         )}
       </AnimatedSection>
