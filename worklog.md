@@ -6687,3 +6687,18 @@ Work Log:
 Stage Summary:
 - Zero code changes. Health 100/100. Maintenance Era continues.
 - Milestone: Wave 320 reached.
+
+---
+Task ID: 321
+Agent: wave-engine
+Task: W321 self-improvement wave
+
+Work Log:
+- ASSESS: W320 completed, dev.log clean
+- PLAN: No improvements — 38th consecutive clean wave
+- EXECUTE: Skipped
+- VERIFY: tsc 0
+- PERSIST: Worklog, wave, decisions, GitHub sync
+
+Stage Summary:
+- Zero code changes. Health 100/100. Maintenance Era continues.
