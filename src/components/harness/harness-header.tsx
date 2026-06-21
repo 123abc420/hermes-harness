@@ -5,6 +5,7 @@ import { Zap, Eye, Clock, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAgentLiveStore } from '@/store/agent-live-store';
+import { getStateHex } from '@/lib/constants';
 
 interface HealthBreakdown {
   spec: number;
@@ -21,12 +22,6 @@ interface HarnessHeaderProps {
   healthBreakdown?: HealthBreakdown;
   onSearch?: () => void;
 }
-
-const STATE_COLORS_MAP: Record<string, string> = {
-  idle: '#f59e0b', thinking: '#06b6d4', searching: '#fb923c',
-  planning: '#c084fc', executing: '#f43f5e', verifying: '#34d399',
-  celebrating: '#fde047', error: '#f87171', evolving: '#e879f9', offline: '#71717a',
-};
 
 const HEALTH_COLOR = (score: number) => {
   if (score >= 80) return 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10';
@@ -46,7 +41,7 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
   const isConnected = githubStatus?.status === 'connected';
   const agentState = useAgentLiveStore(s => s.agentState);
   const isLiveConnected = useAgentLiveStore(s => s.isConnected);
-  const stateColor = STATE_COLORS_MAP[agentState] || '#f59e0b';
+  const stateColor = getStateHex(agentState);
 
   return (
     <header className="sticky top-0 z-50 border-b border-amber-900/[0.12] bg-[#0d0906]/85 backdrop-blur-xl">

@@ -4,14 +4,50 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useAgentLiveStore, type AgentVisualState, type LiveActivityEntry, type NetworkNode } from '@/store/agent-live-store';
 import { formatArgentinaTime } from '@/lib/constants';
 
+/** Mirrors the in-memory AgentStatus shape from agent-status/route.ts */
+interface ServerAgentStatus {
+  agentState: string;
+  message: string;
+  phase: string;
+  waveNumber: number;
+  progress: number;
+  waveCount: number;
+  totalImprovements: number;
+  totalDecisions: number;
+  decisionCountThisWave: number;
+  timestamp: number;
+}
+
+/** Mirrors the in-memory ActivityEntry shape from agent-status/route.ts */
+interface ServerActivityEntry {
+  state: string;
+  agentState: string;
+  message: string;
+  phase: string;
+  id: string;
+  timestamp: number;
+  timestampAR: string;
+}
+
+/** Mirrors the in-memory SubAgentEntry shape from agent-status/route.ts */
+interface ServerSubAgentEntry {
+  id: string;
+  name: string;
+  state: string;
+  message: string;
+  color: string;
+  spawnTime: number;
+  timestampAR: string;
+}
+
 interface HealthData {
   status: string;
   clients: number;
-  latestStatus: Record<string, unknown>;
-  activities: LiveActivityEntry[];
+  latestStatus: ServerAgentStatus;
+  activities: ServerActivityEntry[];
   activityCount: number;
   activityTimestamp: number;
-  subAgents?: Array<Record<string, unknown>>;
+  subAgents?: ServerSubAgentEntry[];
   networkNodes?: NetworkNode[];
   nodeTimestamp?: number;
 }
@@ -27,14 +63,14 @@ export function useAgentLive() {
     if (s) {
       const update: Parameters<typeof setStatus>[0] = {};
       if (s.agentState) update.agentState = s.agentState as AgentVisualState;
-      if (s.message) update.message = s.message as string;
-      if (s.phase) update.phase = s.phase as string;
-      if (s.waveNumber !== undefined) update.waveNumber = s.waveNumber as number;
-      if (s.progress !== undefined) update.progress = s.progress as number;
-      if (s.waveCount !== undefined) update.waveCount = s.waveCount as number;
-      if (s.totalImprovements !== undefined) update.totalImprovements = s.totalImprovements as number;
-      if (s.totalDecisions !== undefined) update.totalDecisions = s.totalDecisions as number;
-      if (s.decisionCountThisWave !== undefined) update.decisionCountThisWave = s.decisionCountThisWave as number;
+      if (s.message) update.message = s.message;
+      if (s.phase) update.phase = s.phase;
+      if (s.waveNumber !== undefined) update.waveNumber = s.waveNumber;
+      if (s.progress !== undefined) update.progress = s.progress;
+      if (s.waveCount !== undefined) update.waveCount = s.waveCount;
+      if (s.totalImprovements !== undefined) update.totalImprovements = s.totalImprovements;
+      if (s.totalDecisions !== undefined) update.totalDecisions = s.totalDecisions;
+      if (s.decisionCountThisWave !== undefined) update.decisionCountThisWave = s.decisionCountThisWave;
       if (Object.keys(update).length > 0) setStatus(update);
     }
 
@@ -46,12 +82,11 @@ export function useAgentLive() {
       const newActivities: LiveActivityEntry[] = [];
       for (const act of data.activities) {
         if (!localIds.has(act.id)) {
-          const raw = act as unknown as Record<string, unknown>;
           const entry: LiveActivityEntry = {
             id: act.id,
             timestamp: act.timestamp,
             timestampAR: act.timestampAR || formatArgentinaTime(act.timestamp),
-            state: (raw.state as AgentVisualState) || (raw.agentState as AgentVisualState) || 'idle',
+            state: (act.state || act.agentState) as AgentVisualState || 'idle',
             message: act.message,
             phase: act.phase,
           };
@@ -61,7 +96,7 @@ export function useAgentLive() {
       }
       if (hasNew) {
         const store = useAgentLiveStore.getState();
-        const stateUpdate: Record<string, unknown> = {
+        const stateUpdate = {
           activities: [...newActivities, ...store.activities]
             .sort((a, b) => b.timestamp - a.timestamp)
             .slice(0, store.maxActivities),

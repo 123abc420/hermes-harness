@@ -13,8 +13,9 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { CATEGORY_TW, CATEGORY_HEX } from '@/lib/category-colors';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { DecisionPriority } from '@/lib/schemas';
 
-const PRIORITY_STYLES: Record<string, string> = {
+const PRIORITY_STYLES: Record<DecisionPriority, string> = {
   critical: 'bg-red-500/15 text-red-400',
   high: 'bg-orange-500/15 text-orange-400',
   medium: 'bg-amber-500/15 text-amber-400',
