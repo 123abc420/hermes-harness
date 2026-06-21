@@ -70,6 +70,33 @@ export function formatArgentinaTime(ts: number): string {
   });
 }
 
+// ─── Agent Visual State RGB Colors — SINGLE SOURCE OF TRUTH ──────────
+// Used by canvas (rgba strings), HUD badges (hex), and filter pills (hex).
+// Every state maps to a unique [R, G, B] tuple.
+export const STATE_RGB: Record<string, [number, number, number]> = {
+  idle: [245, 158, 11],
+  thinking: [6, 182, 212],
+  searching: [249, 115, 22],
+  planning: [168, 85, 247],
+  executing: [244, 63, 94],
+  verifying: [34, 197, 94],
+  celebrating: [234, 179, 8],
+  error: [220, 38, 38],
+  evolving: [217, 70, 239],
+  offline: [113, 113, 122],
+};
+
+// Derive hex string from RGB tuple
+export function rgbToHex(rgb: [number, number, number]): string {
+  return `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`;
+}
+
+// Get hex color for a state (derived from STATE_RGB)
+export function getStateHex(state: string): string {
+  const rgb = STATE_RGB[state];
+  return rgb ? rgbToHex(rgb) : '#71717a';
+}
+
 // Compare error counts: returns true if recent window (last N) has fewer-or-equal errors than the previous window
 export function isErrorsTrendingDown(
   trend: { errors: number }[],

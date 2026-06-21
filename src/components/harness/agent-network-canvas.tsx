@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useCallback } from 'react';
 import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
+import { STATE_RGB } from '@/lib/constants';
 
 /* ═════════════════════════════════════════════════════════════════════
    AGENT NETWORK CANVAS v2.2 — Multi-Agent "Living Network"
@@ -17,18 +18,7 @@ import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
    - Secondary nebula (dual-layer atmosphere)
    ═════════════════════════════════════════════════════════════════════ */
 
-const STATE_COLORS: Record<string, [number, number, number]> = {
-  idle: [245, 158, 11],
-  thinking: [6, 182, 212],
-  searching: [249, 115, 22],
-  planning: [168, 85, 247],
-  executing: [244, 63, 94],
-  verifying: [34, 197, 94],
-  celebrating: [234, 179, 8],
-  error: [220, 38, 38],
-  evolving: [217, 70, 239],
-  offline: [113, 113, 122],
-};
+// STATE_COLORS now imported from constants.ts as STATE_RGB (single source of truth)
 
 const NODE_TYPE_LABELS: Record<string, string> = {
   orchestrator: 'HERMES',
@@ -48,6 +38,7 @@ interface AnimNode {
   state: string;
   message: string;
   color: string;
+  rgb: [number, number, number]; // parsed once on creation — avoids per-frame hexToRgb
   connections: string[];
   spawnTime: number;
   tx: number;
@@ -119,11 +110,21 @@ export function AgentNetworkCanvas() {
   const lastPulseTimeRef = useRef(0);
 
   const agentState = useAgentLiveStore(s => s.agentState);
+  const agentStateRef = useRef(agentState);
   const networkNodes = useAgentLiveStore(s => s.networkNodes);
   const selectedNodeId = useAgentLiveStore(s => s.selectedNodeId);
   const selectNode = useAgentLiveStore(s => s.selectNode);
   const waveNumber = useAgentLiveStore(s => s.waveNumber);
   const progress = useAgentLiveStore(s => s.progress);
+
+  // Sync reactive store values into refs for stable draw-loop reads
+  useEffect(() => { agentStateRef.current = agentState; }, [agentState]);
+  const selectedIdRef = useRef(selectedNodeId);
+  useEffect(() => { selectedIdRef.current = selectedNodeId; }, [selectedNodeId]);
+  const waveNumRef = useRef(waveNumber);
+  useEffect(() => { waveNumRef.current = waveNumber; }, [waveNumber]);
+  const progressRef = useRef(progress);
+  useEffect(() => { progressRef.current = progress; }, [progress]);
 
   const hexToRgb = useCallback((hex: string): [number, number, number] => {
     const h = hex.replace('#', '');
@@ -134,19 +135,21 @@ export function AgentNetworkCanvas() {
     ];
   }, []);
 
-  const ensureOrchestrator = useCallback((): AnimNode => {
+  // Stable function — reads agentState from ref, safe to call inside draw loop
+  // Not a useCallback to avoid re-creating the animation loop on state changes
+  const ensureOrchestrator = (): AnimNode => {
     const existing = nodesMapRef.current.get('orchestrator');
     if (existing) return existing;
     const fallback: AnimNode = {
       id: 'orchestrator', type: 'orchestrator', name: 'HERMES',
-      state: agentState, message: '', color: '#f59e0b', connections: [],
+      state: agentStateRef.current, message: '', color: '#f59e0b', rgb: [245, 158, 11], connections: [],
       spawnTime: Date.now(), tx: 0.5, ty: 0.45, ax: 0.5, ay: 0.45,
       size: 1, glow: 0.5, tGlow: 0.5,
       orbitAngle: 0, orbitSpeed: 0, orbitRadius: 0, spawnProgress: 1,
     };
     nodesMapRef.current.set('orchestrator', fallback);
     return fallback;
-  }, [agentState]);
+  };
 
   useEffect(() => {
     const nodeMap = nodesMapRef.current;
@@ -166,18 +169,22 @@ export function AgentNetworkCanvas() {
         existing.state = node.state;
         existing.message = node.message;
         existing.color = node.color;
+        existing.rgb = hexToRgb(node.color);
         existing.connections = node.connections;
       } else {
         const isOrch = node.type === 'orchestrator';
         const nonOrchCount = [...nodeMap.values()].filter(n => n.type !== 'orchestrator').length;
         const total = Math.max(nonOrchCount + 1, 1);
-        const angle = (2 * Math.PI / total) * nonOrchCount + (Math.random() - 0.5) * 0.4;
-        const radius = 0.2 + Math.random() * 0.08;
+        const angle = (2 * Math.PI / total) * nonOrchCount + (Math.random() - 0.5) * 0.3;
+        // Two-tier radius: first 4 agents closer, rest in outer ring
+        const baseRadius = nonOrchCount < 4 ? 0.18 : 0.28;
+        const radius = baseRadius + Math.random() * 0.06;
         const targetX = isOrch ? 0.5 : 0.5 + radius * Math.cos(angle);
         const targetY = isOrch ? 0.45 : 0.45 + radius * Math.sin(angle);
         nodeMap.set(node.id, {
           id: node.id, name: node.name, type: node.type,
           state: node.state, message: node.message, color: node.color,
+          rgb: hexToRgb(node.color),
           connections: node.connections, spawnTime: node.spawnTime,
           tx: targetX, ty: targetY,
           ax: isOrch ? 0.5 : 0.5, ay: isOrch ? 0.45 : 0.45,
@@ -251,7 +258,7 @@ export function AgentNetworkCanvas() {
         const baseR = (n.type === 'orchestrator' ? 32 : 22) * n.size;
         const dist = Math.sqrt((mx - nx) ** 2 + (my - ny) ** 2);
         if (dist < baseR + 12) {
-          clicked = selectedNodeId === n.id ? null : n.id;
+          clicked = selectedIdRef.current === n.id ? null : n.id;
           break;
         }
       }
@@ -266,6 +273,22 @@ export function AgentNetworkCanvas() {
     ): [number, number] => {
       const u = 1 - t;
       return [u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1];
+    };
+
+    // Smart bezier control point: curves perpendicular to the line, scaled by distance
+    // Gives organic-looking arcs instead of always-bending-up
+    const smartCP = (sx: number, sy: number, ex: number, ey: number, seed: number): [number, number] => {
+      const mx = (sx + ex) / 2;
+      const my = (sy + ey) / 2;
+      const dx = ex - sx;
+      const dy = ey - sy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      // Normal vector (perpendicular)
+      const nx = -dy / (dist || 1);
+      const ny = dx / (dist || 1);
+      // Curve amount: 20% of distance, direction based on seed
+      const curve = dist * 0.18 * (seed > 0.5 ? 1 : -1);
+      return [mx + nx * curve, my + ny * curve];
     };
 
     // Distance from point to quadratic bezier (approximate: sample 10 points)
@@ -295,11 +318,10 @@ export function AgentNetworkCanvas() {
         const forward = Math.random() > 0.5;
         const from = forward ? src : dst;
         const to = forward ? dst : src;
-        const rgb = hexToRgb(from.color);
         particles.push({
           fromId: from.id, toId: to.id,
           t: 0, speed: 0.003 + Math.random() * 0.007,
-          color: rgb, size: 1.2 + Math.random() * 1.5,
+          color: from.rgb, size: 1.2 + Math.random() * 1.5,
           trail: [],
         });
       }
@@ -317,12 +339,11 @@ export function AgentNetworkCanvas() {
         const active = nodes.filter(n => n.state !== 'idle' && n.state !== 'offline' && n.spawnProgress >= 1);
         if (active.length > 0) {
           const src = active[Math.floor(Math.random() * active.length)];
-          const rgb = hexToRgb(src.color);
           waves.push({
             x: src.ax * w, y: src.ay * h,
             radius: (src.type === 'orchestrator' ? 32 : 22) * src.size,
             maxRadius: 120 + Math.random() * 80,
-            color: rgb,
+            color: src.rgb,
             alpha: 0.15,
             speed: 0.6 + Math.random() * 0.4,
           });
@@ -362,7 +383,7 @@ export function AgentNetworkCanvas() {
       }
 
       // ── Dual-layer nebula (primary state + secondary ambient) ──
-      const stateRgb = STATE_COLORS[agentState] || STATE_COLORS.idle;
+      const stateRgb = STATE_RGB[agentStateRef.current] || STATE_RGB.idle;
       const nebula1 = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, w * 0.7);
       nebula1.addColorStop(0, `rgba(${stateRgb[0]},${stateRgb[1]},${stateRgb[2]},0.05)`);
       nebula1.addColorStop(0.4, `rgba(${stateRgb[0]},${stateRgb[1]},${stateRgb[2]},0.015)`);
@@ -371,7 +392,7 @@ export function AgentNetworkCanvas() {
       ctx.fillRect(0, 0, w, h);
 
       // Secondary nebula — offset, different color, very subtle
-      const neb2Rgb = STATE_COLORS.thinking;
+      const neb2Rgb = STATE_RGB.thinking;
       const nebula2 = ctx.createRadialGradient(w * 0.3, h * 0.6, 0, w * 0.3, h * 0.6, w * 0.5);
       nebula2.addColorStop(0, `rgba(${neb2Rgb[0]},${neb2Rgb[1]},${neb2Rgb[2]},0.015)`);
       nebula2.addColorStop(1, 'rgba(0,0,0,0)');
@@ -433,7 +454,7 @@ export function AgentNetworkCanvas() {
           const target = screen.get(connId);
           if (!target) continue;
 
-          const fromRgb = hexToRgb(n.color);
+          const fromRgb = n.rgb;
           const isOrchConn = n.type === 'orchestrator' || target.node.type === 'orchestrator';
           const isActive = n.state !== 'idle' && n.state !== 'offline';
           let alpha = (isActive ? 0.2 : 0.07) + Math.sin(t * 2 + n.spawnTime * 0.001) * 0.06;
@@ -443,8 +464,7 @@ export function AgentNetworkCanvas() {
           const sy = n.ay * h;
           const ex = target.x;
           const ey = target.y;
-          const cpx = (sx + ex) / 2;
-          const cpy = (sy + ey) / 2 - 20;
+          const [cpx, cpy] = smartCP(sx, sy, ex, ey, n.spawnTime);
           const distToConn = distToBezier(mx, my, sx, sy, cpx, cpy, ex, ey);
           if (distToConn < 30) {
             alpha += (1 - distToConn / 30) * 0.35;
@@ -467,8 +487,11 @@ export function AgentNetworkCanvas() {
         const toScreen = screen.get(p.toId);
         if (!fromScreen || !toScreen) continue;
 
-        const cpx = (fromScreen.x + toScreen.x) / 2;
-        const cpy = (fromScreen.y + toScreen.y) / 2 - 20;
+        // Use the same smartCP as connections (seed from particle fromId hash)
+        const seed = (parseInt(p.fromId.slice(-4), 36) || 0.5) % 1;
+        const [cpx, cpy] = smartCP(
+          fromScreen.x, fromScreen.y, toScreen.x, toScreen.y, seed,
+        );
         const [px, py] = bezierPoint(
           fromScreen.x, fromScreen.y, cpx, cpy, toScreen.x, toScreen.y, p.t,
         );
@@ -508,7 +531,7 @@ export function AgentNetworkCanvas() {
       for (const n of allNodes) {
         const sx = n.ax * w;
         const sy = n.ay * h;
-        const rgb = hexToRgb(n.color);
+        const rgb = n.rgb;
 
         // Mouse proximity → extra glow boost
         const mouseDist = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2);
@@ -534,7 +557,7 @@ export function AgentNetworkCanvas() {
 
         // State-based secondary glow (active nodes)
         if (n.state !== 'idle' && n.state !== 'offline') {
-          const stRgb = STATE_COLORS[n.state] || STATE_COLORS.idle;
+          const stRgb = STATE_RGB[n.state] || STATE_RGB.idle;
           const stateGlowR = radius * (2.0 + effectiveGlow * 0.6);
           const stateGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, stateGlowR);
           stateGlow.addColorStop(0, `rgba(${stRgb[0]},${stRgb[1]},${stRgb[2]},${0.2 * effectiveGlow})`);
@@ -566,7 +589,7 @@ export function AgentNetworkCanvas() {
         }
 
         // W235: Selected node — breathing halo with gradient
-        if (selectedNodeId === n.id) {
+        if (selectedIdRef.current === n.id) {
           const breathe = (Math.sin(t * 2) + 1) / 2;
           // Inner ring
           ctx.strokeStyle = `rgba(255,255,255,${0.3 + breathe * 0.15})`;
@@ -636,15 +659,15 @@ export function AgentNetworkCanvas() {
       }
 
       // ── Wave Progress Ring (around orchestrator) — with glow ──
-      if (waveNumber > 0 && progress > 0) {
+      if (waveNumRef.current > 0 && progressRef.current > 0) {
         const orch = nodesMapRef.current.get('orchestrator');
         if (orch) {
           const sx = orch.ax * w;
           const sy = orch.ay * h;
           const ringRadius = 44 * orch.size;
           const startAngle = -Math.PI / 2;
-          const endAngle = startAngle + Math.PI * 2 * progress;
-          const progRgb = STATE_COLORS[agentState] || STATE_COLORS.idle;
+          const endAngle = startAngle + Math.PI * 2 * progressRef.current;
+          const progRgb = STATE_RGB[agentStateRef.current] || STATE_RGB.idle;
 
           // Glow behind the arc
           ctx.strokeStyle = `rgba(${progRgb[0]},${progRgb[1]},${progRgb[2]},0.15)`;
@@ -699,7 +722,7 @@ export function AgentNetworkCanvas() {
       canvas.removeEventListener('mousemove', onMouseMove);
       canvas.removeEventListener('click', onClick);
     };
-  }, [agentState, selectedNodeId, selectNode, ensureOrchestrator, hexToRgb, waveNumber, progress]);
+  }, [networkNodes, selectNode]); // stable: agentState/selectedNodeId/waveNumber/progress read via refs
 
   return (
     <div ref={containerRef} className="absolute inset-0">

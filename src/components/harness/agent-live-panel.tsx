@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAgentLiveStore, type LiveActivityEntry, type AgentVisualState } from '@/store/agent-live-store';
 import { useWaves, useDecisions } from '@/hooks/use-harness-data';
@@ -14,7 +14,7 @@ import {
   CheckCircle2, FileCode2, Play, Pause, Activity, Terminal,
   Network, X, Clock, Filter,
 } from 'lucide-react';
-import { HERMES_VERSION } from '@/lib/constants';
+import { HERMES_VERSION, getStateHex } from '@/lib/constants';
 import { CATEGORY_TW } from '@/lib/category-colors';
 import { AgentNetworkCanvas } from './agent-network-canvas';
 import { PhaseTracker, STATE_COLORS, STATE_ICONS } from './agent-live-subcomponents';
@@ -31,7 +31,7 @@ const ACTIVITY_FILTERS: Array<{ state: AgentVisualState | 'all'; label: string; 
 ];
 
 // ─── Activity Entry (W235: left accent stripe) ─────────────────
-function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {
+const ActivityEntry = memo(function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {
   const stateRgb = getStateRgb(entry.state);
   return (
     <motion.div
@@ -43,7 +43,7 @@ function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: bool
       {/* Left accent stripe */}
       <div
         className="w-[2px] rounded-full shrink-0 mt-0.5 opacity-40 group-hover:opacity-80 transition-opacity"
-        style={{ backgroundColor: stateRgb, height: '28px' }}
+        style={{ backgroundColor: getStateRgb(entry.state), height: '28px' }}
       />
       <span className="text-sm mt-0.5 shrink-0">{STATE_ICONS[entry.state] || '•'}</span>
       <div className="flex-1 min-w-0">
@@ -61,18 +61,11 @@ function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: bool
   );
 }
 
-// Map state → CSS color string for accent stripe
-function getStateRgb(state: AgentVisualState): string {
-  const map: Record<string, string> = {
-    idle: '#f59e0b', thinking: '#06b6d4', searching: '#f97316', planning: '#a855f7',
-    executing: '#f43f5e', verifying: '#22c55e', celebrating: '#eab308', error: '#dc2626',
-    evolving: '#d946ef', offline: '#71717a',
-  };
-  return map[state] || '#71717a';
-}
+// State → hex color (single source of truth from constants.ts)
+const getStateRgb = getStateHex;
 
 // ─── Node Popup (W235: color accent top bar, glow shadow) ───────
-function NodePopup() {
+const NodePopup = memo(function NodePopup() {
   const { selectedNodeId, networkNodes, selectNode } = useAgentLiveStore();
   const node = networkNodes.find(n => n.id === selectedNodeId);
 

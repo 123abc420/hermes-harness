@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Zap, Waves, Brain, BookOpen, Github, Eye } from 'lucide-react';
+import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
@@ -20,12 +20,12 @@ import { HarnessErrorBoundary } from '@/components/harness/error-boundary';
 import { CommandPalette } from '@/components/harness/command-palette';
 
 const TAB_CONFIG = [
-  { value: 'agent', label: 'Agent Live', icon: Eye },
-  { value: 'overview', label: 'Overview', icon: Zap },
-  { value: 'waves', label: 'Waves', icon: Waves },
-  { value: 'decisions', label: 'Decisions', icon: Brain },
-  { value: 'research', label: 'Analytics', icon: BookOpen },
-  { value: 'github', label: 'GitHub & Export', icon: Github },
+  { value: 'agent', label: 'Agent Live', icon: Eye, dotColor: 'bg-amber-500' },
+  { value: 'overview', label: 'Overview', icon: Zap, dotColor: 'bg-emerald-500' },
+  { value: 'waves', label: 'Waves', icon: Waves, dotColor: 'bg-cyan-500' },
+  { value: 'decisions', label: 'Decisions', icon: Brain, dotColor: 'bg-violet-500' },
+  { value: 'research', label: 'Analytics', icon: BookOpen, dotColor: 'bg-orange-500' },
+  { value: 'github', label: 'GitHub & Export', icon: Github, dotColor: 'bg-amber-500' },
 ] as const;
 
 // Map keyboard digit keys (1-6) to tab values for quick navigation
@@ -34,14 +34,99 @@ const TAB_KEY_MAP: Record<string, string> = {
   '4': 'decisions', '5': 'research', '6': 'github',
 };
 
+/* ── Wave Activity Sparkline (inline SVG, no Recharts) ── */
+function WaveSparkline({ waves }: { waves: { status: string }[] }) {
+  const last10 = waves.slice(0, 10).reverse();
+  if (last10.length < 2) return null;
+  const heights = last10.map(w =>
+    w.status === 'completed' ? 1 : w.status === 'failed' ? 0.3 : 0.5
+  );
+  const W = 60, H = 16;
+  const step = W / (heights.length - 1);
+  const points = heights.map((h, i) => `${i * step},${H - h * H}`).join(' ');
+  const areaPoints = `${points} ${W},${H} 0,${H}`;
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0" aria-label="Wave activity sparkline">
+      <defs>
+        <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon fill="url(#spark-grad)" points={areaPoints} />
+      <polyline fill="none" stroke="#f59e0b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" points={points} opacity="0.7" />
+      <circle cx={(heights.length - 1) * step} cy={H - heights[heights.length - 1] * H} r="1.5" fill="#f59e0b" opacity="0.9" />
+    </svg>
+  );
+}
+
+/* ── Success Rate Pulse Bar ── */
+function SuccessRatePulse({ rate }: { rate: number }) {
+  const barColor = rate >= 90 ? '#10b981' : rate >= 70 ? '#f59e0b' : '#ef4444';
+  const pulseSpeed = rate >= 90 ? '1.5s' : rate >= 70 ? '2.5s' : '1s';
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-[10px] font-mono text-zinc-600">health</span>
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.04]">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{
+            width: `${rate}%`,
+            backgroundColor: barColor,
+            animation: `pulse-health ${pulseSpeed} ease-in-out infinite`,
+          }}
+        />
+      </div>
+      <span className="text-[10px] font-mono tabular-nums" style={{ color: barColor }}>{rate}%</span>
+    </div>
+  );
+}
+
 export default function Home() {
   const { activeTab, setActiveTab } = useHarnessStore();
   const { data: dash } = useHarnessDashboard();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
+  const tabListRef = useRef<HTMLDivElement>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   // Connect to the real-time agent live service
   useAgentLive();
+
+  // Parallax on scroll
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Update sliding indicator position
+  const updateIndicator = useCallback(() => {
+    if (!tabListRef.current) return;
+    const list = tabListRef.current;
+    const activeEl = list.querySelector(`[data-tab-value="${activeTab}"]`) as HTMLElement | null;
+    if (activeEl) {
+      setIndicatorStyle({
+        left: activeEl.offsetLeft,
+        width: activeEl.offsetWidth,
+      });
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const t = requestAnimationFrame(updateIndicator);
+    return () => cancelAnimationFrame(t);
+  }, [activeTab, updateIndicator]);
+
+  // Recalculate on window resize
+  useEffect(() => {
+    const onResize = () => updateIndicator();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [updateIndicator]);
 
   // Keyboard shortcuts: 1-6 to switch tabs, Cmd+K for command palette
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -74,6 +159,18 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  const waves = dash?.waves ?? [];
+  const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
+  const successRate = dash?.totalStats?.waveSuccessRate ?? 0;
+
+  // System uptime from first wave
+  const uptimeStr = firstWave?.startedAt
+    ? formatDistanceToNow(new Date(firstWave.startedAt), { addSuffix: false })
+    : null;
+
+  // Parallax offset for dot pattern
+  const parallaxOffset = scrollY * 0.08;
+
   return (
     <>
     {/* Global Command Palette (Cmd+K) */}
@@ -83,7 +180,14 @@ export default function Home() {
       onNavigate={(tab) => setActiveTab(tab)}
     />
 
-    <div className="dot-pattern min-h-screen flex flex-col bg-[#0d0906]">
+    <div
+      className="dot-pattern-parallax min-h-screen flex flex-col bg-[#0d0906]"
+      style={{
+        backgroundImage: `radial-gradient(circle, rgba(245, 158, 11, 0.06) 1px, transparent 1px)`,
+        backgroundSize: '20px 20px',
+        backgroundPosition: `0px ${parallaxOffset}px`,
+      }}
+    >
       <HarnessHeader
         githubStatus={dash?.githubStatus}
         totalWaves={dash?.totalStats?.totalWaves}
@@ -99,22 +203,31 @@ export default function Home() {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          {/* Tab navigation */}
+          {/* Tab navigation with sliding indicator */}
           <div className="mb-6 overflow-x-auto scrollbar-dark">
-            <TabsList className="inline-flex h-auto gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] p-1.5 backdrop-blur-md">
-              {TAB_CONFIG.map((tab) => {
+            <TabsList ref={tabListRef} className="relative inline-flex h-auto gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] p-1.5 backdrop-blur-md">
+              {/* Sliding indicator */}
+              <motion.div
+                className="absolute bottom-1.5 h-[calc(100%-12px)] rounded-lg bg-amber-500/[0.08] shadow-[inset_0_0_0_1px_rgba(245,158,11,0.15)]"
+                animate={indicatorStyle}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              />
+              {TAB_CONFIG.map((tab, idx) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.value;
                 const isAgentTab = tab.value === 'agent';
+                const showDot = (isAgentTab && dash) || (tab.value === 'overview' && waves.length > 0);
                 return (
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className={`relative flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
+                    data-tab-value={tab.value}
+                    aria-label={tab.label}
+                    className={`relative z-10 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
                       isAgentTab && isActive
-                        ? 'bg-amber-500/15 text-amber-300 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.3)]'
+                        ? 'bg-transparent text-amber-300'
                         : isActive
-                        ? 'bg-amber-500/10 text-amber-400 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.2)]'
+                        ? 'bg-transparent text-amber-400'
                         : isAgentTab
                         ? 'text-zinc-400 hover:bg-amber-500/5 hover:text-amber-300'
                         : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'
@@ -126,11 +239,14 @@ export default function Home() {
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
                       </span>
                     )}
+                    {!isAgentTab && showDot && (
+                      <span className={`absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full ${isActive ? tab.dotColor : tab.dotColor + '/60'}`} />
+                    )}
                     <Icon className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">{tab.label}</span>
                     <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
                     <kbd className="hidden lg:inline-flex items-center justify-center h-4 w-4 rounded text-[9px] font-mono text-zinc-600 bg-white/[0.04] border border-white/[0.06]">
-                      {TAB_CONFIG.indexOf(tab) + 1}
+                      {idx + 1}
                     </kbd>
                   </TabsTrigger>
                 );
@@ -179,46 +295,57 @@ export default function Home() {
         </Tabs>
       </main>
 
-      <footer className="mt-auto border-t border-amber-900/[0.12] bg-[#0d0906]/90 backdrop-blur-sm relative">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-3.5 sm:px-6">
-          <div className="flex items-center gap-3">
+      {/* ── Enhanced Footer ────────────────────────────── */}
+      <footer className="mt-auto relative">
+        {/* Gradient separator line */}
+        <div className="footer-gradient-line" />
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6 bg-[#0d0906]">
+          {/* Left section: version + wave info + sparkline + uptime */}
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2 text-xs text-amber-800/50">
               <Zap className="h-3 w-3 text-amber-500/30" />
               <span className="font-mono">HERMES HARNESS {HERMES_VERSION}</span>
             </div>
+
+            {/* Wave activity sparkline */}
+            {waves.length >= 2 && (
+              <div className="flex items-center gap-1.5">
+                <Activity className="h-2.5 w-2.5 text-amber-500/30" />
+                <WaveSparkline waves={waves} />
+              </div>
+            )}
+
             {dash?.waves?.[0] && (
               <span className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400/50" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                </span>
-                <span className="text-zinc-500">W{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
-                <span className="text-zinc-700">{dash.waves[0].status}</span>
+                <Activity className="h-2.5 w-2.5 text-emerald-500/40" />
+                <span className="text-zinc-500">#{String(dash.waves[0].waveNumber).padStart(3, '0')}</span>
+                <span className="text-zinc-700">{dash.waves[0].status === 'completed' ? 'completed' : dash.waves[0].status}</span>
                 {dash.waves[0].completedAt && (
                   <span className="text-zinc-700">{formatDistanceToNow(new Date(dash.waves[0].completedAt), { addSuffix: true })}</span>
                 )}
               </span>
             )}
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Success rate mini-bar */}
-            {dash?.totalStats?.recentSuccessRate != null && (
-              <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-zinc-500">
-                <span className="text-zinc-600">Success</span>
-                <div className="h-1 w-16 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ${
-                      dash.totalStats.recentSuccessRate >= 90 ? 'bg-emerald-500/60' :
-                      dash.totalStats.recentSuccessRate >= 70 ? 'bg-amber-500/60' :
-                      'bg-red-500/60'
-                    }`}
-                    style={{ width: `${dash.totalStats.recentSuccessRate}%` }}
-                  />
-                </div>
-                <span className="tabular-nums text-zinc-400 w-8 text-right">{dash.totalStats.recentSuccessRate}%</span>
-              </div>
+
+            {/* System uptime */}
+            {uptimeStr && (
+              <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-zinc-600">
+                <Clock className="h-2.5 w-2.5 text-amber-500/30" />
+                <span className="text-zinc-500">uptime</span>
+                <span className="text-amber-500/40">{uptimeStr}</span>
+              </span>
             )}
-            <span className="hidden md:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
+          </div>
+
+          {/* Right section: success rate pulse + motto + shortcuts */}
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Success rate pulse bar */}
+            {successRate > 0 && (
+              <SuccessRatePulse rate={successRate} />
+            )}
+            <span className="hidden sm:inline text-[10px] text-amber-900/40 font-mono">Agent = Model + Harness</span>
+            <span className="hidden md:inline text-[10px] text-amber-900/40 font-mono">
+              Spec-Driven Self-Evolution
+            </span>
             <button
               onClick={() => setShowShortcuts(v => !v)}
               className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-amber-900/40 hover:text-amber-400/70 bg-white/[0.03] border border-white/[0.06] hover:border-amber-500/20 transition-colors"
@@ -247,11 +374,11 @@ export default function Home() {
                       ⌘K
                     </kbd>
                   </div>
-                  {TAB_CONFIG.map((tab) => (
+                  {TAB_CONFIG.map((tab, idx) => (
                     <div key={tab.value} className="flex items-center justify-between">
                       <span className="text-xs text-zinc-400">{tab.label}</span>
                       <kbd className="inline-flex items-center justify-center h-5 w-5 rounded text-[10px] font-mono text-zinc-500 bg-white/[0.05] border border-white/[0.08]">
-                        {TAB_CONFIG.indexOf(tab) + 1}
+                        {idx + 1}
                       </kbd>
                     </div>
                   ))}
