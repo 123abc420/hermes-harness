@@ -5875,3 +5875,21 @@ Work Log:
 Stage Summary:
 - 4 files changed, 1 TS error fixed, ignoreBuildErrors removed (milestone: tsc enforced), 3 magic numbers → named constants
 - Lint: 0 errors. TypeScript: 0 errors (enforced). Dev.log: clean. GitHub: 517 commits.
+
+---
+Task ID: W274
+Agent: Wave Engine
+Task: Wave 274 — Maintenance: memory compaction + skill update
+
+Work Log:
+- ASSESS: Read context.md. Ran tsc — 0 errors. Deep scan (Explore subagent) across 6 categories: keys, img alt, innerHTML, secrets, suppressions, dead CSS — all clean (0 issues)
+- PLAN: Memory maintenance wave — compact context.md, update wave-engine skill
+- EXECUTE:
+  1. context.md — compacted 24 individual wave bullets into 7 grouped categories (~50% token reduction)
+  2. wave-engine.md — added `npx tsc --noEmit` as VERIFY step #2 (since W273 removed ignoreBuildErrors)
+- VERIFY: `bun run lint` — 0 errors. tsc already verified clean in ASSESS.
+- PERSIST: Wave 188 recorded, 2 decisions, GitHub sync → 518 commits
+
+Stage Summary:
+- 2 files changed (context.md, wave-engine.md). Codebase: 0 issues across all categories.
+- Lint: 0 errors. TypeScript: 0 errors. GitHub: 518 commits.

@@ -154,8 +154,9 @@ remove_node "executor-1"
 
 **Steps**:
 1. Run `bun run lint` — must be 0 errors
-2. Check `dev.log` for new errors (last 20 lines)
-3. If possible, use agent-browser to visually verify the change
+2. Run `npx tsc --noEmit` — must be 0 errors (TypeScript is enforced since W273)
+3. Check `dev.log` for new errors (last 20 lines)
+4. If possible, use agent-browser to visually verify the change
 
 ```bash
 # After lint
