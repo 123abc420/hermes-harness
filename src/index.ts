@@ -23,6 +23,9 @@ export { HarnessHeader } from './components/harness/harness-header';
 export { HarnessErrorBoundary } from './components/harness/error-boundary';
 export { AnimatedSection } from './components/harness/animated-section';
 
+// ─── Shared Footer Components (extracted from page.tsx / harness-dashboard.tsx) ──────────
+export { WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge } from './components/harness/shared-footer-components';
+
 // ─── Hooks ────────────────────────────────────────────────────────────────
 export {
   useHarnessDashboard,

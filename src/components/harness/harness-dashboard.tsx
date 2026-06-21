@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
+import { WaveSparkline, SuccessRatePulse, UptimeDisplay, LastWaveBadge } from './shared-footer-components';
 import { useHarnessStore } from '@/store/harness-store';
 import { useHarnessDashboard } from '@/hooks/use-harness-data';
 import { useAgentLive } from '@/hooks/use-agent-live';

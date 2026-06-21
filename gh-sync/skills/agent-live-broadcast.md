@@ -1,13 +1,13 @@
 ---
 name: agent-live-broadcast
-version: 2.0.0
+version: 3.0.0
 created: 2026-06-21
-updated: 2026-06-21
+updated: 2026-06-23
 category: automation
 trigger: ALWAYS — at every phase transition during a wave, and when the agent starts/stops working
 ---
 
-# Agent Live Broadcast v2.0 — Multi-Agent Wave Protocol
+# Agent Live Broadcast v3.0 — Multi-Agent Node Network Protocol
 
 ## When to use
 **ALWAYS** — every time the agent changes what it is doing. This is what makes the Agent Live view a "living reflection" of the agent's mind.
@@ -18,6 +18,7 @@ Trigger this at:
 3. **When making decisions** (what to improve, what to fix, what priority)
 4. **When the agent finishes a task** or encounters an error
 5. **When connections between actions form** (reading a file → deciding → writing code → verifying)
+6. **When nodes interact** — pulse connections when data flows between agents
 
 ## Why it matters
 The Agent Live view is a **multi-agent node world** — not a single character. Each broadcast updates:
@@ -33,31 +34,30 @@ The Agent Live view is a **multi-agent node world** — not a single character. 
 The Agent Live system uses **pure in-memory state** + **Server-Sent Events (SSE)**. No external service is needed.
 - `POST /api/harness/agent-status` updates in-memory state
 - `GET /api/harness/agent-status?stream=true` pushes updates to connected browsers via SSE
-- The old port-3005 mini-service was removed in W230 — all forwarding code deleted
 
-### New v2.0 Payload Types
+### Payload Types
 
 | type | Purpose | Key Fields |
 |------|---------|------------|
 | `status` | Change agent state + message | agentState, message, phase, waveNumber, progress |
 | `activity` | Add event to feed | state, message, phase |
-| `sub-agent` | Spawn a sub-agent node | name, state, message, color |
-| `sub-agent-update` | Update sub-agent state | agentId, state, message |
-| `sub-agent-remove` | Remove completed sub-agent | agentId |
-| `sub-agent-clear` | Remove all sub-agents | — |
+| `node` | Spawn/update a network node | nodeId, nodeType, nodeName, nodeState, nodeMessage, nodeColor, connections |
+| `node-remove` | Remove a network node | nodeId |
+| `node-clear` | Remove all non-orchestrator nodes | — |
 | `full-update` | Wave completion with all metrics | agentState, waveNumber, progress, waveCount, totalImprovements, totalDecisions, etc. |
-| `node-pulse` | Pulse a connection between nodes (v2.0) | fromNode, toNode, color |
-| `decision-count` | Increment decision counter (v2.0) | category, description |
+| `node-pulse` | Pulse a connection between nodes | fromNode, toNode, color |
+| `decision-count` | Increment decision counter | category, description |
+| `sub-agent` | Spawn sub-agent (also creates node) | name, state, message, color |
+| `sub-agent-remove` | Remove sub-agent + its node | agentId |
+| `sub-agent-clear` | Remove all sub-agents + non-orch nodes | — |
 
 ## Sandbox limitation (IMPORTANT)
 
-The chat.z.ai sandbox uses cgroup network isolation. `curl`/`fetch` from within the sandbox to `localhost:3000` is **unreliable** — calls frequently time out. Do NOT rely on curl broadcasts during wave execution. The Agent Live view still works for browser clients via SSE polling.
+The chat.z.ai sandbox uses cgroup network isolation. `curl`/`fetch` from within the sandbox to `localhost:3000` is **unreliable** — calls frequently time out.
 
-**v2.0 Strategy**: The wave engine should ATTEMPT each broadcast but continue regardless of success/failure. The visual falls back to "last known state" gracefully.
+**Strategy**: Attempt each broadcast but continue regardless of success/failure. Wrap all calls in `|| true` to prevent timeouts from breaking the wave. The visual falls back gracefully.
 
-## How to broadcast (when curl works)
-
-> **Note**: Wrap all curl calls in `|| true` to prevent timeout from breaking the wave.
+## How to broadcast
 
 ```bash
 # Helper: broadcast function (attempt with timeout, never block)
@@ -67,44 +67,20 @@ broadcast() {
     -d "$1" || true
 }
 
-# 1. Wave start — agent wakes up
-broadcast '{"agentState":"thinking","message":"Wave 233 starting: reading state...","phase":"assess","waveNumber":233,"progress":0.05}'
+# Node spawn helper
+spawn_node() {
+  broadcast "{\"type\":\"node\",\"nodeId\":\"$1\",\"nodeType\":\"$2\",\"nodeName\":\"$3\",\"nodeState\":\"$4\",\"nodeMessage\":\"$5\",\"nodeColor\":\"$6\",\"connections\":[\"orchestrator\"]}"
+}
 
-# 2. Activity during ASSESS
-broadcast '{"type":"activity","state":"thinking","message":"Read worklog.md — 162 waves completed","phase":"assess"}'
+# Update node helper
+update_node() {
+  broadcast "{\"type\":\"node\",\"nodeId\":\"$1\",\"nodeState\":\"$2\",\"nodeMessage\":\"$3\"}"
+}
 
-# 3. Spawn sub-agent for a search task
-broadcast '{"type":"sub-agent","name":"Code Searcher","state":"searching","message":"Scanning API routes...","color":"#06b6d4"}'
-
-# 4. Update sub-agent when it finds something
-broadcast '{"type":"sub-agent-update","agentId":"sub_17504...","state":"executing","message":"Found 3 routes missing validation"}'
-
-# 5. Pulse connection between nodes (v2.0 visual)
-broadcast '{"type":"node-pulse","fromNode":"main","toNode":"code-searcher","color":"#a855f7"}'
-
-# 6. Decision made (v2.0 counter)
-broadcast '{"type":"decision-count","category":"code_quality","description":"Add zod validation to 3 routes"}'
-
-# 7. Phase transition — planning
-broadcast '{"agentState":"planning","message":"Planning 3 improvements from ASSESS findings...","phase":"plan","waveNumber":233,"progress":0.2}'
-
-# 8. EXECUTE phase with sub-agent
-broadcast '{"type":"sub-agent","name":"Code Writer","state":"executing","message":"Implementing zod schemas...","color":"#f43f5e"}'
-
-# 9. Remove completed sub-agent
-broadcast '{"type":"sub-agent-remove","agentId":"sub_17504..."}'
-
-# 10. VERIFY phase
-broadcast '{"agentState":"verifying","message":"Running bun run lint to verify changes...","phase":"verify","waveNumber":233,"progress":0.75}'
-
-# 11. Wave complete — full update
-broadcast '{"type":"full-update","agentState":"celebrating","message":"Wave 233 complete! Multi-agent broadcast v2.0 deployed.","waveNumber":233,"progress":1,"waveCount":233,"totalImprovements":87,"totalDecisions":125,"recentSuccessRate":75,"healthScore":78,"healthScoreTrend":"up"}'
-
-# 12. Return to idle
-broadcast '{"agentState":"idle","message":"Waiting for next wave...","progress":0}'
-
-# 13. Clear all sub-agents at wave end
-broadcast '{"type":"sub-agent-clear"}'
+# Remove node helper
+remove_node() {
+  broadcast "{\"type\":\"node-remove\",\"nodeId\":\"$1\"}"
+}
 ```
 
 ## State → Visual Mapping
@@ -122,72 +98,79 @@ broadcast '{"type":"sub-agent-clear"}'
 | No active work | `idle` | Amber (#f59e0b) | Gentle pulse, nodes orbit slowly |
 | Disconnected | `offline` | Gray (#71717a) | Static, dim |
 
-## Sub-Agent Color Palette
+## Node Color Palette
 
-| Sub-agent role | Color | Use when |
-|---------------|-------|----------|
-| Code Searcher | `#06b6d4` (cyan) | Searching, scanning, reading |
-| Code Writer | `#f43f5e` (rose) | Writing, editing, implementing |
-| Validator | `#22c55e` (green) | Linting, testing, verifying |
-| Planner | `#a855f7` (violet) | Analyzing, deciding, prioritizing |
+| Node role | Color | Use when |
+|-----------|-------|----------|
+| Orchestrator (HERMES) | `#f59e0b` (amber) | Always — the main agent |
+| Assessor | `#06b6d4` (cyan) | Reading, scanning, analyzing |
+| Planner | `#a855f7` (violet) | Deciding, prioritizing |
+| Executor | `#f43f5e` (rose) | Writing, editing, implementing |
+| Verifier | `#22c55e` (green) | Linting, testing, QA |
 | Git Sync | `#f59e0b` (amber) | Committing, pushing, syncing |
-| Explorer | `#3b82f6` (blue) | Discovering, browsing, QA |
+| Explorer | `#3b82f6` (blue) | Discovering, browsing |
 
 ## Phase progress guidelines
 
-| Phase | progress range | Typical sub-agents |
-|-------|---------------|-------------------|
-| ASSESS | 0.0 - 0.15 | Explorer, Code Searcher |
+| Phase | progress range | Typical nodes |
+|-------|---------------|---------------|
+| ASSESS | 0.0 - 0.15 | Explorer, Assessor |
 | PLAN | 0.15 - 0.25 | Planner |
-| EXECUTE | 0.25 - 0.70 | Code Writer, Code Searcher |
-| VERIFY | 0.70 - 0.85 | Validator |
+| EXECUTE | 0.25 - 0.70 | Executor |
+| VERIFY | 0.70 - 0.85 | Verifier |
 | PERSIST | 0.85 - 0.95 | Git Sync |
 | REPORT | 0.95 - 1.0 | (none — main agent only) |
 
-## Full wave broadcast sequence (v2.0)
+## Full wave broadcast sequence (v3.0)
 
 ```
-PHASE: ASSESS
-1.  POST status: agentState=thinking, phase=assess, progress=0.05
-2.  POST sub-agent: "Explorer", color=#3b82f6, state=searching
-3.  POST activity: "Reading worklog.md..."
-4.  POST activity: "Reading SPEC.md — checking compliance"
-5.  POST activity: "Read dev.log — no errors"
-6.  POST sub-agent-remove: Explorer
-7.  POST sub-agent: "Code Searcher", color=#06b6d4
-8.  POST activity: "Scanning for patterns..."
-9.  POST sub-agent-remove: Code Searcher
+WAVE START
+1.  broadcast type=node-clear                          (clean slate)
+2.  broadcast agentState=thinking, phase=assess, progress=0.02
+3.  broadcast type=activity, "Wave N starting..."
+4.  spawn_node "assessor" "assessor" "ASSESSOR" "searching" "Reading worklog..." "#06b6d4"
+5.  broadcast type=activity, "Read worklog.md — X waves completed"
+6.  broadcast type=node-pulse, fromNode=orchestrator, toNode=assessor
+7.  broadcast type=activity, "Reading SPEC.md..."
+8.  broadcast type=activity, "Checking dev.log — no errors"
+9.  update_node "assessor" "thinking" "Analyzing findings..."
+10. broadcast type=activity, "Assessment complete: X findings"
 
 PHASE: PLAN
-10. POST status: agentState=planning, phase=plan, progress=0.2
-11. POST decision-count: category=code_quality, description="..."
-12. POST activity: "Decision 1: fix X — priority HIGH"
-13. POST activity: "Decision 2: improve Y — priority MEDIUM"
+11. broadcast agentState=planning, phase=plan, progress=0.18
+12. remove_node "assessor"
+13. spawn_node "planner" "planner" "PLANNER" "planning" "Prioritizing improvements..." "#a855f7"
+14. broadcast type=decision-count, category=..., description="..."
+15. broadcast type=activity, "Decision 1: fix X — priority HIGH"
+16. broadcast type=node-pulse, fromNode=orchestrator, toNode=planner
+17. update_node "planner" "celebrating" "Plan ready: 3 improvements"
+18. remove_node "planner"
 
 PHASE: EXECUTE
-14. POST status: agentState=executing, phase=execute, progress=0.3
-15. POST sub-agent: "Code Writer", color=#f43f5e
-16. POST activity: "Implementing..."
-17. POST node-pulse: main → code-writer
-18. POST sub-agent-update: Code Writer state=executing
-19. POST activity: "Edit complete: file.tsx"
-20. POST sub-agent-remove: Code Writer
+19. broadcast agentState=executing, phase=execute, progress=0.3
+20. spawn_node "executor-1" "executor" "WRITER" "executing" "Implementing..." "#f43f5e"
+21. broadcast type=node-pulse, fromNode=orchestrator, toNode=executor-1
+22. broadcast type=activity, "Editing file.tsx — adding feature..."
+23. update_node "executor-1" "executing" "File 2/3 complete"
+24. broadcast type=activity, "Edit complete: component updated"
+25. remove_node "executor-1"
 
 PHASE: VERIFY
-21. POST status: agentState=verifying, phase=verify, progress=0.75
-22. POST sub-agent: "Validator", color=#22c55e
-23. POST activity: "Running lint..."
-24. POST activity: "Lint passed: 0 errors"
-25. POST sub-agent-remove: Validator
+26. broadcast agentState=verifying, phase=verify, progress=0.75
+27. spawn_node "verifier" "verifier" "VERIFIER" "verifying" "Running lint..." "#22c55e"
+28. broadcast type=node-pulse, fromNode=orchestrator, toNode=verifier
+29. broadcast type=activity, "Lint passed: 0 errors"
+30. remove_node "verifier"
 
 PHASE: PERSIST
-26. POST status: agentState=executing, phase=persist, progress=0.9
-27. POST sub-agent: "Git Sync", color=#f59e0b
-28. POST activity: "Pushing to GitHub..."
-29. POST sub-agent-remove: Git Sync
+31. broadcast agentState=executing, phase=persist, progress=0.9
+32. spawn_node "git-sync" "git-agent" "GIT" "executing" "Committing..." "#f59e0b"
+33. broadcast type=activity, "Pushing to GitHub..."
+34. remove_node "git-sync"
 
 PHASE: REPORT
-30. POST full-update: agentState=celebrating, progress=1.0, all metrics
-31. POST sub-agent-clear
-32. POST status: agentState=idle, progress=0
+35. broadcast type=full-update, agentState=celebrating, progress=1.0, all metrics
+36. broadcast type=sub-agent-clear
+37. broadcast agentState=idle, progress=0
+38. (Write summary)
 ```

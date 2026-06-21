@@ -64,10 +64,16 @@ export function OverviewTab() {
   const firstWave = waves.length > 0 ? waves[waves.length - 1] : undefined;
   const recentCommits = githubStatus?.recentCommits;
 
-  // Compute wave velocity (waves per hour from first to last wave)
-  const waveVelocity = waves.length >= 2 && firstWave?.startedAt && waves[0]?.startedAt
-    ? (waves.length / ((new Date(waves[0].startedAt).getTime() - new Date(firstWave.startedAt).getTime()) / 3_600_000)).toFixed(1)
-    : null;
+  // Memoize expensive derived values to avoid recompute on every render
+  const isErrorsDecreasing = useMemo(
+    () => isErrorsTrendingDown(dash?.errorTrend ?? []),
+    [dash?.errorTrend],
+  );
+  const waveVelocity = useMemo(() => {
+    if (waves.length < 2 || !firstWave?.startedAt || !waves[0]?.startedAt) return null;
+    const ms = (new Date(waves[0].startedAt).getTime() - new Date(firstWave.startedAt).getTime()) / 3_600_000;
+    return ms > 0 ? (waves.length / ms).toFixed(1) : null;
+  }, [waves, firstWave?.startedAt, waves[0]?.startedAt]);
 
   // Compute dynamic error trend for spec compliance
   const isErrorsDecreasing = isErrorsTrendingDown(dash?.errorTrend ?? []);

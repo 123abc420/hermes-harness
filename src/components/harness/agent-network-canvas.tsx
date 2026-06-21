@@ -5,7 +5,7 @@ import { useAgentLiveStore, type NetworkNode } from '@/store/agent-live-store';
 import { STATE_RGB } from '@/lib/constants';
 
 /* ═════════════════════════════════════════════════════════════════════
-   AGENT NETWORK CANVAS v2.2 — Multi-Agent "Living Network"
+   AGENT NETWORK CANVAS v3.0 — Multi-Agent "Living World"
 
    W235 visual upgrades:
    - Dot grid (not line grid) — modern look
@@ -16,6 +16,15 @@ import { STATE_RGB } from '@/lib/constants';
    - Orchestrator shows current task text below
    - Improved particle trail (glow + fade)
    - Secondary nebula (dual-layer atmosphere)
+
+   W237 visual upgrades ("un mundo para los agentes"):
+   - Mesh connections: sub-nodes connect to each other, not just orchestrator
+   - Grid dot interaction: dots near active nodes glow with node color
+   - Spawn flash: bright expanding ring when a node is born
+   - Energy dashes: animated flow on active connections
+   - Node repulsion: nodes push apart to avoid overlap
+   - Mouse attraction: nodes subtly pulled toward cursor
+   - Third nebula layer: dynamic per-node ambient glow
    ═════════════════════════════════════════════════════════════════════ */
 
 // STATE_COLORS now imported from constants.ts as STATE_RGB (single source of truth)
@@ -94,6 +103,11 @@ const GRID_DOT_SIZE = 1;
 const GRID_DOT_SPACING = 60;
 const GRID_DOT_ALPHA = 0.04;
 const MAX_PULSE_WAVES = 8;
+const GRID_INTERACT_RADIUS = 90;    // W237: dots within this px of a node glow
+const MESH_CONN_ALPHA = 0.06;       // W237: alpha for sub-node mesh connections
+const MESH_CONN_THRESHOLD = 0.22;   // W237: normalized dist for mesh connection
+const NODE_REPULSE_DIST = 0.1;      // W237: normalized dist for repulsion
+const MOUSE_ATTRACT_STRENGTH = 0.0004; // W237: how strongly mouse pulls nodes
 
 export function AgentNetworkCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -372,12 +386,43 @@ export function AgentNetworkCanvas() {
       ctx.fillStyle = '#07070a';
       ctx.fillRect(0, 0, w, h);
 
-      // ── Dot grid (W235: replaces line grid) ──
-      ctx.fillStyle = `rgba(255,255,255,${GRID_DOT_ALPHA})`;
+      // ── Ensure nodes exist (needed for grid + nebula interaction) ──
+      ensureOrchestrator();
+      const allNodes = [...nodesMapRef.current.values()];
+
+      // ── Dot grid with node interaction (W237: dots glow near active nodes) ──
+      // Pre-compute active node screen positions for grid interaction
+      const activeNodePositions: Array<{ x: number; y: number; rgb: [number, number, number]; intensity: number }> = [];
+      for (const n of allNodes) {
+        if (n.state !== 'idle' && n.state !== 'offline' && n.spawnProgress >= 0.8) {
+          activeNodePositions.push({
+            x: n.ax * w, y: n.ay * h,
+            rgb: n.state !== 'idle' ? (STATE_RGB[n.state] || n.rgb) : n.rgb,
+            intensity: n.glow,
+          });
+        }
+      }
       for (let gx = GRID_DOT_SPACING; gx < w; gx += GRID_DOT_SPACING) {
         for (let gy = GRID_DOT_SPACING; gy < h; gy += GRID_DOT_SPACING) {
+          // Check proximity to active nodes
+          let dotR = 255, dotG = 255, dotB = 255;
+          let dotAlpha = GRID_DOT_ALPHA;
+          for (const an of activeNodePositions) {
+            const dx = gx - an.x;
+            const dy = gy - an.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < GRID_INTERACT_RADIUS) {
+              const influence = (1 - dist / GRID_INTERACT_RADIUS) * an.intensity;
+              const blend = Math.min(influence * 0.6, 0.9);
+              dotR = Math.round(dotR * (1 - blend) + an.rgb[0] * blend);
+              dotG = Math.round(dotG * (1 - blend) + an.rgb[1] * blend);
+              dotB = Math.round(dotB * (1 - blend) + an.rgb[2] * blend);
+              dotAlpha = Math.min(dotAlpha + influence * 0.12, 0.18);
+            }
+          }
+          ctx.fillStyle = `rgba(${dotR},${dotG},${dotB},${dotAlpha})`;
           ctx.beginPath();
-          ctx.arc(gx, gy, GRID_DOT_SIZE, 0, Math.PI * 2);
+          ctx.arc(gx, gy, GRID_DOT_SIZE + (dotAlpha > GRID_DOT_ALPHA + 0.02 ? 0.3 : 0), 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -399,6 +444,22 @@ export function AgentNetworkCanvas() {
       ctx.fillStyle = nebula2;
       ctx.fillRect(0, 0, w, h);
 
+      // W237: Third nebula layer — dynamic per-node ambient glow (faint colored halos)
+      for (const n of allNodes) {
+        if (n.state === 'idle' || n.state === 'offline' || n.spawnProgress < 0.5) continue;
+        const nx = n.ax * w;
+        const ny = n.ay * h;
+        const nebRgb = STATE_RGB[n.state] || n.rgb;
+        const nebR = 100 + n.glow * 60;
+        const nodeNeb = ctx.createRadialGradient(nx, ny, 0, nx, ny, nebR);
+        nodeNeb.addColorStop(0, `rgba(${nebRgb[0]},${nebRgb[1]},${nebRgb[2]},${0.025 * n.glow})`);
+        nodeNeb.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = nodeNeb;
+        ctx.beginPath();
+        ctx.arc(nx, ny, nebR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
       // ── Stars ──
       const stars = starsRef.current;
       for (const star of stars) {
@@ -410,11 +471,7 @@ export function AgentNetworkCanvas() {
         ctx.fill();
       }
 
-      // ── Ensure orchestrator ──
-      ensureOrchestrator();
-      const allNodes = [...nodesMapRef.current.values()];
-
-      // ── Update animated positions ──
+      // ── Update animated positions with repulsion + mouse attraction (W237) ──
       for (const n of allNodes) {
         if (n.spawnProgress < 1) n.spawnProgress = Math.min(n.spawnProgress + 0.02, 1);
         if (n.type !== 'orchestrator') {
@@ -425,6 +482,40 @@ export function AgentNetworkCanvas() {
         n.ax += (n.tx - n.ax) * LERP_SPEED;
         n.ay += (n.ty - n.ay) * LERP_SPEED;
         n.glow += (n.tGlow - n.glow) * 0.05;
+      }
+      // W237: Node proximity repulsion — push apart overlapping non-orchestrator nodes
+      const subNodes = allNodes.filter(n => n.type !== 'orchestrator' && n.spawnProgress > 0.5);
+      for (let i = 0; i < subNodes.length; i++) {
+        for (let j = i + 1; j < subNodes.length; j++) {
+          const a = subNodes[i], b = subNodes[j];
+          const dx = b.ax - a.ax;
+          const dy = b.ay - a.ay;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          if (dist < NODE_REPULSE_DIST) {
+            const force = (NODE_REPULSE_DIST - dist) * 0.003;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            a.ax -= nx * force;
+            a.ay -= ny * force;
+            b.ax += nx * force;
+            b.ay += ny * force;
+          }
+        }
+      }
+      // W237: Mouse attraction — subtly pull non-orchestrator nodes toward cursor
+      if (mx > 0 && my > 0) {
+        const mxNorm = mx / w;
+        const myNorm = my / h;
+        for (const n of subNodes) {
+          const dx = mxNorm - n.ax;
+          const dy = myNorm - n.ay;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          if (dist < 0.25) {
+            const attract = (1 - dist / 0.25) * MOUSE_ATTRACT_STRENGTH;
+            n.ax += (dx / dist) * attract;
+            n.ay += (dy / dist) * attract;
+          }
+        }
       }
 
       // ── Screen positions ──
@@ -443,7 +534,7 @@ export function AgentNetworkCanvas() {
         ctx.stroke();
       }
 
-      // ── Draw Connections (quadratic bezier) with hover highlight ──
+      // ── Draw Connections (quadratic bezier) with hover highlight + energy dashes ──
       const drawnPairs = new Set<string>();
       for (const n of allNodes) {
         for (const connId of n.connections) {
@@ -459,7 +550,7 @@ export function AgentNetworkCanvas() {
           const isActive = n.state !== 'idle' && n.state !== 'offline';
           let alpha = (isActive ? 0.2 : 0.07) + Math.sin(t * 2 + n.spawnTime * 0.001) * 0.06;
 
-          // W235: Hover connection highlight — boost alpha when mouse is near the bezier
+          // W235: Hover connection highlight
           const sx = n.ax * w;
           const sy = n.ay * h;
           const ex = target.x;
@@ -472,10 +563,47 @@ export function AgentNetworkCanvas() {
 
           ctx.strokeStyle = `rgba(${fromRgb[0]},${fromRgb[1]},${fromRgb[2]},${Math.max(0, alpha)})`;
           ctx.lineWidth = isOrchConn ? 1.5 : 0.8;
+
+          // W237: Animated energy dashes on active orchestrator connections
+          if (isOrchConn && isActive) {
+            ctx.setLineDash([4, 8]);
+            ctx.lineDashOffset = -t * 30;
+          }
+
           ctx.beginPath();
           ctx.moveTo(sx, sy);
           ctx.quadraticCurveTo(cpx, cpy, ex, ey);
           ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.lineDashOffset = 0;
+        }
+      }
+
+      // W237: Mesh connections between sub-nodes (not just to orchestrator)
+      for (let i = 0; i < subNodes.length; i++) {
+        for (let j = i + 1; j < subNodes.length; j++) {
+          const a = subNodes[i], b = subNodes[j];
+          const dx = (b.ax - a.ax);
+          const dy = (b.ay - a.ay);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MESH_CONN_THRESHOLD) {
+            const proximity = 1 - dist / MESH_CONN_THRESHOLD;
+            const meshAlpha = MESH_CONN_ALPHA * proximity;
+            // Blend colors of both nodes
+            const mr = Math.round((a.rgb[0] + b.rgb[0]) / 2);
+            const mg = Math.round((a.rgb[1] + b.rgb[1]) / 2);
+            const mb = Math.round((a.rgb[2] + b.rgb[2]) / 2);
+            ctx.strokeStyle = `rgba(${mr},${mg},${mb},${meshAlpha})`;
+            ctx.lineWidth = 0.5;
+            const ax2 = a.ax * w, ay2 = a.ay * h;
+            const bx2 = b.ax * w, by2 = b.ay * h;
+            const seed = ((a.spawnTime + b.spawnTime) % 1000) / 1000;
+            const [mcpx, mcpy] = smartCP(ax2, ay2, bx2, by2, seed);
+            ctx.beginPath();
+            ctx.moveTo(ax2, ay2);
+            ctx.quadraticCurveTo(mcpx, mcpy, bx2, by2);
+            ctx.stroke();
+          }
         }
       }
 
@@ -585,6 +713,27 @@ export function AgentNetworkCanvas() {
           ctx.lineWidth = 0.5;
           ctx.beginPath();
           ctx.arc(sx, sy, ring2R, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // W237: Spawn flash — bright expanding ring when node is being born
+        if (n.spawnProgress < 0.4) {
+          const flashProgress = n.spawnProgress / 0.4;
+          const flashRadius = radius * (1 + flashProgress * 3);
+          const flashAlpha = (1 - flashProgress) * 0.5;
+          const flashGrad = ctx.createRadialGradient(sx, sy, radius, sx, sy, flashRadius);
+          flashGrad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashAlpha})`);
+          flashGrad.addColorStop(0.5, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashAlpha * 0.3})`);
+          flashGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = flashGrad;
+          ctx.beginPath();
+          ctx.arc(sx, sy, flashRadius, 0, Math.PI * 2);
+          ctx.fill();
+          // Flash ring
+          ctx.strokeStyle = `rgba(${Math.min(255, rgb[0] + 80)},${Math.min(255, rgb[1] + 80)},${Math.min(255, rgb[2] + 80)},${(1 - flashProgress) * 0.6})`;
+          ctx.lineWidth = 1.5 * (1 - flashProgress);
+          ctx.beginPath();
+          ctx.arc(sx, sy, flashRadius * 0.8, 0, Math.PI * 2);
           ctx.stroke();
         }
 
