@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 20:16 UTC+8
+2026-06-21 20:25 UTC+8
 
 ## System Status
-- **Phase**: Polish Era (Wave 269)
+- **Phase**: Polish Era (Wave 270)
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
@@ -17,8 +17,8 @@
 | Skills | 10 (+ 1 template) |
 | Components | 20 |
 | Exported components | 10 |
-| GitHub commits | ~511 |
-| Waves in DB | 181 |
+| GitHub commits | ~512 |
+| Waves in DB | 182 |
 | Wave success rate (recent 5) | 93.5% |
 | Health score | 80+/100 |
 | Shared zod schemas | 11 |
@@ -38,6 +38,8 @@
 - **Structured logging** (W269): all console.warn → logDebug, consistent logger usage
 - **Dead-interface cleanup** (W269): unused props removed from WaveCategoryBreakdown
 - **Native a11y** (W269): div[role=button] → button in decision-timeline
+- **TabValue union** (W270): activeTab typed as narrow union — compile-time typo protection
+- **Filter a11y** (W270): role=toolbar + aria-label on 3 filter groups (skills, waves, decisions)
 - agent-live-broadcast skill v3.0, wave-engine skill v3.0
 
 ## What's next

@@ -141,7 +141,7 @@ export function WavesTab() {
             )}
           </div>
           {/* Filter buttons */}
-          <div className="flex rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5 overflow-x-auto max-w-[220px] sm:max-w-none scrollbar-dark">
+          <div role="toolbar" aria-label="Wave status filters" className="flex rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5 overflow-x-auto max-w-[220px] sm:max-w-none scrollbar-dark">
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}

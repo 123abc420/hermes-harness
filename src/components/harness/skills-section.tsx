@@ -75,7 +75,7 @@ export function SkillsSection() {
 
         {/* Category filter pills */}
         {categories.length > 2 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div role="toolbar" aria-label="Skill category filters" className="mt-2 flex flex-wrap gap-1.5">
             {categories.map(cat => {
               const isActive = activeFilter === cat;
               return (

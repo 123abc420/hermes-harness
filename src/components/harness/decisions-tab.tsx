@@ -80,7 +80,7 @@ export function DecisionsTab() {
             )}
           </div>
           <Filter className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
-          <div className="flex gap-1 overflow-x-auto max-w-[180px] sm:max-w-none pb-1 scrollbar-dark">
+          <div role="toolbar" aria-label="Decision category filters" className="flex gap-1 overflow-x-auto max-w-[180px] sm:max-w-none pb-1 scrollbar-dark">
             {FILTER_BUTTONS.map((btn) => {
               const count = btn.value === '' ? totalDecisions : (categoryCounts[btn.value] ?? 0);
               return (

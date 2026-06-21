@@ -104,9 +104,11 @@ export interface DashboardData {
   healthBreakdown?: { spec: number; success: number; errors: number; github: number };
 }
 
+export type TabValue = 'agent' | 'overview' | 'waves' | 'decisions' | 'research' | 'github';
+
 interface HarnessState {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab: TabValue;
+  setActiveTab: (tab: TabValue) => void;
   pendingWaveDetailId: string | null;
   setPendingWaveDetailId: (id: string | null) => void;
   waveFilter: string;

@@ -5750,3 +5750,23 @@ Stage Summary:
 - Dead code: 4 unused props + 2 dead imports removed from WaveCategoryBreakdown.
 - A11y: div[role=button] → button (native keyboard + screen reader support).
 - Lint: 0 errors. All quality gates clear.
+---
+Task ID: W270
+Agent: HERMES Harness Wave Engine (cron job 221210)
+Task: Wave 270 — Tab union type + dead export + filter a11y labels
+
+Work Log:
+- ASSESS: Read context.md (181 waves, 511 commits), insights.md, guardrails.md. Dev.log clean. Leverage W269 deep scan residuals — 25 medium findings remaining, 0 high.
+- PLAN: Selected 3 improvements — (1) type activeTab as TabValue union (type safety), (2) remove unused TrendRow export (dead code), (3) add role=toolbar + aria-label to 3 filter button groups (a11y).
+- EXECUTE Decision 1 (type_safety/medium): Exported TabValue union type from harness-store.ts. Changed activeTab from string to TabValue. Keyboard shortcut handler already typed via TAB_CONFIG as const.
+- EXECUTE Decision 2 (dead_code/medium): Removed TrendRow interface from use-harness-data.ts (never imported). Inlined the shape into TrendsData. Removed from export statement.
+- EXECUTE Decision 3 (accessibility/medium): Added role=toolbar + aria-label to 3 filter button containers: skills-section, waves-tab, decisions-tab.
+- VERIFY: bun run lint = 0 errors. Dev.log clean.
+- PERSIST: Worklog, wave record, decisions, GitHub sync.
+
+Stage Summary:
+- 5 files edited, 0 files deleted.
+- Type safety: activeTab now narrow union — typos caught at compile time.
+- Dead code: unused TrendRow export removed.
+- A11y: 3 filter groups now have toolbar semantics for screen readers.
+- Lint: 0 errors. All quality gates clear.

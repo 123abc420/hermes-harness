@@ -121,18 +121,12 @@ export function useSkills() {
   });
 }
 
-interface TrendRow {
-  category: string;
-  recent: number;
-  earlier: number;
-}
-
 interface TrendsData {
-  trends: TrendRow[];
+  trends: { category: string; recent: number; earlier: number }[];
   range: { earlier: { min: number; max: number }; recent: { min: number; max: number } };
 }
 
-export type { TrendRow, TrendsData };
+export type { TrendsData };
 
 export function useDecisionTrends() {
   return useQuery<TrendsData>({
