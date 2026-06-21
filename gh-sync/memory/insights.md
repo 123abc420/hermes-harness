@@ -150,3 +150,15 @@
 - Agent Live is dead without POST updates to `/api/harness/agent-status` during waves.
 - The `agent-live-broadcast` skill provides a curl-based protocol for phase-by-phase updates.
 - State → visual mapping matters: thinking=brain waves, executing=energy surges, celebrating=golden rings, error=red pulse, evolving=spiral, planning=hex grid.
+
+## Canvas ResizeObserver Pattern
+
+- Canvas with `absolute inset-0 w-full h-full` needs ResizeObserver — `useEffect([], [])` with `getBoundingClientRect()` captures stale dimensions after window resize.
+- Store layout values in a `useRef` object. The draw loop reads from the ref each frame, so ResizeObserver updates are picked up on the next animation frame without re-creating the entire effect.
+- Use `ctx.setTransform(dpr, 0, 0, dpr, 0, 0)` instead of `ctx.scale(dpr, dpr)` in resize — `setTransform` is absolute (not cumulative), so it's safe to call repeatedly.
+- Don't forget `ro.disconnect()` in the effect cleanup.
+
+## Canvas State Effect Completeness
+
+- Each agent state should have a unique visual pattern. If a state has no effect, the canvas looks "dead" during that phase.
+- 10 states = 10 unique effects. Missing any makes the "mind reflection" concept incomplete.

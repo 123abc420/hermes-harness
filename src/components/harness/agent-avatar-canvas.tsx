@@ -4,17 +4,23 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { useAgentLiveStore } from '@/store/agent-live-store';
 
 /* ═══════════════════════════════════════════════════════════════════════
-   2D CANVAS AVATAR — Immersive "Mind's Eye" Version (W228)
+   2D CANVAS AVATAR — Immersive "Mind's Eye" Version (W228 → W229)
    
    Full-bleed canvas that fills the Agent Live panel.
-   Character drawn 2.5x larger. State-reactive background effects:
+   Character drawn 2.5x larger. ResizeObserver keeps canvas sized correctly.
+   State-reactive background effects (all 10 states):
+   - idle: gentle amber pulse
    - thinking: cyan brain-wave ripples
-   - executing: red/orange energy surges + sparks
-   - celebrating: golden particle explosion + expanding rings
+   - searching: orange radar sweep
+   - planning: violet rotating hex grid
+   - executing: rose energy surge lines
+   - verifying: green ascending checkmarks
+   - celebrating: golden expanding rings
    - error: red pulse warnings
    - evolving: fuchsia spiral patterns
-   - idle: gentle amber pulse
+   - offline: dim gray static
    
+   CRT scanline overlay + intensified vignette for terminal feel.
    Zero heavy dependencies — pure Canvas 2D + requestAnimationFrame.
    ═══════════════════════════════════════════════════════════════════════ */
 
@@ -63,24 +69,39 @@ export function AgentAvatarCanvas() {
     mouseRef.current.y = (e.clientY - rect.top) / rect.height;
   }, []);
 
+  // Mutable refs for layout values that ResizeObserver updates
+  const layoutRef = useRef({ W: 800, H: 600, cx: 400, cy: 252, SCALE: 2.2, dpr: 1 });
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // ─── ResizeObserver: keep canvas pixel-perfect on resize ───
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-    const W = rect.width;
-    const H = rect.height;
+    layoutRef.current.dpr = dpr;
 
-    // Character center — shifted slightly up to leave room for bottom HUD
-    const cx = W / 2;
-    const cy = H * 0.42;
-    const SCALE = Math.min(W / 500, H / 600) * 2.2; // 2.2x scale factor
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layoutRef.current.W = w;
+      layoutRef.current.H = h;
+      layoutRef.current.cx = w / 2;
+      layoutRef.current.cy = h * 0.42;
+      layoutRef.current.SCALE = Math.min(w / 500, h / 600) * 2.2;
+    }
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    // Read layout from ref (updated by ResizeObserver)
+    let { W, H, cx, cy, SCALE } = layoutRef.current;
 
     // ─── Particles (60 floating dots) ───
     const particles = Array.from({ length: 60 }, () => ({
@@ -184,6 +205,37 @@ export function AgentAvatarCanvas() {
         }
       }
 
+      // SEARCHING: radar sweep line
+      if (state === 'searching') {
+        const sweepAngle = t * 0.003;
+        const sweepR = 100 * SCALE * 0.5;
+        // Sweep cone
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, sweepR, sweepAngle - 0.5, sweepAngle, false);
+        ctx.closePath();
+        const sweepGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, sweepR);
+        sweepGrd.addColorStop(0, rgba('searching', 0.15));
+        sweepGrd.addColorStop(1, rgba('searching', 0.02));
+        ctx.fillStyle = sweepGrd;
+        ctx.fill();
+        // Range rings
+        for (let i = 1; i <= 3; i++) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, sweepR * (i / 3), 0, Math.PI * 2);
+          ctx.strokeStyle = rgba('searching', 0.08);
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+        // Sweep line
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(sweepAngle) * sweepR, cy + Math.sin(sweepAngle) * sweepR);
+        ctx.strokeStyle = rgba('searching', 0.4);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
       // EXECUTING: energy surge lines
       if (state === 'executing') {
         for (let i = 0; i < 6; i++) {
@@ -196,6 +248,29 @@ export function AgentAvatarCanvas() {
           ctx.strokeStyle = rgba('executing', 0.2 + Math.sin(t * 0.01 + i * 0.5) * 0.1);
           ctx.lineWidth = 2 + Math.sin(t * 0.008 + i) * 1;
           ctx.stroke();
+        }
+      }
+
+      // VERIFYING: ascending checkmark cascade
+      if (state === 'verifying') {
+        const checkCount = 5;
+        for (let i = 0; i < checkCount; i++) {
+          const phase = ((t * 0.0008 + i * 0.4) % 2) / 2; // 0→1 cycle
+          const checkY = cy + 40 * SCALE * 0.5 - phase * 80 * SCALE * 0.5;
+          const checkAlpha = Math.max(0, 0.3 * (1 - phase));
+          const checkSize = (6 + phase * 4) * SCALE * 0.3;
+          ctx.save();
+          ctx.translate(cx - 40 * SCALE * 0.5 + i * 20 * SCALE * 0.5, checkY);
+          ctx.strokeStyle = rgba('verifying', checkAlpha);
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-checkSize * 0.5, 0);
+          ctx.lineTo(-checkSize * 0.1, checkSize * 0.4);
+          ctx.lineTo(checkSize * 0.5, -checkSize * 0.3);
+          ctx.stroke();
+          ctx.restore();
         }
       }
 
@@ -254,6 +329,16 @@ export function AgentAvatarCanvas() {
           }
         }
         ctx.restore();
+      }
+
+      // OFFLINE: dim gray static noise
+      if (state === 'offline') {
+        for (let i = 0; i < 40; i++) {
+          const nx = Math.random() * W;
+          const ny = Math.random() * H;
+          ctx.fillStyle = `rgba(113,113,122,${Math.random() * 0.1})`;
+          ctx.fillRect(nx, ny, 2 + Math.random() * 4, 1);
+        }
       }
 
       // ════════════════════════════════════════════════════
@@ -593,19 +678,46 @@ export function AgentAvatarCanvas() {
       ctx.beginPath(); ctx.arc(orbX - orbSize * 0.15, orbY - orbSize * 0.15, orbSize * 0.35, 0, Math.PI * 2); ctx.fill();
 
       // ════════════════════════════════════════════════════
-      // VIGNETTE
+      // VIGNETTE (intensified for W229)
       // ════════════════════════════════════════════════════
-      const vigGrd = ctx.createRadialGradient(W / 2, H / 2, W * 0.2, W / 2, H / 2, W * 0.75);
+      const vigGrd = ctx.createRadialGradient(W / 2, H / 2, W * 0.15, W / 2, H / 2, W * 0.8);
       vigGrd.addColorStop(0, 'transparent');
-      vigGrd.addColorStop(1, 'rgba(0,0,0,0.5)');
+      vigGrd.addColorStop(0.7, 'rgba(0,0,0,0.2)');
+      vigGrd.addColorStop(1, 'rgba(0,0,0,0.65)');
       ctx.fillStyle = vigGrd;
       ctx.fillRect(0, 0, W, H);
+
+      // ════════════════════════════════════════════════════
+      // CRT SCANLINES (subtle terminal feel)
+      // ════════════════════════════════════════════════════
+      ctx.fillStyle = 'rgba(0,0,0,0.06)';
+      const scanGap = 3;
+      for (let sy = 0; sy < H; sy += scanGap) {
+        ctx.fillRect(0, sy, W, 1);
+      }
+
+      // ════════════════════════════════════════════════════
+      // READ LATEST LAYOUT (may have changed via ResizeObserver)
+      // ════════════════════════════════════════════════════
+      const latest = layoutRef.current;
+      if (latest.W !== W || latest.H !== H) {
+        W = latest.W; H = latest.H;
+        cx = latest.cx; cy = latest.cy; SCALE = latest.SCALE;
+        // Re-spread particles into new bounds
+        for (const p of particles) {
+          if (p.x > W) p.x = Math.random() * W;
+          if (p.y > H) p.y = Math.random() * H;
+        }
+      }
 
       rafRef.current = requestAnimationFrame(draw);
     }
 
     rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+    };
   }, []);
 
   return (

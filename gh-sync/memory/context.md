@@ -3,25 +3,26 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 09:15 UTC+8
+2026-06-21 09:25 UTC+8
 
 ## System Status
-- **Phase**: Post-Compliance Evolution (Wave 228)
-- **Waves in DB**: 159
+- **Phase**: Post-Compliance Evolution (Wave 229)
+- **Waves in DB**: 160
 - **Spec compliance**: 100% (16/16)
 
 ## Current Metrics
 | Metric | Value |
 |--------|-------|
-| API routes | 16 |
+| API routes | 19 |
 | Dashboard tabs | 6 |
 | Skills | 10 (+ 1 template) |
 | Components | 23 |
 | Exported components | 10 |
-| GitHub commits | ~406 |
-| Waves in DB | 159 |
+| GitHub commits | ~407 |
+| Waves in DB | 160 |
 | Wave success rate (recent 5) | 60% |
 | Health score | 76/100 |
+| Canvas state effects | 10 (all unique) |
 | execSync calls | 0 |
 | raw console.error in API | 0 |
 | silent .catch() | 0 |
@@ -34,19 +35,19 @@
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
-- **Agent Live is now full-screen immersive "Mind's Eye"** (W228)
+- **Agent Live full-screen immersive "Mind's Eye"** (W228→W229)
 - Full-bleed canvas (80vh) with HUD overlay panels
-- Character 2.5x bigger with state-reactive backgrounds (6 patterns)
+- Character 2.5x bigger with **10 unique state-reactive backgrounds**
+- ResizeObserver keeps canvas pixel-perfect on window resize
+- CRT scanline overlay + intensified vignette (terminal feel)
 - Particle bursts + wave rings on state transitions
 - 60 floating particles, 12 orbiting with trails, dual rings
 - Energy aura around character, state-tinted effects
 - agent-live-broadcast skill for real-time wave updates
-- 2D Canvas avatar with orbiting ring, particle trails, station glow, vignette
-- Stat card sparklines with gradient area fill + end-dot indicator
 - Health score guarded against 0/0 NaN
 - Donut charts use percentage radii — no mobile clipping
 - GitHub sync does real git push inline, status correct
-- Dead 3D files removed (6 files, 907 lines deleted W229)
+- Dead 3D files removed (6 files, 907 lines deleted)
 - Page compiles in <1s
 
 ## What's next

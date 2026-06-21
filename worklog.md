@@ -4492,3 +4492,23 @@ Stage Summary:
 - HUD overlays provide all info without leaving the canvas view
 - New skill (agent-live-broadcast) enables real-time status updates during waves
 - Files changed: agent-live-panel.tsx, agent-avatar-canvas.tsx, gh-sync/skills/agent-live-broadcast.md
+
+---
+Task ID: W229
+Agent: Main Orchestrator
+Task: Canvas polish — ResizeObserver, complete all 10 state effects, CRT scanlines
+
+Work Log:
+- ASSESS: Server running, lint clean, no dev.log errors. W228 just shipped full-screen redesign.
+- PLAN: Identified 3 improvements: (1) canvas resize bug, (2) 2 missing state effects, (3) visual polish.
+- EXECUTE 1: Added ResizeObserver to agent-avatar-canvas.tsx. Canvas dimensions now update live on window resize via layoutRef. Particles re-spread into new bounds. Cleanup calls ro.disconnect().
+- EXECUTE 2: Added 3 new state-reactive background effects: searching=orange radar sweep with range rings, verifying=green ascending checkmark cascade, offline=dim gray static noise. All 10 states now have unique visuals.
+- EXECUTE 3: Added CRT scanline overlay (3px gap, 6% opacity) and intensified vignette (2-stop gradient, 0.65 edge opacity) for terminal monitoring feel.
+- VERIFY: `bun run lint` — 0 errors. `bun run build` — success (19 routes).
+- PERSIST: Wave + decision + metrics recorded. GitHub push.
+
+Stage Summary:
+- Canvas now properly resizes with the browser window (critical for full-bleed design)
+- All 10 agent states have unique visual effects on the canvas
+- CRT scanlines + intensified vignette add depth and "monitoring terminal" atmosphere
+- Files changed: agent-avatar-canvas.tsx
