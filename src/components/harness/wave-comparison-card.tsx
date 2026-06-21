@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeftRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { STATUS_COLORS } from './wave-detail-dialog';
@@ -15,7 +16,7 @@ function Delta({ current, previous, invert = false }: { current: number; previou
   const isPositive = invert ? diff < 0 : diff > 0;
   const Icon = diff > 0 ? TrendingUp : TrendingDown;
   return (
-    <span className={`inline-flex items-center gap-0.5 text-[10px] font-mono ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+    <span className={cn('inline-flex items-center gap-0.5 text-[10px] font-mono', isPositive ? 'text-emerald-400' : 'text-red-400')}>
       <Icon className="h-2.5 w-2.5" />
       {diff > 0 ? '+' : ''}{diff}
     </span>
@@ -33,7 +34,7 @@ function WaveColumn({ wave, label }: { wave: Wave; label: string }) {
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-mono text-zinc-600">{label}</span>
         <span className="font-mono text-sm font-bold text-white">#{String(wave.waveNumber).padStart(3, '0')}</span>
-        <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-mono font-medium ${STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending}`}>
+        <span className={cn('inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-mono font-medium', STATUS_COLORS[wave.status] ?? STATUS_COLORS.pending)}>
           {wave.status.toUpperCase()}
         </span>
       </div>
@@ -46,7 +47,7 @@ function WaveColumn({ wave, label }: { wave: Wave; label: string }) {
         ].map((stat) => (
           <div key={stat.label} className="flex items-center justify-between rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2">
             <span className="text-[10px] uppercase tracking-wider text-zinc-500">{stat.label}</span>
-            <span className={`font-mono text-sm font-bold ${stat.color}`}>{stat.value}</span>
+        <span className={cn('font-mono text-sm font-bold', stat.color)}>{stat.value}</span>
           </div>
         ))}
 

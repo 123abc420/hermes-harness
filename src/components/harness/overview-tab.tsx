@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,7 +47,7 @@ function SectionHeader({
         {title}
       </span>
       <ChevronDown
-        className={`h-3 w-3 text-zinc-600 ml-auto transition-transform duration-200 ${collapsed ? '' : 'rotate-180'}`}
+        className={cn('h-3 w-3 text-zinc-600 ml-auto transition-transform duration-200', !collapsed && 'rotate-180')}
       />
     </button>
   );

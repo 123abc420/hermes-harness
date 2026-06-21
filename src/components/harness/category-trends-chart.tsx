@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -100,7 +101,7 @@ export function CategoryTrendsChart() {
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: hex }} />
-                  <span className={`text-[11px] font-medium ${tw?.split(' ')[1] ?? 'text-zinc-400'}`}>
+                  <span className={cn('text-[11px] font-medium', tw?.split(' ')[1] ?? 'text-zinc-400')}>
                     {t.category.replace('_', ' ')}
                   </span>
                 </div>

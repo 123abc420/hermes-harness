@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useState, useCallback } from 'react';
 import { Zap, Eye, Clock, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -127,7 +128,11 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
               <button
                 type="button"
                 aria-label={`Health score: ${healthScore}/100. Press to show breakdown.`}
-                className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums ${HEALTH_COLOR(healthScore)} hover:brightness-125 transition-all focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-1`}
+                className={cn(
+                  'flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-mono font-medium tabular-nums',
+                  HEALTH_COLOR(healthScore),
+                  'hover:brightness-125 transition-all focus-visible:outline-2 focus-visible:outline-amber-400/50 focus-visible:outline-offset-1'
+                )}
                 onMouseEnter={() => setHealthOpen(true)}
                 onMouseLeave={() => setHealthOpen(false)}
                 onFocus={() => setHealthOpen(true)}
@@ -142,7 +147,10 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
               {healthBreakdown && (
                 <div
                   role="tooltip"
-                  className={`absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/[0.08] bg-[#1a1510] p-3 shadow-2xl transition-all duration-150 z-50 ${healthOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                  className={cn(
+                    'absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/[0.08] bg-[#1a1510] p-3 shadow-2xl transition-all duration-150 z-50',
+                    healthOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                  )}
                 >
                   <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest mb-2.5">Health Breakdown</p>
                   <div className="space-y-2">
@@ -156,7 +164,7 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
                             <span className="text-[10px] font-mono tabular-nums text-zinc-300">{val}<span className="text-zinc-600">/{max}</span></span>
                           </div>
                           <div className="h-1 w-full rounded-full bg-white/[0.06] overflow-hidden">
-                            <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${pct}%` }} />
+                            <div className={cn('h-full rounded-full', color, 'transition-all duration-500')} style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -169,18 +177,15 @@ export function HarnessHeader({ githubStatus, totalWaves, healthScore, healthSco
           {githubStatus && (
             <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-amber-900/[0.15] px-2.5 py-1 text-[10px] font-mono font-medium tracking-wider">
               <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  isConnected
-                    ? 'animate-pulse bg-amber-400'
-                    : 'bg-zinc-500'
-                }`}
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full',
+                  isConnected ? 'animate-pulse bg-amber-400' : 'bg-zinc-500'
+                )}
               />
               <span
-                className={
-                  isConnected
-                    ? 'text-amber-400'
-                    : 'text-zinc-500'
-                }
+                className={cn(
+                  isConnected ? 'text-amber-400' : 'text-zinc-500'
+                )}
               >
                 {isConnected ? 'LINKED' : 'UNLINKED'}
               </span>

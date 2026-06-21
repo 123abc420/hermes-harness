@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ListChecks, ChevronDown } from 'lucide-react';
@@ -90,20 +91,19 @@ export function DecisionTimeline({ decisions }: { decisions?: DashboardData['rec
                     >
                       {d.category.replace('_', ' ')}
                     </span>
-                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-mono ${
-                      d.action === 'executed'
-                        ? 'bg-emerald-500/10 text-emerald-400'
-                        : d.action === 'failed'
-                          ? 'bg-red-500/10 text-red-400'
-                          : 'bg-zinc-500/10 text-zinc-400'
-                    }`}>
+                    <span className={cn(
+                      'rounded px-1.5 py-0.5 text-[9px] font-mono',
+                      d.action === 'executed' && 'bg-emerald-500/10 text-emerald-400',
+                      d.action === 'failed' && 'bg-red-500/10 text-red-400',
+                      d.action !== 'executed' && d.action !== 'failed' && 'bg-zinc-500/10 text-zinc-400'
+                    )}>
                       {d.action}
                     </span>
                     {(d.reasoning || d.targetFile) && (
-                      <ChevronDown className={`ml-auto h-3 w-3 shrink-0 text-zinc-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={cn('ml-auto h-3 w-3 shrink-0 text-zinc-600 transition-transform duration-200', isOpen && 'rotate-180')} />
                     )}
                   </div>
-                  <p className={`mt-0.5 text-xs text-zinc-400 ${isOpen ? '' : 'truncate'}`}>{d.description}</p>
+                  <p className={cn('mt-0.5 text-xs text-zinc-400', !isOpen && 'truncate')}>{d.description}</p>
                   {d.targetFile && (
                     <p className="mt-0.5 text-[10px] text-zinc-600 font-mono truncate">{d.targetFile}</p>
                   )}

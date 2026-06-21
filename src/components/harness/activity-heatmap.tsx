@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Flame } from 'lucide-react';
@@ -53,7 +54,10 @@ function HeatCell({
 
   return (
     <div
-      className={`h-[10px] w-[10px] rounded-[2px] transition-colors duration-200 ${!isFuture && count > 0 ? 'hover:ring-1 hover:ring-white/20 hover:brightness-125' : ''}`}
+      className={cn(
+        'h-[10px] w-[10px] rounded-[2px] transition-colors duration-200',
+        !isFuture && count > 0 && 'hover:ring-1 hover:ring-white/20 hover:brightness-125'
+      )}
       style={{ backgroundColor: bg }}
       title={title}
       role="img"

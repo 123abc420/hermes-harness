@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -23,12 +24,12 @@ function HealthBar({ chars, cap, pct }: { chars: number; cap?: number; pct?: num
     <div className="flex items-center gap-2">
       <div className="h-1.5 flex-1 rounded-full bg-white/[0.06] overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+          className={cn('h-full rounded-full transition-all duration-500', barColor)}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>
       {isOver && <AlertTriangle className="h-3 w-3 shrink-0 text-red-400" />}
-      <span className={`text-[9px] font-mono shrink-0 ${isOver ? 'text-red-400' : 'text-zinc-600'}`}>
+      <span className={cn('text-[9px] font-mono shrink-0', isOver ? 'text-red-400' : 'text-zinc-600')}>
         {pct}%
       </span>
     </div>

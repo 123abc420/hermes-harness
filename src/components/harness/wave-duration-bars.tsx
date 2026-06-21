@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -79,9 +80,9 @@ export function WaveDurationBars({ waves }: { waves: Wave[] }) {
                 <span className="w-8 shrink-0 text-right text-[10px] font-mono text-zinc-500">
                   W{d.wave}
                 </span>
-                <div className={`h-3 flex-1 rounded-full ${barTrack} overflow-hidden`}>
+                <div className={cn('h-3 flex-1 rounded-full overflow-hidden', barTrack)}>
                   <motion.div
-                    className={`h-full rounded-full ${barColor(d.status)}`}
+                    className={cn('h-full rounded-full', barColor(d.status))}
                     initial={{ width: 0 }}
                     animate={{ width: `${pct}%` }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}

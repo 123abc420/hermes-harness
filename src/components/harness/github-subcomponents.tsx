@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -60,19 +61,18 @@ export function ConnectionStatus({
 
   return (
     <Card
-      className={`glass-card ${
-        isConnected ? 'glow-emerald-sm' : ''
-      }`}
+      className={cn('glass-card', isConnected && 'glow-emerald-sm')}
     >
       <CardContent className="p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+              className={cn(
+                'flex h-12 w-12 items-center justify-center rounded-xl',
                 isConnected
                   ? 'border border-emerald-500/20 bg-emerald-500/10'
                   : 'border border-white/[0.06] bg-white/[0.03]'
-              }`}
+              )}
             >
               {isConnected ? (
                 <Link2 className="h-5 w-5 text-emerald-400" />
@@ -86,16 +86,18 @@ export function ConnectionStatus({
                   GitHub Repository
                 </h3>
                 <div
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium ${
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium',
                     isConnected
                       ? 'bg-emerald-500/10 text-emerald-400'
                       : 'bg-zinc-500/10 text-zinc-500'
-                  }`}
+                  )}
                 >
                   <span
-                    className={`h-1.5 w-1.5 rounded-full ${
+                    className={cn(
+                      'h-1.5 w-1.5 rounded-full',
                       isConnected ? 'animate-pulse bg-emerald-400' : 'bg-zinc-500'
-                    }`}
+                    )}
                   />
                   {isConnected ? 'CONNECTED' : 'DISCONNECTED'}
                 </div>
@@ -134,7 +136,7 @@ export function ConnectionStatus({
               className="gap-1.5 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500"
             >
               <RefreshCw
-                className={`h-3.5 w-3.5 ${sync.isPending ? 'animate-spin' : ''}`}
+                className={cn('h-3.5 w-3.5', sync.isPending && 'animate-spin')}
               />
               <span className="hidden sm:inline">
                 {sync.isPending ? 'Syncing...' : 'Sync Now'}
@@ -223,9 +225,10 @@ export function InfoGrid({ githubStatus }: { githubStatus?: GithubStatus }) {
                 {card.label}
               </div>
               <p
-                className={`mt-1.5 text-sm font-semibold text-white ${
-                  card.mono ? 'font-mono tabular-nums' : ''
-                }`}
+                className={cn(
+                  'mt-1.5 text-sm font-semibold text-white',
+                  card.mono && 'font-mono tabular-nums'
+                )}
               >
                 {card.value}
               </p>

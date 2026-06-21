@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Minus } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -38,13 +39,13 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
   const isComplete = percent === 100;
 
   return (
-    <Card className={`glass-card ${isComplete ? 'border-emerald-500/20' : ''}`}>
+    <Card className={cn('glass-card', isComplete && 'border-emerald-500/20')}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
             Spec Compliance
           </CardTitle>
-          <span className={`text-sm font-bold tabular-nums ${isComplete ? 'text-amber-400' : 'text-emerald-400'}`}>
+          <span className={cn('text-sm font-bold tabular-nums', isComplete ? 'text-amber-400' : 'text-emerald-400')}>
             {percent}%
             {isComplete && (
               <motion.span
@@ -88,9 +89,12 @@ export function SpecComplianceCard({ skillsCount, errorTrendDecreasing }: { skil
               <Minus className="h-3.5 w-3.5 shrink-0 text-zinc-700" />
             )}
             <span
-              className={`text-xs ${
-                item.done === true ? 'text-zinc-300' : item.done === null ? 'text-zinc-500 italic' : 'text-zinc-600'
-              }`}
+              className={cn(
+                'text-xs',
+                item.done === true && 'text-zinc-300',
+                item.done === null && 'text-zinc-500 italic',
+                item.done === false && 'text-zinc-600'
+              )}
             >
               {item.label}
             </span>

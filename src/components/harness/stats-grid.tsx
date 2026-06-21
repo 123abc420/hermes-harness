@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -104,9 +105,12 @@ function StatTooltip({
           {changePercent !== null && changePercent !== undefined && (
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-zinc-500">Change</span>
-              <span className={`flex items-center gap-0.5 text-[11px] font-mono font-bold tabular-nums ${
-                changeDir === 'up' ? 'text-emerald-400' : changeDir === 'down' ? 'text-red-400' : 'text-zinc-500'
-              }`}>
+            <span className={cn(
+                'flex items-center gap-0.5 text-[11px] font-mono font-bold tabular-nums',
+                changeDir === 'up' && 'text-emerald-400',
+                changeDir === 'down' && 'text-red-400',
+                changeDir === 'neutral' && 'text-zinc-500'
+              )}>
                 {changeDir === 'up' && <ArrowUp className="h-2.5 w-2.5" />}
                 {changeDir === 'down' && <ArrowDown className="h-2.5 w-2.5" />}
                 {changeDir === 'neutral' && <Minus className="h-2.5 w-2.5" />}
@@ -117,9 +121,12 @@ function StatTooltip({
           {/* Trend direction */}
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-zinc-500">Trend</span>
-            <span className={`text-[10px] font-mono ${
-              changeDir === 'up' ? 'text-emerald-400' : changeDir === 'down' ? 'text-red-400' : 'text-zinc-500'
-            }`}>
+            <span className={cn(
+              'text-[10px] font-mono',
+              changeDir === 'up' && 'text-emerald-400',
+              changeDir === 'down' && 'text-red-400',
+              changeDir === 'neutral' && 'text-zinc-500'
+            )}>
               {changeDir === 'up' ? '▲ Increasing' : changeDir === 'down' ? '▼ Decreasing' : '● Stable'}
             </span>
           </div>
@@ -181,7 +188,10 @@ function StatCard({
         onMouseLeave={() => setShowTooltip(false)}
       >
         {/* Top accent line — color matches the stat icon */}
-        <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-30 ${color.split(' ')[1] ?? 'text-zinc-400'}`} />
+        <div className={cn(
+          'absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-30',
+          color.split(' ')[1] ?? 'text-zinc-400'
+        )} />
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -192,7 +202,7 @@ function StatCard({
                 {value ?? 0}{suffix ?? ''}
               </p>
             </div>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${color}`}>
+            <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110', color)}>
               <Icon className="h-5 w-5" />
             </div>
           </div>
@@ -209,13 +219,12 @@ function StatCard({
                 <AlertTriangle className="h-3 w-3 text-amber-400" />
               )}
               <span
-                className={
-                  trend === 'up'
-                    ? 'text-emerald-400/70'
-                    : trend === 'down'
-                      ? 'text-amber-400/70'
-                      : 'text-zinc-600'
-                }
+                className={cn(
+                  'text-xs',
+                  trend === 'up' && 'text-emerald-400/70',
+                  trend === 'down' && 'text-amber-400/70',
+                  (!trend || trend === 'neutral') && 'text-zinc-600'
+                )}
               >
                 {trend === 'up'
                   ? 'Growing'

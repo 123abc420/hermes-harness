@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Zap, Waves, Brain, BookOpen, Github, Eye, Activity } from 'lucide-react';
@@ -168,15 +169,13 @@ export function HarnessDashboard() {
                     value={tab.value}
                     data-tab-value={tab.value}
                     aria-label={tab.label}
-                    className={`relative z-10 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm ${
-                      isAgentTab && isActive
-                        ? 'bg-transparent text-amber-300'
-                        : isActive
-                        ? 'bg-transparent text-amber-400'
-                        : isAgentTab
-                        ? 'text-zinc-400 hover:bg-amber-500/5 hover:text-amber-300'
-                        : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'
-                    }`}
+                    className={cn(
+                      'relative z-10 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:text-sm',
+                      isAgentTab && isActive && 'bg-transparent text-amber-300',
+                      !isAgentTab && isActive && 'bg-transparent text-amber-400',
+                      isAgentTab && !isActive && 'text-zinc-400 hover:bg-amber-500/5 hover:text-amber-300',
+                      !isAgentTab && !isActive && 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300'
+                    )}
                   >
                     {isAgentTab && (
                       <span className="relative flex h-2 w-2">
@@ -185,7 +184,7 @@ export function HarnessDashboard() {
                       </span>
                     )}
                     {!isAgentTab && showDot && (
-                      <span className={`absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full ${isActive ? tab.dotColor : tab.dotColorInactive}`} />
+                      <span className={cn('absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full', isActive ? tab.dotColor : tab.dotColorInactive)} />
                     )}
                     <Icon className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">{tab.label}</span>

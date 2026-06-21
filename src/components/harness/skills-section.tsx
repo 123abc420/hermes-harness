@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -82,11 +83,12 @@ export function SkillsSection() {
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
                   aria-pressed={isActive}
-                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-all ${
+                  className={cn(
+                    'rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-all',
                     isActive
                       ? 'bg-amber-500/15 text-amber-300 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.25)]'
                       : 'bg-white/[0.04] text-zinc-500 hover:bg-white/[0.07] hover:text-zinc-400'
-                  }`}
+                  )}
                 >
                   {cat === 'all' ? 'All' : cat.replace('_', ' ')}
                 </button>
@@ -141,7 +143,7 @@ export function SkillsSection() {
                       </h4>
                       <div className="flex shrink-0 items-center gap-1.5">
                         {skill.category && (
-                          <span className={`rounded px-1.5 py-0.5 text-[9px] font-mono ${catColor}`}>
+                          <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-mono', catColor)}>
                             {skill.category.replace('_', ' ')}
                           </span>
                         )}

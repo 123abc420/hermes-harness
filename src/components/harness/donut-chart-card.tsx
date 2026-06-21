@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { type LucideIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -35,7 +36,7 @@ export function DonutChartCard({
       <Card className="glass-card">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Icon className={`h-4 w-4 ${iconColor}`} />
+            <Icon className={cn('h-4 w-4', iconColor)} />
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
               {title}
             </CardTitle>
@@ -53,13 +54,13 @@ export function DonutChartCard({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Icon className={`h-4 w-4 ${iconColor}`} />
+            <Icon className={cn('h-4 w-4', iconColor)} />
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
               {title}
             </CardTitle>
           </div>
           {headerBadge && (
-            <span className={`text-[10px] font-mono ${badgeColor}`}>
+            <span className={cn('text-[10px] font-mono', badgeColor)}>
               {headerBadge}
             </span>
           )}

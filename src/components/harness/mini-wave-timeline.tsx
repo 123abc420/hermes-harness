@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import type { Wave } from '@/store/harness-store';
@@ -45,7 +46,7 @@ export function MiniWaveTimeline({ waves }: { waves: Wave[] }) {
                   <div className="absolute left-[9px] top-6 h-full w-px bg-white/[0.06]" />
                 )}
                 <div
-                  className={`relative z-10 mt-0.5 h-[18px] w-[18px] shrink-0 rounded-full border-2 ${statusColor}`}
+                  className={cn('relative z-10 mt-0.5 h-[18px] w-[18px] shrink-0 rounded-full border-2', statusColor)}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -53,15 +54,13 @@ export function MiniWaveTimeline({ waves }: { waves: Wave[] }) {
                       WAVE {wave.waveNumber}
                     </span>
                     <span
-                      className={`rounded-full px-1.5 py-0.5 text-[9px] font-mono font-medium ${
-                        wave.status === 'completed'
-                          ? 'bg-emerald-500/10 text-emerald-400'
-                          : wave.status === 'failed'
-                            ? 'bg-red-500/10 text-red-400'
-                            : wave.status === 'running'
-                              ? 'bg-amber-500/10 text-amber-400'
-                              : 'bg-zinc-500/10 text-zinc-400'
-                      }`}
+                      className={cn(
+                        'rounded-full px-1.5 py-0.5 text-[9px] font-mono font-medium',
+                        wave.status === 'completed' && 'bg-emerald-500/10 text-emerald-400',
+                        wave.status === 'failed' && 'bg-red-500/10 text-red-400',
+                        wave.status === 'running' && 'bg-amber-500/10 text-amber-400',
+                        wave.status !== 'completed' && wave.status !== 'failed' && wave.status !== 'running' && 'bg-zinc-500/10 text-zinc-400'
+                      )}
                     >
                       {wave.status.toUpperCase()}
                     </span>

@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingDown, AlertTriangle, BarChart3 } from 'lucide-react';
 import {
@@ -51,7 +52,7 @@ export function ErrorTrendChart({ errorTrend }: { errorTrend?: DashboardData['er
           <CardTitle className="text-xs font-medium uppercase tracking-wider text-zinc-500">
             Error Rate Trend
           </CardTitle>
-          <div className={`flex items-center gap-1 text-xs ${isTrendingDown ? 'text-emerald-400' : 'text-amber-400'}`}>
+          <div className={cn('flex items-center gap-1 text-xs', isTrendingDown ? 'text-emerald-400' : 'text-amber-400')}>
             {isTrendingDown ? (
               <>
                 <TrendingDown className="h-3 w-3" />
