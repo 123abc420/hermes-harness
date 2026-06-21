@@ -72,6 +72,16 @@ export function AgentAvatarCanvas() {
   // Mutable refs for layout values that ResizeObserver updates
   const layoutRef = useRef({ W: 800, H: 600, cx: 400, cy: 252, SCALE: 2.2, dpr: 1 });
 
+  // Character personality: look-around state (plain mutable objects, not hooks)
+  const lookTarget = useRef({ x: 0.5, y: 0.5 });
+  const lookCurrent = useRef({ x: 0.5, y: 0.5 });
+  const nextLookTime = useRef(5000 + Math.random() * 3000);
+  const lookTimer = useRef(0);
+  const headTilt = useRef(0);
+  const headTiltTarget = useRef(0);
+  const nextPulseTime = useRef(4000 + Math.random() * 2000);
+  const pulseTimer = useRef(0);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -102,6 +112,25 @@ export function AgentAvatarCanvas() {
 
     // Read layout from ref (updated by ResizeObserver)
     let { W, H, cx, cy, SCALE } = layoutRef.current;
+
+    // ─── Data Rain (ambient vertical character streams) ───
+    const DATA_RAIN_CHARS = ['0','1','{','}','[',']','<','>','/','+','-','=','*'];
+    const dataRainDrops: Array<{ x: number; y: number; speed: number; char: string; alpha: number }> = [];
+    const RAIN_COLS = 25;
+    for (let c = 0; c < RAIN_COLS; c++) {
+      if (Math.random() < 0.4) {
+        dataRainDrops.push({
+          x: (c / RAIN_COLS) * W + Math.random() * (W / RAIN_COLS),
+          y: Math.random() * H,
+          speed: 0.3 + Math.random() * 0.8,
+          char: DATA_RAIN_CHARS[Math.floor(Math.random() * DATA_RAIN_CHARS.length)],
+          alpha: 0.03 + Math.random() * 0.06,
+        });
+      }
+    }
+
+    // ─── Heartbeat pulse rings (plain array, timer in component-level ref) ───
+    const pulseRings: Array<{ radius: number; alpha: number }> = [];
 
     // ─── Particles (60 floating dots) ───
     const particles = Array.from({ length: 60 }, () => ({
@@ -342,6 +371,47 @@ export function AgentAvatarCanvas() {
       }
 
       // ════════════════════════════════════════════════════
+      // DATA RAIN (ambient terminal feel)
+      // ════════════════════════════════════════════════════
+      ctx.font = `${Math.round(10 * SCALE * 0.3)}px monospace`;
+      ctx.textAlign = 'center';
+      for (const drop of dataRainDrops) {
+        drop.y += drop.speed;
+        if (drop.y > H + 20) {
+          drop.y = -20;
+          drop.char = DATA_RAIN_CHARS[Math.floor(Math.random() * DATA_RAIN_CHARS.length)];
+        }
+        // Occasional character change
+        if (Math.random() < 0.005) {
+          drop.char = DATA_RAIN_CHARS[Math.floor(Math.random() * DATA_RAIN_CHARS.length)];
+        }
+        const [dr, dg, db] = STATE_RGBA[state] || STATE_RGBA.idle;
+        ctx.fillStyle = `rgba(${dr},${dg},${db},${drop.alpha})`;
+        ctx.fillText(drop.char, drop.x, drop.y);
+      }
+
+      // ════════════════════════════════════════════════════
+      // HEARTBEAT PULSE RINGS
+      // ════════════════════════════════════════════════════
+      pulseTimer.current += dt * 1000;
+      if (pulseTimer.current > nextPulseTime.current) {
+        pulseRings.push({ radius: 15 * SCALE * 0.5, alpha: 0.2 });
+        pulseTimer.current = 0;
+        nextPulseTime.current = 4000 + Math.random() * 2000;
+      }
+      for (let i = pulseRings.length - 1; i >= 0; i--) {
+        const pr = pulseRings[i];
+        pr.radius += dt * 60 * SCALE * 0.5;
+        pr.alpha *= 0.985;
+        if (pr.alpha < 0.005) { pulseRings.splice(i, 1); continue; }
+        ctx.beginPath();
+        ctx.arc(cx, cy + 5, pr.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(state, pr.alpha);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // ════════════════════════════════════════════════════
       // GRID (very subtle)
       // ════════════════════════════════════════════════════
       ctx.strokeStyle = 'rgba(26, 58, 42, 0.15)';
@@ -576,16 +646,19 @@ export function AgentAvatarCanvas() {
       ctx.fillRect(cx - 16 * SCALE * 0.5 + legSwing, bodyY + 48 * SCALE * 0.5, 16 * SCALE * 0.5, 5 * SCALE * 0.5);
       ctx.fillRect(cx, bodyY + 48 * SCALE * 0.5 - legSwing, 16 * SCALE * 0.5, 5 * SCALE * 0.5);
 
-      // Head
+      // Head (with subtle tilt)
+      ctx.save();
+      ctx.translate(cx, headY);
+      ctx.rotate(headTilt.current * Math.PI / 180);
       ctx.fillStyle = '#FFD5B8';
       ctx.beginPath();
-      ctx.arc(cx, headY, 32 * SCALE * 0.5, 0, Math.PI * 2);
+      ctx.arc(0, 0, 32 * SCALE * 0.5, 0, Math.PI * 2);
       ctx.fill();
 
       // Hair
       ctx.fillStyle = '#4A3728';
       ctx.beginPath();
-      ctx.arc(cx, headY - 5 * SCALE * 0.5, 34 * SCALE * 0.5, Math.PI, 0);
+      ctx.arc(0, -5 * SCALE * 0.5, 34 * SCALE * 0.5, Math.PI, 0);
       ctx.fill();
       ctx.fillRect(cx - 25 * SCALE * 0.5, headY - 18 * SCALE * 0.5, 50 * SCALE * 0.5, 10 * SCALE * 0.5);
 
@@ -600,41 +673,62 @@ export function AgentAvatarCanvas() {
         }
       }
 
-      // Eyes (with mouse tracking)
-      const mx = (mouseRef.current.x - 0.5) * 5;
-      const my = (mouseRef.current.y - 0.5) * 3;
+      // ── Character personality: look-around ──
+      lookTimer.current += dt * 1000;
+      if (lookTimer.current > nextLookTime.current) {
+        lookTarget.current = {
+          x: 0.3 + Math.random() * 0.4,
+          y: 0.35 + Math.random() * 0.3,
+        };
+        headTiltTarget.current = (Math.random() - 0.5) * 6; // -3 to +3 degrees
+        nextLookTime.current = 5000 + Math.random() * 3000;
+        lookTimer.current = 0;
+      }
+      // Smooth interpolation toward look target
+      lookCurrent.current.x += (lookTarget.current.x - lookCurrent.current.x) * dt * 2;
+      lookCurrent.current.y += (lookTarget.current.y - lookCurrent.current.y) * dt * 2;
+      headTilt.current += (headTiltTarget.current - headTilt.current) * dt * 3;
+
+      // If mouse is moving, override look target with mouse position
+      const mouseActive = Math.abs(mouseRef.current.x - 0.5) > 0.05 || Math.abs(mouseRef.current.y - 0.5) > 0.05;
+      const lookX = mouseActive ? mouseRef.current.x : lookCurrent.current.x;
+      const lookY = mouseActive ? mouseRef.current.y : lookCurrent.current.y;
+
+      // Eyes (with tracking — mouse or auto-look)
+      const mx = (lookX - 0.5) * 5;
+      const my = (lookY - 0.5) * 3;
 
       const eyeScale = SCALE * 0.5;
       if (!isBlinking.current) {
         ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.ellipse(cx - 12 * eyeScale, headY + 2 * eyeScale, 8 * eyeScale, 9 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(cx + 12 * eyeScale, headY + 2 * eyeScale, 8 * eyeScale, 9 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(-12 * eyeScale, 2 * eyeScale, 8 * eyeScale, 9 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(12 * eyeScale, 2 * eyeScale, 8 * eyeScale, 9 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
         // Pupils
         ctx.fillStyle = '#1a1a2e';
-        ctx.beginPath(); ctx.arc(cx - 12 * eyeScale + mx, headY + 2 * eyeScale + my, 4.5 * eyeScale, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + 12 * eyeScale + mx, headY + 2 * eyeScale + my, 4.5 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-12 * eyeScale + mx, 2 * eyeScale + my, 4.5 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(12 * eyeScale + mx, 2 * eyeScale + my, 4.5 * eyeScale, 0, Math.PI * 2); ctx.fill();
         // Highlights
         ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(cx - 10 * eyeScale + mx, headY - 1 * eyeScale + my, 2 * eyeScale, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + 14 * eyeScale + mx, headY - 1 * eyeScale + my, 2 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-10 * eyeScale + mx, -1 * eyeScale + my, 2 * eyeScale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(14 * eyeScale + mx, -1 * eyeScale + my, 2 * eyeScale, 0, Math.PI * 2); ctx.fill();
         // State-tinted eye glow
-        const eyeGlow = ctx.createRadialGradient(cx, headY + 2 * eyeScale, 0, cx, headY + 2 * eyeScale, 20 * eyeScale);
+        const eyeGlow = ctx.createRadialGradient(0, 2 * eyeScale, 0, 0, 2 * eyeScale, 20 * eyeScale);
         eyeGlow.addColorStop(0, rgba(state, 0.06));
         eyeGlow.addColorStop(1, 'transparent');
         ctx.fillStyle = eyeGlow;
-        ctx.fillRect(cx - 25 * eyeScale, headY - 20 * eyeScale, 50 * eyeScale, 40 * eyeScale);
+        ctx.fillRect(-25 * eyeScale, -20 * eyeScale, 50 * eyeScale, 40 * eyeScale);
       } else {
         ctx.strokeStyle = '#1a1a2e';
         ctx.lineWidth = 2 * eyeScale;
-        ctx.beginPath(); ctx.moveTo(cx - 18 * eyeScale, headY + 2 * eyeScale); ctx.lineTo(cx - 6 * eyeScale, headY + 2 * eyeScale); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cx + 6 * eyeScale, headY + 2 * eyeScale); ctx.lineTo(cx + 18 * eyeScale, headY + 2 * eyeScale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-18 * eyeScale, 2 * eyeScale); ctx.lineTo(-6 * eyeScale, 2 * eyeScale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(6 * eyeScale, 2 * eyeScale); ctx.lineTo(18 * eyeScale, 2 * eyeScale); ctx.stroke();
       }
 
       // Blush
       if (state === 'celebrating' || state === 'thinking') {
         ctx.fillStyle = 'rgba(255, 153, 153, 0.35)';
-        ctx.beginPath(); ctx.ellipse(cx - 22 * eyeScale, headY + 8 * eyeScale, 6 * eyeScale, 4 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(cx + 22 * eyeScale, headY + 8 * eyeScale, 6 * eyeScale, 4 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(-22 * eyeScale, 8 * eyeScale, 6 * eyeScale, 4 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(22 * eyeScale, 8 * eyeScale, 6 * eyeScale, 4 * eyeScale, 0, 0, Math.PI * 2); ctx.fill();
       }
 
       // Mouth
@@ -642,14 +736,17 @@ export function AgentAvatarCanvas() {
       const mouthW = (state === 'error' ? 6 : state === 'celebrating' ? 5 : 4) * eyeScale;
       const mouthH = (state === 'error' ? 2 : state === 'celebrating' ? 5 : 3) * eyeScale;
       ctx.beginPath();
-      ctx.ellipse(cx, headY + 15 * eyeScale, mouthW, mouthH, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 15 * eyeScale, mouthW, mouthH, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore(); // Restore from head tilt transform
       ctx.fill();
 
       // ════════════════════════════════════════════════════
-      // FLOATING ORB with trail
+      // FLOATING ORB with trail (follows head tilt slightly)
       // ════════════════════════════════════════════════════
       const orbAngle = t * 0.002;
-      const orbX = cx + Math.sin(orbAngle) * 50 * SCALE * 0.5;
+      const orbX = cx + Math.sin(orbAngle) * 50 * SCALE * 0.5 + headTilt.current * 0.3;
       const orbY = headY - 35 * SCALE * 0.5 + Math.cos(t * 0.003) * 12;
       const orbSize = (7 + Math.sin(t * 0.006) * 2.5) * SCALE * 0.5;
 

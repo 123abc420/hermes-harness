@@ -4512,3 +4512,24 @@ Stage Summary:
 - All 10 agent states have unique visual effects on the canvas
 - CRT scanlines + intensified vignette add depth and "monitoring terminal" atmosphere
 - Files changed: agent-avatar-canvas.tsx
+
+---
+Task ID: W230
+Agent: Main Orchestrator
+Task: Ambient canvas enhancements — data rain, character personality, heartbeat pulses
+
+Work Log:
+- ASSESS: Dev log clean (6.4s first compile, no errors). Context: W229 just shipped.
+- PLAN: Canvas idle state too static. 3 ambient improvements planned.
+- EXECUTE 1: Added data rain — 25 columns of faint falling characters (0,1,{,},<,>,/,+,-,=,*) at 3-6% opacity. State-tinted color. Creates subtle terminal atmosphere.
+- EXECUTE 2: Added character personality — every 5-8s eyes drift to random position + head tilts ±3°. Smooth interpolation. Mouse movement overrides auto-look. Head drawn with ctx.save/translate/rotate/restore.
+- EXECUTE 3: Added heartbeat pulse rings — every 4-6s a ring emanates from character center, expanding outward with fading opacity. Creates alive/breathing rhythm.
+- VERIFY: `bun run lint` — 0 errors. `bun run build` — success.
+- PERSIST: Wave + decision recorded. GitHub push.
+
+Stage Summary:
+- Canvas now has 3 layers of ambient motion even during idle standby
+- Character has personality (looks around, tilts head) — no longer stares blankly
+- Data rain gives terminal/matrix atmosphere at very low opacity
+- Heartbeat pulses create a breathing rhythm from the character
+- Files changed: agent-avatar-canvas.tsx
