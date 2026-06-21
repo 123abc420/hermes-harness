@@ -4881,3 +4881,22 @@ Stage Summary:
 - Success rate now accurately 93.5% (was misleadingly low)
 - seed/route.ts: exportable (no hardcoded URL), cleaner payload
 - Git push: 9b54a8c..e406099
+---
+Task ID: W240
+Agent: Wave Engine (orchestrator)
+Task: Fix misleading getStateRgb alias + derive ACTIVITY_FILTERS icons from STATE_ICONS
+
+Work Log:
+- ASSESS: Read worklog, SPEC.md, context.md, insights.md, guardrails.md, dev.log, dashboard API
+- Identified misleading alias `const getStateRgb = getStateHex` in agent-live-panel.tsx (function returns hex, not RGB)
+- Identified ACTIVITY_FILTERS emojis duplicating canonical STATE_ICONS from agent-live-subcomponents.tsx
+- PLAN: 2 improvements — rename alias, derive filter icons from single source of truth
+- EXECUTE: Renamed getStateRgb→getStateColor (7 usages), derived 6 filter icons from STATE_ICONS
+- VERIFY: lint 0 errors, build 19/19 routes, no dev.log errors
+- PERSIST: Committed and pushed
+
+Stage Summary:
+- agent-live-panel.tsx: getStateRgb→getStateColor (accurate naming, 7 call sites)
+- ACTIVITY_FILTERS icons now derived from STATE_ICONS (eliminates emoji duplication)
+- 0 net line change (semantic cleanup only)
+- Git push: abc5e34..<pending>

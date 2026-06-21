@@ -20,22 +20,23 @@ import { AgentNetworkCanvas } from './agent-network-canvas';
 import { PhaseTracker, STATE_COLORS, STATE_ICONS } from './agent-live-subcomponents';
 
 // ─── State filter options for activity feed (W235) ─────────────
+// Icons derived from canonical STATE_ICONS (single source of truth)
 const ACTIVITY_FILTERS: Array<{ state: AgentVisualState | 'all'; label: string; icon: string }> = [
   { state: 'all', label: 'All', icon: '•' },
-  { state: 'thinking', label: 'Think', icon: '🧠' },
-  { state: 'executing', label: 'Exec', icon: '⚡' },
-  { state: 'planning', label: 'Plan', icon: '📋' },
-  { state: 'verifying', label: 'Verify', icon: '✅' },
-  { state: 'celebrating', label: 'Done', icon: '🎉' },
-  { state: 'error', label: 'Error', icon: '💥' },
+  { state: 'thinking', label: 'Think', icon: STATE_ICONS.thinking },
+  { state: 'executing', label: 'Exec', icon: STATE_ICONS.executing },
+  { state: 'planning', label: 'Plan', icon: STATE_ICONS.planning },
+  { state: 'verifying', label: 'Verify', icon: STATE_ICONS.verifying },
+  { state: 'celebrating', label: 'Done', icon: STATE_ICONS.celebrating },
+  { state: 'error', label: 'Error', icon: STATE_ICONS.error },
 ];
 
-// State → hex color (single source of truth from constants.ts)
-const getStateRgb = getStateHex;
+// State → hex color (derived from STATE_RGB in constants.ts — single source of truth)
+const getStateColor = getStateHex;
 
 // ─── Activity Entry (W237: left accent stripe + new-item glow flash, memoized) ─
 const ActivityEntry = memo(function ActivityEntry({ entry, isNew }: { entry: LiveActivityEntry; isNew: boolean }) {
-  const stateRgb = getStateRgb(entry.state);
+  const stateColor = getStateColor(entry.state);
   const ageMs = Date.now() - entry.timestamp;
   const isVeryNew = ageMs < 3000;
   return (
@@ -47,14 +48,14 @@ const ActivityEntry = memo(function ActivityEntry({ entry, isNew }: { entry: Liv
         isVeryNew ? 'bg-white/[0.04]' : ''
       }`}
       style={isVeryNew ? {
-        borderLeft: `2px solid ${stateRgb}60`,
-        boxShadow: `inset 3px 0 8px -3px ${stateRgb}20`,
+        borderLeft: `2px solid ${stateColor}60`,
+        boxShadow: `inset 3px 0 8px -3px ${stateColor}20`,
       } : undefined}
     >
       {/* Left accent stripe */}
       <div
         className={`w-[2px] rounded-full shrink-0 mt-0.5 transition-opacity ${isVeryNew ? 'opacity-100' : 'opacity-40 group-hover:opacity-80'}`}
-        style={{ backgroundColor: getStateRgb(entry.state), height: '28px' }}
+        style={{ backgroundColor: getStateColor(entry.state), height: '28px' }}
       />
       <span className="text-sm mt-0.5 shrink-0">{STATE_ICONS[entry.state] || '•'}</span>
       <div className="flex-1 min-w-0">
@@ -277,9 +278,9 @@ export function AgentLivePanel() {
             <motion.div
               animate={{
                 boxShadow: [
-                  `0 0 8px ${getStateRgb(agentState)}25, 0 0 16px ${getStateRgb(agentState)}10`,
-                  `0 0 14px ${getStateRgb(agentState)}45, 0 0 28px ${getStateRgb(agentState)}20`,
-                  `0 0 8px ${getStateRgb(agentState)}25, 0 0 16px ${getStateRgb(agentState)}10`,
+                  `0 0 8px ${getStateColor(agentState)}25, 0 0 16px ${getStateColor(agentState)}10`,
+                  `0 0 14px ${getStateColor(agentState)}45, 0 0 28px ${getStateColor(agentState)}20`,
+                  `0 0 8px ${getStateColor(agentState)}25, 0 0 16px ${getStateColor(agentState)}10`,
                 ]
               }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -552,12 +553,12 @@ export function AgentLivePanel() {
                         {isActive && f.state !== 'all' && (
                           <span
                             className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-40"
-                            style={{ backgroundColor: getStateRgb(f.state) }}
+                            style={{ backgroundColor: getStateColor(f.state) }}
                           />
                         )}
                         <span
                           className="relative inline-flex rounded-full h-2 w-2"
-                          style={{ backgroundColor: f.state === 'all' ? '#71717a' : getStateRgb(f.state) }}
+                          style={{ backgroundColor: f.state === 'all' ? '#71717a' : getStateColor(f.state) }}
                         />
                       </span>
                       <span>{f.label}</span>

@@ -218,4 +218,6 @@
 ## Stale Component Duplication
 
 - When `page.tsx` and `harness-dashboard.tsx` both render the same dashboard, improvements to one silently miss the other. The one actually rendered (page.tsx) gets stale.
-- The harness-dashboard.tsx was the "premium" version with more features, but page.tsx is what users see. This is the #1 feature gap risk in exportable module architectures.
+- This is the #1 feature gap risk in exportable module architectures.
+- **FIXED (W237b)**: page.tsx is now a 12-line thin wrapper that imports HarnessDashboard. No duplication possible.
+- **LESSON**: When extracting shared components, also check for local shadowed imports that prevent the shared version from being used.

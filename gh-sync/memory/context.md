@@ -3,10 +3,10 @@
 > Updated after each wave. Read at wave start.
 
 ## Last Updated
-2026-06-21 12:13 UTC+8
+2026-06-21 12:20 UTC+8
 
 ## System Status
-- **Phase**: Multi-Agent Visual Era (Wave 239)
+- **Phase**: Multi-Agent Visual Era (Wave 240)
 - **Waves in DB**: 154
 - **Spec compliance**: 100% (16/16)
 
@@ -42,6 +42,8 @@
 | SVG gradient IDs | useId() (fixed W238) |
 | Stuck waves in DB | 0 (patched W239) |
 | Hardcoded localhost URLs | 0 (fixed W239) |
+| Misleading getStateRgb alias | 0 (renamed getStateColor, W240) |
+| ACTIVITY_FILTERS icon duplication | 0 (derived from STATE_ICONS, W240) |
 
 ## What exists
 - All 6 tabs, mobile responsive, ARIA complete, keyboard navigable
