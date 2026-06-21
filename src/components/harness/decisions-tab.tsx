@@ -12,6 +12,7 @@ import { ErrorBlock } from './error-block';
 import { DecisionCard } from './decision-card';
 import { ExportMenu } from './export-menu';
 import { CATEGORY_TW, CATEGORY_HEX, VALID_CATEGORIES } from '@/lib/category-colors';
+import { cn } from '@/lib/utils';
 
 // Derive filter buttons from the single source of truth (VALID_CATEGORIES)
 const FILTER_BUTTONS = [
@@ -87,16 +88,18 @@ export function DecisionsTab() {
                   key={btn.value}
                   onClick={() => handleFilterChange(btn.value)}
                   aria-pressed={decisionCategoryFilter === btn.value}
-                  className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 flex items-center gap-1.5 ${
+                  className={cn(
+                    'rounded-md px-2.5 py-1 text-[11px] font-medium transition-all shrink-0 flex items-center gap-1.5',
                     decisionCategoryFilter === btn.value
                       ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.15)]'
-                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]'
-                  }`}
+                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]',
+                  )}
                 >
                   {btn.label}
-                  <span className={`text-[9px] tabular-nums ${
-                    decisionCategoryFilter === btn.value ? 'text-emerald-400/60' : 'text-zinc-600'
-                  }`}>
+                  <span className={cn(
+                    'text-[9px] tabular-nums',
+                    decisionCategoryFilter === btn.value ? 'text-emerald-400/60' : 'text-zinc-600',
+                  )}>
                     {count}
                   </span>
                 </button>
@@ -137,7 +140,7 @@ export function DecisionsTab() {
           </div>
           {topCategory && (
             <div className="flex items-center gap-1.5">
-              <span className={`rounded px-1.5 py-0.5 text-[9px] font-mono ${CATEGORY_TW[topCategory[0]] ?? 'bg-violet-500/10 text-violet-400'}`}>
+              <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-mono', CATEGORY_TW[topCategory[0]] ?? 'bg-violet-500/10 text-violet-400')}>
                 {topCategory[0].replace('_', ' ')}
               </span>
               <span className="text-[10px] text-zinc-600">top category</span>
@@ -256,7 +259,7 @@ function DecisionsInlineViz({ categoryCounts, actionCounts, total }: { categoryC
             return (
               <div
                 key={cat}
-                className={`${catsTotal === total ? '' : 'last:rounded-r-full'} transition-all duration-300`}
+                className={cn('transition-all duration-300', catsTotal !== total && 'last:rounded-r-full')}
                 style={{
                   width: `${pct}%`,
                   backgroundColor: CATEGORY_HEX[cat] ?? '#71717a',
@@ -300,9 +303,9 @@ function DecisionsInlineViz({ categoryCounts, actionCounts, total }: { categoryC
               <div key={a.key} className="flex items-center gap-2">
                 <span className="w-14 shrink-0 text-[9px] font-mono text-zinc-500">{a.label}</span>
                 <div className="h-2.5 flex-1 rounded-full bg-white/[0.04] overflow-hidden">
-                  <div className={`h-full rounded-full ${a.bg} transition-all duration-300`} style={{ width: `${Math.max(pct, 0)}%` }} />
+                  <div className={cn('h-full rounded-full transition-all duration-300', a.bg)} style={{ width: `${Math.max(pct, 0)}%` }} />
                 </div>
-                <span className={`w-6 shrink-0 text-right text-[10px] font-mono tabular-nums ${a.color}`}>{count}</span>
+                <span className={cn('w-6 shrink-0 text-right text-[10px] font-mono tabular-nums', a.color)}>{count}</span>
               </div>
             );
           })}

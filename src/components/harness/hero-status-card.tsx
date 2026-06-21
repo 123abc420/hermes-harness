@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import type { TotalStats, GithubStatus } from '@/store/harness-store';
 import { useAgentLiveStore } from '@/store/agent-live-store';
+import { cn } from '@/lib/utils';
 
 /* ── Circular Progress Ring for Health Score ────────── */
 function HealthRing({ score, trend }: { score: number; trend?: 'up' | 'down' | 'stable' }) {
@@ -138,25 +139,25 @@ export function HeroStatusCard({
     ? (agentState === 'celebrating' ? 'WAVE COMPLETE' : agentState === 'idle' ? 'STANDBY' : agentState.toUpperCase())
     : 'OFFLINE';
 
-  // Pre-compute className strings to avoid nested template literal parsing issues
-  const circleClass = [
+  // Pre-compute className via cn() for readability
+  const circleClass = cn(
     'relative flex h-12 w-12 items-center justify-center rounded-full border',
     isActive ? 'border-emerald-500/30 bg-emerald-500/10'
       : isIdle ? 'border-zinc-600/30 bg-zinc-500/5'
         : 'border-amber-500/30 bg-amber-500/10',
-  ].join(' ');
+  );
 
-  const iconClass = [
+  const iconClass = cn(
     'h-5 w-5',
     isActive ? 'text-emerald-400' : isIdle ? 'text-zinc-500' : 'text-amber-400',
-  ].join(' ');
+  );
 
-  const badgeClass = [
+  const badgeClass = cn(
     'hidden rounded-md px-2 py-0.5 text-[10px] font-mono font-medium sm:inline',
     isActive ? 'bg-emerald-500/10 text-emerald-400'
       : isIdle ? 'bg-zinc-500/10 text-zinc-500'
         : 'bg-amber-500/10 text-amber-400',
-  ].join(' ');
+  );
 
   return (
     <motion.div
@@ -223,7 +224,7 @@ export function HeroStatusCard({
                       <div key={label} className="flex items-center gap-1">
                         <span className="text-[8px] font-mono text-zinc-600 w-2">{label}</span>
                         <div className="h-1 w-12 rounded-full bg-white/[0.06] overflow-hidden">
-                          <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${Math.round((val / max) * 100)}%` }} />
+                          <div className={cn('h-full rounded-full transition-all duration-500', color)} style={{ width: `${Math.round((val / max) * 100)}%` }} />
                         </div>
                         <span className="text-[8px] font-mono tabular-nums text-zinc-600">{val}</span>
                       </div>
@@ -232,16 +233,18 @@ export function HeroStatusCard({
                 )}
                 {latestWave && (
                   <div className="mt-1.5 flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium ${
+                    <span className={cn(
+                      'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-medium',
                       latestWave.status === 'completed'
                         ? 'bg-emerald-500/10 text-emerald-400'
                         : latestWave.status === 'interrupted'
                           ? 'bg-amber-500/10 text-amber-400'
-                          : 'bg-blue-500/10 text-blue-400'
-                    }`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${
-                        latestWave.status === 'completed' ? 'bg-emerald-400' : latestWave.status === 'interrupted' ? 'bg-amber-400' : 'bg-blue-400 animate-pulse'
-                      }`} />
+                          : 'bg-blue-500/10 text-blue-400',
+                    )}>
+                      <span className={cn(
+                        'h-1.5 w-1.5 rounded-full',
+                        latestWave.status === 'completed' ? 'bg-emerald-400' : latestWave.status === 'interrupted' ? 'bg-amber-400' : 'bg-blue-400 animate-pulse',
+                      )} />
                       W{latestWave.waveNumber} {latestWave.status}
                     </span>
                     {latestWave.summary && (
@@ -265,11 +268,12 @@ export function HeroStatusCard({
               )}
               {githubStatus && (
                 <div
-                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+                  className={cn(
+                    'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium',
                     isConnected
                       ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-400'
-                      : 'border-white/[0.06] bg-white/[0.02] text-zinc-500'
-                  }`}
+                      : 'border-white/[0.06] bg-white/[0.02] text-zinc-500',
+                  )}
                 >
                   <Github className="h-3.5 w-3.5" />
                   {isConnected

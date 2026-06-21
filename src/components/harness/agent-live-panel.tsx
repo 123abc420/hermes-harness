@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useAgentLiveStore, type LiveActivityEntry, type AgentVisualState } from '@/store/agent-live-store';
+import { useAgentLiveStore, type AgentVisualState } from '@/store/agent-live-store';
 import { useWaves, useDecisions } from '@/hooks/use-harness-data';
 import { useWaveReplay } from '@/hooks/use-wave-replay';
 import { useNextWaveCountdown } from '@/hooks/use-next-wave-countdown';
@@ -11,15 +11,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  WifiOff, Zap, Brain, TrendingUp, Waves, Shield, Sparkles,
-  CheckCircle2, Play, Pause, Activity, Terminal,
-  Radio, Clock, Cpu, GitBranch, BarChart3, Heart,
+  Zap, Waves, Shield, Sparkles,
+  Play, Pause, Activity, Terminal,
+  Clock, Cpu, GitBranch, BarChart3,
   Search, Image, Volume2, Eye, Code2, PenTool, Globe,
   FileText, ListTree, Mic, Check,
 } from 'lucide-react';
-import { HERMES_VERSION, getStateHex, STATE_RGB } from '@/lib/constants';
+import { HERMES_VERSION, getStateHex } from '@/lib/constants';
 import { AgentNetworkCanvas } from './agent-network-canvas';
-import { STATE_COLORS, STATE_ICONS, PHASE_STEPS } from './agent-live-subcomponents';
+import { STATE_ICONS, PHASE_STEPS } from './agent-live-subcomponents';
 
 // ─── State Visual Config ──────────────────────────────────────
 // Maps each agent state to rich visual properties for the entire panel
@@ -92,21 +92,28 @@ const STATE_VISUALS: Record<string, {
 };
 
 // ─── Agent Capability Palette ─────────────────────────────────
-// Defines all skills the agent can use. `matchState` determines which state activates it.
-const AGENT_SKILLS = [
-  { id: 'web-search', label: 'Web Search', icon: Search, matchStates: ['searching'] as AgentVisualState[] },
-  { id: 'image-gen', label: 'Image Gen', icon: Image, matchStates: ['executing'] as AgentVisualState[] },
-  { id: 'tts', label: 'Voice', icon: Volume2, matchStates: [] as AgentVisualState[] },
-  { id: 'vlm', label: 'Vision', icon: Eye, matchStates: ['thinking'] as AgentVisualState[] },
-  { id: 'code-edit', label: 'Code Edit', icon: Code2, matchStates: ['executing'] as AgentVisualState[] },
-  { id: 'git-push', label: 'Git Push', icon: GitBranch, matchStates: ['executing'] as AgentVisualState[] },
-  { id: 'file-read', label: 'File Read', icon: FileText, matchStates: ['thinking', 'searching'] as AgentVisualState[] },
-  { id: 'file-write', label: 'File Write', icon: PenTool, matchStates: ['executing'] as AgentVisualState[] },
-  { id: 'terminal', label: 'Terminal', icon: Terminal, matchStates: ['executing'] as AgentVisualState[] },
-  { id: 'browser', label: 'Browser', icon: Globe, matchStates: ['searching'] as AgentVisualState[] },
-  { id: 'data-analysis', label: 'Analytics', icon: BarChart3, matchStates: ['thinking', 'verifying'] as AgentVisualState[] },
-  { id: 'planning', label: 'Planning', icon: ListTree, matchStates: ['planning'] as AgentVisualState[] },
-] as const;
+// Defines all skills the agent can use. `matchStates` determines which state activates it.
+interface AgentSkill {
+  id: string;
+  label: string;
+  icon: typeof Search;
+  matchStates: AgentVisualState[];
+}
+
+const AGENT_SKILLS: AgentSkill[] = [
+  { id: 'web-search', label: 'Web Search', icon: Search, matchStates: ['searching'] },
+  { id: 'image-gen', label: 'Image Gen', icon: Image, matchStates: ['executing'] },
+  { id: 'tts', label: 'Voice', icon: Volume2, matchStates: [] },
+  { id: 'vlm', label: 'Vision', icon: Eye, matchStates: ['thinking'] },
+  { id: 'code-edit', label: 'Code Edit', icon: Code2, matchStates: ['executing'] },
+  { id: 'git-push', label: 'Git Push', icon: GitBranch, matchStates: ['executing'] },
+  { id: 'file-read', label: 'File Read', icon: FileText, matchStates: ['thinking', 'searching'] },
+  { id: 'file-write', label: 'File Write', icon: PenTool, matchStates: ['executing'] },
+  { id: 'terminal', label: 'Terminal', icon: Terminal, matchStates: ['executing'] },
+  { id: 'browser', label: 'Browser', icon: Globe, matchStates: ['searching'] },
+  { id: 'data-analysis', label: 'Analytics', icon: BarChart3, matchStates: ['thinking', 'verifying'] },
+  { id: 'planning', label: 'Planning', icon: ListTree, matchStates: ['planning'] },
+];
 
 // ─── Ambient Floating Particles ──────────────────────────────
 function AmbientParticles({ color }: { color: string }) {
@@ -351,14 +358,14 @@ function LiveSubtitleBar({ message, agentState, glowColor }: {
         {/* Mic icon (voice/subtitle indicator) */}
         <motion.div
           className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.08]"
-          animate={{
-            boxShadow: message ? [
+          animate={message ? {
+            boxShadow: [
               `0 0 0px ${glowColor}00`,
               `0 0 12px ${glowColor}30`,
               `0 0 0px ${glowColor}00`,
-            ] : {},
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            ],
+          } : undefined}
+          transition={message ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : undefined}
         >
           <Mic className="w-3.5 h-3.5 text-zinc-400" />
         </motion.div>
@@ -399,7 +406,7 @@ export function AgentLivePanel() {
 
   // Data hooks
   const { data: wavesData } = useWaves(1, 1);
-  const { data: decisionsData } = useDecisions(1, 3);
+  useDecisions(1, 3);
   const { toggleReplay, isReplaying } = useWaveReplay();
 
   const latestWave = wavesData?.waves?.[0];

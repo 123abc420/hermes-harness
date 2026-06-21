@@ -5232,3 +5232,23 @@ Stage Summary:
 - full-update body spread: unsafe → FULL_UPDATE_KEYS whitelist + safe for-loop
 - Net: +40 -32 lines across 2 files
 - Known issue: dev server crashes on dashboard API compilation in sandbox (OOM, not a code bug)
+
+---
+Task ID: 250
+Agent: Wave Engine (auto)
+Task: W250 — Type assertion cleanup + cn() consistency
+
+Work Log:
+- ASSESS: Full scan: 0 as any, 0 @ts-ignore, 0 TODO/FIXME, 9/9 Zod routes, 0 lint errors
+- PLAN: 2 improvements — (1) eliminate 12 `as AgentVisualState[]` in agent-live-panel, (2) cn() migration in decisions-tab + hero-status-card
+- EXECUTE:
+  - agent-live-panel.tsx: Added `AgentSkill` interface, typed `AGENT_SKILLS: AgentSkill[]`, removed 12 `as AgentVisualState[]` casts + `as const`
+  - decisions-tab.tsx: Migrated 6 template-literal className patterns to cn(), added cn import
+  - hero-status-card.tsx: Migrated 7 patterns (3 pre-computed .join(' ') → cn(), 4 inline template literals → cn()), added cn import
+- VERIFY: eslint 0 errors, dev.log clean, confirmed 0 `as AgentVisualState[]` remaining
+
+Stage Summary:
+- `as AgentVisualState[]` assertions: 12 → 0
+- cn() adoption: 4 → 6 harness files (+decisions-tab, +hero-status-card)
+- Template-literal className in harness: 42 remaining across 17 files (was 55 before prior waves)
+- Net: +10 -16 lines across 3 files (net reduction via cleaner patterns)
