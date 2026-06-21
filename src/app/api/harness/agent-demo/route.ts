@@ -1,13 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { agentDemoPostSchema, validationError } from '@/lib/schemas';
-import { logDebug } from '@/lib/logger';
+import { agentDemoPostSchema, validationError, VALID_AGENT_STATES_Z, VALID_PHASES_Z } from '@/lib/schemas';
+import { logError, logDebug } from '@/lib/logger';
 
 const DEMO_SECRET = process.env.DEMO_SECRET;
 
 // Agent-status is in the same Next.js server — use relative URL
 const STATUS_ENDPOINT = '/api/harness/agent-status';
 
-const DEMO_SEQUENCE: (Record<string, string | number> & { type?: string })[] = [
+/** Typed demo step — either a status broadcast or a sub-agent command. */
+type StatusStep = {
+  type?: undefined;
+  agentState: (typeof VALID_AGENT_STATES_Z)[number];
+  message: string;
+  phase: (typeof VALID_PHASES_Z)[number];
+  progress: number;
+};
+
+type SubAgentStep = {
+  type: 'sub-agent';
+  name: string;
+  state: string;
+  color: string;
+  message: string;
+};
+
+type ClearStep = {
+  type: 'sub-agent-clear';
+};
+
+const DEMO_SEQUENCE: (StatusStep | SubAgentStep | ClearStep)[] = [
   { agentState: 'thinking', message: 'ASSESS: Reading context.md...', phase: 'assess', progress: 0.08 },
   { agentState: 'thinking', message: 'ASSESS: Analyzing system state...', phase: 'assess', progress: 0.15 },
   { agentState: 'searching', message: 'ASSESS: Verifying build status and lint...', phase: 'assess', progress: 0.22 },
@@ -50,39 +71,44 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  for (const step of DEMO_SEQUENCE) {
-    await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 500));
+  try {
+    for (const step of DEMO_SEQUENCE) {
+      await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 500));
 
-    if (step.type === 'sub-agent') {
-      await postToStatus({
-        type: 'sub-agent',
-        name: step.name as string,
-        state: step.state as string,
-        color: step.color as string,
-        message: step.message as string,
-      });
-    } else if (step.type === 'sub-agent-clear') {
-      await postToStatus({ type: 'sub-agent-clear' });
-    } else {
-      await postToStatus({
-        type: 'activity',
-        agentState: step.agentState as string,
-        message: step.message as string,
-        phase: step.phase as string,
-      });
-      await postToStatus({
-        agentState: step.agentState as string,
-        message: step.message as string,
-        phase: step.phase as string,
-        waveNumber: 3,
-        progress: step.progress,
-        waveCount: 2,
-        totalImprovements: 6,
-        totalDecisions: 12,
-      });
+      if (step.type === 'sub-agent') {
+        await postToStatus({
+          type: 'sub-agent',
+          name: step.name,
+          state: step.state,
+          color: step.color,
+          message: step.message,
+        });
+      } else if (step.type === 'sub-agent-clear') {
+        await postToStatus({ type: 'sub-agent-clear' });
+      } else {
+        await postToStatus({
+          type: 'activity',
+          agentState: step.agentState,
+          message: step.message,
+          phase: step.phase,
+        });
+        await postToStatus({
+          agentState: step.agentState,
+          message: step.message,
+          phase: step.phase,
+          waveNumber: 3,
+          progress: step.progress,
+          waveCount: 2,
+          totalImprovements: 6,
+          totalDecisions: 12,
+        });
+      }
     }
+    return NextResponse.json({ ok: true, message: 'Demo sequence completed' });
+  } catch (error) {
+    logError('AGENT_DEMO_GET', error);
+    return NextResponse.json({ error: 'Demo sequence failed' }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, message: 'Demo sequence completed' });
 }
 
 // POST: Single status update

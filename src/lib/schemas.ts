@@ -115,6 +115,73 @@ export const updateConfigSchema = z.object({
 
 export type UpdateConfigInput = z.infer<typeof updateConfigSchema>;
 
+// ── Agent-status POST schemas ──────────────────────────────────────
+
+/** Valid agent state values (single source of truth). */
+export const VALID_AGENT_STATES_Z = [
+  'idle', 'thinking', 'searching', 'planning', 'executing',
+  'verifying', 'celebrating', 'error', 'evolving', 'offline',
+] as const;
+
+/** Valid wave phase values. */
+export const VALID_PHASES_Z = [
+  'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
+] as const;
+
+/** Valid broadcast type values. */
+export const VALID_BROADCAST_TYPES = [
+  'status', 'activity', 'node', 'node-remove', 'node-clear',
+  'sub-agent', 'sub-agent-remove', 'sub-agent-clear', 'sub-agent-update',
+  'node-pulse', 'decision-count', 'full-update',
+] as const;
+export type BroadcastType = (typeof VALID_BROADCAST_TYPES)[number];
+
+/** Allowed keys for the full-update spread (prevents injection). */
+export const FULL_UPDATE_KEYS = new Set([
+  'agentState', 'message', 'phase', 'waveNumber', 'progress',
+  'waveCount', 'totalImprovements', 'totalDecisions', 'decisionCountThisWave',
+  'activities', 'subAgents',
+]);
+
+/**
+ * Zod schema for agent-status POST body.
+ * Validates base fields (agentState, progress, etc.) and constrains `type`
+ * to known broadcast types. Type-specific fields are validated per-handler
+ * to keep the schema maintainable.
+ */
+export const agentStatusPostSchema = z.object({
+  type: z.enum(VALID_BROADCAST_TYPES).optional(),
+  agentState: z.enum(VALID_AGENT_STATES_Z).optional(),
+  message: z.string().max(500).optional(),
+  phase: z.enum(VALID_PHASES_Z).optional(),
+  waveNumber: z.number().int().min(0).optional(),
+  progress: z.number().min(0).max(1).optional(),
+  // Type-specific fields (validated on demand per handler)
+  nodeId: z.string().max(100).optional(),
+  nodeType: z.string().max(50).optional(),
+  nodeName: z.string().max(80).optional(),
+  nodeState: z.string().max(50).optional(),
+  nodeMessage: z.string().max(300).optional(),
+  nodeColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  connections: z.array(z.string().max(100)).optional(),
+  fromNode: z.string().max(100).optional(),
+  toNode: z.string().max(100).optional(),
+  name: z.string().max(80).optional(),
+  state: z.string().max(50).optional(),
+  color: z.string().max(20).optional(),
+  agentId: z.string().max(100).optional(),
+  category: z.string().max(50).optional(),
+  description: z.string().max(200).optional(),
+  waveCount: z.number().int().min(0).optional(),
+  totalImprovements: z.number().int().min(0).optional(),
+  totalDecisions: z.number().int().min(0).optional(),
+  decisionCountThisWave: z.number().int().min(0).optional(),
+  activities: z.array(z.record(z.string(), z.unknown())).optional(),
+  subAgents: z.array(z.record(z.string(), z.unknown())).optional(),
+}).strict();
+
+export type AgentStatusPostInput = z.infer<typeof agentStatusPostSchema>;
+
 /** Minimal validation for agent-demo POST body (forwarded to agent-status). */
 export const agentDemoPostSchema = z.object({
   type: z.string().min(1).optional(),

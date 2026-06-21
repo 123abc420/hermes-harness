@@ -1,36 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logError } from '@/lib/logger';
 import { formatArgentinaTime } from '@/lib/constants';
-
-const VALID_AGENT_STATES = new Set([
-  'idle', 'thinking', 'searching', 'planning', 'executing',
-  'verifying', 'celebrating', 'error', 'evolving', 'offline',
-]);
-
-const VALID_PHASES = new Set([
-  'assess', 'plan', 'execute', 'verify', 'persist', 'report', '',
-]);
-
-function validateAgentState(value: unknown): string | null {
-  if (value === undefined || value === null) return null;
-  const s = String(value);
-  if (!VALID_AGENT_STATES.has(s)) return `Invalid agentState: "${s}"`;
-  return null;
-}
-
-function validateProgress(value: unknown): string | null {
-  if (value === undefined || value === null) return null;
-  const n = Number(value);
-  if (!Number.isFinite(n) || n < 0 || n > 1) return 'progress must be between 0 and 1';
-  return null;
-}
-
-function validateWaveNumber(value: unknown): string | null {
-  if (value === undefined || value === null) return null;
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < 0) return 'waveNumber must be a non-negative integer';
-  return null;
-}
+import {
+  agentStatusPostSchema,
+  validationError,
+  FULL_UPDATE_KEYS,
+} from '@/lib/schemas';
 
 // ─── In-memory state ─
 interface AgentStatus {
@@ -265,32 +240,21 @@ export async function GET(req: NextRequest) {
 // POST: Update agent status
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => null);
-    if (!body) {
+    const raw = await req.json().catch(() => null);
+    if (!raw) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
+
+    const parsed = agentStatusPostSchema.safeParse(raw);
+    if (!parsed.success) {
+      return validationError(agentStatusPostSchema, raw);
+    }
+    const body = parsed.data;
 
     const { agentState, message, phase, waveNumber, progress, type } = body;
 
     if (!agentState && !message && !type) {
       return NextResponse.json({ error: 'Missing agentState or message' }, { status: 400 });
-    }
-
-    // Validate agentState if provided
-    const stateErr = validateAgentState(agentState);
-    if (stateErr) return NextResponse.json({ error: stateErr }, { status: 400 });
-
-    // Validate progress if provided
-    const progressErr = validateProgress(progress);
-    if (progressErr) return NextResponse.json({ error: progressErr }, { status: 400 });
-
-    // Validate waveNumber if provided
-    const waveErr = validateWaveNumber(waveNumber);
-    if (waveErr) return NextResponse.json({ error: waveErr }, { status: 400 });
-
-    // Validate phase if provided
-    if (phase !== undefined && phase !== null && !VALID_PHASES.has(String(phase))) {
-      return NextResponse.json({ error: `Invalid phase: "${phase}"` }, { status: 400 });
     }
 
     // ─── Activity ──────────────────────────────────────────────────
@@ -562,23 +526,22 @@ export async function POST(req: NextRequest) {
 
     // ─── Full Update ──────────────────────────────────────────────
     if (type === 'full-update') {
-      if (body.agentState) {
-        const fullErr = validateAgentState(body.agentState);
-        if (fullErr) return NextResponse.json({ error: fullErr }, { status: 400 });
+      // Only spread known-safe keys (prevents prototype pollution / injection)
+      const safeFullUpdate: Partial<AgentStatus> = {};
+      for (const key of FULL_UPDATE_KEYS) {
+        if (key in body && body[key] !== undefined) {
+          (safeFullUpdate as Record<string, unknown>)[key] = body[key];
+        }
       }
-      if (body.progress !== undefined) {
-        const fullProg = validateProgress(body.progress);
-        if (fullProg) return NextResponse.json({ error: fullProg }, { status: 400 });
-      }
-      latestStatus = { ...latestStatus, ...body, timestamp: Date.now() };
+      latestStatus = { ...latestStatus, ...safeFullUpdate, timestamp: Date.now() };
       if (body.activities) {
-        activityLog = (body.activities as ActivityEntry[]).map(a => ({
+        activityLog = (body.activities as unknown as ActivityEntry[]).map(a => ({
           ...a,
           timestampAR: a.timestampAR || formatArgentinaTime(a.timestamp),
         }));
       }
       if (body.subAgents) {
-        subAgents = body.subAgents as SubAgentEntry[];
+        subAgents = body.subAgents as unknown as SubAgentEntry[];
       }
 
       // Update orchestrator node to celebrating state

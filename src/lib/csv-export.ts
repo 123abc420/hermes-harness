@@ -14,7 +14,7 @@ export function downloadBlob(content: string, filename: string, mime: string) {
 }
 
 /** Convert an array of flat objects to CSV string */
-export function toCSV(rows: Record<string, unknown>[], columns?: string[]): string {
+export function toCSV<T extends Record<string, unknown>>(rows: T[], columns?: string[]): string {
   if (rows.length === 0) return '';
   const cols = columns ?? Object.keys(rows[0]);
   const header = cols.join(',');
@@ -32,22 +32,22 @@ export function toCSV(rows: Record<string, unknown>[], columns?: string[]): stri
 }
 
 /** Convert an array of objects to pretty-printed JSON string */
-export function toJSON(rows: Record<string, unknown>[]): string {
+export function toJSON<T extends Record<string, unknown>>(rows: T[]): string {
   return JSON.stringify(rows, null, 2);
 }
 
 /** Fetch all pages of a paginated endpoint and return combined results */
-export async function fetchAllPages(
+export async function fetchAllPages<T extends Record<string, unknown>>(
   baseUrl: string,
   dataKey: string,
   totalKey: string,
   pageSize = 100
-): Promise<Record<string, unknown>[]> {
+): Promise<T[]> {
   const firstRes = await fetch(`${baseUrl}?page=1&limit=${pageSize}`);
   if (!firstRes.ok) throw new Error(`Fetch failed: ${firstRes.status} ${firstRes.statusText}`);
   const first = await firstRes.json();
   const total = first[totalKey] as number;
-  const results: Record<string, unknown>[] = first[dataKey] as Record<string, unknown>[];
+  const results: T[] = (first[dataKey] as T[]);
   const remaining = total - results.length;
 
   if (remaining <= 0) return results;
@@ -63,7 +63,7 @@ export async function fetchAllPages(
   );
 
   for (const page of extra) {
-    results.push(...(page[dataKey] as Record<string, unknown>[]));
+    results.push(...(page[dataKey] as T[]));
   }
   return results;
 }
@@ -71,16 +71,16 @@ export async function fetchAllPages(
 export type ExportFormat = 'csv' | 'json';
 
 /** Main export function: fetch all data, convert, download */
-export async function exportData(options: {
+export async function exportData<T extends Record<string, unknown>>(options: {
   baseUrl: string;
   dataKey: string;
   totalKey: string;
   filename: string;
   format: ExportFormat;
   columns?: string[];
-  transform?: (row: Record<string, unknown>) => Record<string, unknown>;
+  transform?: (row: T) => T;
 }) {
-  const rows = await fetchAllPages(options.baseUrl, options.dataKey, options.totalKey);
+  const rows = await fetchAllPages<T>(options.baseUrl, options.dataKey, options.totalKey);
   const mapped = options.transform ? rows.map(options.transform) : rows;
 
   if (options.format === 'csv') {
